@@ -113,7 +113,7 @@ CREATE TABLE participant (
 -- 프로젝트
 CREATE TABLE project (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    code VARCHAR(255) NOT NULL,
+    code VARCHAR(255) NOT NULL UNIQUE,
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     created_at DATETIME NOT NULL,
