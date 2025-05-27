@@ -34,8 +34,17 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // s3 버킷 연결을 위한 설정
     implementation platform('com.amazonaws:aws-java-sdk-bom:1.12.261')
     implementation 'com.amazonaws:aws-java-sdk-s3'
+
+    //필기. 테스트 코드에서도 롬복 적용(로그 기능 활용을 위한 추 가)
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    // https://mvnrepository.com/artifact/org.assertj/assertj-core
+    testImplementation 'org.assertj:assertj-core:3.26.3'
 }
 
 tasks.named('test') {
