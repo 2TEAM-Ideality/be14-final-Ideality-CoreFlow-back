@@ -34,6 +34,21 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // jwt 의존성 추가
+    // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-impl
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-jackson
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // smtp를 위한 이메일 의존성 도입
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    // 멀티테넌시 설정을 위한 추가
+    implementation 'org.hibernate.orm:hibernate-core'
+    implementation 'org.mariadb.jdbc:mariadb-java-client'
 }
 
 tasks.named('test') {
