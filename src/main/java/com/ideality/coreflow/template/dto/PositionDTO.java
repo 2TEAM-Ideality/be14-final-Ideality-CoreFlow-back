@@ -13,3 +13,5 @@ public class PositionDTO {
 	private int x;
 	private int y;
 }
+
+// todo. 태스크 생성에서 공통으로 사용하면 될 듯 -> 폴더 구조 얘기할 것

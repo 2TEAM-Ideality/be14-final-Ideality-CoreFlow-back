@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ideality.coreflow.common.response.APIResponse;
-import com.ideality.coreflow.template.dto.TemplateDTO;
+import com.ideality.coreflow.template.dto.TemplateResponseDTO;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,7 +17,7 @@ public class TemplateController {
 
 	// TODO. 템플릿 목록 조회
 	@GetMapping("/")
-	public ResponseEntity<APIResponse<TemplateDTO>> getTemplates(){
+	public ResponseEntity<APIResponse<TemplateResponseDTO>> getTemplates(){
 
 	}
 

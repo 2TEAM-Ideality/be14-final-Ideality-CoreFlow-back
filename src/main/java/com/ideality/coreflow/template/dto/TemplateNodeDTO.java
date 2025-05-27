@@ -17,3 +17,5 @@ public class TemplateNodeDTO {
 
 	private TemplateNodeDataDTO data; 	// 노드 데이터 내용
 }
+
+
