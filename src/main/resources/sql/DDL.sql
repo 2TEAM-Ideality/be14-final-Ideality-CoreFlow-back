@@ -16,8 +16,8 @@ CREATE TABLE user (
     resign_date DATE,
     profile_image TEXT,
     dept_name VARCHAR(255) NOT NULL,
-    job_rank_name VARCHAR(255) NOT NULL,        -- 직위 명
-    job_role_name VARCHAR(255)                  -- 직책 명
+    job_rank_name VARCHAR(255) NOT NULL,                -- 직위 명
+    job_role_name VARCHAR(255) NOT NULL DEFAULT '사원'   -- 직책 명
 );
 
 -- 직책
@@ -50,7 +50,7 @@ CREATE TABLE user_of_role (
     user_id BIGINT NOT NULL,
     role_id BIGINT NOT NULL,
     CONSTRAINT FOREIGN KEY (user_id) REFERENCES user(id),
-    CONSTRAINT FOREIGN KEY (role_id) REFERENCES role(id)
+    CONSTRAINT FOREIGN KEY (role_id) REFERENCES role(id) ON DELETE CASCADE
 );
 
 -- 휴일
@@ -84,7 +84,7 @@ CREATE TABLE notification_recipients (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     notification_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
-    CONSTRAINT FOREIGN KEY (notification_id) REFERENCES notification(id),
+    CONSTRAINT FOREIGN KEY (notification_id) REFERENCES notification(id) ON DELETE CASCADE,
     CONSTRAINT FOREIGN KEY (user_id) REFERENCES user(id)
 );
 
@@ -98,7 +98,10 @@ CREATE TABLE template (
     duration INT NOT NULL,
     task_count INT NOT NULL,
     created_by BIGINT NOT NULL,
-    CONSTRAINT FOREIGN KEY (created_by) REFERENCES user(id)
+    updated_by BIGINT NOT NULL,
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    CONSTRAINT FOREIGN KEY (created_by) REFERENCES user(id),
+    CONSTRAINT FOREIGN KEY (updated_by) REFERENCES user(id)
 );
 
 -- 참여 인원
@@ -130,7 +133,8 @@ CREATE TABLE project (
     template_id BIGINT,
     CONSTRAINT FOREIGN KEY (template_id) REFERENCES template(id),
     CHECK (progress_rate BETWEEN 0 AND 100),
-    CHECK (passed_rate BETWEEN 0 AND 100)
+    CHECK (passed_rate BETWEEN 0 AND 100),
+    CHECK (status IN ('PENDING', 'PROGRESS', 'COMPLETED', 'DELETED', 'CANCELLED'))
 );
 
 -- 작업
@@ -152,10 +156,11 @@ CREATE TABLE work (
     slack_time INT NOT NULL DEFAULT 0,
     parent_task_id BIGINT,
     project_id BIGINT NOT NULL,
-    CONSTRAINT FOREIGN KEY (parent_task_id) REFERENCES work(id),
-    CONSTRAINT FOREIGN KEY (project_id) REFERENCES project(id),
+    CONSTRAINT FOREIGN KEY (parent_task_id) REFERENCES work(id) ON DELETE CASCADE ,
+    CONSTRAINT FOREIGN KEY (project_id) REFERENCES project(id) ON DELETE CASCADE,
     CHECK (progress_rate BETWEEN 0 AND 100),
-    CHECK (passed_rate BETWEEN 0 AND 100)
+    CHECK (passed_rate BETWEEN 0 AND 100),
+    CHECK (status IN ('PENDING', 'PROGRESS', 'COMPLETED', 'DELETED'))
 );
 
 -- 작업간 관계
@@ -163,8 +168,8 @@ CREATE TABLE relation (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     prev_work_id BIGINT NOT NULL,
     next_work_id BIGINT NOT NULL,
-    CONSTRAINT FOREIGN KEY (prev_work_id) REFERENCES work(id),
-    CONSTRAINT FOREIGN KEY (next_work_id) REFERENCES work(id)
+    CONSTRAINT FOREIGN KEY (prev_work_id) REFERENCES work(id) ON DELETE CASCADE,
+    CONSTRAINT FOREIGN KEY (next_work_id) REFERENCES work(id) ON DELETE CASCADE
 );
 
 -- 작업별 참여 부서
@@ -172,7 +177,8 @@ CREATE TABLE work_dept (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     work_id BIGINT NOT NULL,
     dept_id BIGINT NOT NULL,
-    CONSTRAINT FOREIGN KEY (work_id) REFERENCES work(id),
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE
+    CONSTRAINT FOREIGN KEY (work_id) REFERENCES work(id) ON DELETE CASCADE,
     CONSTRAINT FOREIGN KEY (dept_id) REFERENCES dept(id)
 );
 
@@ -202,7 +208,7 @@ CREATE TABLE repeat_rule (
     by_day VARCHAR(255),
     by_month_day INT,
     by_set_pos INT,
-    CONSTRAINT FOREIGN KEY (schedule_id) REFERENCES schedule(id),
+    CONSTRAINT FOREIGN KEY (schedule_id) REFERENCES schedule(id) ON DELETE CASCADE,
     CHECK (frequency IN ('DAILY', 'WEEKLY', 'MONTHLY'))
 );
 
@@ -218,7 +224,7 @@ CREATE TABLE user_project_schedule (
 CREATE TABLE comment (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     content VARCHAR(255) NOT NULL,
-    is_delete BOOLEAN NOT NULL DEFAULT FALSE,
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     is_notice BOOLEAN NOT NULL DEFAULT FALSE,
     type VARCHAR(255) NOT NULL DEFAULT 'COMMENT',
     work_id BIGINT NOT NULL,
@@ -242,9 +248,9 @@ CREATE TABLE payment (
     approved_at DATETIME,
     work_id BIGINT,
     CONSTRAINT FOREIGN KEY (user_id) REFERENCES user(id),
-    CONSTRAINT FOREIGN KEY (work_id) REFERENCES work(id),
+    CONSTRAINT FOREIGN KEY (work_id) REFERENCES work(id) ,
     CHECK (type IN ('GENERAL', 'DELIVERABLE','DELAY')),
-    CHECK (status IN ('PENDING', 'REVIEWING', 'APPROVED', 'REJECTED', 'CANCELLED'))
+    CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'))
 );
 
 -- 결재 참여자
