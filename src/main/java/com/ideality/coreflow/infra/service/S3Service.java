@@ -4,7 +4,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
@@ -48,4 +50,21 @@ public class S3Service {
     private String generateKey(String fileName, String folder) {
         return folder + "/" + fileName;
     }
+
+    // json 업로더
+    public String uploadJson(String jsonContent, String folder, String fileName) {
+        String key = generateKey(fileName, folder);
+        byte[] contentBytes = jsonContent.getBytes(StandardCharsets.UTF_8);
+
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentType("application/json");
+        metadata.setContentLength(contentBytes.length);
+
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(contentBytes);
+
+        amazonS3Client.putObject(new PutObjectRequest(bucketName, key, inputStream, metadata));
+
+        return amazonS3Client.getUrl(bucketName, key).toString();  // 전체 URL 반환
+    }
+
 }

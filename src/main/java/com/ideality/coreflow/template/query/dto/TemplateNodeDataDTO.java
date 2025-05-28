@@ -19,6 +19,6 @@ public class TemplateNodeDataDTO {
 	private String label; 			// 태스크명
 	private String description; 	// 설명
 	private List<String> deptList; 	// 참여 부서 목록	
-	private LocalDateTime startBaseLine;		// 시작 베이스라인
-	private LocalDateTime endBaseLine;			// 마감 베이스라인
+	private String startBaseLine;		// 시작 베이스라인
+	private String endBaseLine;			// 마감 베이스라인
 }

@@ -8,38 +8,51 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name="template")
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class TemplateEntity {
+
+	@Getter
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="id")
 	private Long id;		// 템플릿 아이디
 
-	@Column
+	@Column(name="name")
 	private String name; 	// 템플릿 이름
 
+	@Column(name="description")
 	private String description; 	// 템플릿 설명
 
+	@Column(name="created_at", nullable=false, updatable=false)
 	private LocalDateTime createdAt;	// 생성일
+
+	@Column(name="updated_at")
 	private LocalDateTime updatedAt;	// 수정일
 
-	private int duration; 			// 소요일
-	
-	private int tastCount;			// 전체 태스크 개수
-
 	// TODO. 회원이랑 엮어야 함.
-	private int createdBy;			// 생성자
-	private int updatedBy;			// 수정자
+	@Column(name="created_by", nullable=false, updatable=false)
+	private Long createdBy;			// 생성자
 
-	private boolean isDeleted; 		// 삭제 여부
+	@Column(name="updated_by")
+	private Long updatedBy;			// 수정자
+
+	@Column(name="duration", nullable=false)
+	private int duration; 			// 소요일
+
+	@Column(name="task_count", nullable=false)
+	private int taskCount;			// 전체 태스크 개수
+
+	@Column(name="is_deleted", nullable=false )
+	private boolean isDeleted = false; 		// 삭제 여부
 
 }
+

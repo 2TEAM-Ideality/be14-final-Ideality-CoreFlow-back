@@ -26,19 +26,9 @@ public class TemplateListResponseDTO {
 	private String createdBy;			// 생성자
 
 	private int duration; 		// 총 소요일
-	private int totalTasks; 	// 전체 태스크 개수
+	private int taskCount; 	// 전체 태스크 개수
 	private int usingProjects; 	// 사용 중인 프로젝트 개수
 
 	private List<String> deptList; // 참여 부서 목록
 
 }
-
-//
-// {
-// 	"id": 1,
-// 	"name": "샘플 템플릿",
-// 	"description": "제품 출시 전 프로세스",
-// 	"nodeList": [...],   // TemplateNodeDTO[]
-// 	"edgeList": [...]    // EdgeDTO[]
-// 	}
-
