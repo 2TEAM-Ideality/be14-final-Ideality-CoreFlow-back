@@ -28,7 +28,7 @@ public class TemplateQueryServiceImpl  implements TemplateQueryService{
 	}
 
 	@Override
-	public TemplateDetailDBDTO getTemplateDetail(Integer templateId) {
+	public TemplateDetailDBDTO getTemplateDetail(Long templateId) {
 		// if (detail == null) {
 		// 	throw new BaseException(ErrorCode.TEMPLATE_NOT_FOUND);
 		// }

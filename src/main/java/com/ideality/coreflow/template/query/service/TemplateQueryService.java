@@ -9,5 +9,5 @@ public interface TemplateQueryService {
 
 	List<TemplateListResponseDTO> getAllTemplates();
 
-	TemplateDetailDBDTO getTemplateDetail(Integer templateId);
+	TemplateDetailDBDTO getTemplateDetail(Long templateId);
 }

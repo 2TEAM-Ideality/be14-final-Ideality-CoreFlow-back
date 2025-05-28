@@ -22,10 +22,9 @@ public class TemplateController {
 	// TODO. 템플릿 생성
 	@PostMapping("")
 	public ResponseEntity<APIResponse<?>> createTemplate(@RequestBody RequestCreateTemplateDTO requestDTO){
-
 		templateCommandService.createTemplate(requestDTO);
 		return ResponseEntity.ok(
-			APIResponse.success(null, "템플릿이 성공적으로 생성되었습니다.")
+			APIResponse.success(null, "템플릿이 성공적으로 생성되었습니다.✅")
 		);
 	}
 

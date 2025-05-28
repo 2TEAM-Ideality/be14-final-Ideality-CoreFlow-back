@@ -23,11 +23,11 @@
             u.name AS created_by,
             t.duration,
             t.task_count,
-        (
+            (
             SELECT COUNT(*)
             FROM project p
             WHERE p.template_id = t.id
-        ) AS using_projects
+            ) AS using_projects
 
         FROM TEMPLATE t
         JOIN user u ON t.created_by = u.id
@@ -48,7 +48,7 @@
         <result property="url" column="URL" />
     </resultMap>
 
-    <select id="selectTemplateDetail" parameterType="int" resultMap="templateDetailResultMap">
+    <select id="selectTemplateDetail" parameterType="_long" resultMap="templateDetailResultMap">
         SELECT
             t.id AS ID,
             t.name AS NAME,

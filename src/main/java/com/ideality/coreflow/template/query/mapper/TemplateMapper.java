@@ -11,5 +11,5 @@ public interface TemplateMapper {
 
 	List<TemplateListResponseDTO> selectAllTemplates();
 
-	TemplateDetailDBDTO selectTemplateDetail(Integer templateId);
+	TemplateDetailDBDTO selectTemplateDetail(Long templateId);
 }
