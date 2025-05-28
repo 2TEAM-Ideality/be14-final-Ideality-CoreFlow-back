@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.ideality.coreflow.template.query.dto.TemplateDetailDBDTO;
+import com.ideality.coreflow.template.query.dto.TemplateDetailDTO;
 import com.ideality.coreflow.template.query.dto.TemplateListResponseDTO;
 import com.ideality.coreflow.template.query.mapper.TemplateMapper;
 
@@ -28,10 +28,7 @@ public class TemplateQueryServiceImpl  implements TemplateQueryService{
 	}
 
 	@Override
-	public TemplateDetailDBDTO getTemplateDetail(Long templateId) {
-		// if (detail == null) {
-		// 	throw new BaseException(ErrorCode.TEMPLATE_NOT_FOUND);
-		// }
+	public TemplateDetailDTO getTemplateDetail(Long templateId) {
 		return templateMapper.selectTemplateDetail(templateId);
 	}
 }

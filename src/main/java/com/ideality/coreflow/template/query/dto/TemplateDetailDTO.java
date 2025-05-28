@@ -1,7 +1,6 @@
 package com.ideality.coreflow.template.query.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +11,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TemplateDetailDBDTO {
+public class TemplateDetailDTO {
 	// 템플릿 디테일 정보 조회
 	private int id;			// 템플릿 아이디
 	private String name;	// 템플릿 이름

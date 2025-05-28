@@ -3,7 +3,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import com.ideality.coreflow.template.query.dto.TemplateDetailDBDTO;
+import com.ideality.coreflow.template.query.dto.TemplateDetailDTO;
 import com.ideality.coreflow.template.query.dto.TemplateListResponseDTO;
 
 @Mapper
@@ -11,5 +11,5 @@ public interface TemplateMapper {
 
 	List<TemplateListResponseDTO> selectAllTemplates();
 
-	TemplateDetailDBDTO selectTemplateDetail(Long templateId);
+	TemplateDetailDTO selectTemplateDetail(Long templateId);
 }

@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ideality.coreflow.attachment.command.domain.aggregate.AttachmentEntity;
 import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
 import com.ideality.coreflow.attachment.command.domain.repository.AttachmentRepository;
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.service.S3Service;
 import com.ideality.coreflow.template.command.domain.aggregate.RequestCreateTemplateDTO;
 import com.ideality.coreflow.template.command.domain.aggregate.TemplateEntity;
@@ -28,12 +30,51 @@ public class TemplateCommandServiceImpl implements TemplateCommandService {
 	private final TemplateRepository templateRepository;
 	private final AttachmentRepository attachmentRepository;
 	private final S3Service s3Service;
+	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	@Override
 	@Transactional
 	public void createTemplate(RequestCreateTemplateDTO requestDTO) {
 
 		// 1. 템플릿 DB 저장
+		TemplateEntity newTemplate = buildTemplateEntity(requestDTO);
+		saveTemplateOrThrow(newTemplate);
+
+		// 2. JSON 직렬화
+		String json = serializeJsonOrThrow(requestDTO);
+
+		// 3. 파일명 및 폴더 경로 지정
+		String fileName = newTemplate.getId() + ".json";
+		String folder = "template-json";
+
+		// 4. S3에 업로드
+		String fileUrl = uploadToS3OrThrow(json, folder, fileName);
+
+		// 5. DB 저장 (AttachmentEntity 생성)
+		// 5. 첨부파일 엔티티 저장
+		AttachmentEntity attachment = buildAttachmentEntity(
+			newTemplate,
+			fileName,
+			fileUrl,
+			requestDTO.getCreatedBy(),
+			json);
+		saveAttachmentOrThrow(attachment);
+
+	}
+
+
+	// S3 업로드
+	private String uploadToS3OrThrow(String json, String folder, String fileName) {
+		try {
+			return s3Service.uploadJson(json, folder, fileName);
+		} catch (Exception e) {
+			log.error("S3 업로드 실패", e);
+			throw new BaseException(ErrorCode.S3_UPLOAD_FAILED);
+		}
+	}
+
+	// ReuqestDTO -> TemplateEntity
+	private TemplateEntity buildTemplateEntity(RequestCreateTemplateDTO requestDTO) {
 		TemplateEntity newTemplate = TemplateEntity.builder()
 			.name(requestDTO.getName())
 			.description(requestDTO.getDescription())
@@ -45,42 +86,55 @@ public class TemplateCommandServiceImpl implements TemplateCommandService {
 			.duration(requestDTO.getDuration())
 			.isDeleted(false)
 			.build();
-		templateRepository.save(newTemplate);
+		return newTemplate;
+	}
 
-		Long templateId = newTemplate.getId();		// 새로 생성된 템플릿 아이디
-
-		// 2. JSON 문자열 생성
-		String jsonString = null;
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			jsonString = mapper.writeValueAsString(
-				Map.of("nodeList", requestDTO.getNodeList(), "edgeList", requestDTO.getEdgeList())
-			);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
-		}
-
-		// 3. 업로드용 파일명 및 폴더 지정
-		String templateIdFileName = templateId + ".json";
-		String folder = "template-json";
-
-		// 4. S3에 업로드
-		String fileUrl = s3Service.uploadJson(jsonString, folder, templateIdFileName);
-
-		// 5. DB 저장 (AttachmentEntity 생성)
-		AttachmentEntity newFile = AttachmentEntity.builder()
-			.originName("template.json") // 사용자에게 보일 이름 (원본명)
-			.storedName(templateIdFileName) // 실제 저장된 이름
-			.url(fileUrl)
+	// JSON ->  AttachmentEntity
+	private AttachmentEntity buildAttachmentEntity(TemplateEntity template, String fileName, String url, Long uploaderId, String content) {
+		return AttachmentEntity.builder()
+			.originName("template.json")
+			.storedName(fileName)
+			.url(url)
 			.fileType("application/json")
-			.size(String.valueOf(jsonString.getBytes(StandardCharsets.UTF_8).length))
+			.size(String.valueOf(content.getBytes(StandardCharsets.UTF_8).length))
 			.uploadAt(LocalDateTime.now())
 			.targetType(FileTargetType.TEMPLATE)
-			.targetId(newTemplate.getId())
-			.uploaderId(requestDTO.getCreatedBy())
+			.targetId(template.getId())
+			.uploaderId(uploaderId)
 			.build();
-
-		attachmentRepository.save(newFile);
-
 	}
+
+	// Template DB 저장
+	private void saveTemplateOrThrow(TemplateEntity newTemplate) {
+		try {
+			templateRepository.save(newTemplate);
+		} catch (Exception e) {
+			log.error("템플릿 저장 실패", e);
+			throw new BaseException(ErrorCode.DATABASE_ERROR);
+		}
+	}
+
+	// 첨부 파일 DB 저장
+	private void saveAttachmentOrThrow(AttachmentEntity attachment) {
+		try {
+			attachmentRepository.save(attachment);
+		} catch (Exception e) {
+			log.error("첨부파일 DB 저장 실패", e);
+			throw new BaseException(ErrorCode.DATABASE_ERROR);
+		}
+	}
+
+	// JSON 직렬화
+	private String serializeJsonOrThrow(RequestCreateTemplateDTO requestDTO) {
+		try {
+			return objectMapper.writeValueAsString(Map.of(
+				"nodeList", requestDTO.getNodeList(),
+				"edgeList", requestDTO.getEdgeList()
+			));
+		} catch (JsonProcessingException e) {
+			log.error("JSON 직렬화 실패", e);
+			throw new BaseException(ErrorCode.JSON_SERIALIZATION_ERROR);
+		}
+	}
+
 }

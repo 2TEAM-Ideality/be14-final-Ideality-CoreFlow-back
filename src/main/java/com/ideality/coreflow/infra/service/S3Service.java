@@ -51,7 +51,7 @@ public class S3Service {
         return folder + "/" + fileName;
     }
 
-    // json 업로더
+    /* JSON 업로더 */
     public String uploadJson(String jsonContent, String folder, String fileName) {
         String key = generateKey(fileName, folder);
         byte[] contentBytes = jsonContent.getBytes(StandardCharsets.UTF_8);
