@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ideality.coreflow.template.query.mapper.TemplateMapper">
+    <resultMap id="templateListResultMap" type="com.ideality.coreflow.template.query.dto.TemplateListResponseDTO">
+        <id property="id" column="ID"/>
+        <result property="createdAt" column="CREATED_AT" />
+        <result property="reportType" column="REPORT_TYPE"/>
+        <result property="reportedId" column="REPORTED_ID"/>
+        <result property="content" column="CONTENT"/>
+        <result property="status" column="STATUS"/>
+        <result property="memberId" column="MEMBER_ID"/>
+        <result property="reportReasonId" column="REPORT_REASON_ID"/>
+    </resultMap>
+
+</mapper>
