@@ -4,13 +4,9 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 // dataSource 생성만
 @Slf4j
@@ -18,14 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class TenantDataSourceProvider {
     private final TenantDataSourceProperties tenantProps;
-    private final Map<Object, Object> dataSourceMap = new ConcurrentHashMap<>();
 
     public DataSource createDataSource(String schemaName) {
-
-        if(dataSourceMap.containsKey(schemaName)) {
-            log.info("DataSource {} already exists", schemaName);
-            return (DataSource) dataSourceMap.get(schemaName);
-        }
 
         log.info("Creating new DataSource for schemaName: {}", schemaName);
 

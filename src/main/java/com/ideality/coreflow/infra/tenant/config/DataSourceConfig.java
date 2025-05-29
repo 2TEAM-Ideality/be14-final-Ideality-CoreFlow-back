@@ -28,10 +28,9 @@ public class DataSourceConfig {
         TenantRoutingDataSource routingDataSource = new TenantRoutingDataSource(tenantDataSourceProvider);
 
         routingDataSource.setDefaultTargetDataSource(masterDataSource());
-//
+
         routingDataSource.setTargetDataSources(new HashMap<>()); // 빈으로 등록 후 런타임에 동적 구성 가능
-//
-//        routingDataSource.afterPropertiesSet();
+
         return routingDataSource;
     }
 

@@ -1,11 +1,7 @@
 package com.ideality.coreflow.infra.tenant.config;
 
-import com.ideality.coreflow.common.exception.BaseException;
-import com.ideality.coreflow.common.exception.ErrorCode;
-import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
-import org.springframework.lang.NonNull;
 
 import javax.sql.DataSource;
 import java.util.HashMap;

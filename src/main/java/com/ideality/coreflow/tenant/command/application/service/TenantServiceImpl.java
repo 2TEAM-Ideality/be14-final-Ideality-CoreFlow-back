@@ -2,7 +2,6 @@ package com.ideality.coreflow.tenant.command.application.service;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
-import com.ideality.coreflow.common.tenant.config.TenantDataSourceProvider;
 import com.ideality.coreflow.tenant.command.domain.aggregate.ErpMaster;
 import com.ideality.coreflow.tenant.command.domain.repository.TenantRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 public class TenantServiceImpl implements TenantService {
 
     private final TenantRepository tenantRepository;
-    private final TenantDataSourceProvider tenantDataSourceProvider;
 
     @Override
     public String findSchemaNameByCompanyCode(String companyCode) {
