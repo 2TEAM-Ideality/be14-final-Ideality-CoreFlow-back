@@ -1,4 +1,4 @@
-package com.ideality.coreflow.common.tenant.config;
+package com.ideality.coreflow.infra.tenant.config;
 
 public class TenantContext {
     private static final ThreadLocal<String> CURRENT_TENANT = new ThreadLocal<>();
