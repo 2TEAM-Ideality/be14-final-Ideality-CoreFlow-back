@@ -1,4 +1,4 @@
-package com.ideality.coreflow.payment.domain.aggregate;
+package com.ideality.coreflow.approval.domain.aggregate;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,24 +9,34 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "payment_participant")
+@Table(name = "approval")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
-public class PaymentParticipant {
+public class Approval {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "payment_id")
-    private Long paymentId;
-
     @Column(name = "user_id")
     private Long userId;
 
-    private Role role;
+    private String title;
+
+    private Type type;
+
+    private Status status;
+
+    private String content;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "approved_at")
+    private LocalDateTime approvedAt;
+
+    @Column(name = "work_id")
+    private Long workId;
 }

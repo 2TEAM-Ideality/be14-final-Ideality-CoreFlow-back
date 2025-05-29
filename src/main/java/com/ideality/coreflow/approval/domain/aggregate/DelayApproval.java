@@ -1,4 +1,4 @@
-package com.ideality.coreflow.payment.domain.aggregate;
+package com.ideality.coreflow.approval.domain.aggregate;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,12 +7,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "delay_payment")
+@Table(name = "delay_approval")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
-public class DelayPayment {
+public class DelayApproval {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,5 +27,5 @@ public class DelayPayment {
     private Long delayReasonId;
 
     @Column(name = "payment_id")
-    private Long paymentId;
+    private Long ApprovalId;
 }

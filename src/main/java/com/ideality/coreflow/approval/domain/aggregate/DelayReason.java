@@ -1,4 +1,4 @@
-package com.ideality.coreflow.payment.domain.aggregate;
+package com.ideality.coreflow.approval.domain.aggregate;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "delay_payment")
+@Table(name = "delay_approval")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
