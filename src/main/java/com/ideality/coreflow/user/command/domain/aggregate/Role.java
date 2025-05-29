@@ -24,6 +24,10 @@ public class Role {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private RoleType type;
+
     @OneToMany(mappedBy = "roleId")
     private Set<UserOfRole> userRoles = new HashSet<>();
 }

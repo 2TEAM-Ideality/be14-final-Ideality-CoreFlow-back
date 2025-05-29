@@ -32,16 +32,12 @@ public class Comment {
     @Enumerated(EnumType.STRING)
     private CommentType type = CommentType.COMMENT;
 
-    // 연관관계: 다대일 (여러 댓글 → 하나의 작업)
-    @JoinColumn(name = "work_id", nullable = false)
-    private Work work;
+    @Column(name = "work_id", nullable = false)
+    private Long workId;
 
-    // 연관관계: 다대일 (여러 댓글 → 하나의 유저)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
-    // 연관관계: 자기 자신과의 계층 (대댓글)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_comment_id")
-    private Comment parent;
+    @Column(name = "parent_comment_id")
+    private Long parentCommentId;
 }

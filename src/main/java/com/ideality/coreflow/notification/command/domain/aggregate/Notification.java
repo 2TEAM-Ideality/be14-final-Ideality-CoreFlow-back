@@ -43,7 +43,7 @@ public class Notification {
     private boolean isAutoDelete = false;
 
     public enum TargetType {
-        PAYMENT, PROJECT, WORK, SCHEDULE
+        APPROVAL, PROJECT, WORK, SCHEDULE
     }
 
     public enum NotificationStatus {
