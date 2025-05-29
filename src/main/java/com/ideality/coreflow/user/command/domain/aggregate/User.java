@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "user")
@@ -55,4 +57,7 @@ public class User {
 
     @Column(name = "job_role_name", nullable = false)
     private String jobRoleName = "사원";
+
+    @OneToMany(mappedBy = "userId")
+    private Set<UserOfRole> userRoles = new HashSet<>();
 }
