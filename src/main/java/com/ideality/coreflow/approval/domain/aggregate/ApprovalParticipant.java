@@ -20,7 +20,7 @@ public class ApprovalParticipant {
     private Long id;
 
     @Column(name = "approval_id")
-    private Long paymentId;
+    private Long approvalId;
 
     @Column(name = "user_id")
     private Long userId;
