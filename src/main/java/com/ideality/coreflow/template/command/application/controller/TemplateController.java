@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ideality.coreflow.common.response.APIResponse;
-import com.ideality.coreflow.template.command.application.service.TemplateCommandService;
+import com.ideality.coreflow.template.command.application.service.TemplateCommandFacadeService;
 import com.ideality.coreflow.template.command.application.dto.RequestCreateTemplateDTO;
 
 import lombok.RequiredArgsConstructor;
@@ -17,12 +17,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TemplateController {
 
-	private final TemplateCommandService templateCommandService;
+	private final TemplateCommandFacadeService templateCommandFacadeService;
 
 	// TODO. 템플릿 생성
 	@PostMapping("")
 	public ResponseEntity<APIResponse<?>> createTemplate(@RequestBody RequestCreateTemplateDTO requestDTO){
-		templateCommandService.createTemplate(requestDTO);
+		templateCommandFacadeService.createTemplate(requestDTO);
 		return ResponseEntity.ok(
 			APIResponse.success(null, "템플릿이 성공적으로 생성되었습니다.✅")
 		);
