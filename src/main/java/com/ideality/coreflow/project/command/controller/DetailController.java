@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Date;
-
 @RestController
 @RequestMapping("/detail")
 public class DetailController {
@@ -24,18 +22,7 @@ public class DetailController {
 
     @PostMapping("/create")
     public Work createWorkWithDeptAndParticipants(@RequestBody DetailRequest detailRequest) {
-
-        Work work = new Work();
-        work.setName(detailRequest.getName());
-        work.setDescription(detailRequest.getDescription());
-        work.setCreatedAt(new Date());
-        work.setStartBase(detailRequest.getStartBase());
-        work.setEndBase(detailRequest.getEndBase());
-        work.setProgressRate(0.0);
-        work.setPassedRate(0.0);
-        work.setStatus("PENDING");
-
-        // 부서 ID와 사용자 ID를 받아서 작업 생성
-        return detailService.createWorkWithDeptAndParticipants(work, detailRequest.getDeptId(), detailRequest.getUserId());
+        // DTO를 서비스에 전달하고 엔티티 처리 로직을 서비스에서 관리
+        return detailService.createWorkWithDeptAndParticipants(detailRequest);
     }
 }
