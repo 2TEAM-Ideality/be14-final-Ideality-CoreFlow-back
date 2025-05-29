@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.common.response.APIResponse;
-import com.ideality.coreflow.template.query.dto.TemplateDetailDTO;
-import com.ideality.coreflow.template.query.dto.TemplateListResponseDTO;
+import com.ideality.coreflow.template.query.dto.RequestTemplateDetailDTO;
+import com.ideality.coreflow.template.query.dto.ResponseTemplateListDTO;
 import com.ideality.coreflow.template.query.service.TemplateQueryService;
 
 import lombok.RequiredArgsConstructor;
@@ -26,8 +26,8 @@ public class TemplateController {
 
 	// TODO. 템플릿 목록 조회
 	@GetMapping("/list")
-	public ResponseEntity<APIResponse<List<TemplateListResponseDTO>>> getTemplates(){
-		List<TemplateListResponseDTO> templates = templateQueryService.getAllTemplates();
+	public ResponseEntity<APIResponse<List<ResponseTemplateListDTO>>> getTemplates(){
+		List<ResponseTemplateListDTO> templates = templateQueryService.getAllTemplates();
 		return ResponseEntity.ok(
 			APIResponse.success(templates, "템플릿 목록 조회 성공 ✅")
 		);
@@ -35,8 +35,8 @@ public class TemplateController {
 
 	// TODO. 템플릿 상세 조회
 	@GetMapping("/{templateId}")
-	public ResponseEntity<APIResponse<TemplateDetailDTO>> getTemplateDetail(@PathVariable("templateId") Long templateId){
-		TemplateDetailDTO template = templateQueryService.getTemplateDetail(templateId);
+	public ResponseEntity<APIResponse<RequestTemplateDetailDTO>> getTemplateDetail(@PathVariable("templateId") Long templateId){
+		RequestTemplateDetailDTO template = templateQueryService.getTemplateDetail(templateId);
 
 		if(template == null){
 			throw new BaseException(ErrorCode.TEMPLATE_NOT_FOUND);

@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TemplateEntity {
+public class Template {
 
 	@Getter
 	@Id

@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AttachmentEntity {
+public class Attachment {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

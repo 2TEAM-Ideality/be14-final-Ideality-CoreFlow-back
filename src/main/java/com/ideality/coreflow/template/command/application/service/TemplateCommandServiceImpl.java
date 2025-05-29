@@ -9,14 +9,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ideality.coreflow.attachment.command.domain.aggregate.AttachmentEntity;
+import com.ideality.coreflow.attachment.command.domain.aggregate.Attachment;
 import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
 import com.ideality.coreflow.attachment.command.domain.repository.AttachmentRepository;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.service.S3Service;
 import com.ideality.coreflow.template.command.domain.aggregate.RequestCreateTemplateDTO;
-import com.ideality.coreflow.template.command.domain.aggregate.TemplateEntity;
+import com.ideality.coreflow.template.command.domain.aggregate.Template;
 import com.ideality.coreflow.template.command.domain.repository.TemplateRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -37,7 +37,7 @@ public class TemplateCommandServiceImpl implements TemplateCommandService {
 	public void createTemplate(RequestCreateTemplateDTO requestDTO) {
 
 		// 1. 템플릿 DB 저장
-		TemplateEntity newTemplate = buildTemplateEntity(requestDTO);
+		Template newTemplate = buildTemplateEntity(requestDTO);
 		saveTemplateOrThrow(newTemplate);
 
 		// 2. JSON 직렬화
@@ -52,7 +52,7 @@ public class TemplateCommandServiceImpl implements TemplateCommandService {
 
 		// 5. DB 저장 (AttachmentEntity 생성)
 		// 5. 첨부파일 엔티티 저장
-		AttachmentEntity attachment = buildAttachmentEntity(
+		Attachment attachment = buildAttachmentEntity(
 			newTemplate,
 			fileName,
 			fileUrl,
@@ -74,8 +74,8 @@ public class TemplateCommandServiceImpl implements TemplateCommandService {
 	}
 
 	// ReuqestDTO -> TemplateEntity
-	private TemplateEntity buildTemplateEntity(RequestCreateTemplateDTO requestDTO) {
-		TemplateEntity newTemplate = TemplateEntity.builder()
+	private Template buildTemplateEntity(RequestCreateTemplateDTO requestDTO) {
+		Template newTemplate = Template.builder()
 			.name(requestDTO.getName())
 			.description(requestDTO.getDescription())
 			.createdAt(LocalDateTime.now())
@@ -90,8 +90,8 @@ public class TemplateCommandServiceImpl implements TemplateCommandService {
 	}
 
 	// JSON ->  AttachmentEntity
-	private AttachmentEntity buildAttachmentEntity(TemplateEntity template, String fileName, String url, Long uploaderId, String content) {
-		return AttachmentEntity.builder()
+	private Attachment buildAttachmentEntity(Template template, String fileName, String url, Long uploaderId, String content) {
+		return Attachment.builder()
 			.originName("template.json")
 			.storedName(fileName)
 			.url(url)
@@ -105,7 +105,7 @@ public class TemplateCommandServiceImpl implements TemplateCommandService {
 	}
 
 	// Template DB 저장
-	private void saveTemplateOrThrow(TemplateEntity newTemplate) {
+	private void saveTemplateOrThrow(Template newTemplate) {
 		try {
 			templateRepository.save(newTemplate);
 		} catch (Exception e) {
@@ -115,7 +115,7 @@ public class TemplateCommandServiceImpl implements TemplateCommandService {
 	}
 
 	// 첨부 파일 DB 저장
-	private void saveAttachmentOrThrow(AttachmentEntity attachment) {
+	private void saveAttachmentOrThrow(Attachment attachment) {
 		try {
 			attachmentRepository.save(attachment);
 		} catch (Exception e) {
