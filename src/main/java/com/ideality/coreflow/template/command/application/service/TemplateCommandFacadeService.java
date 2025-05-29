@@ -25,7 +25,7 @@ public class TemplateCommandFacadeService {
 	private final TemplateCommandService templateCommandService;
 	private final AttachmentCommandService attachmentCommandService;
 	private final S3Service s3Service;
-	private final ObjectMapper objectMapper = new ObjectMapper();
+	private final ObjectMapper objectMapper;	// Jackson 라이브러리 제공 클래스 (Json 직렬화, 역직렬화에서 사용)
 
 	@Transactional
 	public void createTemplate(RequestCreateTemplateDTO requestDTO) {

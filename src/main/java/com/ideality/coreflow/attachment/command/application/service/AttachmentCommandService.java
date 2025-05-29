@@ -11,6 +11,7 @@ import com.ideality.coreflow.attachment.command.domain.repository.AttachmentRepo
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -19,6 +20,7 @@ public class AttachmentCommandService {
 
 	private final AttachmentRepository attachmentRepository;
 
+	@Transactional
 	public void createAttachmentForTemplate(Long templateId, String fileName, String fileUrl, Long createdBy, String json) {
 		Attachment attachment = Attachment.builder()
 			.originName("template.json")

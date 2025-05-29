@@ -22,7 +22,7 @@ public class AttachmentQueryService {
 	public String getUrl(Long templateId, FileTargetType targetType) {
 		Map<String, Object> paramMap = Map.of(
 			"targetId", templateId,
-			"targetType", targetType.name()  // or .toLowerCase() if needed
+			"targetType", targetType.name()
 		);
 
 		ResponseAttachmentDTO response = attachmentMapper.selectUrl(paramMap);
