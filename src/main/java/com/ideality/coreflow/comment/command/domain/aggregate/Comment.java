@@ -1,4 +1,4 @@
-package com.ideality.coreflow.comment.domain.aggregate;
+package com.ideality.coreflow.comment.command.domain.aggregate;
 
 import jakarta.persistence.*;
 import lombok.*;
