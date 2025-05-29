@@ -59,9 +59,11 @@ public class DataSourceConfig {
         var factory = new LocalContainerEntityManagerFactoryBean();
         factory.setDataSource(dataSource);
         factory.setPackagesToScan(
-                "com.ideality.coreflow.common.tenant",
-                "com.ideality.coreflow.tenant.domain.aggregate",
-                "com.ideality.coreflow.user.command.domain.aggregate"
+            "com.ideality.coreflow.common.tenant",
+            "com.ideality.coreflow.tenant.domain.aggregate",
+            "com.ideality.coreflow.user.command.domain.aggregate",
+            "com.ideality.coreflow.template.command.domain.aggregate",
+            "com.ideality.coreflow.attachment.command.domain.aggregate"
         );
         factory.setJpaVendorAdapter(vendorAdapter);
         factory.setJpaPropertyMap(jpaProperties.getProperties());
