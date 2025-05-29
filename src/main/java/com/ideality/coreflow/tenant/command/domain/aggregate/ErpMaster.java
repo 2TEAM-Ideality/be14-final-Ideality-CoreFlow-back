@@ -1,4 +1,4 @@
-package com.ideality.coreflow.tenant.domain.aggregate;
+package com.ideality.coreflow.tenant.command.domain.aggregate;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
