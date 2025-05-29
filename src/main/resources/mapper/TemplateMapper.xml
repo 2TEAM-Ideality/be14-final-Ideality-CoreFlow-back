@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ideality.coreflow.template.query.mapper.TemplateMapper">
+
+    <!-- 템플릿 목록 조회 -->
+    <resultMap id="templateListResultMap" type="com.ideality.coreflow.template.query.dto.ResponseTemplateListDTO">
+        <id property="id" column="ID"/>
+        <result property="name" column="NAME" />
+        <result property="createdAt" column="CREATED_AT"/>
+        <result property="createdBy" column="CREATED_BY"/>
+        <result property="duration" column="DURATION"/>
+        <result property="taskCount" column="TASK_COUNT"/>
+        <result property="usingProjects" column="USING_PROJECTS"/>
+    </resultMap>
+
+    <select id="selectAllTemplates" resultMap="templateListResultMap">
+        SELECT
+            t.id,
+            t.name,
+            t.created_at,
+            u.name AS created_by,
+            t.duration,
+            t.task_count,
+            (
+            SELECT COUNT(*)
+            FROM project p
+            WHERE p.template_id = t.id
+            ) AS using_projects
+
+        FROM TEMPLATE t
+        JOIN user u ON t.created_by = u.id
+        WHERE t.is_deleted = FALSE;
+    </select>
+
+
+    <!-- 템플릿 상세 정보 조회 -->
+    <resultMap id="templateDetailResultMap" type="com.ideality.coreflow.template.query.dto.RequestTemplateDetailDTO">
+        <id property="id" column="ID"/>
+        <result property="name" column="NAME" />
+        <result property="description" column="DESCRIPTION" />
+        <result property="createdAt" column="CREATED_AT"/>
+        <result property="createdBy" column="CREATED_BY"/>
+        <result property="duration" column="DURATION"/>
+        <result property="taskCount" column="TASK_COUNT"/>
+        <result property="usingProjects" column="USING_PROJECTS"/>
+        <result property="url" column="URL" />
+    </resultMap>
+
+    <select id="selectTemplateDetail" parameterType="_long" resultMap="templateDetailResultMap">
+        SELECT
+            t.id AS ID,
+            t.name AS NAME,
+            t.description AS DESCRIPTION,
+            t.created_at AS CREATED_AT,
+            u.name AS CREATED_BY,
+            t.duration AS DURATION,
+            t.task_count AS TASK_COUNT,
+            (
+            SELECT COUNT(*)
+            FROM project p
+            WHERE p.template_id = t.id
+            ) AS USING_PROJECTS,
+            a.url AS URL
+        FROM template t
+            LEFT JOIN user u ON t.created_by = u.id
+            LEFT JOIN attachment a
+                ON a.target_type = 'TEMPLATE'
+            AND a.target_id = t.id
+        WHERE t.id = #{templateId}
+            AND t.is_deleted = FALSE
+    </select>
+
+
+
+
+
+</mapper>
