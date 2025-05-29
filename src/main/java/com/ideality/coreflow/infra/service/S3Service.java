@@ -70,8 +70,7 @@ public class S3Service {
     /* JSON 파일 다운로드 */
     public String getJsonFile(String url) {
         try {
-            // S3 키 추출 (예: https://bucket.s3.amazonaws.com/template-json/123.json → template-json/123.json)
-            String key = extractKeyFromUrl(url);
+            String key = extractS3KeyFromUrl(url);
 
             // S3 객체 가져오기
             var s3Object = amazonS3Client.getObject(bucketName, key);
@@ -86,13 +85,11 @@ public class S3Service {
     }
 
     // S3 URL → key 추출 (경로만)
-    private String extractKeyFromUrl(String url) {
-        int index = url.indexOf(bucketName);
-        if (index == -1) {
-            throw new IllegalArgumentException("S3 URL에서 키 추출 실패: " + url);
+    private String extractS3KeyFromUrl(String url) {
+        if (url == null || !url.contains(".com/")) {
+            throw new IllegalArgumentException("S3 URL 형식이 잘못되었습니다: " + url);
         }
-        return url.substring(index + bucketName.length() + 1); // '/' 포함 건너뛰기
+        return url.substring(url.indexOf(".com/") + 5);
     }
-
 
 }

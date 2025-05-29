@@ -22,10 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class TemplateQueryFacadeService {
 
-	TemplateMapper templateMapper;
-	AttachmentQueryService attachmentQueryService;
-	S3Service s3Service;
-	ObjectMapper objectMapper;
+	private final TemplateMapper templateMapper;
+	private final AttachmentQueryService attachmentQueryService;
+	private final S3Service s3Service;
+	private final ObjectMapper objectMapper;
 
 	public ResponseTemplateDetailDTO getTemplateDetail(Long templateId) throws JsonProcessingException {
 
@@ -34,7 +34,6 @@ public class TemplateQueryFacadeService {
 		if (templateInfo == null) {
 			throw new RuntimeException("템플릿을 찾을 수 없습니다.");
 		}
-
 
 		// 2. 첨부 파일 테이블에서 URL 가져오기
 		String templateUrl = attachmentQueryService.getUrl(templateId, FileTargetType.TEMPLATE);
