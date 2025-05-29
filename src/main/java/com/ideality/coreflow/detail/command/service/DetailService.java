@@ -3,13 +3,11 @@ package com.ideality.coreflow.detail.command.service;
 import com.ideality.coreflow.detail.command.entity.Dept;
 import com.ideality.coreflow.detail.command.entity.User;
 import com.ideality.coreflow.detail.command.entity.Work;
-import com.ideality.coreflow.detail.command.repository.DeptRepository;
-import com.ideality.coreflow.detail.command.repository.ParticipantRepository;
-import com.ideality.coreflow.detail.command.repository.WorkDeptRepository;
-import com.ideality.coreflow.detail.command.repository.WorkRepository;
+import com.ideality.coreflow.detail.command.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -50,7 +48,6 @@ public class DetailService {
         newWork.setProgressRate(progressRate);
         newWork.setDept(dept);
         newWork.setParentTask(parentTask);
-        newWork.setParticipants(participants);
 
         // 세부 작업 저장
         return workRepository.save(newWork);
