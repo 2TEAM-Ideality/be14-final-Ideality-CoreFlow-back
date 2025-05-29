@@ -67,4 +67,32 @@ public class S3Service {
         return amazonS3Client.getUrl(bucketName, key).toString();  // 전체 URL 반환
     }
 
+    /* JSON 파일 다운로드 */
+    public String getJsonFile(String url) {
+        try {
+            // S3 키 추출 (예: https://bucket.s3.amazonaws.com/template-json/123.json → template-json/123.json)
+            String key = extractKeyFromUrl(url);
+
+            // S3 객체 가져오기
+            var s3Object = amazonS3Client.getObject(bucketName, key);
+            var inputStream = s3Object.getObjectContent();
+
+            // 문자열로 읽기
+            return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            log.error("S3 JSON 파일 다운로드 실패: {}", url, e);
+            throw new RuntimeException("S3 JSON 파일 다운로드 실패", e);
+        }
+    }
+
+    // S3 URL → key 추출 (경로만)
+    private String extractKeyFromUrl(String url) {
+        int index = url.indexOf(bucketName);
+        if (index == -1) {
+            throw new IllegalArgumentException("S3 URL에서 키 추출 실패: " + url);
+        }
+        return url.substring(index + bucketName.length() + 1); // '/' 포함 건너뛰기
+    }
+
+
 }

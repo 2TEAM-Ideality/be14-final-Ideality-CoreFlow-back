@@ -36,7 +36,7 @@
 
 
     <!-- 템플릿 상세 정보 조회 -->
-    <resultMap id="templateDetailResultMap" type="com.ideality.coreflow.template.query.dto.RequestTemplateDetailDTO">
+    <resultMap id="templateDetailResultMap" type="com.ideality.coreflow.template.query.dto.TemplateInfoDTO">
         <id property="id" column="ID"/>
         <result property="name" column="NAME" />
         <result property="description" column="DESCRIPTION" />
