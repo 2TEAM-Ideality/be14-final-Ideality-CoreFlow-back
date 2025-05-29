@@ -3,22 +3,20 @@ package com.ideality.coreflow.user.command.application.service;
 import com.ideality.coreflow.auth.command.domain.aggregate.LoginType;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.infra.tenant.config.TenantContext;
+import com.ideality.coreflow.user.command.application.dto.LoginDTO;
 import com.ideality.coreflow.user.command.domain.aggregate.User;
-import com.ideality.coreflow.user.command.domain.aggregate.UserOfRole;
-import com.ideality.coreflow.user.command.domain.repository.UserOfRoleRepository;
 import com.ideality.coreflow.user.command.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final UserOfRoleRepository userOfRoleRepository;
 
     @Override
     public User findUserByIdentifier(String identifier, LoginType loginType) {
@@ -33,14 +31,28 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String findPwdByIdentifier(String identifier, LoginType loginType) {
+    public LoginDTO findUserInfoByIdentifier(String identifier, LoginType loginType) {
+
+        log.info("Transactional Propagation.REQUIRES_NEW");
+        log.info("userService에요");
+        log.info("tenant: {}", TenantContext.getTenant());
+        TenantContext.setTenant(TenantContext.getTenant());
+
+        LoginDTO result = new LoginDTO();
+        User user;
 
         if (loginType == LoginType.EMPLOYEE_NUM) {
-            return userRepository.findByEmployeeNum(identifier)
-                    .orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND)).getPassword();
+            user = userRepository.findByEmployeeNum(identifier)
+                    .orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
         } else {
-            return userRepository.findByEmail(identifier)
-                    .orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND)).getPassword();
+            user = userRepository.findByEmail(identifier)
+                    .orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
         }
+
+        result.setId(user.getId());
+        result.setEmployeeNum(user.getEmployeeNum());
+        result.setPassword(user.getPassword());
+
+        return result;
     }
 }
