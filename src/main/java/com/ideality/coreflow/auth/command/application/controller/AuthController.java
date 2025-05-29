@@ -6,10 +6,7 @@ import com.ideality.coreflow.common.response.APIResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -19,9 +16,8 @@ public class AuthController {
 
     private final AuthFacadeService authFacade;
 
-    @GetMapping("login")
-    public ResponseEntity<APIResponse<?>> login(@RequestBody LoginRequest loginRequest) {
-
+    @PostMapping("login")
+    public ResponseEntity<APIResponse<?>> loginEntry(@RequestBody LoginRequest loginRequest) {
         return ResponseEntity.ok(APIResponse.success(authFacade.login(loginRequest), "로그인 성공"));
     }
 }
