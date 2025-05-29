@@ -35,13 +35,19 @@ CREATE TABLE job_rank (
 -- 부서
 CREATE TABLE dept (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL UNIQUE
+    name VARCHAR(255) NOT NULL UNIQUE,
+    dept_code VARCHAR(10) NOT NULL,
+    is_deleted BOOLEAN DEFAULT FALSE,
+    parent_dept_id BIGINT,
+    CONSTRAINT FOREIGN KEY (parent_dept_id) REFERENCES dept(id)
 );
 
 -- 역할
 CREATE TABLE role (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL UNIQUE
+    name VARCHAR(255) NOT NULL UNIQUE,
+    type VARCHAR(255) NOT NULL,
+    CHECK ( type in ('PROJECT', 'GENERAL'))
 );
 
 -- 회원 별 역할
