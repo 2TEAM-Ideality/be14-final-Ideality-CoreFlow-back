@@ -22,13 +22,16 @@ public class DataSourceConfig {
 
     private final JpaProperties jpaProperties;
     private final Environment env;
+    private final TenantDataSourceProvider tenantDataSourceProvider;
+
 
     @Bean
     @Primary
     public DataSource DataSource() {
-        TenantRoutingDataSource routingDataSource = new TenantRoutingDataSource();
+        TenantRoutingDataSource routingDataSource = new TenantRoutingDataSource(tenantDataSourceProvider);
         routingDataSource.setDefaultTargetDataSource(masterDataSource());
         routingDataSource.setTargetDataSources(new HashMap<>()); // 빈으로 등록 후 런타임에 동적 구성 가능
+        routingDataSource.afterPropertiesSet();
         return routingDataSource;
     }
 
@@ -56,7 +59,11 @@ public class DataSourceConfig {
         var vendorAdapter = new HibernateJpaVendorAdapter();
         var factory = new LocalContainerEntityManagerFactoryBean();
         factory.setDataSource(dataSource);
-        factory.setPackagesToScan("com.ideality.coreflow.common.tenant");
+        factory.setPackagesToScan(
+                "com.ideality.coreflow.common.tenant",
+                "com.ideality.coreflow.tenant.domain.aggregate",
+                "com.ideality.coreflow.user.command.domain.aggregate"
+        );
         factory.setJpaVendorAdapter(vendorAdapter);
         factory.setJpaPropertyMap(jpaProperties.getProperties());
         return factory;
