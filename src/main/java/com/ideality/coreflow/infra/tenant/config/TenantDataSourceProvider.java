@@ -18,13 +18,21 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class TenantDataSourceProvider {
     private final TenantDataSourceProperties tenantProps;
+    private final Map<Object, Object> dataSourceMap = new ConcurrentHashMap<>();
 
     public DataSource createDataSource(String schemaName) {
+
+        if(dataSourceMap.containsKey(schemaName)) {
+            log.info("DataSource {} already exists", schemaName);
+            return (DataSource) dataSourceMap.get(schemaName);
+        }
+
         log.info("Creating new DataSource for schemaName: {}", schemaName);
 
         // HikariConfig 설정
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(tenantProps.getUrl() + schemaName);
+        log.info("테넌트 url주소: {}", config.getJdbcUrl());
         config.setUsername(tenantProps.getUsername());
         config.setPassword(tenantProps.getPassword());
         config.setDriverClassName(tenantProps.getDriverClassName());
