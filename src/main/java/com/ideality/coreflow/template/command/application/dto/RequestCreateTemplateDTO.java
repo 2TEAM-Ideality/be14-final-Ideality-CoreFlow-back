@@ -1,8 +1,6 @@
-package com.ideality.coreflow.template.command.domain.aggregate;
+package com.ideality.coreflow.template.command.application.dto;
 
 import java.util.List;
-
-import org.springframework.web.multipart.MultipartFile;
 
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.TemplateNodeDTO;

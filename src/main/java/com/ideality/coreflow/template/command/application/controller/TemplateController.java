@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.template.command.application.service.TemplateCommandService;
-import com.ideality.coreflow.template.command.domain.aggregate.RequestCreateTemplateDTO;
+import com.ideality.coreflow.template.command.application.dto.RequestCreateTemplateDTO;
 
 import lombok.RequiredArgsConstructor;
 

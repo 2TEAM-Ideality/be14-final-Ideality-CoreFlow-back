@@ -41,7 +41,7 @@ public class TemplateController {
 		if(template == null){
 			throw new BaseException(ErrorCode.TEMPLATE_NOT_FOUND);
 		}
-		String message = String.format("%d번 템플릿 상세 정보 조회 성공 ✅", templateId);
+
 		return ResponseEntity.ok(
 			APIResponse.success(template, "템플릿 상세 정보 조회 성공 ✅")
 		);
