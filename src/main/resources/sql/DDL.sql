@@ -81,7 +81,7 @@ CREATE TABLE notification (
     created_at DATETIME NOT NULL,
     updated_at DATETIME,
     is_auto_delete BOOLEAN NOT NULL DEFAULT FALSE,
-    CHECK (target_type IN ('PAYMENT', 'PROJECT', 'WORK','SCHEDULE')),
+    CHECK (target_type IN ('APPROVAL', 'PROJECT', 'WORK','SCHEDULE')),
     CHECK (status IN ('PENDING', 'SENT', 'READ'))
 );
 
@@ -242,7 +242,7 @@ CREATE TABLE comment (
 );
 
 -- 결재
-CREATE TABLE payment (
+CREATE TABLE approval (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL,
     title VARCHAR(255) NOT NULL,
@@ -259,13 +259,13 @@ CREATE TABLE payment (
 );
 
 -- 결재 참여자
-CREATE TABLE payment_participant (
+CREATE TABLE approval_participant (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    payment_id BIGINT NOT NULL,
+    approval_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
     role VARCHAR(255) NOT NULL,
     created_at DATETIME NOT NULL,
-    CONSTRAINT FOREIGN KEY (payment_id) REFERENCES payment(id),
+    CONSTRAINT FOREIGN KEY (approval_id) REFERENCES approval(id),
     CONSTRAINT FOREIGN KEY (user_id) REFERENCES user(id),
     CHECK (role IN ('APPROVER', 'VIEWER'))
 );
@@ -277,14 +277,14 @@ CREATE TABLE delay_reason (
 );
 
 -- 지연 결재
-CREATE TABLE delay_payment (
+CREATE TABLE delay_approval (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     delay_days INT NOT NULL,
     action_detail TEXT NOT NULL,
     delay_reason_id BIGINT NOT NULL,
-    payment_id BIGINT NOT NULL,
+    approval_id BIGINT NOT NULL,
     CONSTRAINT FOREIGN KEY (delay_reason_id) REFERENCES delay_reason(id),
-    CONSTRAINT FOREIGN KEY (payment_id) REFERENCES payment(id)
+    CONSTRAINT FOREIGN KEY (approval_id) REFERENCES approval(id)
 );
 
 -- 첨부파일
@@ -300,5 +300,5 @@ CREATE TABLE attachment (
     target_id BIGINT NOT NULL,
     uploader_id BIGINT NOT NULL,
     CONSTRAINT FOREIGN KEY (uploader_id) REFERENCES user(id),
-    CHECK (target_type IN ('PAYMENT', 'COMMENT', 'PROJECT', 'TEMPLATE'))
+    CHECK (target_type IN ('APPROVAL', 'COMMENT', 'PROJECT', 'TEMPLATE'))
 );
