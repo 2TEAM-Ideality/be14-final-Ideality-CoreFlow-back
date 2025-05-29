@@ -6,6 +6,15 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
 
+    // 비밀번호가 틀림
+    INVALID_PASSWORD("INVALID_PASSWORD", "비밀번호가 틀립니다.", HttpStatus.NOT_FOUND),
+
+    // 유효하지 않은 토큰
+    INVALID_TOKEN("INVALID_TOKEN", "유효하지 않은 토큰입니다.", HttpStatus.UNAUTHORIZED),
+
+    // 해당 정보 없음
+    NOT_FOUND("NOT_FOUND", "해당 정보가 없습니다.", HttpStatus.NOT_FOUND), // 404
+
     // ✅ 인증(Authentication) 관련
     UNAUTHORIZED("UNAUTHORIZED", "인증이 필요합니다.", HttpStatus.UNAUTHORIZED),          // 401
 

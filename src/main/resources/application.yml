@@ -32,3 +32,8 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MariaDBDialect
+
+token:
+  secret: ${SECRET_KEY}
+  access_expiration_time: 36000000      # Access Token: 15분 (900,000ms)
+  refresh_expiration_time: 604800000  # Refresh Token: 7일 (604,800,000ms)
