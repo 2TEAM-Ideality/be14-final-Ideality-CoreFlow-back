@@ -2,9 +2,6 @@ spring:
   profiles:
     active: dev
 
-  config:
-    import: classpath:secret.properties
-
   datasource:
     master:
       url: jdbc:mariadb://localhost:3306/master

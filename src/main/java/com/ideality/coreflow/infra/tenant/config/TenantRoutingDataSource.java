@@ -1,4 +1,4 @@
-package com.ideality.coreflow.common.tenant.config;
+package com.ideality.coreflow.infra.tenant.config;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;

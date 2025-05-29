@@ -1,4 +1,4 @@
-package com.ideality.coreflow.common.tenant.config;
+package com.ideality.coreflow.infra.tenant.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
