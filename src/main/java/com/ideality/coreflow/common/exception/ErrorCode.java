@@ -6,6 +6,9 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
 
+    // 로그인 요청 시 바디 읽기 실패
+    INVALID_LOGIN_REQUEST("INVALID_LOGIN_REQUEST", "로그인 요청이 실패하였습니다.", HttpStatus.BAD_REQUEST),
+
     // 비밀번호가 틀림
     INVALID_PASSWORD("INVALID_PASSWORD", "비밀번호가 틀립니다.", HttpStatus.NOT_FOUND),
 

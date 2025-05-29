@@ -1,6 +1,13 @@
 package com.ideality.coreflow.security.jwt;
 
-import com.ideality.coreflow.common.tenant.config.TenantContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ideality.coreflow.auth.command.application.dto.request.LoginRequest;
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.infra.tenant.config.TenantContext;
+import com.ideality.coreflow.security.filter.CachedBodyHttpServletRequest;
+import com.ideality.coreflow.tenant.command.application.service.TenantService;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,12 +33,44 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final JwtProvider jwtProvider;
+    private final ObjectMapper objectMapper;
+    private final TenantService tenantService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+
+        if("/api/auth/login".equals(path) && "POST".equalsIgnoreCase(request.getMethod())) {
+            // companyCode만 먼저 읽어서 TenantContext 세팅
+
+            // RequestBody를 읽기 위해 래핑
+            CachedBodyHttpServletRequest cachedRequest = new CachedBodyHttpServletRequest(request);
+
+            // JSON -> LoginRequest 객체 파싱
+            LoginRequest loginRequest = null;
+            try {
+                loginRequest = objectMapper.readValue(cachedRequest.getInputStream(), LoginRequest.class);
+            } catch (Exception e) {
+                // 실패하면 에러
+                throw new BaseException(ErrorCode.INVALID_LOGIN_REQUEST);
+            }
+
+            // TenantContext에 schema 설정
+            String schema = tenantService.findSchemaNameByCompanyCode(loginRequest.getCompanyCode());
+            TenantContext.setTenant(schema);
+
+            // 필터 체인에 래핑된 요청 전단 (RequestBody를 다시 읽을 수 있도록)
+            filterChain.doFilter(cachedRequest, response);
+
+            // 요청 처리 완료 후 클리어
+            TenantContext.clear();
+            return;
+        }
+
         try {
             String bearerToken = request.getHeader("Authorization");
 
