@@ -12,12 +12,16 @@ import org.springframework.stereotype.Service;
 public class HolidayQueryService {
     private final HolidayQueryMapper holidayQueryMapper;
 
-    public List<HolidayQueryDto> getHolidaysByYear(int year) {
-        return holidayQueryMapper.findByYear(year);
-    }
-
     public boolean isHoliday(LocalDate date) {
         return holidayQueryMapper.existsByDate(date);
+    }
+
+    public List<HolidayQueryDto> getHolidays() {
+        return holidayQueryMapper.findAllHolidays();
+    }
+
+    public List<HolidayQueryDto> getHolidaysByYear(int year) {
+        return holidayQueryMapper.findByYear(year);
     }
 
     public List<HolidayQueryDto> getHolidaysByMonth(int year, int month) {

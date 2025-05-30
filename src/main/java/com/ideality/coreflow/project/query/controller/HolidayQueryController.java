@@ -30,6 +30,17 @@ public class HolidayQueryController {
         response.put("data", Map.of("isHoliday", isHoliday));
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping
+    public ResponseEntity<Map<String,Object>> getHolidays(){
+        List<HolidayQueryDto> holidays=holidayQueryService.getHolidays();
+        Map<String,Object> response=new HashMap<>();
+        response.put("status","success");
+        response.put("message", "전체 휴일 목록 조회 성공");
+        response.put("data", Map.of("holidays", holidays));
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/year")
     public ResponseEntity<Map<String,Object>> getHolidaysByYear(@RequestParam int year){
         List<HolidayQueryDto> holidays=holidayQueryService.getHolidaysByYear(year);

@@ -8,9 +8,11 @@ import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface HolidayQueryMapper {
-    List<HolidayQueryDto> findByYear(@Param("year") int year);
-
     boolean existsByDate(@Param("date") LocalDate date);
+
+    List<HolidayQueryDto> findAllHolidays();
+
+    List<HolidayQueryDto> findByYear(@Param("year") int year);
 
     List<HolidayQueryDto> findByMonth(@Param("year") int year, @Param("month") int month);
 
