@@ -3,6 +3,7 @@ package com.ideality.coreflow.project.command.application.service.impl;
 import com.ideality.coreflow.project.command.application.dto.TaskParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.ParticipantService;
 import com.ideality.coreflow.project.command.domain.aggregate.Participant;
+import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.command.domain.repository.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,13 @@ public class ParticipantServiceImpl implements ParticipantService {
     @Transactional
     public void createParticipants(List<TaskParticipantDTO> taskParticipants) {
         for(TaskParticipantDTO taskParticipant : taskParticipants) {
-            Participant participant = Participant.builder().build();
+            Participant participant = Participant.builder()
+                    .targetType(TargetType.TASK)
+                    .targetId(taskParticipant.getTaskId())
+                    .userId(taskParticipant.getUserId())
+                    .roleId(taskParticipant.getRoleId())
+                    .build();
+            participantRepository.save(participant);
         }
     }
 }

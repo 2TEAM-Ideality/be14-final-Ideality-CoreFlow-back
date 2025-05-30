@@ -15,6 +15,6 @@ public class DeptQueryServiceImpl implements DeptQueryService {
 
     @Override
     public Long findIdByName(String deptName) {
-        return deptMapper.findByIdDeptName(deptName);
+        return deptMapper.findIdByDeptName(deptName).getDeptId();
     }
 }

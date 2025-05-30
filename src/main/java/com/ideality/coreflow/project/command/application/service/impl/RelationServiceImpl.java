@@ -27,7 +27,6 @@ public class RelationServiceImpl implements RelationService {
     @Transactional
     public void appendRelation(Long prevWorkId, Long nextWorkId, Long taskId) {
 
-
         if (prevWorkId != null && nextWorkId != null) {
             log.info("둘 다 값이 있는 상황에 왔음");
             int result = relationRepository.deleteByPrevWorkIdAndNextWorkId(prevWorkId, nextWorkId);
@@ -36,6 +35,10 @@ public class RelationServiceImpl implements RelationService {
 
             insertRelation(prevWorkId, taskId);
             insertRelation(taskId, prevWorkId);
+        }
+
+        if (prevWorkId == 0) {
+            return;
         }
         log.info("리프 노드 같은 상황 - prev: {}, next: {}, task: {}", prevWorkId, nextWorkId, taskId);
         insertRelation(prevWorkId, taskId);

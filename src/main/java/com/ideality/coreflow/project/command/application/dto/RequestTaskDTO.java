@@ -22,4 +22,5 @@ public class RequestTaskDTO {
     /* 설명. 여기부터 작업 간 관계 */
     private Long prevWorkId;
     private Long nextWorkId;
+
 }

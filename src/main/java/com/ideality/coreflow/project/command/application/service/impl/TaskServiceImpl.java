@@ -3,6 +3,7 @@ package com.ideality.coreflow.project.command.application.service.impl;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.service.TaskService;
+import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.command.domain.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,8 @@ public class TaskServiceImpl implements TaskService {
                 .endBase(taskDTO.getEndBase())
                 .startExpect(taskDTO.getStartBase())
                 .endExpect(taskDTO.getEndBase())
+                .status(Status.PENDING)
+                .projectId(taskDTO.getProjectId())
                 .build();
         taskRepository.save(taskWork);
         log.info("Task created with id {}", taskWork.getId());

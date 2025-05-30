@@ -85,9 +85,9 @@ public class DetailService {
 
             // WorkDept 테이블에 작업과 부서 관계 추가
             WorkDept workDept = new WorkDept();
-            workDept.setWork(savedWork);  // 생성된 작업과 연결
-            workDept.setDept(dept);  // 해당 부서와 연결
-            workDeptRepository.save(workDept);  // 관계 저장
+//            workDept.setWork(savedWork);  // 생성된 작업과 연결
+//            workDept.setDept(dept);  // 해당 부서와 연결
+//            workDeptRepository.save(workDept);  // 관계 저장
         }
 
 
@@ -98,7 +98,7 @@ public class DetailService {
             for (Long userId : detailRequest.getParticipantIds()) {
                 Participant participant = new Participant();
                 participant.setUserId(userId);// 참여자의 userId 설정
-                participant.setTargetType("DETAILED");  // 참여하는 대상 타입 설정 ("Work"라고 가정)
+//                participant.setTargetType("DETAILED");  // 참여하는 대상 타입 설정 ("Work"라고 가정)
                 participant.setTargetId(savedWork.getId());  // 작업의 ID를 targetId에 설정
                 participant.setRoleId(7L);  // 참여자의 역할 아이디
                 participantRepository.save(participant);
@@ -109,7 +109,7 @@ public class DetailService {
         if (detailRequest.getAssigneeId() != null) {
             Participant assignee = new Participant();
             assignee.setUserId(detailRequest.getAssigneeId());
-            assignee.setTargetType("DETAILED");  // 참여하는 대상 타입 설정 ("Work"라고 가정)
+//            assignee.setTargetType("DETAILED");  // 참여하는 대상 타입 설정 ("Work"라고 가정)
             assignee.setTargetId(savedWork.getId());  // 작업의 ID를 targetId에 설정
             assignee.setRoleId(6L);  // 참여자의 역할 아이디
             participantRepository.save(assignee);
