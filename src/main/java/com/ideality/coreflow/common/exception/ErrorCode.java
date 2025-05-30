@@ -30,6 +30,7 @@ public enum ErrorCode {
     // ✅ JSON 직렬화 실패
     JSON_SERIALIZATION_ERROR("JSON_SERIALIZATION_ERROR", "JSON 변환에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
+    RESOURCE_NOT_FOUND("DATABASE_RESOURCE_NOT_FOUND", "요청한 리소스를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
     ;
 
     private final String code;
