@@ -66,7 +66,7 @@ CREATE TABLE holiday (
     name VARCHAR(255) NOT NULL,
     type VARCHAR(255) NOT NULL,
     is_repeat VARCHAR(255) NOT NULL DEFAULT 'ONCE',
-    CHECK (type IN ('COMPANY', 'NATIONAL')),
+    CHECK (type IN ('COMPANY', 'NATIONAL', 'SATURDAY', 'SUNDAY')),
     CHECK (is_repeat IN ('YEARLY', 'ONCE'))
 );
 
