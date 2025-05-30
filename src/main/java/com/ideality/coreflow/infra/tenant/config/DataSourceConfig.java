@@ -57,7 +57,8 @@ public class DataSourceConfig {
         factory.setDataSource(dataSource);
         factory.setPackagesToScan("com.ideality.coreflow.common.tenant",
             "com.ideality.coreflow.template.command.domain.aggregate",
-            "com.ideality.coreflow.attachment.command.domain.aggregate"
+            "com.ideality.coreflow.attachment.command.domain.aggregate",
+            "com.ideality.coreflow.holiday.command.domain.aggregate"
         );
         factory.setJpaVendorAdapter(vendorAdapter);
         factory.setJpaPropertyMap(jpaProperties.getProperties());
