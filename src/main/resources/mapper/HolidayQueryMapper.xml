@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ideality.coreflow.project.query.mapper.HolidayQueryMapper">
+    <select id="findByYear" resultType="com.ideality.coreflow.project.query.dto.HolidayQueryDto">
+        SELECT date, name, type
+        FROM holiday
+        WHERE YEAR(date) = #{year}
+        ORDER BY date ASC
+    </select>
+
+</mapper>
