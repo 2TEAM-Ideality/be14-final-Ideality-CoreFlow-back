@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TemplateNodeDTO {
+public class NodeDTO {
 
 	private String id; 					// VueFlow에선 문자열 ID 사용을 권장한다고 함.
 	private String type; 				// ex) "custom"

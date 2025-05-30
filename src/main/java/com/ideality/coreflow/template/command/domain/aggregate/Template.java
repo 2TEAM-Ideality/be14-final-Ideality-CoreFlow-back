@@ -32,16 +32,14 @@ public class Template {
 	@Column(name="description")
 	private String description; 	// 템플릿 설명
 
+	@Column(name="created_by", nullable=false, updatable=false)
+	private Long createdBy;			// 생성자
+
 	@Column(name="created_at", nullable=false, updatable=false)
 	private LocalDateTime createdAt;	// 생성일
 
 	@Column(name="updated_at")
 	private LocalDateTime updatedAt;	// 수정일
-
-	// 설명. 다른 도메인에 위치한 Entity와는 ManytoMany 같은 관계 연결 X
-	// 유저 id 기반으로 UserService 로부터 회원 정보 가져오는 방식으로 사용하기
-	@Column(name="created_by", nullable=false, updatable=false)
-	private Long createdBy;			// 생성자
 
 	@Column(name="updated_by")
 	private Long updatedBy;			// 수정자

@@ -1,13 +1,11 @@
 package com.ideality.coreflow.template.query.dto;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Getter
@@ -18,7 +16,8 @@ import lombok.Setter;
 public class TemplateNodeDataDTO {
 	private String label; 			// 태스크명
 	private String description; 	// 설명
-	private List<String> deptList; 	// 참여 부서 목록	
+	private List<String> deptList; 	// 참여 부서 목록
+	private int slackTime; 				// 슬랙 타임
 	private String startBaseLine;		// 시작 베이스라인
 	private String endBaseLine;			// 마감 베이스라인
 }

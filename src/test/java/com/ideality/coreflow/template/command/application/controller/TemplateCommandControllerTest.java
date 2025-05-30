@@ -1,6 +1,5 @@
 package com.ideality.coreflow.template.command.application.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -22,8 +21,7 @@ import com.ideality.coreflow.template.command.application.service.TemplateComman
 import com.ideality.coreflow.template.command.application.service.TemplateCommandService;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.PositionDTO;
-import com.ideality.coreflow.template.query.dto.TemplateInfoDTO;
-import com.ideality.coreflow.template.query.dto.TemplateNodeDTO;
+import com.ideality.coreflow.template.query.dto.NodeDTO;
 import com.ideality.coreflow.template.query.dto.TemplateNodeDataDTO;
 
 @WebMvcTest(controllers = TemplateCommandController.class)
@@ -54,7 +52,7 @@ class TemplateCommandControllerTest {
 			.createdAt(LocalDateTime.now())
 			.createdBy(1L)
 			.nodeList(List.of(
-				new TemplateNodeDTO(
+				new NodeDTO(
 					"1",
 					"custom",
 					new PositionDTO(0, 0),
@@ -96,7 +94,7 @@ class TemplateCommandControllerTest {
 			.updatedAt(LocalDateTime.now())
 			.updatedBy(1L)
 			.nodeList(List.of(
-				new TemplateNodeDTO(
+				new NodeDTO(
 					"1",
 					"custom",
 					new PositionDTO(0, 0),

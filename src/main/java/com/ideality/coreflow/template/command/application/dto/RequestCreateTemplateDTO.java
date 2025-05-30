@@ -4,8 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
-import com.ideality.coreflow.template.query.dto.TemplateInfoDTO;
-import com.ideality.coreflow.template.query.dto.TemplateNodeDTO;
+import com.ideality.coreflow.template.query.dto.NodeDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,7 +27,7 @@ public class RequestCreateTemplateDTO {
 	private int duration; 		// 총 소요일
 	private int taskCount; 	// 전체 태스크 개수
 
-	private List<TemplateNodeDTO> nodeList;
+	private List<NodeDTO> nodeList;
 	private List<EdgeDTO> edgeList;
 
 }

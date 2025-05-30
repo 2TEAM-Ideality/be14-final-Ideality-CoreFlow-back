@@ -9,6 +9,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
 import com.ideality.coreflow.attachment.query.service.AttachmentQueryService;
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.service.S3Service;
 import com.ideality.coreflow.template.query.dto.ResponseTemplateDetailDTO;
 import com.ideality.coreflow.template.query.dto.TemplateInfoDTO;
@@ -32,7 +34,7 @@ public class TemplateQueryFacadeService {
 		// 1. 템플릿 메타 정보 조회
 		TemplateInfoDTO templateInfo = templateMapper.selectTemplateDetail(templateId);
 		if (templateInfo == null) {
-			throw new RuntimeException("템플릿을 찾을 수 없습니다.");
+			throw new BaseException(ErrorCode.TEMPLATE_NOT_FOUND);
 		}
 
 		// 2. 첨부 파일 테이블에서 URL 가져오기
@@ -42,12 +44,9 @@ public class TemplateQueryFacadeService {
 		String jsonContent = s3Service.getJsonFile(templateUrl);
 		Map<String, Object> parsed = objectMapper.readValue(jsonContent, Map.class);
 
-		ResponseTemplateDetailDTO reseponseTemplateDetailDTO = ResponseTemplateDetailDTO.builder()
+		return ResponseTemplateDetailDTO.builder()
 			.templateInfo(templateInfo)
 			.templateData(parsed).build();
-
-		return reseponseTemplateDetailDTO;
-
 
 	}
 }

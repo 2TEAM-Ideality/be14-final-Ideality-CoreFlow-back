@@ -2,11 +2,9 @@ package com.ideality.coreflow.template.command.application.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
-import com.ideality.coreflow.template.query.dto.TemplateInfoDTO;
-import com.ideality.coreflow.template.query.dto.TemplateNodeDTO;
+import com.ideality.coreflow.template.query.dto.NodeDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,7 +29,7 @@ public class RequestUpdateTemplateDTO {
 	private LocalDateTime updatedAt;
 	private Long updatedBy;
 
-	private List<TemplateNodeDTO> nodeList;
+	private List<NodeDTO> nodeList;
 	private List<EdgeDTO> edgeList;
 
 }

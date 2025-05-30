@@ -17,21 +17,19 @@
 
     <select id="selectAllTemplates" resultMap="templateListResultMap">
         SELECT
-            t.id,
-            t.name,
-            t.created_at,
-            u.name AS created_by,
-            t.duration,
-            t.task_count,
-            (
-            SELECT COUNT(*)
-            FROM project p
-            WHERE p.template_id = t.id
-            ) AS using_projects
-
-        FROM TEMPLATE t
+        t.id,
+        t.name,
+        t.created_at,
+        u.name AS created_by,
+        t.duration,
+        t.task_count,
+        GROUP_CONCAT(DISTINCT d.name SEPARATOR ',') AS dept_list
+        FROM template t
         JOIN user u ON t.created_by = u.id
-        WHERE t.is_deleted = FALSE;
+        LEFT JOIN template_dept td ON td.template_id = t.id
+        LEFT JOIN dept d ON td.dept_id = d.id
+        WHERE t.is_deleted = FALSE
+        GROUP BY t.id;
     </select>
 
 

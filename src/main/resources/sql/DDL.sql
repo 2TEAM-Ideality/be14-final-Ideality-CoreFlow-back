@@ -111,6 +111,14 @@ CREATE TABLE template (
     CONSTRAINT FOREIGN KEY (updated_by) REFERENCES user(id)
 );
 
+CREATE TABLE template_dept(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    template_id BIGINT NOT NULL,
+    dept_id BIGINT NOT NULL,
+    CONSTRAINT FOREIGN KEY (template_id) REFERENCES template(id) ON DELETE CASCADE,
+    CONSTRAINT FOREIGN KEY (dept_id) REFERENCES dept(id)
+);
+
 -- 참여 인원
 CREATE TABLE participant (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,

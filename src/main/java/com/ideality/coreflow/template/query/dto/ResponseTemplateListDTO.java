@@ -25,7 +25,6 @@ public class ResponseTemplateListDTO {
 
 	private int duration; 		// 총 소요일
 	private int taskCount; 	// 전체 태스크 개수
-	private int usingProjects; 	// 사용 중인 프로젝트 개수
 
 	private List<String> deptList; // 참여 부서 목록
 

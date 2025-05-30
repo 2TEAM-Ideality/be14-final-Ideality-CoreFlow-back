@@ -14,6 +14,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class TemplateDataDTO {
-	private List<TemplateNodeDTO> nodeList;
+	private List<NodeDTO> nodeList;
 	private List<EdgeDTO> edgeList;
 }
