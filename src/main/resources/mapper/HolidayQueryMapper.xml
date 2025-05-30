@@ -11,4 +11,27 @@
         ORDER BY date ASC
     </select>
 
+    <select id="existsByDate" resultType="boolean">
+        SELECT EXISTS(
+            SELECT 1
+            FROM holiday
+            WHERE date= #{date}
+        )
+    </select>
+
+    <select id="findByMonth" resultType="com.ideality.coreflow.project.query.dto.HolidayQueryDto">
+        SELECT date, name, type
+        FROM holiday
+        WHERE YEAR(date) = #{year}
+        AND MONTH(date)=#{month}
+        ORDER By date asc
+    </select>
+
+    <select id="findBetweenDates" resultType="com.ideality.coreflow.project.query.dto.HolidayQueryDto">
+        SELECT date, name, type
+        FROM holiday
+        WHERE date BETWEEN #{start} AND #{end}
+        ORDER BY date ASC
+    </select>
+
 </mapper>
