@@ -23,6 +23,7 @@ public class AttachmentCommandService {
 
 	private final AttachmentRepository attachmentRepository;
 
+	// 첨부파일 생성
 	@Transactional
 	public void createAttachmentForTemplate(Long templateId, String fileName, String fileUrl, Long createdBy, String json) {
 		Attachment attachment = Attachment.builder()
@@ -53,5 +54,14 @@ public class AttachmentCommandService {
 			fileUrl,
 			size
 		);
+	}
+
+	// 첨부 파일 삭제 여부 변경
+	public void deleteAttachment(Long targetId, FileTargetType fileType) {
+		Attachment originAttachment = attachmentRepository.findByIdAndFileType(targetId, fileType)
+			.orElseThrow(() -> new BaseException(ErrorCode.ATTCHMENT_NOT_FOUND));
+
+		originAttachment.delete();
+
 	}
 }

@@ -54,6 +54,11 @@ public class Attachment {
 	@Column(name="uploader_id", nullable=false)
 	private Long uploaderId;
 
+	@Column(name="is_deleted", nullable=false)
+	private Boolean isDeleted = false;
+
+	@Column(name="deleted_at")
+	private LocalDateTime deletedAt;
 
 	// 첨부파일 정보 수정
 	public void updateInfo(String fileName, String fileUrl, String size) {
@@ -64,4 +69,8 @@ public class Attachment {
 		// TODO. 업로드 수정도 필요
 	}
 
+	public void delete() {
+		this.isDeleted = true;
+		this.deletedAt = LocalDateTime.now();
+	}
 }

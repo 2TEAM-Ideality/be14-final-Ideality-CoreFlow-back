@@ -52,8 +52,11 @@ public class Template {
 	@Column(name="task_count", nullable=false)
 	private int taskCount;			// 전체 태스크 개수
 
-	@Column(name="is_deleted", nullable=false )
+	@Column(name="is_deleted", nullable=false)
 	private boolean isDeleted = false; 		// 삭제 여부
+
+	@Column(name="deleted_at")
+	private LocalDateTime deletedAt;
 
 	public void updateTemplate(String name, String description, int duration, int taskCount) {
 		this.name = name;
@@ -61,6 +64,11 @@ public class Template {
 		this.duration = duration;
 		this.taskCount = taskCount;
 		this.updatedAt = LocalDateTime.now();
+	}
+
+	public void deleteTemplate() {
+		this.isDeleted = true;
+		this.deletedAt = LocalDateTime.now();
 	}
 }
 

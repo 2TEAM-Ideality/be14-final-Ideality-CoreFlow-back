@@ -48,4 +48,12 @@ public class TemplateCommandService {
 		originTemplate.updateTemplate(name, description, duration, taskCount);
 		return originTemplate;
 	}
+
+	public void deleteTemplate(Long templateId) {
+		Template originTemplate = templateRepository.findById(templateId)
+			.orElseThrow(() -> new BaseException(ErrorCode.TEMPLATE_NOT_FOUND));
+
+		originTemplate.deleteTemplate();
+
+	}
 }

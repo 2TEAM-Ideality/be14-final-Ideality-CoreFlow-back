@@ -299,6 +299,8 @@ CREATE TABLE attachment (
     target_type VARCHAR(255) NOT NULL,
     target_id BIGINT NOT NULL,
     uploader_id BIGINT NOT NULL,
+    is_deleted BOOLEAN DEFAULT FALSE,
+    deleted_at DATETIME,
     CONSTRAINT FOREIGN KEY (uploader_id) REFERENCES user(id),
     CHECK (target_type IN ('APPROVAL', 'COMMENT', 'PROJECT', 'TEMPLATE'))
 );

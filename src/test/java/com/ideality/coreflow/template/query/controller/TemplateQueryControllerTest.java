@@ -24,7 +24,7 @@ import com.ideality.coreflow.template.query.service.TemplateQueryService;
 
 // @SpringBootTest  -> 전체 컨텍스트를 로드 (모든 빈을 스캔)
 @WebMvcTest(controllers = TemplateQueryController.class)	// 특정 컨트롤러만 스캔
-class TemplateCommandControllerTest {
+class TemplateQueryControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -34,9 +34,6 @@ class TemplateCommandControllerTest {
 
 	@MockitoBean
 	private TemplateQueryFacadeService templateQueryFacadeService;
-
-	@Autowired
-	private ObjectMapper objectMapper;
 
 
 	@Test

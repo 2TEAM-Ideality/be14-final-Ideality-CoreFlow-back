@@ -23,7 +23,7 @@ public class RequestCreateTemplateDTO {
 	int duration;
 	int taskCount;
 
-	List<TemplateNodeDTO> NodeList;
+	List<TemplateNodeDTO> nodeList;
 	List<EdgeDTO> edgeList;
 
 }

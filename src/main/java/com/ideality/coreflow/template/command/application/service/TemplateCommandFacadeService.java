@@ -89,7 +89,7 @@ public class TemplateCommandFacadeService {
 		String fileUrl = uploadToS3OrThrow(json, folder, fileName);
 		String size = String.valueOf(json.getBytes(StandardCharsets.UTF_8).length) + " bytes";
 
-		// 4. 첨부파일 정보 업데이트
+		// 4. 첨부 파일 정보 업데이트
 		attachmentCommandService.updateAttachmentForTemplate(FileTargetType.TEMPLATE, templateId, fileName, fileUrl, size);
 
 	}
@@ -98,6 +98,11 @@ public class TemplateCommandFacadeService {
 	@Transactional
 	public void deleteTemplate(Long templateId) {
 
+		// 1. 템플릿 삭제 여부 변경
+		templateCommandService.deleteTemplate(templateId);
+
+		// 2. 첨부파일 삭제 여부 변경
+		attachmentCommandService.deleteAttachment(templateId, FileTargetType.TEMPLATE);
 	}
 
 	// S3 업로드

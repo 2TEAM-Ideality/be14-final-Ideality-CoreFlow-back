@@ -1,6 +1,7 @@
 package com.ideality.coreflow.template.command.application.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -40,12 +41,19 @@ public class TemplateCommandController {
 
 		templateCommandFacadeService.updateTemplate(templateId, requestDTO);
 		return ResponseEntity.ok(
-			APIResponse.success(null, "템플릿이 성공적으로 수정되었습니다. ✅")
+			APIResponse.success(null, "템플릿이 성공적으로 수정되었습니다.✅")
 		);
 	}
 
-
-
 	// TODO. 템플릿 삭제
+	@DeleteMapping("/{templateId}")
+	public ResponseEntity<APIResponse<?>> deleteTemplate(
+		@PathVariable Long templateId
+	){
+		templateCommandFacadeService.deleteTemplate(templateId);
+		return ResponseEntity.ok(
+			APIResponse.success(null, "템플릿이 성공적으로 삭제되었습니다.✅")
+		);
+	}
 
 }
