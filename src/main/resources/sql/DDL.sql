@@ -66,7 +66,7 @@ CREATE TABLE holiday (
     name VARCHAR(255) NOT NULL,
     type VARCHAR(255) NOT NULL,
     is_repeat VARCHAR(255) NOT NULL DEFAULT 'ONCE',
-    CHECK (type IN ('COMPANY', 'NATIONAL')),
+    CHECK (type IN ('COMPANY', 'NATIONAL', 'SATURDAY', 'SUNDAY')),
     CHECK (is_repeat IN ('YEARLY', 'ONCE'))
 );
 
@@ -116,7 +116,8 @@ CREATE TABLE participant (
     target_type VARCHAR(255) NOT NULL,
     target_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
-    role_id BIGINT NOT NULL
+    role_id BIGINT NOT NULL,
+    CHECK ( target_type IN ('PROJECT', 'TASK', 'DETAILED'))
 );
 
 -- 프로젝트

@@ -19,7 +19,7 @@ public class Participant {
 	private Long id;
 
 	@Column(name = "target_type")
-	private String targetType;
+	private TargetType targetType;
 
 	@Column(name = "target_id")
 	private Long targetId;
