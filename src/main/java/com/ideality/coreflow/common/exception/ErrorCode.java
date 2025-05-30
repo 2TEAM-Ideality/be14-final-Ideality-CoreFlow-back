@@ -18,7 +18,7 @@ public enum ErrorCode {
     // ✅ 서버 오류
     INTERNAL_SERVER_ERROR("INTERNAL_SERVER_ERROR", "서버 내부 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR), // 500
 
-    // ✅ 없는 정보
+    // ✅ 템플릿 없는 정보
     TEMPLATE_NOT_FOUND("TEMPLATE_NOT_FOUND", "존재하지 않는 템플릿입니다.", HttpStatus.NOT_FOUND),   // 400
 
     // ✅ DB 관련
@@ -30,6 +30,8 @@ public enum ErrorCode {
     // ✅ JSON 직렬화 실패
     JSON_SERIALIZATION_ERROR("JSON_SERIALIZATION_ERROR", "JSON 변환에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
+    // ✅ 첨부파일 없는 정보
+    ATTCHMENT_NOT_FOUND("ATTACHMENT_NOT_FOUND", "해당 첨부파일이 존재하지 않습니다." , HttpStatus.NOT_FOUND),
     ;
 
     private final String code;

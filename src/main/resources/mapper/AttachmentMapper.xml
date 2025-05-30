@@ -4,25 +4,27 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ideality.coreflow.attachment.query.mapper.AttachmentMapper">
 
-    <!-- URL 조회 -->
+    <!-- 파일 정보 조회 (일단 냅두기) -->
     <resultMap id="AttachmentResultMap" type="com.ideality.coreflow.attachment.query.dto.ResponseAttachmentDTO" >
         <id property="id" column="ID" />
         <result property="url" column="URL"/>
-        <result property="file_type" column="FILE_TYPE"/>
+        <result property="fileType" column="FILE_TYPE"/>
         <result property="size" column="SIZE"/>
         <result property="targetType" column="TARGET_TYPE"/>
         <result property="targetId" column="TARGET_ID"/>
     </resultMap>
-    <select id="selectURL" parameterType="map" resultMap="AttachmentResultMap">
+
+    <select id="selectUrl" parameterType="map" resultMap="AttachmentResultMap">
         SELECT
             a.id,
             a.url,
             a.file_type,
             a.size,
             a.target_type,
-            a.target_id,
+            a.target_id
         FROM ATTACHMENT a
-        WHERE #{targetId}
+        WHERE a.target_id = #{targetId}
+        AND a.target_type = #{targetType}
     </select>
 
 </mapper>

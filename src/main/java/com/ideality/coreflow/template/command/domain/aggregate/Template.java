@@ -32,15 +32,14 @@ public class Template {
 	@Column(name="description")
 	private String description; 	// 템플릿 설명
 
+	@Column(name="created_by", nullable=false, updatable=false)
+	private Long createdBy;			// 생성자
+
 	@Column(name="created_at", nullable=false, updatable=false)
 	private LocalDateTime createdAt;	// 생성일
 
 	@Column(name="updated_at")
 	private LocalDateTime updatedAt;	// 수정일
-
-	// TODO. 회원이랑 엮어야 함.
-	@Column(name="created_by", nullable=false, updatable=false)
-	private Long createdBy;			// 생성자
 
 	@Column(name="updated_by")
 	private Long updatedBy;			// 수정자
@@ -51,8 +50,24 @@ public class Template {
 	@Column(name="task_count", nullable=false)
 	private int taskCount;			// 전체 태스크 개수
 
-	@Column(name="is_deleted", nullable=false )
+	@Column(name="is_deleted", nullable=false)
 	private boolean isDeleted = false; 		// 삭제 여부
 
+	@Column(name="deleted_at")
+	private LocalDateTime deletedAt;
+
+	public void updateTemplate(String name, String description, int duration, int taskCount, Long updatedBy) {
+		this.name = name;
+		this.description = description;
+		this.duration = duration;
+		this.taskCount = taskCount;
+		this.updatedAt = LocalDateTime.now();
+		this.updatedBy = updatedBy;
+	}
+
+	public void deleteTemplate() {
+		this.isDeleted = true;
+		this.deletedAt = LocalDateTime.now();
+	}
 }
 
