@@ -47,7 +47,7 @@ CREATE TABLE role (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL UNIQUE,
     type VARCHAR(255) NOT NULL,
-    CHECK ( type in ('PROJECT', 'GENERAL','DETAILED'))
+    CHECK ( type in ('PROJECT', 'GENERAL'))
 );
 
 -- 회원 별 역할

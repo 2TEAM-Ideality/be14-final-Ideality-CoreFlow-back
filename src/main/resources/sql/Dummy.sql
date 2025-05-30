@@ -148,10 +148,10 @@ VALUES
         'VIEWER', 'PROJECT'
     ),
     (
-        'ASSIGNEE', 'DETAILED'
+        'ASSIGNEE', 'PROJECT'
     ),
     (
-        'PARTICIPANT', 'DETAILED'
+        'PARTICIPANT', 'PROJECT'
     )
 ;
 

@@ -11,19 +11,20 @@ import java.time.LocalDateTime;
 @Service
 public class DetailService {
 
-
     private final WorkRepository workRepository;
     private final WorkDeptRepository workDeptRepository;
     private final DeptRepository deptRepository;
     private final ParticipantRepository participantRepository;
+    private final RelationRepository relationRepository;
 
     @Autowired
     public DetailService(WorkRepository workRepository, WorkDeptRepository workDeptRepository,
-                         DeptRepository deptRepository, ParticipantRepository participantRepository) {
+                         DeptRepository deptRepository, ParticipantRepository participantRepository,RelationRepository relationRepository) {
         this.workRepository = workRepository;
         this.workDeptRepository = workDeptRepository;
         this.deptRepository = deptRepository;
         this.participantRepository = participantRepository;
+        this.relationRepository = relationRepository;
     }
 
 
@@ -50,6 +51,29 @@ public class DetailService {
         // 세부 작업 저장
         Work savedWork = workRepository.save(newWork);
 
+
+
+        // 선행 작업 관계 등록 (Relation 테이블에 선행 작업 관계 추가)
+        if (detailRequest.getPredecessorTaskId() != null) {
+            Work predecessorTask = workRepository.findById(detailRequest.getPredecessorTaskId())
+                    .orElseThrow(() -> new RuntimeException("선행 작업이 존재하지 않습니다."));
+
+            Relation relation = new Relation();
+            relation.setPrevWork(predecessorTask);  // 선행 작업 설정
+            relation.setNextWork(savedWork);        // 후속 작업 설정
+            relationRepository.save(relation);  // 관계 저장
+        }
+
+        // 후행 작업 관계 등록 (Relation 테이블에 후행 작업 관계 추가)
+        if (detailRequest.getSuccessorTaskId() != null) {
+            Work successorTask = workRepository.findById(detailRequest.getSuccessorTaskId())
+                    .orElseThrow(() -> new RuntimeException("후행 작업이 존재하지 않습니다."));
+
+            Relation relation = new Relation();
+            relation.setPrevWork(savedWork);  // 후행 작업을 선행 작업으로 설정
+            relation.setNextWork(successorTask); // 후행 작업 설정
+            relationRepository.save(relation);  // 관계 저장
+        }
 
 
 
