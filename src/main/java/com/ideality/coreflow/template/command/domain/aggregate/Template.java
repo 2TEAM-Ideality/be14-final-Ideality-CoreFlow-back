@@ -58,12 +58,13 @@ public class Template {
 	@Column(name="deleted_at")
 	private LocalDateTime deletedAt;
 
-	public void updateTemplate(String name, String description, int duration, int taskCount) {
+	public void updateTemplate(String name, String description, int duration, int taskCount, Long updatedBy) {
 		this.name = name;
 		this.description = description;
 		this.duration = duration;
 		this.taskCount = taskCount;
 		this.updatedAt = LocalDateTime.now();
+		this.updatedBy = updatedBy;
 	}
 
 	public void deleteTemplate() {

@@ -1,5 +1,6 @@
 package com.ideality.coreflow.template.command.application.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +21,15 @@ import lombok.Setter;
 @Builder
 public class RequestUpdateTemplateDTO {
 
-	private TemplateInfoDTO templateInfo;
+	// 템플릿 수정 요청
+	private String name;
+	private String description;
+
+	private int duration; 		// 총 소요일
+	private int taskCount; 	// 전체 태스크 개수
+
+	private LocalDateTime updatedAt;
+	private Long updatedBy;
 
 	private List<TemplateNodeDTO> nodeList;
 	private List<EdgeDTO> edgeList;

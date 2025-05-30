@@ -33,9 +33,10 @@ public class AttachmentCommandService {
 			.fileType("application/json")
 			.size(String.valueOf(json.getBytes(StandardCharsets.UTF_8).length))
 			.uploadAt(LocalDateTime.now())
+			.uploaderId(createdBy)
 			.targetType(FileTargetType.TEMPLATE)
 			.targetId(templateId)
-			.uploaderId(createdBy)
+			.isDeleted(false)
 			.build();
 		attachmentRepository.save(attachment);
 	}
@@ -45,7 +46,7 @@ public class AttachmentCommandService {
 	@Transactional
 	public void updateAttachmentForTemplate(FileTargetType fileType, Long targetId, String fileName, String fileUrl, String size) {
 		// 타겟 아이디, 타겟 타입을 조합해서 기존 첨부파일 찾기
-		Attachment originAttachment = attachmentRepository.findByIdAndFileType(targetId, fileType)
+		Attachment originAttachment = attachmentRepository.findByTargetIdAndTargetType(targetId, fileType)
 			.orElseThrow(() -> new BaseException(ErrorCode.ATTCHMENT_NOT_FOUND));
 
 		// 파일명, URL, 사이즈만 수정
@@ -58,7 +59,7 @@ public class AttachmentCommandService {
 
 	// 첨부 파일 삭제 여부 변경
 	public void deleteAttachment(Long targetId, FileTargetType fileType) {
-		Attachment originAttachment = attachmentRepository.findByIdAndFileType(targetId, fileType)
+		Attachment originAttachment = attachmentRepository.findByTargetIdAndTargetType(targetId, fileType)
 			.orElseThrow(() -> new BaseException(ErrorCode.ATTCHMENT_NOT_FOUND));
 
 		originAttachment.delete();

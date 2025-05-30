@@ -1,6 +1,7 @@
 package com.ideality.coreflow.template.query.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,16 +16,13 @@ import lombok.Setter;
 @Builder
 public class TemplateInfoDTO {
 	// 템플릿 디테일 정보 조회
-	private int id;			// 템플릿 아이디
+	private int id;
 	private String name;	// 템플릿 이름
 	private String description; // 템플릿 설명
-
 	private LocalDateTime createdAt;	// 생성일
 	private String createdBy;			// 생성자
+	private int duration;
+	private int taskCount;
+	private int usingProjects;
 
-	private int duration; 		// 총 소요일
-	private int taskCount; 	// 전체 태스크 개수
-	private int usingProjects; 	// 사용 중인 프로젝트 개수
-
-	private String url;
 }

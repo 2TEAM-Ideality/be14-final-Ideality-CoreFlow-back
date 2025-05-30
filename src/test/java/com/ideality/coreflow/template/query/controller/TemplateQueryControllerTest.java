@@ -62,7 +62,6 @@ class TemplateQueryControllerTest {
 			.duration(5)
 			.taskCount(3)
 			.usingProjects(2)
-			.url("https://example.com/template.json")
 			.build();
 		Map<String, Object> dataMap = Map.of(
 			"nodes", List.of(Map.of("id", "1", "label", "노드 A")),

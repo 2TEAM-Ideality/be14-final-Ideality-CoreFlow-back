@@ -104,8 +104,9 @@ CREATE TABLE template (
     duration INT NOT NULL,
     task_count INT NOT NULL,
     created_by BIGINT NOT NULL,
-    updated_by BIGINT NOT NULL,
+    updated_by BIGINT,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    deleted_at DATETIME DEFAULT NULL,
     CONSTRAINT FOREIGN KEY (created_by) REFERENCES user(id),
     CONSTRAINT FOREIGN KEY (updated_by) REFERENCES user(id)
 );
@@ -299,8 +300,8 @@ CREATE TABLE attachment (
     target_type VARCHAR(255) NOT NULL,
     target_id BIGINT NOT NULL,
     uploader_id BIGINT NOT NULL,
-    is_deleted BOOLEAN DEFAULT FALSE,
-    deleted_at DATETIME,
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    deleted_at DATETIME DEFAULT NULL,
     CONSTRAINT FOREIGN KEY (uploader_id) REFERENCES user(id),
     CHECK (target_type IN ('APPROVAL', 'COMMENT', 'PROJECT', 'TEMPLATE'))
 );

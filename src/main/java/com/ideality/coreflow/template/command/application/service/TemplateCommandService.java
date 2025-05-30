@@ -29,11 +29,8 @@ public class TemplateCommandService {
 			.description(requestDTO.getDescription())
 			.createdAt(LocalDateTime.now())
 			.createdBy(requestDTO.getCreatedBy())
-			.updatedAt(LocalDateTime.now())
-			.updatedBy(requestDTO.getCreatedBy())
-			.taskCount(requestDTO.getTaskCount())
 			.duration(requestDTO.getDuration())
-			.isDeleted(false)
+			.taskCount(requestDTO.getTaskCount())
 			.build();
 
 		templateRepository.save(newTemplate);
@@ -41,12 +38,12 @@ public class TemplateCommandService {
 		return newTemplate;
 	}
 
-	public Template updateTemplateInfo(Long templateId, String name, String description, int duration, int taskCount) {
+	// 수정
+	public void updateTemplateInfo(Long templateId, String name, String description, int duration, int taskCount, Long updatedBy) {
 		Template originTemplate = templateRepository.findById(templateId).
-			orElseThrow(() -> new BaseException(ErrorCode.TEMPLATE_NOT_FOUND));
+				orElseThrow(() -> new BaseException(ErrorCode.TEMPLATE_NOT_FOUND));
 
-		originTemplate.updateTemplate(name, description, duration, taskCount);
-		return originTemplate;
+		originTemplate.updateTemplate(name, description, duration, taskCount, updatedBy);
 	}
 
 	public void deleteTemplate(Long templateId) {
@@ -56,4 +53,6 @@ public class TemplateCommandService {
 		originTemplate.deleteTemplate();
 
 	}
+
+
 }

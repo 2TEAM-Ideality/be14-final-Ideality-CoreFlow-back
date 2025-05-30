@@ -16,7 +16,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class TemplateNodeDataDTO {
-
 	private String label; 			// 태스크명
 	private String description; 	// 설명
 	private List<String> deptList; 	// 참여 부서 목록	

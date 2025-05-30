@@ -11,5 +11,5 @@ import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
 
 @Repository
 public interface AttachmentRepository extends JpaRepository<Attachment, Long> {
-	Optional<Attachment> findByIdAndFileType(Long templateId, FileTargetType fileType);
+	Optional<Attachment> findByTargetIdAndTargetType(Long targetId, FileTargetType targetType);
 }

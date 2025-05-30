@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -45,11 +46,13 @@ class TemplateCommandControllerTest {
 	@DisplayName("템플릿 생성 테스트 : POST /api/template")
 	void testCreateTemplate() throws Exception {
 		RequestCreateTemplateDTO request = RequestCreateTemplateDTO.builder()
-			.createdBy(1L)
 			.name("템플릿 이름")
 			.taskCount(10)
 			.description("템플릿 테스트용 ")
 			.duration(50)
+			.taskCount(10)
+			.createdAt(LocalDateTime.now())
+			.createdBy(1L)
 			.nodeList(List.of(
 				new TemplateNodeDTO(
 					"1",
@@ -65,8 +68,8 @@ class TemplateCommandControllerTest {
 				)
 			))
 			.edgeList(List.of(
-				new EdgeDTO("e1", "1", "2", "default")
-			))
+						new EdgeDTO("e1", "1", "2", "default")
+					))
 			.build();
 
 		mockMvc.perform(post("/api/template")
@@ -85,14 +88,13 @@ class TemplateCommandControllerTest {
 		Long templateId = 1L;
 
 		RequestUpdateTemplateDTO request = RequestUpdateTemplateDTO.builder()
-			.templateInfo(
-				TemplateInfoDTO.builder()
-					.name("업데이트된 이름")
-					.description("업데이트된 설명")
-					.duration(5)
-					.taskCount(2)
-					.build()
-			)
+			.name("템플릿 이름")
+			.taskCount(10)
+			.description("업데이트 테스트")
+			.duration(50)
+			.taskCount(10)
+			.updatedAt(LocalDateTime.now())
+			.updatedBy(1L)
 			.nodeList(List.of(
 				new TemplateNodeDTO(
 					"1",

@@ -45,7 +45,6 @@
         <result property="duration" column="DURATION"/>
         <result property="taskCount" column="TASK_COUNT"/>
         <result property="usingProjects" column="USING_PROJECTS"/>
-        <result property="url" column="URL" />
     </resultMap>
 
     <select id="selectTemplateDetail" parameterType="_long" resultMap="templateDetailResultMap">

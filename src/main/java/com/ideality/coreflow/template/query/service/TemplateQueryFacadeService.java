@@ -46,7 +46,6 @@ public class TemplateQueryFacadeService {
 			.templateInfo(templateInfo)
 			.templateData(parsed).build();
 
-
 		return reseponseTemplateDetailDTO;
 
 

@@ -46,6 +46,7 @@ public class TemplateCommandFacadeService {
 			.nodeList(requestDTO.getNodeList())
 			.build();
 		String json = serializeJsonOrThrow(data);
+		System.out.println(json);
 
 		// 3. 파일명 및 폴더 경로 지정
 		String fileName = template.getId() + ".json";
@@ -66,14 +67,13 @@ public class TemplateCommandFacadeService {
 		// TODO. 요청자를 updatedBy 로 변경하는 부분 추가해야 함.
 
 		// 1. 템플릿 정보 변경
-		Template modifiedTemplate = templateCommandService.updateTemplateInfo(
+		templateCommandService.updateTemplateInfo(
 			templateId,
-			requestDTO.getTemplateInfo().getName(),
-			requestDTO.getTemplateInfo().getDescription(),
-			requestDTO.getTemplateInfo().getDuration(),
-			requestDTO.getTemplateInfo().getTaskCount()
-			// 생성자
-			// 참여 부서
+			requestDTO.getName(),
+			requestDTO.getDescription(),
+			requestDTO.getDuration(),
+			requestDTO.getTaskCount(),
+			requestDTO.getUpdatedBy()
 		);
 
 		// 2. Json 직렬화
