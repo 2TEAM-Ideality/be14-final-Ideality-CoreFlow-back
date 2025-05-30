@@ -2,12 +2,29 @@ package com.ideality.coreflow.template.query.service;
 
 import java.util.List;
 
-import com.ideality.coreflow.template.query.dto.RequestTemplateDetailDTO;
+import org.springframework.stereotype.Service;
+
+import com.ideality.coreflow.template.query.dto.TemplateInfoDTO;
 import com.ideality.coreflow.template.query.dto.ResponseTemplateListDTO;
+import com.ideality.coreflow.template.query.mapper.TemplateMapper;
 
-public interface TemplateQueryService {
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-	List<ResponseTemplateListDTO> getAllTemplates();
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class TemplateQueryService{
 
-	RequestTemplateDetailDTO getTemplateDetail(Long templateId);
+	private final TemplateMapper templateMapper;
+
+	public List<ResponseTemplateListDTO> getAllTemplates() {
+		return templateMapper.selectAllTemplates();
+	}
+
+	public TemplateInfoDTO getTemplateDetail(Long templateId) {
+		TemplateInfoDTO first = templateMapper.selectTemplateDetail(templateId);
+
+		return first;
+	}
 }
