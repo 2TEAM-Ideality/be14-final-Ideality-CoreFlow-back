@@ -31,11 +31,9 @@ public class TemplateController {
 
 	// TODO. 템플릿 목록 조회
 	@GetMapping("/list")
-	public ResponseEntity<APIResponse<List<ResponseTemplateListDTO>>> getTemplates(){
+	public ResponseEntity<APIResponse<List<ResponseTemplateListDTO>>> getTemplates() {
 		List<ResponseTemplateListDTO> templates = templateQueryService.getAllTemplates();
-		return ResponseEntity.ok(
-			APIResponse.success(templates, "템플릿 목록 조회 성공 ✅")
-		);
+		return ResponseEntity.ok(APIResponse.success(templates, "템플릿 목록 조회 성공 ✅"));
 	}
 
 	// TODO. 템플릿 상세 조회

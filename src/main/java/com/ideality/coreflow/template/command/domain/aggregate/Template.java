@@ -38,7 +38,8 @@ public class Template {
 	@Column(name="updated_at")
 	private LocalDateTime updatedAt;	// 수정일
 
-	// TODO. 회원이랑 엮어야 함.
+	// 설명. 다른 도메인에 위치한 Entity와는 ManytoMany 같은 관계 연결 X
+	// 유저 id 기반으로 UserService 로부터 회원 정보 가져오는 방식으로 사용하기
 	@Column(name="created_by", nullable=false, updatable=false)
 	private Long createdBy;			// 생성자
 

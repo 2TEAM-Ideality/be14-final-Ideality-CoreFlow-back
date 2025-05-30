@@ -54,8 +54,4 @@ public class Attachment {
 	@Column(name="uploader_id", nullable=false)
 	private Long uploaderId;
 
-
-
-
-
 }
