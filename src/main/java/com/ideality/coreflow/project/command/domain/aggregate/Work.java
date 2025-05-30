@@ -54,18 +54,18 @@ public class Work {
 	private LocalDate endReal;
 
 	@Column(name = "progress_rate", nullable = false)
-	@Builder.Default
-	private Double progressRate = 0.0;
+	@ColumnDefault("0")
+	private Double progressRate;
 
 	@Column(name = "passed_rate", nullable = false)
-	@Builder.Default
-	private Double passedRate = 0.0;
+	@ColumnDefault("0")
+	private Double passedRate;
 
 	private Status status;
 
 	@Column(name = "slack_time", nullable = false)
-	@Builder.Default
-	private int slackTime = 0;
+	@ColumnDefault("0")
+	private int slackTime;
 
 	@Column(name = "parent_task_id")
 	private Long parentTaskId;

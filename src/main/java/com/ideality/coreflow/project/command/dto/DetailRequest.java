@@ -19,10 +19,10 @@ public class DetailRequest {
     private LocalDate startBase;
     private LocalDate endBase;
 
-    private Long predecessorTaskId;  // 선행 일정 ID
+    private Long predecessorTaskId;  // 선행 일정 ID -> relation 에 저장
     private Long successorTaskId;    // 후행 일정 ID
 
-    private Long assigneeId;  // 책임자 ID
+    private Long assigneeId;  // 책임자 ID -> 
     private List<Long> participantIds;  // 참여자 ID 리스트
 
 
