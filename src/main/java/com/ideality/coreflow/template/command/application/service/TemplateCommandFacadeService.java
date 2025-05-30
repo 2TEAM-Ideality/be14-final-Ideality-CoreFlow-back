@@ -31,7 +31,6 @@ public class TemplateCommandFacadeService {
 	private final AttachmentCommandService attachmentCommandService;
 	private final S3Service s3Service;
 	private final ObjectMapper objectMapper;	// Jackson 라이브러리 제공 클래스 (Json 직렬화, 역직렬화에서 사용)
-	private final TemplateRepository templateRepository;
 
 	// 템플릿 생성
 	@Transactional
