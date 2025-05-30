@@ -54,4 +54,14 @@ public class Attachment {
 	@Column(name="uploader_id", nullable=false)
 	private Long uploaderId;
 
+
+	// 첨부파일 정보 수정
+	public void updateInfo(String fileName, String fileUrl, String size) {
+		this.storedName = fileName;
+		this.url = fileUrl;
+		this.size = size;
+		this.uploadAt = LocalDateTime.now();
+		// TODO. 업로드 수정도 필요
+	}
+
 }

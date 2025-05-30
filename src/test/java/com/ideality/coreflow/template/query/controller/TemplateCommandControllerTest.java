@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ideality.coreflow.template.query.dto.ResponseTemplateDetailDTO;
@@ -24,8 +23,8 @@ import com.ideality.coreflow.template.query.service.TemplateQueryFacadeService;
 import com.ideality.coreflow.template.query.service.TemplateQueryService;
 
 // @SpringBootTest  -> 전체 컨텍스트를 로드 (모든 빈을 스캔)
-@WebMvcTest(controllers = TemplateController.class)	// 특정 컨트롤러만 스캔
-class TemplateControllerTest {
+@WebMvcTest(controllers = TemplateQueryController.class)	// 특정 컨트롤러만 스캔
+class TemplateCommandControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;

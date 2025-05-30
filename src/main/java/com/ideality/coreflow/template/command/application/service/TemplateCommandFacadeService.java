@@ -1,5 +1,6 @@
 package com.ideality.coreflow.template.command.application.service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
@@ -8,11 +9,15 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ideality.coreflow.attachment.command.application.service.AttachmentCommandService;
+import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.service.S3Service;
 import com.ideality.coreflow.template.command.application.dto.RequestCreateTemplateDTO;
+import com.ideality.coreflow.template.command.application.dto.RequestUpdateTemplateDTO;
 import com.ideality.coreflow.template.command.domain.aggregate.Template;
+import com.ideality.coreflow.template.command.domain.repository.TemplateRepository;
+import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +31,9 @@ public class TemplateCommandFacadeService {
 	private final AttachmentCommandService attachmentCommandService;
 	private final S3Service s3Service;
 	private final ObjectMapper objectMapper;	// Jackson 라이브러리 제공 클래스 (Json 직렬화, 역직렬화에서 사용)
+	private final TemplateRepository templateRepository;
 
+	// 템플릿 생성
 	@Transactional
 	public void createTemplate(RequestCreateTemplateDTO requestDTO) {
 
@@ -34,7 +41,11 @@ public class TemplateCommandFacadeService {
 		Template template = templateCommandService.createTemplate(requestDTO);
 
 		// 2. JSON 직렬화
-		String json = serializeJsonOrThrow(requestDTO);
+		TemplateDataDTO data = TemplateDataDTO.builder()
+			.edgeList(requestDTO.getEdgeList())
+			.nodeList(requestDTO.getNodeList())
+			.build();
+		String json = serializeJsonOrThrow(data);
 
 		// 3. 파일명 및 폴더 경로 지정
 		String fileName = template.getId() + ".json";
@@ -49,6 +60,46 @@ public class TemplateCommandFacadeService {
 		);
 	}
 
+	// 템플릿 수정
+	@Transactional
+	public void updateTemplate(Long templateId, RequestUpdateTemplateDTO requestDTO) {
+		// TODO. 요청자를 updatedBy 로 변경하는 부분 추가해야 함.
+
+		// 1. 템플릿 정보 변경
+		Template modifiedTemplate = templateCommandService.updateTemplateInfo(
+			templateId,
+			requestDTO.getTemplateInfo().getName(),
+			requestDTO.getTemplateInfo().getDescription(),
+			requestDTO.getTemplateInfo().getDuration(),
+			requestDTO.getTemplateInfo().getTaskCount()
+			// 생성자
+			// 참여 부서
+		);
+
+		// 2. Json 직렬화
+		TemplateDataDTO data = TemplateDataDTO.builder()
+			.edgeList(requestDTO.getEdgeList())
+			.nodeList(requestDTO.getNodeList())
+			.build();
+		String json = serializeJsonOrThrow(data);
+
+		//3. S3 업로드
+		String fileName = templateId + ".json";
+		String folder = "template-json";
+		String fileUrl = uploadToS3OrThrow(json, folder, fileName);
+		String size = String.valueOf(json.getBytes(StandardCharsets.UTF_8).length) + " bytes";
+
+		// 4. 첨부파일 정보 업데이트
+		attachmentCommandService.updateAttachmentForTemplate(FileTargetType.TEMPLATE, templateId, fileName, fileUrl, size);
+
+	}
+
+	// 템플릿 삭제
+	@Transactional
+	public void deleteTemplate(Long templateId) {
+
+	}
+
 	// S3 업로드
 	private String uploadToS3OrThrow(String json, String folder, String fileName) {
 		try {
@@ -61,7 +112,7 @@ public class TemplateCommandFacadeService {
 
 
 	// JSON 직렬화
-	private String serializeJsonOrThrow(RequestCreateTemplateDTO requestDTO) {
+	private String serializeJsonOrThrow(TemplateDataDTO requestDTO) {
 		try {
 			return objectMapper.writeValueAsString(Map.of(
 				"nodeList", requestDTO.getNodeList(),
@@ -72,5 +123,6 @@ public class TemplateCommandFacadeService {
 			throw new BaseException(ErrorCode.JSON_SERIALIZATION_ERROR);
 		}
 	}
+
 
 }

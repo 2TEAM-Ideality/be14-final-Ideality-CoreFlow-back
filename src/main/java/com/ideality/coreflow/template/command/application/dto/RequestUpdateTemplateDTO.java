@@ -1,8 +1,10 @@
 package com.ideality.coreflow.template.command.application.dto;
 
 import java.util.List;
+import java.util.Map;
 
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
+import com.ideality.coreflow.template.query.dto.TemplateInfoDTO;
 import com.ideality.coreflow.template.query.dto.TemplateNodeDTO;
 
 import lombok.AllArgsConstructor;
@@ -16,14 +18,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RequestCreateTemplateDTO {
-	String name;
-	String description;
-	Long createdBy;
-	int duration;
-	int taskCount;
+public class RequestUpdateTemplateDTO {
 
-	List<TemplateNodeDTO> NodeList;
-	List<EdgeDTO> edgeList;
+	private TemplateInfoDTO templateInfo;
+
+	private List<TemplateNodeDTO> nodeList;
+	private List<EdgeDTO> edgeList;
 
 }

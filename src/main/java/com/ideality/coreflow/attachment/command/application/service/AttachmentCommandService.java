@@ -3,11 +3,14 @@ package com.ideality.coreflow.attachment.command.application.service;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
+import org.hibernate.tool.schema.TargetType;
 import org.springframework.stereotype.Service;
 
 import com.ideality.coreflow.attachment.command.domain.aggregate.Attachment;
 import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
 import com.ideality.coreflow.attachment.command.domain.repository.AttachmentRepository;
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,5 +37,21 @@ public class AttachmentCommandService {
 			.uploaderId(createdBy)
 			.build();
 		attachmentRepository.save(attachment);
+	}
+
+
+	// OK. TargetType 받아서 업데이트하는 방법 <모든 파일 타입 공통으로 적용 가능>
+	@Transactional
+	public void updateAttachmentForTemplate(FileTargetType fileType, Long targetId, String fileName, String fileUrl, String size) {
+		// 타겟 아이디, 타겟 타입을 조합해서 기존 첨부파일 찾기
+		Attachment originAttachment = attachmentRepository.findByIdAndFileType(targetId, fileType)
+			.orElseThrow(() -> new BaseException(ErrorCode.ATTCHMENT_NOT_FOUND));
+
+		// 파일명, URL, 사이즈만 수정
+		originAttachment.updateInfo(
+			fileName,
+			fileUrl,
+			size
+		);
 	}
 }

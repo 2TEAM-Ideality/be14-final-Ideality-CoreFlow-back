@@ -13,7 +13,6 @@ import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.template.query.dto.ResponseTemplateDetailDTO;
-import com.ideality.coreflow.template.query.dto.TemplateInfoDTO;
 import com.ideality.coreflow.template.query.dto.ResponseTemplateListDTO;
 import com.ideality.coreflow.template.query.service.TemplateQueryFacadeService;
 import com.ideality.coreflow.template.query.service.TemplateQueryService;
@@ -23,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RestController("templateQueryController")
 @RequestMapping("/api/template")
 @RequiredArgsConstructor
-public class TemplateController {
+public class TemplateQueryController {
 
 	private final TemplateQueryFacadeService templateQueryFacadeService;
 	private final TemplateQueryService templateQueryService;

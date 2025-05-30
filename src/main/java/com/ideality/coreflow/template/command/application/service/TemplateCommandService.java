@@ -3,6 +3,9 @@ package com.ideality.coreflow.template.command.application.service;
 import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.template.command.application.dto.RequestCreateTemplateDTO;
 import com.ideality.coreflow.template.command.domain.aggregate.Template;
 import com.ideality.coreflow.template.command.domain.repository.TemplateRepository;
@@ -38,4 +41,11 @@ public class TemplateCommandService {
 		return newTemplate;
 	}
 
+	public Template updateTemplateInfo(Long templateId, String name, String description, int duration, int taskCount) {
+		Template originTemplate = templateRepository.findById(templateId).
+			orElseThrow(() -> new BaseException(ErrorCode.TEMPLATE_NOT_FOUND));
+
+		originTemplate.updateTemplate(name, description, duration, taskCount);
+		return originTemplate;
+	}
 }

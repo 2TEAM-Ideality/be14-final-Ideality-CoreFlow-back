@@ -55,5 +55,12 @@ public class Template {
 	@Column(name="is_deleted", nullable=false )
 	private boolean isDeleted = false; 		// 삭제 여부
 
+	public void updateTemplate(String name, String description, int duration, int taskCount) {
+		this.name = name;
+		this.description = description;
+		this.duration = duration;
+		this.taskCount = taskCount;
+		this.updatedAt = LocalDateTime.now();
+	}
 }
 
