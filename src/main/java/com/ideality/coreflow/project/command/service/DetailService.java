@@ -1,8 +1,11 @@
 package com.ideality.coreflow.project.command.service;
 
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.project.command.domain.aggregate.*;
 import com.ideality.coreflow.project.command.domain.repository.*;
 import com.ideality.coreflow.project.command.dto.DetailRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +32,7 @@ public class DetailService {
 
 
     // 클라이언트가 보내는 작업 및 부서, 사용자 정보를 기반으로 세부 일정을 생성
+    @Transactional
     public Work createWorkWithDeptAndParticipants(DetailRequest detailRequest) {
 
 
@@ -53,26 +57,23 @@ public class DetailService {
 
 
 
-        // 선행 작업 관계 등록 (Relation 테이블에 선행 작업 관계 추가)
-        if (detailRequest.getPredecessorTaskId() != null) {
-            Work predecessorTask = workRepository.findById(detailRequest.getPredecessorTaskId())
-                    .orElseThrow(() -> new RuntimeException("선행 작업이 존재하지 않습니다."));
+        // relation 테이블에 관계 저장
+        if (detailRequest.getPredecessorTaskId() != null && detailRequest.getSuccessorTaskId() != null) {
 
+            // 선행 작업과 후행 작업을 조회
+            Work predecessorTask = workRepository.findById(detailRequest.getPredecessorTaskId())
+                    .orElseThrow(() -> new BaseException(ErrorCode.PREDECESSOR_NOT_FOUND));
+
+            Work successorTask = workRepository.findById(detailRequest.getSuccessorTaskId())
+                    .orElseThrow(() -> new BaseException(ErrorCode.SUCCESSOR_NOT_FOUND));
+
+            // Relation 테이블에 선행 작업과 후행 작업 관계를 설정
             Relation relation = new Relation();
             relation.setPrevWork(predecessorTask);  // 선행 작업 설정
-            relation.setNextWork(savedWork);        // 후속 작업 설정
+            relation.setNextWork(successorTask);    // 후행 작업 설정
             relationRepository.save(relation);  // 관계 저장
-        }
-
-        // 후행 작업 관계 등록 (Relation 테이블에 후행 작업 관계 추가)
-        if (detailRequest.getSuccessorTaskId() != null) {
-            Work successorTask = workRepository.findById(detailRequest.getSuccessorTaskId())
-                    .orElseThrow(() -> new RuntimeException("후행 작업이 존재하지 않습니다."));
-
-            Relation relation = new Relation();
-            relation.setPrevWork(savedWork);  // 후행 작업을 선행 작업으로 설정
-            relation.setNextWork(successorTask); // 후행 작업 설정
-            relationRepository.save(relation);  // 관계 저장
+        } else {
+            throw new BaseException(ErrorCode.PREDECESSOR_AND_SUCCESSOR_REQUIRED);  // 선행 작업과 후행 작업이 모두 필요하다는 예외
         }
 
 
@@ -81,7 +82,7 @@ public class DetailService {
         if (detailRequest.getDeptId() != null) {
             // DeptRepository를 사용해 부서를 조회
             Dept dept = deptRepository.findById(detailRequest.getDeptId())
-                    .orElseThrow(() -> new RuntimeException("부서를 찾을 수 없습니다."));
+                    .orElseThrow(() -> new BaseException(ErrorCode.DEPT_NOT_FOUND)); // 부서가 존재하지 않으면 예외 던지기
 
             // WorkDept 테이블에 작업과 부서 관계 추가
             WorkDept workDept = new WorkDept();
