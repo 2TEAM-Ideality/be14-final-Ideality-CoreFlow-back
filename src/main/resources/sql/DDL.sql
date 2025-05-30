@@ -171,8 +171,8 @@ CREATE TABLE work (
 -- 작업간 관계
 CREATE TABLE relation (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    prev_work_id BIGINT NOT NULL,
-    next_work_id BIGINT NOT NULL,
+    prev_work_id BIGINT,
+    next_work_id BIGINT,
     CONSTRAINT FOREIGN KEY (prev_work_id) REFERENCES work(id) ON DELETE CASCADE,
     CONSTRAINT FOREIGN KEY (next_work_id) REFERENCES work(id) ON DELETE CASCADE
 );

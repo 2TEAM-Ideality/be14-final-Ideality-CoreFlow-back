@@ -1,13 +1,7 @@
 package com.ideality.coreflow.project.command.service;
 
-import com.ideality.coreflow.project.command.domain.aggregate.Participant;
-import com.ideality.coreflow.project.command.domain.aggregate.Relation;
-import com.ideality.coreflow.project.command.domain.aggregate.Status;
-import com.ideality.coreflow.project.command.domain.aggregate.Work;
-import com.ideality.coreflow.project.command.domain.repository.ParticipantRepository;
-import com.ideality.coreflow.project.command.domain.repository.RelationRepository;
-import com.ideality.coreflow.project.command.domain.repository.WorkDeptRepository;
-import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
+import com.ideality.coreflow.project.command.domain.aggregate.*;
+import com.ideality.coreflow.project.command.domain.repository.*;
 import com.ideality.coreflow.project.command.dto.DetailRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,20 +13,18 @@ public class DetailService {
 
 
     private final WorkRepository workRepository;
-    private final RelationRepository relationRepository;
     private final WorkDeptRepository workDeptRepository;
+    private final DeptRepository deptRepository;
     private final ParticipantRepository participantRepository;
 
     @Autowired
-    public DetailService(WorkRepository workRepository, RelationRepository relationRepository,
-                         WorkDeptRepository workDeptRepository, ParticipantRepository participantRepository
-    ) {
+    public DetailService(WorkRepository workRepository, WorkDeptRepository workDeptRepository,
+                         DeptRepository deptRepository, ParticipantRepository participantRepository) {
         this.workRepository = workRepository;
-        this.relationRepository = relationRepository;
         this.workDeptRepository = workDeptRepository;
+        this.deptRepository = deptRepository;
         this.participantRepository = participantRepository;
     }
-
 
 
     // 클라이언트가 보내는 작업 및 부서, 사용자 정보를 기반으로 세부 일정을 생성
@@ -58,13 +50,24 @@ public class DetailService {
         // 세부 작업 저장
         Work savedWork = workRepository.save(newWork);
 
-        // 선행일정과 후행일정 저장 (RelationRepository)
-        if (detailRequest.getPredecessorTaskId() != null && detailRequest.getSuccessorTaskId() != null) {
-            Relation relation = new Relation();
-            relation.setPrevWork(newWork);  // 새로 생성된 작업을 후행 작업으로 설정
-            relation.setNextWork(savedWork);  // 후속 작업 설정
-            relationRepository.save(relation);
+
+
+
+        // 작업별 부서 등록(workDeptRepository)
+        if (detailRequest.getDeptId() != null) {
+            // DeptRepository를 사용해 부서를 조회
+            Dept dept = deptRepository.findById(detailRequest.getDeptId())
+                    .orElseThrow(() -> new RuntimeException("부서를 찾을 수 없습니다."));
+
+            // WorkDept 테이블에 작업과 부서 관계 추가
+            WorkDept workDept = new WorkDept();
+            workDept.setWork(savedWork);  // 생성된 작업과 연결
+            workDept.setDept(dept);  // 해당 부서와 연결
+            workDeptRepository.save(workDept);  // 관계 저장
         }
+
+
+
 
         // 참여자 등록 (ParticipantRepository)
         if (detailRequest.getParticipantIds() != null) {
