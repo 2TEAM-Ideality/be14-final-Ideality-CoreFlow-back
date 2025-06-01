@@ -61,8 +61,9 @@ public class Project {
 	@Enumerated(EnumType.STRING)
 	private Status status = Status.PENDING;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "template_id")
-	private Template template;
+//	@ManyToOne(fetch = FetchType.LAZY)
+//	@JoinColumn(name = "template_id")
+	@Column(name = "template_id")
+	private Long templateId;
 }
 
