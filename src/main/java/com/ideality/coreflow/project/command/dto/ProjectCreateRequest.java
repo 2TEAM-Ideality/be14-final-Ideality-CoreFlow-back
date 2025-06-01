@@ -21,4 +21,5 @@ public class ProjectCreateRequest {
     private LocalDate endBase;
 
     private List<Long> leaderIds;
+    private Long directorId;
 }
