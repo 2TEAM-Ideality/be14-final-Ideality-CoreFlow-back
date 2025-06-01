@@ -10,10 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
-
-import static com.ideality.coreflow.common.exception.ErrorCode.RESOURCE_NOT_FOUND;
+import static com.ideality.coreflow.common.exception.ErrorCode.TASK_NOT_FOUND;
 
 @Service
 @Slf4j
@@ -47,27 +45,15 @@ public class TaskServiceImpl implements TaskService {
          *  prevWorkId = 0, nextWorkId = null => 아무것도 없는 상황에서 태스크 생성
          *  prevWorkId = 값 존재, nextWorkId = null => 리프 노드
          *  prevWorkId = 값, nextWorkId = 값 -> 중간 노드
+         *  prev == next -> 월요일에 수정해서 올리기
         * */
 
-        if (prevWorkId == null) {
-            throw new BaseException(RESOURCE_NOT_FOUND); // or CUSTOM_BAD_REQUEST
+        if (prevWorkId != null && prevWorkId != 0 && !taskRepository.existsById(prevWorkId)) {
+            throw new BaseException(TASK_NOT_FOUND);
         }
 
-        // Case: 첫 태스크 생성 (prev=0, next=null)
-        if (prevWorkId == 0 && nextWorkId == null) {
-            return; // 검증 필요 없음
-        }
-
-        // Case: prevWork 존재해야 함
-        if (prevWorkId != 0) {
-            taskRepository.findById(prevWorkId)
-                    .orElseThrow(() -> new BaseException(RESOURCE_NOT_FOUND));
-        }
-
-        // Case: nextWork 존재 시 검증
-        if (nextWorkId != null) {
-            taskRepository.findById(nextWorkId)
-                    .orElseThrow(() -> new BaseException(RESOURCE_NOT_FOUND));
+        if (nextWorkId != null && !taskRepository.existsById(nextWorkId)) {
+            throw new BaseException(TASK_NOT_FOUND);
         }
     }
 }

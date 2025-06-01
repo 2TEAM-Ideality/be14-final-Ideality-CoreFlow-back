@@ -15,10 +15,4 @@ import static com.ideality.coreflow.common.exception.ErrorCode.RESOURCE_NOT_FOUN
 public class DeptServiceImpl implements DeptService {
 
     private final DeptRepository deptRepository;
-
-    @Override
-    public void validateDeptName(String deptName) {
-        deptRepository.findByName(deptName)
-                .orElseThrow(() -> new BaseException(RESOURCE_NOT_FOUND));
-    }
 }

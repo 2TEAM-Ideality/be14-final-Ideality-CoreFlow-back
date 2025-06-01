@@ -3,8 +3,6 @@ package com.ideality.coreflow.project.command.domain.aggregate;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -54,7 +52,6 @@ public class Work {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	@NonNull
 	private Status status;
 
 	@Column(name = "slack_time", nullable = false)

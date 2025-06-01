@@ -37,11 +37,12 @@ public class RelationServiceImpl implements RelationService {
             insertRelation(taskId, prevWorkId);
         }
 
-        if (prevWorkId == 0) {
-            return;
+        if (prevWorkId != null && nextWorkId == null && prevWorkId != 0) {
+            log.info("리프 노드 같은 상황 - prev: {}, next: {}, task: {}", prevWorkId, nextWorkId, taskId);
+            insertRelation(prevWorkId, taskId);
         }
-        log.info("리프 노드 같은 상황 - prev: {}, next: {}, task: {}", prevWorkId, nextWorkId, taskId);
-        insertRelation(prevWorkId, taskId);
+
+        log.info("관계 생성 x : 처음 생성되는 노드");
     }
 
     @Transactional
@@ -54,6 +55,6 @@ public class RelationServiceImpl implements RelationService {
                 .nextWork(nextWork)
                 .build();
 
-        Relation saved = relationRepository.save(relation);
+        relationRepository.save(relation);
     }
 }
