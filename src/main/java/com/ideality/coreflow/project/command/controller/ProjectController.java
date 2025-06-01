@@ -2,7 +2,6 @@ package com.ideality.coreflow.project.command.controller;
 
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.dto.ProjectCreateRequest;
-import com.ideality.coreflow.project.command.dto.ProjectCreateResponse;
 import com.ideality.coreflow.project.command.service.ProjectService;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,5 +29,4 @@ public class ProjectController {
         response.put("data", result);
         return ResponseEntity.ok(response);
     }
-
 }

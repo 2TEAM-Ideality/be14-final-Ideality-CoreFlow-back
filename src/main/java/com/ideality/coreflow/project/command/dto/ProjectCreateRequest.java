@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.command.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,4 +19,6 @@ public class ProjectCreateRequest {
 
     private LocalDate startBase;
     private LocalDate endBase;
+
+    private List<Long> leaderIds;
 }
