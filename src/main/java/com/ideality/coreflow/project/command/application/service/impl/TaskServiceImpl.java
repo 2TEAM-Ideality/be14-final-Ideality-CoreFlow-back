@@ -34,7 +34,7 @@ public class TaskServiceImpl implements TaskService {
                 .status(Status.PENDING)
                 .projectId(taskDTO.getProjectId())
                 .build();
-        taskRepository.save(taskWork);
+        taskRepository.saveAndFlush(taskWork);
         log.info("Task created with id {}", taskWork.getId());
         return taskWork.getId();
     }

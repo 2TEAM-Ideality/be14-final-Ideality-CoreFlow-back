@@ -18,11 +18,16 @@ public class UserQueryServiceImpl implements UserQueryService {
     private final UserMapper userMapper;
 
     @Override
-    public List<Long> selectByDeptName(String deptName) {
-        List<Long> findUser = userMapper.selectAllUserByDept(deptName);
+    public List<Long> selectAllUserByDeptName(String deptName) {
+        List<Long> findUser = userMapper.selectAllUserByDeptName(deptName);
         if (findUser.isEmpty()) {
             throw new BaseException(ErrorCode.DEPARTMENT_NOT_FOUND);
         }
         return findUser;
+    }
+
+    @Override
+    public Long selectLeaderByDeptName(String deptName) {
+        return userMapper.selectLeaderByDeptName(deptName);
     }
 }

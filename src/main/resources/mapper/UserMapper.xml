@@ -3,10 +3,19 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ideality.coreflow.user.query.mapper.UserMapper">
-    <select id="selectAllUserByDept" resultType="_long">
+    <select id="selectAllUserByDeptName" resultType="_long">
         SELECT
                id
           FROM user
          WHERE dept_name = #{deptName}
+    </select>
+    <select id="selectLeaderByDeptName" resultType="_long">
+        SELECT
+               a.id
+          FROM user a
+          JOIN participant b ON a.id = b.user_id
+         WHERE a.dept_name = #{deptName}
+           AND b.role_id = 2
+           AND b.target_type = 'PROJECT'
     </select>
 </mapper>

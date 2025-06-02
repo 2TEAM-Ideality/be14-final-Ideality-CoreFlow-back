@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface ParticipantService {
     void createParticipants(List<TaskParticipantDTO> taskParticipants);
+
+    void updateParticipantsLeader(Long teamLeaderId, Long projectId);
 }

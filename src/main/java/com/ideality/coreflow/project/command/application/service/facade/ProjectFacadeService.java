@@ -52,18 +52,19 @@ public class ProjectFacadeService {
         workDeptService.createWorkDept(taskId, deptId);
         log.info("부서 추가");
 
-        /* 설명. 회원에서 부서 이름으로 모든 회원 조회
+        /* 설명. 회원에서 부서 이름으로 팀장이 아닌 모든 회원 조회
          *  부서에 대한 예외처리가 수행되어 있고 -> 태스크가 생성이 되지 않고
          *  조회를 해오는 것 -> 불 필요한 조회 리소스 낭비
         * */
-        List<Long> userByDept = userQueryService.selectByDeptName(requestTaskDTO.getDeptName());
+        List<Long> userByDept = userQueryService.selectAllUserByDeptName(requestTaskDTO.getDeptName());
 
         List<TaskParticipantDTO> taskParticipants = userByDept.stream()
                 .map(userId -> new TaskParticipantDTO(taskId, userId))
                 .toList();
-
+        Long teamLeaderId = userQueryService.selectLeaderByDeptName(requestTaskDTO.getDeptName());
         /* 설명. 참여 인원에 insert */
         participantService.createParticipants(taskParticipants);
+        participantService.updateParticipantsLeader(teamLeaderId, requestTaskDTO.getProjectId());
         log.info("참여자 생성");
         return taskId;
     }

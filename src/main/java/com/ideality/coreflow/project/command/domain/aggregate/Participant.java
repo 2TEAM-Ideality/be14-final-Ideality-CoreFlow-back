@@ -17,6 +17,7 @@ public class Participant {
 	private Long id;
 
 	@Column(name = "target_type")
+	@Enumerated(EnumType.STRING)
 	private TargetType targetType;
 
 	@Column(name = "target_id")
@@ -28,4 +29,7 @@ public class Participant {
 	@Column(name = "role_id")
 	private Long roleId;
 
+	public void changeRoleId() {
+		roleId = 2L;
+	}
 }
