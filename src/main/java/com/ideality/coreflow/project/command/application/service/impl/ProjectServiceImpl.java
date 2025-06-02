@@ -5,7 +5,7 @@ import com.ideality.coreflow.project.command.application.service.ProjectService;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
-import com.ideality.coreflow.project.command.dto.ProjectCreateRequest;
+import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

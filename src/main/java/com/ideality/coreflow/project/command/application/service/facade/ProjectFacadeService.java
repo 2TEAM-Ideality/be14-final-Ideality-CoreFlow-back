@@ -4,11 +4,11 @@ import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
-import com.ideality.coreflow.project.command.domain.aggregate.Status;
-import com.ideality.coreflow.project.command.dto.ProjectCreateRequest;
+import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.user.query.service.UserQueryService;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,13 +36,34 @@ public class ProjectFacadeService {
         // 프로젝트 생성
         Project project=projectService.createProject(request);
         // 디렉터 DTO 생성
+        List<ParticipantDTO> director=new ArrayList<>();
+        ParticipantDTO participant=ParticipantDTO.builder()
+                .taskId(project.getId())
+                .userId(request.getDirectorId())
+                .targetType(TargetType.PROJECT)
+                .roleId(1L)
+                .build();
+        director.add(participant);
         // 디렉터 저장
-        participantService.createParticipants();
+        participantService.createParticipants(director);
 
         //for문 내부에서
             // 1. Leader 객체 생성
             // 2. Leader 저장
-        participantService.createParticipants();
+        List<ParticipantDTO> leaders=new ArrayList<>();
+        if(request.getLeaderIds()!=null) {
+            for(Long leaderId:request.getLeaderIds()) {
+                participant=ParticipantDTO.builder()
+                        .taskId(project.getId())
+                        .userId(request.getDirectorId())
+                        .targetType(TargetType.PROJECT)
+                        .roleId(2L)
+                        .build();
+                leaders.add(participant);
+            }
+        }
+        participantService.createParticipants(leaders);
+        return project;
     }
 
     @Transactional

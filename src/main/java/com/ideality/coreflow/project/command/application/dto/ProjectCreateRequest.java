@@ -1,4 +1,4 @@
-package com.ideality.coreflow.project.command.dto;
+package com.ideality.coreflow.project.command.application.dto;
 
 import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
 import java.time.LocalDate;

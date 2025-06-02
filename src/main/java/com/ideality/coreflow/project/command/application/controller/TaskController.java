@@ -26,13 +26,13 @@ public class TaskController {
         );
     }
 
-    @PutMapping("progress/{taskId}")
-    public ResponseEntity<APIResponse<Map<String, Long>>> updateTaskByProgress(
-            @PathVariable Long taskId) {
-        Long updatedTaskId = projectFacadeService.updateStatusProgress(taskId);
-        return ResponseEntity.ok(
-                APIResponse.success(Map.of("taskId", updatedTaskId),
-                        "태스크 상태가 'PROGRESS'로 변경되었습니다.")
-        );
-    }
+//    @PutMapping("progress/{taskId}")
+//    public ResponseEntity<APIResponse<Map<String, Long>>> updateTaskByProgress(
+//            @PathVariable Long taskId) {
+//        Long updatedTaskId = projectFacadeService.updateStatusProgress(taskId);
+//        return ResponseEntity.ok(
+//                APIResponse.success(Map.of("taskId", updatedTaskId),
+//                        "태스크 상태가 'PROGRESS'로 변경되었습니다.")
+//        );
+//    }
 }
