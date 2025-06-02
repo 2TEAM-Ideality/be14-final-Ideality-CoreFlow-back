@@ -4,6 +4,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,15 +14,15 @@ import java.time.LocalDateTime;
 @Builder
 public class RequestTaskDTO {
     /* 설명. 사용자는 편하게 flat 구조로 입력 값을 전부 받는다. */
-    private String taskName;
-    private String taskDescription;
-    private LocalDate startBase;
-    private LocalDate endBase;
+    private String label;
+    private String description;
+    private LocalDate startBaseLine;
+    private LocalDate endBaseLine;
     private Long projectId;
     /* 설명. 여기부터 담당 부서 데이터 */
-    private String deptName;
+    private List<String> deptList;
     /* 설명. 여기부터 작업 간 관계 */
-    private Long prevWorkId;
-    private Long nextWorkId;
+    private Long source;
+    private Long target;
 
 }

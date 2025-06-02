@@ -24,13 +24,13 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     public Long createTask(RequestTaskDTO taskDTO) {
         Work taskWork = Work.builder()
-                .name(taskDTO.getTaskName())
-                .description(taskDTO.getTaskDescription())
+                .name(taskDTO.getLabel())
+                .description(taskDTO.getDescription())
                 .createdAt(LocalDateTime.now())
-                .startBase(taskDTO.getStartBase())
-                .endBase(taskDTO.getEndBase())
-                .startExpect(taskDTO.getStartBase())
-                .endExpect(taskDTO.getEndBase())
+                .startBase(taskDTO.getStartBaseLine())
+                .endBase(taskDTO.getEndBaseLine())
+                .startExpect(taskDTO.getStartBaseLine())
+                .endExpect(taskDTO.getEndBaseLine())
                 .status(Status.PENDING)
                 .projectId(taskDTO.getProjectId())
                 .build();

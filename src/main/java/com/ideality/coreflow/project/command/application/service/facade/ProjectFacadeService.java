@@ -39,33 +39,36 @@ public class ProjectFacadeService {
 //        projectService.existsById(requestTaskDTO.getProjectId());
 //        taskService.validateWorkId(requestTaskDTO.getPrevWorkId(), requestTaskDTO.getNextWorkId());
 //        log.info("유효성 검사 완료");
-        Long deptId = deptQueryService.findIdByName(requestTaskDTO.getDeptName());
+        List<Long> deptIds = requestTaskDTO.getDeptList().stream()
+                .map(deptQueryService::findIdByName)
+                .toList();
         log.info("부서 조회 끝");
 
         /* 설명. 태스크 부터 */
         Long taskId = taskService.createTask(requestTaskDTO);
         relationService.appendRelation
-                (requestTaskDTO.getPrevWorkId(), requestTaskDTO.getNextWorkId(), taskId);
+                (requestTaskDTO.getSource(), requestTaskDTO.getTarget(), taskId);
         log.info("태스크 및 태스트별 관계 설정 완료");
 
-        /* 설명. 작업 별 부서 id 추가 */
-        workDeptService.createWorkDept(taskId, deptId);
-        log.info("부서 추가");
+        for (int i = 0; i < requestTaskDTO.getDeptList().size(); i++) {
+            String deptName = requestTaskDTO.getDeptList().get(i);
+            Long deptId = deptIds.get(i);
 
-        /* 설명. 회원에서 부서 이름으로 팀장이 아닌 모든 회원 조회
-         *  부서에 대한 예외처리가 수행되어 있고 -> 태스크가 생성이 되지 않고
-         *  조회를 해오는 것 -> 불 필요한 조회 리소스 낭비
-        * */
-        List<Long> userByDept = userQueryService.selectAllUserByDeptName(requestTaskDTO.getDeptName());
+            /* 설명. 작업 별 부서 id 추가 */
+            workDeptService.createWorkDept(taskId, deptId);
+            log.info("부서 추가");
 
-        List<TaskParticipantDTO> taskParticipants = userByDept.stream()
-                .map(userId -> new TaskParticipantDTO(taskId, userId))
-                .toList();
-        Long teamLeaderId = userQueryService.selectLeaderByDeptName(requestTaskDTO.getDeptName());
-        /* 설명. 참여 인원에 insert */
-        participantService.createParticipants(taskParticipants);
-        participantService.updateParticipantsLeader(teamLeaderId, requestTaskDTO.getProjectId());
-        log.info("참여자 생성");
+            // 참여자 등록
+            List<Long> users = userQueryService.selectAllUserByDeptName(deptName);
+            List<TaskParticipantDTO> taskParticipants = users.stream()
+                    .map(userId -> new TaskParticipantDTO(taskId, userId))
+                    .toList();
+            participantService.createParticipants(taskParticipants);
+            log.info("참여자 가져옴");
+            // 팀장 권한 부여
+            Long teamLeaderId = userQueryService.selectLeaderByDeptName(deptName);
+            participantService.updateParticipantsLeader(teamLeaderId, taskId);
+        }
         return taskId;
     }
 }
