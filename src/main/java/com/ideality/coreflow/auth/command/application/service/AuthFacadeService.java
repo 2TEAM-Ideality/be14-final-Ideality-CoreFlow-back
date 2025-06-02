@@ -8,8 +8,11 @@ import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.email.command.application.dto.UserLoginInfo;
 import com.ideality.coreflow.email.command.application.service.EmailSendService;
+import com.ideality.coreflow.security.jwt.JwtUtil;
 import com.ideality.coreflow.user.command.application.dto.LoginDTO;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
+import com.ideality.coreflow.user.command.application.service.RoleService;
+import com.ideality.coreflow.user.command.application.service.UserOfRoleService;
 import com.ideality.coreflow.user.command.application.service.UserService;
 import com.ideality.coreflow.user.query.dto.DeptNameAndMonthDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
@@ -22,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Random;
 
 @Component
 @RequiredArgsConstructor
@@ -34,6 +36,9 @@ public class AuthFacadeService {
     private final UserQueryService userQueryService;
     private final PasswordEncoder passwordEncoder;
     private final EmailSendService emailSendService;
+    private final RoleService roleService;
+    private final UserOfRoleService userOfRoleService;
+    private final JwtUtil jwtUtil;
 
     // 로그인
     @Transactional
@@ -85,9 +90,19 @@ public class AuthFacadeService {
                                 .jobRankName(signUpRequest.getJobRankName())
                                 .jobRoleName(signUpRequest.getJobRoleName())
                                 .build();
-        userService.registUser(userInfo);
-
+        long userId = userService.registUser(userInfo);
+        log.info("userId: {}", userId);
         log.info("회원 가입 완료");
+
+        // 생성 권한 넣기
+        // 프로젝트 생성 역할 id 가져오기
+        if (signUpRequest.isCreation()) {
+            long roleId = roleService.findRoleByName("Creator");
+            // 해당 회원에게 권한 넣기
+            userOfRoleService.registAuthorities(userId, roleId);
+        }
+
+
         log.info("메일 발송");
         UserLoginInfo userLoginInfo = UserLoginInfo.builder()
                                         .employeeNum(employeeNum)
@@ -112,5 +127,14 @@ public class AuthFacadeService {
         long sequence = count + 1;
 
         return String.format("%s%s%03d", deptCode, yearMonth, sequence);
+    }
+
+    @Transactional
+    public void logout(String accessToken) {
+        Long userId = jwtUtil.getUserIdFromToken(accessToken);
+
+        // AccessToken 블랙리스트 처리
+        long expiration = jwtUtil.getExpiration(accessToken);
+        String blacklistKey = "Blacklist:" + accessToken;
     }
 }

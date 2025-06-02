@@ -1,0 +1,24 @@
+package com.ideality.coreflow.user.command.application.service;
+
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.user.command.domain.aggregate.Role;
+import com.ideality.coreflow.user.command.domain.repository.RoleRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Service
+@RequiredArgsConstructor
+public class RoleServiceImpl implements RoleService{
+
+    private final RoleRepository roleRepository;
+
+    @Override
+    public long findRoleByName(String roleName) {
+        Role role = roleRepository.findByName(roleName).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
+
+        return role.getId();
+    }
+}

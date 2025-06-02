@@ -17,4 +17,5 @@ public class SignUpRequest {
     private String deptName;
     private String jobRankName;
     private String jobRoleName;
+    private boolean isCreation;
 }
