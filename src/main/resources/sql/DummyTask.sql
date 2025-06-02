@@ -42,6 +42,7 @@ VALUES
  1
 );
 
+-- 작업 별 참여 부서
 INSERT INTO work_dept
 (work_id, dept_id)
 VALUES
@@ -74,6 +75,7 @@ VALUES
  4
 );
 
+-- 작업 별 관계
 INSERT INTO relation
 (prev_work_id, next_work_id)
 VALUES
@@ -93,25 +95,22 @@ VALUES
 -- 도식화 (work.id = 1)
 INSERT INTO participant (target_type, target_id, user_id, role_id)
 VALUES
-    ('TASK', 1, 1, 6),  -- ASSIGNEE
-    ('TASK', 1, 3, 7);  -- PARTICIPANT
-
--- 샘플 평가 (work.id = 2)
-INSERT INTO participant (target_type, target_id, user_id, role_id)
-VALUES
-    ('TASK', 2, 3, 6),
-    ('TASK', 2, 5, 7);
-
--- 그레이딩 (work.id = 3)
-INSERT INTO participant (target_type, target_id, user_id, role_id)
-VALUES
-    ('TASK', 3, 5, 6),
-    ('TASK', 3, 1, 7);
-
--- 원부자재 발주 (work.id = 4)
-INSERT INTO participant (target_type, target_id, user_id, role_id)
-VALUES
-    ('TASK', 4, 1, 6),
-    ('TASK', 4, 3, 7);
+    ('TASK', 1, 1, 2),
+    ('TASK', 1, 3, 3),
+    -- 샘플 평가 (work.id = 2)
+    ('TASK', 2, 1, 2),
+    ('TASK', 2, 2, 3),
+    ('TASK', 2, 3, 2),
+    ('TASK', 2, 4, 3),
+    ('TASK', 2, 5, 2),
+    ('TASK', 2, 6, 3),
+    ('TASK', 2, 7, 2),
+    ('TASK', 2, 8, 3),
+    -- 그레이딩 (work.id = 3)
+    ('TASK', 3, 3, 2),
+    ('TASK', 3, 4, 3),
+    -- 원부자재 발주 (work.id = 4)
+    ('TASK', 4, 7, 2),
+    ('TASK', 4, 8, 2);
 
 
