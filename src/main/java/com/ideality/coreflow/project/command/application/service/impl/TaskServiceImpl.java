@@ -85,6 +85,6 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
 
         deleteTask.softDeleteTask();
-        return 0L;
+        return deleteTask.getId();
     }
 }

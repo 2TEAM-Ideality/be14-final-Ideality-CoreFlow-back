@@ -50,6 +50,9 @@ public class TaskController {
             @PathVariable Long taskId
     ) {
         Long deleteTaskId = projectFacadeService.deleteTaskBySoft(taskId);
-        return null;
+        return ResponseEntity.ok(
+                APIResponse.success(Map.of("taskId", deleteTaskId),
+                        "태스크가 삭제 되었습니다.")
+        );
     }
 }
