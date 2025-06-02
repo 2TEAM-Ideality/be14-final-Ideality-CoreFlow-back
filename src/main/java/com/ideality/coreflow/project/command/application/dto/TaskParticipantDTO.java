@@ -1,6 +1,5 @@
 package com.ideality.coreflow.project.command.application.dto;
 
-
 import lombok.*;
 
 @NoArgsConstructor
@@ -11,5 +10,4 @@ import lombok.*;
 public class TaskParticipantDTO {
     private Long taskId;
     private Long userId;
-    private Long roleId;
 }

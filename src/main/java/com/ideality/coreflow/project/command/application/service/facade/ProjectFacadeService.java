@@ -4,7 +4,6 @@ import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.TaskParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
-import com.ideality.coreflow.user.query.dto.ParticipantUserDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,14 +51,15 @@ public class ProjectFacadeService {
         /* 설명. 작업 별 부서 id 추가 */
         workDeptService.createWorkDept(taskId, deptId);
         log.info("부서 추가");
+
         /* 설명. 회원에서 부서 이름으로 모든 회원 조회
          *  부서에 대한 예외처리가 수행되어 있고 -> 태스크가 생성이 되지 않고
          *  조회를 해오는 것 -> 불 필요한 조회 리소스 낭비
         * */
-        List<ParticipantUserDTO> userByDept = userQueryService.selectByDeptName(requestTaskDTO.getDeptName());
+        List<Long> userByDept = userQueryService.selectByDeptName(requestTaskDTO.getDeptName());
 
         List<TaskParticipantDTO> taskParticipants = userByDept.stream()
-                .map(user -> new TaskParticipantDTO(taskId, user.getUserId(), user.getRoleId()))
+                .map(userId -> new TaskParticipantDTO(taskId, userId))
                 .toList();
 
         /* 설명. 참여 인원에 insert */

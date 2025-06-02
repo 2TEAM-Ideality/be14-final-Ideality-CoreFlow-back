@@ -27,7 +27,6 @@ public class ParticipantServiceImpl implements ParticipantService {
                     .targetType(TargetType.TASK)
                     .targetId(taskParticipant.getTaskId())
                     .userId(taskParticipant.getUserId())
-                    .roleId(taskParticipant.getRoleId())
                     .build();
             participantRepository.save(participant);
         }
