@@ -29,9 +29,9 @@ public class RelationServiceImpl implements RelationService {
 
         if (prevWorkId != null && nextWorkId != null) {
             log.info("둘 다 값이 있는 상황에 왔음");
-            int result = relationRepository.deleteByPrevWorkIdAndNextWorkId(prevWorkId, nextWorkId);
+            relationRepository.deleteByPrevWorkIdAndNextWorkId(prevWorkId, nextWorkId);
 
-            if (result == 0) throw new BaseException(RESOURCE_NOT_FOUND);
+//            if (result == 0) throw new BaseException(RESOURCE_NOT_FOUND);
 
             insertRelation(prevWorkId, taskId);
             insertRelation(taskId, prevWorkId);
