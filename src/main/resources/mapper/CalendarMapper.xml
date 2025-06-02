@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ideality.coreflow.calendar.query.mapper.CalendarMapper">
+
+    <!--  개인 일정 정보 조회  -->
+    <resultMap id="PersonalResultMap" type="com.ideality.coreflow.calendar.query.dto.ResponsePersonalDTO">
+        <id property="id" column="ID" />
+        <result property="scheduleName" column="name"/>
+        <result property="content" column="CONTENT"/>
+        <result property="startAt" column="START_AT"/>
+        <result property="endAt" column="END_AT"/>
+        <result property="isRepeat" column="IS_REPEAT"/>
+    </resultMap>
+
+    <select id="selectAllPersonal" parameterType="long_" resultMap="PersonalResultMap">
+        SELECT
+            p.id,
+            p.name,
+            p.content,
+            p.start_at,
+            p.end_at,
+            p.is_repeat
+        FROM SCHEDULE
+        WHERE user_id = #{memberId}
+
+    </select>
+</mapper>
