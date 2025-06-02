@@ -59,8 +59,8 @@ public class Work {
 	private Double passedRate = 0.0;
 
 
-	@Enumerated(EnumType.STRING)  // Enum을 String으로 저장하도록 지정
-	@Column(name = "status",nullable = false)
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	private Status status;
 
 	@Column(name = "slack_time", nullable = false)
