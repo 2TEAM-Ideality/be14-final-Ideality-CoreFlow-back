@@ -7,4 +7,5 @@ import com.ideality.coreflow.template.command.domain.aggregate.TemplateDept;
 
 @Repository
 public interface TemplateDeptRepository extends JpaRepository<TemplateDept, Long> {
+	void deleteByTemplateId(Long templateId);
 }

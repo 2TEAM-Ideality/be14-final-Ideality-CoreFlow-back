@@ -95,6 +95,19 @@ public class TemplateCommandFacadeService {
 			.build();
 		String json = serializeJsonOrThrow(data);
 
+		// 3. 참여 부서 갱신
+		// 3-1. 기존 부서 관계 삭제
+		templateCommandService.deleteAllTemplateDepts(templateId);
+
+		// 3-2. 새로운 부서 ID 추출 및 저장
+		Set<Long> updatedDeptIds = requestDTO.getNodeList().stream()
+			.flatMap(node -> node.getData().getDeptList().stream().map(Integer::longValue))
+			.collect(Collectors.toSet());
+
+		for (Long deptId : updatedDeptIds) {
+			templateCommandService.saveTemplateDept(templateId, deptId);
+		}
+
 		//3. S3 업로드
 		String fileName = templateId + ".json";
 		String folder = "template-json";

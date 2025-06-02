@@ -66,4 +66,8 @@ public class TemplateCommandService {
 			.build();
 		templateDeptRepository.save(dept);
 	}
+
+	public void deleteAllTemplateDepts(Long templateId) {
+		templateDeptRepository.deleteByTemplateId(templateId);
+	}
 }
