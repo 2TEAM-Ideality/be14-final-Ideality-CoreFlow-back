@@ -74,5 +74,17 @@ public class Work {
 
 		this.status = Status.PROGRESS;
 	}
+
+	public void endTask() {
+		if (this.status == Status.COMPLETED || this.status == Status.PENDING) {
+			throw new BaseException(INVALID_STATUS_TRANSITION);
+		}
+
+		this.status = Status.COMPLETED;
+	}
+
+	public void softDeleteTask() {
+		this.status = Status.DELETED;
+	}
 }
 
