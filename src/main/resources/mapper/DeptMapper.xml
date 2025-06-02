@@ -8,4 +8,10 @@
           FROM dept
          WHERE name = #{deptName}
     </select>
+
+    <select id="findDeptCodeByName" resultType="string">
+        SELECT dept_code
+          FROM dept
+         WHERE name = #{deptName}
+    </select>
 </mapper>
