@@ -82,4 +82,9 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.save(user).getId();
     }
+
+    @Override
+    public String findUserById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND)).getEmployeeNum();
+    }
 }

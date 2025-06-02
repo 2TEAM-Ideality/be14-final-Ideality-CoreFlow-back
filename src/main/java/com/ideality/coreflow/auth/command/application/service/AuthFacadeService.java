@@ -6,8 +6,10 @@ import com.ideality.coreflow.auth.command.application.dto.request.LoginRequest;
 import com.ideality.coreflow.auth.command.application.dto.response.TokenResponse;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.email.command.application.dto.UserLoginInfo;
 import com.ideality.coreflow.email.command.application.service.EmailSendService;
+import com.ideality.coreflow.security.jwt.JwtUtil;
 import com.ideality.coreflow.user.command.application.dto.LoginDTO;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.application.service.RoleService;
@@ -17,6 +19,7 @@ import com.ideality.coreflow.user.query.dto.DeptNameAndMonthDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +40,7 @@ public class AuthFacadeService {
     private final EmailSendService emailSendService;
     private final RoleService roleService;
     private final UserOfRoleService userOfRoleService;
+    private final JwtUtil jwtUtil;
 
     // 로그인
     @Transactional
@@ -132,5 +136,18 @@ public class AuthFacadeService {
     @Transactional
     public void logout(String accessToken) {
         authService.logout(accessToken);
+    }
+
+    public TokenResponse reissueAccessToken(String refreshToken, Long userId) {
+        // 토큰 유효성 검증
+        authService.validateRefreshToken(refreshToken, userId);
+
+        String employeeNum = userService.findUserById(userId);
+        log.info("employeeNum 조회: {}", employeeNum);
+
+        List<String> userOfRoles = userQueryService.findGeneralRolesByUserId(userId);
+        log.info("해당 유저 역할 정보 조회: {}", userOfRoles);
+
+        return authService.reissuAccessToken(userId, employeeNum, userOfRoles);
     }
 }

@@ -14,4 +14,6 @@ public interface UserService {
     Boolean isExistEmail(String email);
 
     Long registUser(UserInfoDTO userInfo);
+
+    String findUserById(Long userId);
 }

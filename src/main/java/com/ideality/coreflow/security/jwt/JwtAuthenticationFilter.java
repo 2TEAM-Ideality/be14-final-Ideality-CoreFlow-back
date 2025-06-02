@@ -2,6 +2,7 @@ package com.ideality.coreflow.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ideality.coreflow.auth.command.application.dto.request.LoginRequest;
+import com.ideality.coreflow.auth.command.application.dto.request.TokenReissueRequest;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.redis.util.RedisUtil;
@@ -14,6 +15,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -43,86 +46,97 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        String path = request.getRequestURI();
+        CachedBodyHttpServletRequest cachedRequest = new CachedBodyHttpServletRequest(request);
 
-        if("/api/auth/login".equals(path) && "POST".equalsIgnoreCase(request.getMethod())) {
-            // companyCode만 먼저 읽어서 TenantContext 세팅
-
-            // RequestBody를 읽기 위해 래핑
-            CachedBodyHttpServletRequest cachedRequest = new CachedBodyHttpServletRequest(request);
-
+        if ("POST".equalsIgnoreCase(request.getMethod()) && "/api/auth/login".equals(request.getRequestURI())) {
             // JSON -> LoginRequest 객체 파싱
-            LoginRequest loginRequest = null;
             try {
-                loginRequest = objectMapper.readValue(cachedRequest.getInputStream(), LoginRequest.class);
+                LoginRequest loginRequest = objectMapper.readValue(cachedRequest.getInputStream(), LoginRequest.class);
+                // TenantContext에 schema 설정
+                String schema = tenantService.findSchemaNameByCompanyCode(loginRequest.getCompanyCode());
+                TenantContext.setTenant(schema);
             } catch (Exception e) {
                 // 실패하면 에러
                 throw new BaseException(ErrorCode.INVALID_LOGIN_REQUEST);
             }
-
-            // TenantContext에 schema 설정
-            String schema = tenantService.findSchemaNameByCompanyCode(loginRequest.getCompanyCode());
-            TenantContext.setTenant(schema);
-
-            // 필터 체인에 래핑된 요청 전단 (RequestBody를 다시 읽을 수 있도록)
-            filterChain.doFilter(cachedRequest, response);
-
-            // 요청 처리 완료 후 클리어
-            TenantContext.clear();
-            return;
-        }
-
-        try {
-            String bearerToken = request.getHeader("Authorization");
-
-            // 토큰 꺼내기
-            if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-                String token = bearerToken.substring(7);
-
-                // 토큰 유효성 검증
-                if (jwtUtil.validateToken(token)) {
-                    // 블랙리스트 검사
-                    String blacklistKey = "Blacklist:" + token;
-                    if (redisUtil.hasKey(blacklistKey)) {
-                        log.warn("Access Token이 blacklist에 있음 - 인증 중단");
-                        filterChain.doFilter(request, response);
-                        return;
-                    }
-
-                    String employeeNum = jwtProvider.getEmployeeNum(token);
-                    String companySchema = jwtProvider.getCompanySchema(token);
-
-                    log.info("jwt 필터에서 테넌트 설정");
-                    // 테넌트 설정
-                    TenantContext.setTenant(companySchema);
-                    log.info("테넌트 설정 완료: {}", TenantContext.getTenant());
-
-                    // 인증 객체 생성
-                    List<GrantedAuthority> authorities = jwtProvider.getRoles(token)
-                            .stream()
-                            .map(role -> new SimpleGrantedAuthority(role))
-                            .collect(Collectors.toList());
-
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(
-                                    employeeNum,
-                                    null,
-                                    authorities);
-
-                    authentication.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request)
-                    );
-
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                    log.info("JWT 인증 성공 - employeeNum: {}", employeeNum);
-                } else {
-                    log.warn("JWT 토큰이 유효하지 않음. 인증 처리 생략");
-                }
+            try {
+                // 필터 체인에 래핑된 요청 전단 (RequestBody를 다시 읽을 수 있도록)
+                filterChain.doFilter(cachedRequest, response);
+            } finally {
+                // 요청 처리 완료 후 클리어
+                TenantContext.clear();
             }
-            filterChain.doFilter(request, response);
-        } finally {
-            // 스레드 로컬 클리어
-            TenantContext.clear();
+        } else if("POST".equalsIgnoreCase(request.getMethod()) && "/api/auth/reissue".equals(request.getRequestURI())) {
+            // JSON -> LoginRequest 객체 파싱
+            try {
+                TokenReissueRequest tokenReissueRequest = objectMapper.readValue(cachedRequest.getInputStream(), TokenReissueRequest.class);
+                // TenantContext에 schema 설정
+                String schema = tokenReissueRequest.getCompanySchema();
+                TenantContext.setTenant(schema);
+            } catch (Exception e) {
+                // 실패하면 에러
+                throw new BaseException(ErrorCode.INVALID_LOGIN_REQUEST);
+            }
+            try {
+                // 필터 체인에 래핑된 요청 전단 (RequestBody를 다시 읽을 수 있도록)
+                filterChain.doFilter(cachedRequest, response);
+                } finally {
+                // 요청 처리 완료 후 클리어
+                TenantContext.clear();
+            }
+        } else {
+            try {
+                String bearerToken = request.getHeader("Authorization");
+
+                // 토큰 꺼내기
+                if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+                    String token = bearerToken.substring(7);
+
+                    // 토큰 유효성 검증
+                    if (jwtUtil.validateAccessToken(token)) {
+                        // 블랙리스트 검사
+                        String blacklistKey = "Blacklist:" + token;
+                        if (redisUtil.hasKey(blacklistKey)) {
+                            log.warn("Access Token이 blacklist에 있음 - 인증 중단");
+                            filterChain.doFilter(request, response);
+                            return;
+                        }
+
+                        String employeeNum = jwtProvider.getEmployeeNum(token);
+                        String companySchema = jwtProvider.getCompanySchema(token);
+
+                        log.info("jwt 필터에서 테넌트 설정");
+                        // 테넌트 설정
+                        TenantContext.setTenant(companySchema);
+                        log.info("테넌트 설정 완료: {}", TenantContext.getTenant());
+
+                        // 인증 객체 생성
+                        List<GrantedAuthority> authorities = jwtProvider.getRoles(token)
+                                .stream()
+                                .map(role -> new SimpleGrantedAuthority(role))
+                                .collect(Collectors.toList());
+
+                        UsernamePasswordAuthenticationToken authentication =
+                                new UsernamePasswordAuthenticationToken(
+                                        employeeNum,
+                                        null,
+                                        authorities);
+
+                        authentication.setDetails(
+                                new WebAuthenticationDetailsSource().buildDetails(request)
+                        );
+
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                        log.info("JWT 인증 성공 - employeeNum: {}", employeeNum);
+                    } else {
+                        log.warn("JWT 토큰이 유효하지 않음. 인증 처리 생략");
+                    }
+                }
+                filterChain.doFilter(request, response);
+            } finally {
+                // 스레드 로컬 클리어
+                TenantContext.clear();
+            }
         }
     }
 }

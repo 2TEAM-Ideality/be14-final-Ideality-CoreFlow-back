@@ -2,6 +2,7 @@ package com.ideality.coreflow.auth.command.application.controller;
 
 import com.ideality.coreflow.auth.command.application.dto.request.LoginRequest;
 import com.ideality.coreflow.auth.command.application.dto.request.SignUpRequest;
+import com.ideality.coreflow.auth.command.application.dto.request.TokenReissueRequest;
 import com.ideality.coreflow.auth.command.application.service.AuthFacadeService;
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.security.jwt.JwtUtil;
@@ -36,5 +37,13 @@ public class AuthController {
         String accessToken = jwtUtil.extractAccessToken(request);
         authFacadeService.logout(accessToken);
         return ResponseEntity.ok(APIResponse.success(null, "로그아웃 완료"));
+    }
+
+    // 재발급
+    @PostMapping("/reissue")
+    public ResponseEntity<APIResponse<?>> reissueToken(@RequestBody TokenReissueRequest request) {
+        String refreshToken = request.getRefreshToken();
+        Long userId = request.getUserId();
+        return ResponseEntity.ok(APIResponse.success(authFacadeService.reissueAccessToken(refreshToken, userId), "Access Token 재발급 완료"));
     }
 }

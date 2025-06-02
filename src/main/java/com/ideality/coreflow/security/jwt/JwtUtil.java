@@ -22,8 +22,8 @@ public class JwtUtil {
         this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
     }
 
-    // 토큰 유효성 검증
-    public boolean validateToken(String token) {
+    // 액세스 토큰 유효성 검증
+    public boolean validateAccessToken(String token) {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(key)
@@ -66,10 +66,10 @@ public class JwtUtil {
         return null;
     }
 
-    // Refresh Token 추출
-
     // subject 추출
-    public Long getUserIdFromToken(String token) { return Long.valueOf(getClaimsAllowExpired(token).toString()); }
+    public Long getUserIdFromToken(String token) {
+        return Long.valueOf(getClaimsAllowExpired(token).getSubject());
+    }
 
     public long getExpiration(String accessToken) {
         return getClaimsAllowExpired(accessToken).getExpiration().getTime();

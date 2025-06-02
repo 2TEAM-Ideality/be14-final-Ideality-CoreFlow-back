@@ -13,7 +13,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -48,7 +50,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("RefreshToken 발급 완료: {}", refreshToken);
 
         // Redis 저장
-        String redisKey = "Refresh:" + TenantContext.getTenant() + userInfo.getId();
+        String redisKey = "Refresh:" + userInfo.getId();
         log.info("Redis 저장 시도: key={}, value={}", redisKey, refreshToken);
         redisTemplate.opsForValue().set(redisKey, refreshToken, 7, TimeUnit.DAYS);
         log.info("Redis 저장 완료");
@@ -72,9 +74,31 @@ public class AuthServiceImpl implements AuthService {
         redisTemplate.opsForValue().set(blacklistKey, "logout", expiration, TimeUnit.MILLISECONDS);
 
         // Redis에 저장된 RefreshToken 제거
-        String refreshKey = "Refresh:" + TenantContext.getTenant() + userId;
+        String refreshKey = "Refresh:" + userId;
         redisTemplate.delete(refreshKey);
     }
 
+    @Override
+    public void validateRefreshToken(String refreshToken, Long userId) {
+        log.info("Refresh token: {}", refreshToken);
 
+        // Redis에 등록된 토큰값 조회
+        String redisKey = "Refresh:" + userId;
+        log.info("redisKey: {}", redisKey);
+        String storedRefreshToken = redisTemplate.opsForValue().get(redisKey);
+        log.info("storedRefreshToken: {}", storedRefreshToken);
+
+        if(storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
+            throw new BaseException(ErrorCode.INVALID_TOKEN);
+        }
+        log.info("refresh token 유효성 검증 완료");
+    }
+
+    @Override
+    public TokenResponse reissuAccessToken(Long userId, String employeeNum, List<String> userOfRoles) {
+
+        String newAccessToken = jwtProvider.generateAccessToken(userId, employeeNum, TenantContext.getTenant(), userOfRoles);
+        log.info("AccessToken 발급 완료: {}", newAccessToken);
+        return new TokenResponse(newAccessToken, null, TenantContext.getTenant(), userOfRoles);
+    }
 }

@@ -5,10 +5,6 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
 public class SignUpRequest {
     private String name;
     private String email;

@@ -12,4 +12,8 @@ public interface AuthService {
     String generatePassword();
 
     void logout(String accessToken);
+
+    void validateRefreshToken(String refreshToken, Long userId);
+
+    TokenResponse reissuAccessToken(Long userId, String employeeNum, List<String> userOfRoles);
 }
