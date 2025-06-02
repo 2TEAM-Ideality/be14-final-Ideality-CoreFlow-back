@@ -1,11 +1,7 @@
 package com.ideality.coreflow.project.command.domain.aggregate;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "participant")
@@ -33,4 +29,7 @@ public class Participant {
 	@Column(name = "role_id")
 	private Long roleId;
 
+	public void changeRoleId() {
+		roleId = 2L;
+	}
 }

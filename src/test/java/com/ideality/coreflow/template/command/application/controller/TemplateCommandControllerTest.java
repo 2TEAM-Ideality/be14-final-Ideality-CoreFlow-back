@@ -60,6 +60,7 @@ class TemplateCommandControllerTest {
 						"label",
 						"도식화",
 						List.of("기획팀", "디자인팀"),
+						0,
 						"2025-06-01T00:00:00",
 						"2025-06-01T00:00:00"
 					)
@@ -102,6 +103,7 @@ class TemplateCommandControllerTest {
 						"label",
 						"도식화",
 						List.of("기획팀", "디자인팀"),
+						0,
 						"2025-06-01T00:00:00",
 						"2025-06-01T00:00:00"
 					)
