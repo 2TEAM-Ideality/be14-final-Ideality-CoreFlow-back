@@ -1,10 +1,13 @@
 package com.ideality.coreflow.project.command.domain.aggregate;
 
 
+import com.ideality.coreflow.common.exception.BaseException;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import static com.ideality.coreflow.common.exception.ErrorCode.INVALID_STATUS_TRANSITION;
 
 @Entity
 @Table(name = "work")
@@ -63,5 +66,13 @@ public class Work {
 
 	@Column(name = "project_id")
 	private Long projectId;
+
+	public void startTask() {
+		if (this.status == Status.PROGRESS) {
+			throw new BaseException(INVALID_STATUS_TRANSITION);
+		}
+
+		this.status = Status.PROGRESS;
+	}
 }
 

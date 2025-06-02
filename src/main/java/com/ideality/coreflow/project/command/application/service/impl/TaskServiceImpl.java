@@ -57,4 +57,13 @@ public class TaskServiceImpl implements TaskService {
             throw new BaseException(TASK_NOT_FOUND);
         }
     }
+
+    @Override
+    @Transactional
+    public Long updateStatusProgress(Long taskId) {
+        Work updatedTask = taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+
+        updatedTask.startTask();
+        return updatedTask.getId();
+    }
 }

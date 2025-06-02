@@ -4,11 +4,11 @@ import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/task")
@@ -17,9 +17,22 @@ public class TaskController {
     private final ProjectFacadeService projectFacadeService;
 
     @PostMapping("")
-    public ResponseEntity<APIResponse<Long>> createTaskWithFacade
-            (@RequestBody RequestTaskDTO requestTaskDTO) {
+    public ResponseEntity<APIResponse<Map<String, Long>>> createTaskWithFacade(
+            @RequestBody RequestTaskDTO requestTaskDTO) {
         Long taskId = projectFacadeService.createTask(requestTaskDTO);
-        return ResponseEntity.ok(APIResponse.success(taskId, "태스크가 성공적으로 생성되었습니다."));
+        return ResponseEntity.ok(
+                APIResponse.success(Map.of("taskId", taskId),
+                        "태스크가 성공적으로 생성되었습니다.")
+        );
+    }
+
+    @PutMapping("progress/{taskId}")
+    public ResponseEntity<APIResponse<Map<String, Long>>> updateTaskByProgress(
+            @PathVariable Long taskId) {
+        Long updatedTaskId = projectFacadeService.updateStatusProgress(taskId);
+        return ResponseEntity.ok(
+                APIResponse.success(Map.of("taskId", updatedTaskId),
+                        "태스크 상태가 'PROGRESS'로 변경되었습니다.")
+        );
     }
 }
