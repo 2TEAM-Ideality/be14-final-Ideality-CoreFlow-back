@@ -264,7 +264,7 @@ VALUES
         7
     );
 
--- 작업 생성 (각 세부일정은 parent_task_id가 1)
+-- 작업 1은 최상위 작업이므로 parent_task_id = NULL
 INSERT INTO work (name, description, created_at, start_base, end_base, start_expect, end_expect, status, slack_time, parent_task_id, project_id)
 VALUES
     ('작업 1', '상위 작업 1 설명', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10', 'PENDING', 0, NULL, 1),   -- 최상위 작업

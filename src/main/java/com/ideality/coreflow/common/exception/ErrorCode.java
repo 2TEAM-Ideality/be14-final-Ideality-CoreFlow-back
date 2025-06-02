@@ -38,6 +38,9 @@ public enum ErrorCode {
     // ✅ 없는 부서
     DEPT_NOT_FOUND("DEPT_NOT_FOUND", "부서를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
+    // ✅ 추가된 에러 코드: 선행 작업을 찾을 수 없는 경우
+    PARENT_TASK_NOT_FOUND("PARENT_TASK_NOT_FOUND", "선행 작업을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+
     ;
 
     private final String code;

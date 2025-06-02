@@ -1,15 +1,18 @@
-package com.ideality.coreflow.project.command.service;
+package com.ideality.coreflow.project.command.application.service;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.project.command.domain.aggregate.*;
 import com.ideality.coreflow.project.command.domain.repository.*;
-import com.ideality.coreflow.project.command.dto.DetailRequest;
+import com.ideality.coreflow.project.command.application.dto.DetailRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
+
+import static com.ideality.coreflow.project.command.domain.aggregate.TargetType.DETAILED;
 
 @Service
 public class DetailService {
@@ -35,6 +38,13 @@ public class DetailService {
     @Transactional
     public Work createWorkWithDeptAndParticipants(DetailRequest detailRequest) {
 
+        if (detailRequest.getParentTaskId() != null) {
+            Optional<Work> parentTask = workRepository.findById(detailRequest.getParentTaskId());
+            if (!parentTask.isPresent()) {
+                throw new BaseException(ErrorCode.PARENT_TASK_NOT_FOUND); // 예외 처리
+            }
+        }
+
 
         // DTO 에서 엔티티 로 변환 (빌더 사용)
         Work newWork = Work.builder()
@@ -44,13 +54,10 @@ public class DetailService {
                 .endBase(detailRequest.getEndBase())
                 .startExpect(detailRequest.getStartBase())
                 .endExpect(detailRequest.getEndBase())
-                .createdAt(LocalDateTime.now())  // createdAt은 현재 날짜로 설정
-                .progressRate(0.0)
-                .passedRate(0.0)
-                .status(Status.PENDING)  // Enum이 존재한다고 가정
-                .slackTime(0)
-                .parentTaskId(detailRequest.getParentTaskId())
-                .projectId(detailRequest.getProjectId())  // 프로젝트 ID도 포함될 경우
+                .createdAt(LocalDateTime.now())
+                .status(Status.PENDING)
+                .parentTaskId(detailRequest.getParentTaskId())//태스크와 다른 점!
+                .projectId(detailRequest.getProjectId())
                 .build();
         // 세부 작업 저장
         Work savedWork = workRepository.save(newWork);
@@ -93,13 +100,18 @@ public class DetailService {
 
 
 
+        //로직이 다른 것은 participant를 거기서는 걍 부서만 등록하는데 난 다 직접 지정함..
+        // 회원에서 부서 이름으로 모든 회원 조회 이 부분은 그래서 나는 빠져도됨
+        //그럼 나느 어떻게.. ? participant 분리시 taskId가져올까? 비슷하게 다 그냥 파사드서비스에서 가져오면 됨!!
 
         // 참여자 등록 (ParticipantRepository)
         if (detailRequest.getParticipantIds() != null) {
             for (Long userId : detailRequest.getParticipantIds()) {
+
+
                 Participant participant = new Participant();
                 participant.setUserId(userId);// 참여자의 userId 설정
-                participant.setTargetType("DETAILED");  // 참여하는 대상 타입 설정 ("Work"라고 가정)
+                participant.setTargetType(DETAILED);  // 참여하는 대상 타입 설정
                 participant.setTargetId(savedWork.getId());  // 작업의 ID를 targetId에 설정
                 participant.setRoleId(7L);  // 참여자의 역할 아이디
                 participantRepository.save(participant);
@@ -110,7 +122,7 @@ public class DetailService {
         if (detailRequest.getAssigneeId() != null) {
             Participant assignee = new Participant();
             assignee.setUserId(detailRequest.getAssigneeId());
-            assignee.setTargetType("DETAILED");  // 참여하는 대상 타입 설정 ("Work"라고 가정)
+            assignee.setTargetType(DETAILED);  // 참여하는 대상 타입 설정 ("Work"라고 가정)
             assignee.setTargetId(savedWork.getId());  // 작업의 ID를 targetId에 설정
             assignee.setRoleId(6L);  // 참여자의 역할 아이디
             participantRepository.save(assignee);

@@ -179,7 +179,6 @@ CREATE TABLE relation (
 );
 
 -- 작업별 참여 부서
--- 작업별 참여 부서
 CREATE TABLE work_dept (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     work_id BIGINT NOT NULL,

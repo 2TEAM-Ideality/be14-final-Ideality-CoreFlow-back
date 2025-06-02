@@ -1,8 +1,8 @@
-package com.ideality.coreflow.project.command.controller;
+package com.ideality.coreflow.project.command.application.controller;
 
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
-import com.ideality.coreflow.project.command.dto.DetailRequest;
-import com.ideality.coreflow.project.command.service.DetailService;
+import com.ideality.coreflow.project.command.application.dto.DetailRequest;
+import com.ideality.coreflow.project.command.application.service.DetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

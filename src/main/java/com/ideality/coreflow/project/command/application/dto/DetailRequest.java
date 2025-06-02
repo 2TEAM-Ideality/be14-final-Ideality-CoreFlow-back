@@ -1,4 +1,4 @@
-package com.ideality.coreflow.project.command.dto;
+package com.ideality.coreflow.project.command.application.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +11,7 @@ import java.util.List;
 public class DetailRequest {
 
     private Long projectId; // 프로젝트 ID
-    private Long parentTaskId; // 태스크 ID
+    private Long parentTaskId; // 태스크 ID //
 
     private String name;
     private String description;

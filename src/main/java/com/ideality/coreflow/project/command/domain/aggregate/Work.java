@@ -1,17 +1,12 @@
 package com.ideality.coreflow.project.command.domain.aggregate;
 
 
+import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -61,6 +56,8 @@ public class Work {
 	@ColumnDefault("0")
 	private Double passedRate;
 
+	@Column(name = "status")
+	@Enumerated(EnumType.STRING)  // Enum을 String으로 저장하도록 지정
 	private Status status;
 
 	@Column(name = "slack_time", nullable = false)
