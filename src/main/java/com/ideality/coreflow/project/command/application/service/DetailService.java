@@ -91,12 +91,14 @@ public class DetailService {
             Dept dept = deptRepository.findById(detailRequest.getDeptId())
                     .orElseThrow(() -> new BaseException(ErrorCode.DEPT_NOT_FOUND)); // 부서가 존재하지 않으면 예외 던지기
 
-            // WorkDept 테이블에 작업과 부서 관계 추가
-            WorkDept workDept = new WorkDept();
-            workDept.setWork(savedWork);  // 생성된 작업과 연결
-            workDept.setDept(dept);  // 해당 부서와 연결
+            WorkDept workDept = WorkDept.builder()
+                    .work(savedWork)
+                    .dept(dept)
+                    .build();
             workDeptRepository.save(workDept);  // 관계 저장
         }
+
+
 
 
 
