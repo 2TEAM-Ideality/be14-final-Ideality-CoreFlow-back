@@ -65,6 +65,20 @@ dependencies {
 
     // redis 도입
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // ✅ Spring Boot 테스트 기본 제공 (JUnit 5 + Mockito 등 포함)
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // ✅ AssertJ (더 강력한 fluent-style assertions)
+    testImplementation 'org.assertj:assertj-core:3.26.3'
+
+    // ✅ JUnit 5 Jupiter API와 엔진 (명시적으로 관리하고 싶을 때)
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+
+    // ✅ Mockito (이미 spring-boot-starter-test에 포함되지만 명시적 관리 가능)
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
 }
 
 tasks.named('test') {

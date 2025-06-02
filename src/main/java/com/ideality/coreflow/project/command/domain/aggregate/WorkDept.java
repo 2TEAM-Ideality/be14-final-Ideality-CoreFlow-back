@@ -1,15 +1,14 @@
 package com.ideality.coreflow.project.command.domain.aggregate;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "work_dept")
 @Getter
-@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class WorkDept {
 
 	@Id
