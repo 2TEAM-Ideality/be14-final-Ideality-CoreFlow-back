@@ -19,6 +19,6 @@ public class UserQueryServiceImpl implements UserQueryService {
 
     @Override
     public List<ParticipantUserDTO> selectByDeptName(String deptName) {
-        return List.of();
+        return userMapper.selectAllUserByDept(deptName);
     }
 }

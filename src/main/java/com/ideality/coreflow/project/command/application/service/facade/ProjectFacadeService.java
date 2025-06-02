@@ -37,6 +37,9 @@ public class ProjectFacadeService {
         /* 설명. 부서 id 조회 -> 조회 해오면서, 예외처리까지
          *  이것 또한 fall-fast 원칙에 맞게 수행
         * */
+//        projectService.existsById(requestTaskDTO.getProjectId());
+//        taskService.validateWorkId(requestTaskDTO.getPrevWorkId(), requestTaskDTO.getNextWorkId());
+//        log.info("유효성 검사 완료");
         Long deptId = deptQueryService.findIdByName(requestTaskDTO.getDeptName());
         log.info("부서 조회 끝");
 
