@@ -2,7 +2,11 @@ package com.ideality.coreflow.project.command.application.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.project.command.application.service.ProjectService;
+import com.ideality.coreflow.project.command.domain.aggregate.Project;
+import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
+import com.ideality.coreflow.project.command.dto.ProjectCreateRequest;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,5 +23,25 @@ public class ProjectServiceImpl implements ProjectService {
         if (!projectRepository.existsById(projectId)) {
             throw new BaseException(PROJECT_NOT_FOUND);
         }
+    }
+
+    @Override
+    public Project createProject(ProjectCreateRequest request) {
+        Project project = Project.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .createdAt(LocalDateTime.now())
+                .startBase(request.getStartBase())
+                .endBase(request.getEndBase())
+                .startExpect(request.getStartBase())
+                .endExpect(request.getEndExpect()!=null?request.getEndExpect():request.getEndBase())
+                .progressRate(0.0)
+                .passedRate(0.0)
+                .delayDays(0)
+                .status(Status.PENDING)
+                .templateId(request.getTemplateId())
+                .build();
+        projectRepository.save(project);
+        return project;
     }
 }

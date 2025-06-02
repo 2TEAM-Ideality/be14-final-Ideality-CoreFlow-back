@@ -3,8 +3,12 @@ package com.ideality.coreflow.project.command.application.service.facade;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.TaskParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.*;
+import com.ideality.coreflow.project.command.domain.aggregate.Project;
+import com.ideality.coreflow.project.command.domain.aggregate.Status;
+import com.ideality.coreflow.project.command.dto.ProjectCreateRequest;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.user.query.service.UserQueryService;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +29,19 @@ public class ProjectFacadeService {
 
     private final DeptQueryService deptQueryService;
     private final UserQueryService userQueryService;
+
+    public Project createProject(ProjectCreateRequest request) {
+        // 프로젝트 생성
+        Project project=projectService.createProject(request);
+        // 디렉터 DTO 생성
+        // 디렉터 저장
+        participantService.createParticipants();
+
+        //for문 내부에서
+            // 1. Leader 객체 생성
+            // 2. Leader 저장
+        participantService.createParticipants();
+    }
 
     @Transactional
     public Long createTask(RequestTaskDTO requestTaskDTO) {

@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.command.service;
 
+import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
 import com.ideality.coreflow.project.command.domain.aggregate.Participant;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
@@ -17,6 +18,7 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final ParticipantRepository participantRepository;
+    private final ProjectFacadeService projectFacadeService;
 
     /*  중요:
     *   아래 숫자는 임의로 대입한 숫자임
@@ -62,6 +64,8 @@ public class ProjectService {
                 participantRepository.save(participant);
             }
         }
+
+
 
         return project;
     }
