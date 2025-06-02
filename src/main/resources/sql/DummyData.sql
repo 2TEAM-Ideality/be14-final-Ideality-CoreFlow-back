@@ -7,9 +7,9 @@ VALUES ("사원"),
 
 INSERT INTO job_role (name)
 VALUES ("팀원"),
-       ("팀장"),
        ("파트장"),
        ("본부장");
+
 
 INSERT INTO dept (name, dept_code)
 VALUES ("기획", "PM"),
@@ -38,7 +38,7 @@ VALUES
         CURRENT_DATE,
         '기획',
         '과장',
-        '팀장'
+        '파트장'
     ),
     (
         'abce',
@@ -60,7 +60,7 @@ VALUES
         CURRENT_DATE,
         '디자인',
         '과장',
-        '팀장'
+        '파트장'
     ),
     (
         'bcdf',
@@ -82,7 +82,7 @@ VALUES
         CURRENT_DATE,
         '소싱',
         '부장',
-        '팀장'
+        '파트장'
     ),
     (
         'cdeg',
@@ -104,7 +104,7 @@ VALUES
         CURRENT_DATE,
         '생산',
         '과장',
-        '팀장'
+        '파트장'
     ),
     (
         'abde',
@@ -132,27 +132,21 @@ VALUES
 INSERT INTO role
 (name, type)
 VALUES
-    (
-        'DIRECTOR', 'PROJECT'
-    ),
-    (
-        'TEAM_LEADER', 'PROJECT'
-    ),
-    (
-        'TEAM_MEMBER', 'PROJECT'
-    ),
-    (
-        'ADMIN', 'GENERAL'
-    ),
-    (
-        'VIEWER', 'PROJECT'
-    ),
-    (
-        'ASSIGNEE', 'PROJECT'
-    ),
-    (
-        'PARTICIPANT', 'PROJECT'
-    )
+(
+    'DIRECTOR', 'PROJECT'
+),
+(
+    'TEAM_LEADER', 'PROJECT'
+),
+(
+    'TEAM_MEMBER', 'PROJECT'
+),
+(
+    'ADMIN', 'GENERAL'
+),
+(
+    'VIEWER', 'PROJECT'
+)
 ;
 
 INSERT INTO project

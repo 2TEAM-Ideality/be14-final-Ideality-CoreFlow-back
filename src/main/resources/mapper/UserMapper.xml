@@ -7,7 +7,7 @@
         <id property="userId" column="id"/>
         <result property="roleId" column="role_id"/>
     </resultMap>
-    <select id="selectByDeptName" parameterType="map" resultMap="UserRoleResultMap">
+    <select id="selectAllUserByDept" parameterType="map" resultMap="UserRoleResultMap">
         SELECT
                a.id
           FROM user a

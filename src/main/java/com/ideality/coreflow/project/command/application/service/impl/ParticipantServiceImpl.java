@@ -21,7 +21,8 @@ public class ParticipantServiceImpl implements ParticipantService {
     @Override
     @Transactional
     public void createParticipants(List<TaskParticipantDTO> taskParticipants) {
-        for(TaskParticipantDTO taskParticipant : taskParticipants) {
+        for (TaskParticipantDTO taskParticipant : taskParticipants) {
+            log.info(taskParticipant.toString());
             Participant participant = Participant.builder()
                     .targetType(TargetType.TASK)
                     .targetId(taskParticipant.getTaskId())
