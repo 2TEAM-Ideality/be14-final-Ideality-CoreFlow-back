@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.command.domain.aggregate;
 
 
+<<<<<<< HEAD
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -11,6 +12,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+=======
+import com.ideality.coreflow.common.exception.BaseException;
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import static com.ideality.coreflow.common.exception.ErrorCode.INVALID_STATUS_TRANSITION;
+>>>>>>> 05759c806e57ea1235907586ad2fec5b0dab5b08
 
 @Entity
 @Table(name = "work")
@@ -49,25 +59,38 @@ public class Work {
 	private LocalDate endReal;
 
 	@Column(name = "progress_rate", nullable = false)
-	@ColumnDefault("0")
-	private Double progressRate;
+	@Builder.Default
+	private Double progressRate = 0.0;
 
 	@Column(name = "passed_rate", nullable = false)
-	@ColumnDefault("0")
-	private Double passedRate;
+	@Builder.Default
+	private Double passedRate = 0.0;
 
+<<<<<<< HEAD
 	@Column(name = "status")
 	@Enumerated(EnumType.STRING)  // Enum을 String으로 저장하도록 지정
+=======
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+>>>>>>> 05759c806e57ea1235907586ad2fec5b0dab5b08
 	private Status status;
 
 	@Column(name = "slack_time", nullable = false)
-	@ColumnDefault("0")
-	private int slackTime;
+	@Builder.Default
+	private int slackTime = 0;
 
 	@Column(name = "parent_task_id")
 	private Long parentTaskId;
 
 	@Column(name = "project_id")
 	private Long projectId;
+
+	public void startTask() {
+		if (this.status == Status.PROGRESS) {
+			throw new BaseException(INVALID_STATUS_TRANSITION);
+		}
+
+		this.status = Status.PROGRESS;
+	}
 }
 
