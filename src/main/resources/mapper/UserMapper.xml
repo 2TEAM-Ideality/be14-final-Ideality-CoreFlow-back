@@ -32,4 +32,21 @@
          WHERE DATE_FORMAT(HIRE_DATE, '%y%m') = #{yearMonth}
            AND DEPT_NAME = #{deptName}
     </select>
+    
+    <select id="selectAllUserByDeptName" resultType="_long">
+        SELECT
+               id
+          FROM user
+         WHERE dept_name = #{deptName}
+    </select>
+    
+    <select id="selectLeaderByDeptName" resultType="_long">
+        SELECT
+               a.id
+          FROM user a
+          JOIN participant b ON a.id = b.user_id
+         WHERE a.dept_name = #{deptName}
+           AND b.role_id = 2
+           AND b.target_type = 'PROJECT'
+    </select>
 </mapper>

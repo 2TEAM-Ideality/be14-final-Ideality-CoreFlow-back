@@ -13,30 +13,34 @@
         <result property="duration" column="DURATION"/>
         <result property="taskCount" column="TASK_COUNT"/>
         <result property="usingProjects" column="USING_PROJECTS"/>
+        <result property="deptList" column="DEPT_LIST"/>
     </resultMap>
 
     <select id="selectAllTemplates" resultMap="templateListResultMap">
         SELECT
-            t.id,
-            t.name,
-            t.created_at,
-            u.name AS created_by,
-            t.duration,
-            t.task_count,
-            (
-            SELECT COUNT(*)
-            FROM project p
-            WHERE p.template_id = t.id
-            ) AS using_projects
-
-        FROM TEMPLATE t
+        t.id,
+        t.name,
+        t.created_at,
+        u.name AS created_by,
+        t.duration,
+        t.task_count,
+        (
+        SELECT COUNT(*)
+        FROM project p
+        WHERE p.template_id = t.id
+        ) AS using_projects,
+        GROUP_CONCAT(DISTINCT d.name SEPARATOR ',') AS dept_list
+        FROM template t
         JOIN user u ON t.created_by = u.id
-        WHERE t.is_deleted = FALSE;
+        LEFT JOIN template_dept td ON td.template_id = t.id
+        LEFT JOIN dept d ON td.dept_id = d.id
+        WHERE t.is_deleted = FALSE
+        GROUP BY t.id;
     </select>
 
 
     <!-- 템플릿 상세 정보 조회 -->
-    <resultMap id="templateDetailResultMap" type="com.ideality.coreflow.template.query.dto.RequestTemplateDetailDTO">
+    <resultMap id="templateDetailResultMap" type="com.ideality.coreflow.template.query.dto.TemplateInfoDTO">
         <id property="id" column="ID"/>
         <result property="name" column="NAME" />
         <result property="description" column="DESCRIPTION" />
@@ -45,11 +49,11 @@
         <result property="duration" column="DURATION"/>
         <result property="taskCount" column="TASK_COUNT"/>
         <result property="usingProjects" column="USING_PROJECTS"/>
-        <result property="url" column="URL" />
+        <result property="deptList" column="DEPT_LIST"/>
     </resultMap>
 
     <select id="selectTemplateDetail" parameterType="_long" resultMap="templateDetailResultMap">
-        SELECT
+            SELECT
             t.id AS ID,
             t.name AS NAME,
             t.description AS DESCRIPTION,
@@ -62,18 +66,17 @@
             FROM project p
             WHERE p.template_id = t.id
             ) AS USING_PROJECTS,
-            a.url AS URL
-        FROM template t
+            a.url AS URL,
+            GROUP_CONCAT(DISTINCT d.name SEPARATOR ',') AS DEPT_LIST
+            FROM template t
             LEFT JOIN user u ON t.created_by = u.id
             LEFT JOIN attachment a
-                ON a.target_type = 'TEMPLATE'
+            ON a.target_type = 'TEMPLATE'
             AND a.target_id = t.id
-        WHERE t.id = #{templateId}
+            LEFT JOIN template_dept td ON td.template_id = t.id
+            LEFT JOIN dept d ON td.dept_id = d.id
+            WHERE t.id = #{templateId}
             AND t.is_deleted = FALSE
-    </select>
-
-
-
-
-
+            GROUP BY t.id
+        </select>
 </mapper>

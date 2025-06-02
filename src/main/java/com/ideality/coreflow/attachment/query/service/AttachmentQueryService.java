@@ -1,0 +1,38 @@
+package com.ideality.coreflow.attachment.query.service;
+
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+
+import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
+import com.ideality.coreflow.attachment.query.dto.ResponseAttachmentDTO;
+import com.ideality.coreflow.attachment.query.mapper.AttachmentMapper;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class AttachmentQueryService {
+
+	private final AttachmentMapper attachmentMapper;
+
+	// TARGET TYPE, TARGET ID 로 URL 가져오기
+	public String getUrl(Long templateId, FileTargetType targetType) {
+		Map<String, Object> paramMap = Map.of(
+			"targetId", templateId,
+			"targetType", targetType.name()
+		);
+
+		ResponseAttachmentDTO response = attachmentMapper.selectUrl(paramMap);
+
+		if (response == null) {
+			log.warn("첨부파일 조회 실패 - targetId: {}, targetType: {}", templateId, targetType.name());
+			throw new RuntimeException("첨부파일이 존재하지 않습니다.");
+		}
+
+		return response.getUrl();
+	}
+
+}

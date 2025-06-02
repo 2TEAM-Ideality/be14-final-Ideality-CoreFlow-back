@@ -1,21 +1,13 @@
 package com.ideality.coreflow.project.command.domain.aggregate;
 
 
-import org.hibernate.annotations.ColumnDefault;
-
+import com.ideality.coreflow.common.exception.BaseException;
+import jakarta.persistence.*;
+import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import static com.ideality.coreflow.common.exception.ErrorCode.INVALID_STATUS_TRANSITION;
 
 @Entity
 @Table(name = "work")
@@ -54,23 +46,33 @@ public class Work {
 	private LocalDate endReal;
 
 	@Column(name = "progress_rate", nullable = false)
-	@ColumnDefault("0")
-	private Double progressRate;
+	@Builder.Default
+	private Double progressRate = 0.0;
 
 	@Column(name = "passed_rate", nullable = false)
-	@ColumnDefault("0")
-	private Double passedRate;
+	@Builder.Default
+	private Double passedRate = 0.0;
 
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	private Status status;
 
 	@Column(name = "slack_time", nullable = false)
-	@ColumnDefault("0")
-	private int slackTime;
+	@Builder.Default
+	private int slackTime = 0;
 
 	@Column(name = "parent_task_id")
 	private Long parentTaskId;
 
 	@Column(name = "project_id")
 	private Long projectId;
+
+	public void startTask() {
+		if (this.status == Status.PROGRESS) {
+			throw new BaseException(INVALID_STATUS_TRANSITION);
+		}
+
+		this.status = Status.PROGRESS;
+	}
 }
 

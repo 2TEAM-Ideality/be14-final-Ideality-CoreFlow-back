@@ -66,7 +66,7 @@ CREATE TABLE holiday (
     name VARCHAR(255) NOT NULL,
     type VARCHAR(255) NOT NULL,
     is_repeat VARCHAR(255) NOT NULL DEFAULT 'ONCE',
-    CHECK (type IN ('COMPANY', 'NATIONAL')),
+    CHECK (type IN ('COMPANY', 'NATIONAL', 'SATURDAY', 'SUNDAY')),
     CHECK (is_repeat IN ('YEARLY', 'ONCE'))
 );
 
@@ -104,10 +104,19 @@ CREATE TABLE template (
     duration INT NOT NULL,
     task_count INT NOT NULL,
     created_by BIGINT NOT NULL,
-    updated_by BIGINT NOT NULL,
+    updated_by BIGINT,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    deleted_at DATETIME DEFAULT NULL,
     CONSTRAINT FOREIGN KEY (created_by) REFERENCES user(id),
     CONSTRAINT FOREIGN KEY (updated_by) REFERENCES user(id)
+);
+
+CREATE TABLE template_dept(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    template_id BIGINT NOT NULL,
+    dept_id BIGINT NOT NULL,
+    CONSTRAINT FOREIGN KEY (template_id) REFERENCES template(id) ON DELETE CASCADE,
+    CONSTRAINT FOREIGN KEY (dept_id) REFERENCES dept(id)
 );
 
 -- 참여 인원
@@ -116,7 +125,8 @@ CREATE TABLE participant (
     target_type VARCHAR(255) NOT NULL,
     target_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
-    role_id BIGINT NOT NULL
+    role_id BIGINT NOT NULL,
+    CHECK ( target_type IN ('PROJECT', 'TASK', 'DETAILED'))
 );
 
 -- 프로젝트
@@ -299,6 +309,8 @@ CREATE TABLE attachment (
     target_type VARCHAR(255) NOT NULL,
     target_id BIGINT NOT NULL,
     uploader_id BIGINT NOT NULL,
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    deleted_at DATETIME DEFAULT NULL,
     CONSTRAINT FOREIGN KEY (uploader_id) REFERENCES user(id),
     CHECK (target_type IN ('APPROVAL', 'COMMENT', 'PROJECT', 'TEMPLATE'))
 );
