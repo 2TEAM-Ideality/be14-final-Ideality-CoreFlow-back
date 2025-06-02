@@ -3,6 +3,7 @@ package com.ideality.coreflow.project.command.application.service.facade;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.TaskParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.*;
+import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -50,25 +53,58 @@ public class ProjectFacadeService {
                 (requestTaskDTO.getSource(), requestTaskDTO.getTarget(), taskId);
         log.info("태스크 및 태스트별 관계 설정 완료");
 
-        for (int i = 0; i < requestTaskDTO.getDeptList().size(); i++) {
-            String deptName = requestTaskDTO.getDeptList().get(i);
-            Long deptId = deptIds.get(i);
+//        for (int i = 0; i < requestTaskDTO.getDeptList().size(); i++) {
+//            String deptName = requestTaskDTO.getDeptList().get(i);
+//            Long deptId = deptIds.get(i);
+//
+//            /* 설명. 작업 별 부서 id 추가 */
+//            workDeptService.createWorkDept(taskId, deptId);
+//            log.info("부서 추가");
+//
+//            // 참여자 등록
+//            List<Long> users = userQueryService.selectAllUserByDeptName(deptName);
+//            List<TaskParticipantDTO> taskParticipants = users.stream()
+//                    .map(userId -> new TaskParticipantDTO(taskId, userId))
+//                    .toList();
+//            participantService.createParticipants(taskParticipants);
+//            log.info("참여자 가져옴");
+//            // 팀장 권한 부여
+//            Long teamLeaderId = userQueryService.selectLeaderByDeptName(deptName);
+//            participantService.updateParticipantsLeader(teamLeaderId, taskId);
+//        }
 
-            /* 설명. 작업 별 부서 id 추가 */
+        /* 설명. 불필요한 읽기 및 쓰기를 방지, 하나의 for문은 쓰기만 처리하게 하기 */
+        List<String> deptNames = requestTaskDTO.getDeptList().stream().distinct().toList();
+
+        Map<String, Long> deptIdMap = deptNames.stream()
+                .collect(Collectors.toMap(name -> name, deptQueryService::findIdByName));
+
+        Map<String, List<Long>> deptUsersMap = deptNames.stream()
+                .collect(Collectors.toMap(name -> name, userQueryService::selectAllUserByDeptName));
+
+        Map<String, Long> deptLeaderMap = deptNames.stream()
+                .collect(Collectors.toMap(name -> name, userQueryService::selectLeaderByDeptName));
+
+        for (String deptName : requestTaskDTO.getDeptList()) {
+            Long deptId = deptIdMap.get(deptName);
             workDeptService.createWorkDept(taskId, deptId);
-            log.info("부서 추가");
 
-            // 참여자 등록
-            List<Long> users = userQueryService.selectAllUserByDeptName(deptName);
-            List<TaskParticipantDTO> taskParticipants = users.stream()
+            List<Long> userIds = deptUsersMap.get(deptName);
+            List<TaskParticipantDTO> participants = userIds.stream()
                     .map(userId -> new TaskParticipantDTO(taskId, userId))
                     .toList();
-            participantService.createParticipants(taskParticipants);
-            log.info("참여자 가져옴");
-            // 팀장 권한 부여
-            Long teamLeaderId = userQueryService.selectLeaderByDeptName(deptName);
-            participantService.updateParticipantsLeader(teamLeaderId, taskId);
+            participantService.createParticipants(participants);
+            log.info("여기까지는 정상");
+            Long leaderId = deptLeaderMap.get(deptName);
+            log.info("leader id: {}", leaderId.toString());
+            participantService.updateTeamLeader(leaderId, taskId, TargetType.TASK);
         }
         return taskId;
+    }
+
+    @Transactional
+    public Long updateStatusProgress(Long taskId) {
+        Long updateTaskId = taskService.updateStatusProgress(taskId);
+        return updateTaskId;
     }
 }
