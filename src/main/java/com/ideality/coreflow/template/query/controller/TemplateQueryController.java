@@ -32,6 +32,7 @@ public class TemplateQueryController {
 	@GetMapping("/list")
 	public ResponseEntity<APIResponse<List<ResponseTemplateListDTO>>> getTemplates() {
 		List<ResponseTemplateListDTO> templates = templateQueryService.getAllTemplates();
+		// List<ResponseTemplateListDTO> templates = templateQueryFacadeService.getAllTemplates();
 		return ResponseEntity.ok(APIResponse.success(templates, "템플릿 목록 조회 성공 ✅"));
 	}
 

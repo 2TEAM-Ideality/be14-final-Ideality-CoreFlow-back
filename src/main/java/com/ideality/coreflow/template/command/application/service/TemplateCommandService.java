@@ -8,6 +8,8 @@ import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.template.command.application.dto.RequestCreateTemplateDTO;
 import com.ideality.coreflow.template.command.domain.aggregate.Template;
+import com.ideality.coreflow.template.command.domain.aggregate.TemplateDept;
+import com.ideality.coreflow.template.command.domain.repository.TemplateDeptRepository;
 import com.ideality.coreflow.template.command.domain.repository.TemplateRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TemplateCommandService {
 
 	private final TemplateRepository templateRepository;
+	private final TemplateDeptRepository templateDeptRepository;
 
 	@Transactional
 	public Template createTemplate(RequestCreateTemplateDTO requestDTO) {
@@ -54,5 +57,17 @@ public class TemplateCommandService {
 
 	}
 
+	// TEMPLAET_DEPT 테이블 저장 설명. TemplateDeptService 로 따로 분리해야 할 지 ?
+	public void saveTemplateDept(Long templateId, Long deptId) {
+		log.info("Saving template dept {}", deptId);
+		TemplateDept dept = TemplateDept.builder()
+			.deptId(deptId)
+			.templateId(templateId)
+			.build();
+		templateDeptRepository.save(dept);
+	}
 
+	public void deleteAllTemplateDepts(Long templateId) {
+		templateDeptRepository.deleteByTemplateId(templateId);
+	}
 }

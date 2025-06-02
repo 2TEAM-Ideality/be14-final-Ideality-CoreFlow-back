@@ -20,10 +20,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Template {
 
-	@Getter
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="id")
+	@Getter
 	private Long id;		// 템플릿 아이디
 
 	@Column(name="name")
@@ -69,5 +69,7 @@ public class Template {
 		this.isDeleted = true;
 		this.deletedAt = LocalDateTime.now();
 	}
+
+
 }
 
