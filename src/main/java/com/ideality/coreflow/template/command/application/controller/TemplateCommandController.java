@@ -33,7 +33,7 @@ public class TemplateCommandController {
 	}
 
 
-	// TODO. 템플릿 수정
+	// 템플릿 수정
 	@PutMapping("/{templateId}")
 	public ResponseEntity<APIResponse<?>> updateTemplate(
 		@PathVariable Long templateId,
@@ -45,7 +45,7 @@ public class TemplateCommandController {
 		);
 	}
 
-	// TODO. 템플릿 삭제
+	// 템플릿 삭제
 	@DeleteMapping("/{templateId}")
 	public ResponseEntity<APIResponse<?>> deleteTemplate(
 		@PathVariable Long templateId

@@ -6,4 +6,6 @@ public interface TaskService {
     Long createTask(RequestTaskDTO taskDTO);
 
     void validateWorkId(Long prevWorkId, Long nextWorkId);
+
+    Long updateStatusProgress(Long taskId);
 }

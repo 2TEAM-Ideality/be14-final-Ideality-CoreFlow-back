@@ -1,7 +1,10 @@
 package com.ideality.coreflow.template.query.dto;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +13,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -24,5 +26,10 @@ public class TemplateInfoDTO {
 	private int duration;
 	private int taskCount;
 	private int usingProjects;
+	private String deptList;
+
+	public List<String> getDeptList() {
+		return deptList != null ? Arrays.asList(deptList.split(",")) : List.of();
+	}
 
 }
