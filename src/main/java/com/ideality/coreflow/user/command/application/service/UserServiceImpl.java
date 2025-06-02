@@ -5,6 +5,7 @@ import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.user.command.application.dto.LoginDTO;
+import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.domain.aggregate.User;
 import com.ideality.coreflow.user.command.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -57,5 +58,28 @@ public class UserServiceImpl implements UserService {
         result.setPassword(user.getPassword());
 
         return result;
+    }
+
+    @Override
+    public Boolean isExistEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    @Override
+    public Long registUser(UserInfoDTO userInfo) {
+        User user = User.builder()
+                .employeeNum(userInfo.getEmployeeNum())
+                .password(userInfo.getPassword())
+                .name(userInfo.getName())
+                .email(userInfo.getEmail())
+                .birth(userInfo.getBirth())
+                .hireDate(userInfo.getHireDate())
+                .isResign(false)
+                .deptName(userInfo.getDeptName())
+                .jobRankName(userInfo.getJobRankName())
+                .jobRoleName(userInfo.getJobRoleName())
+                .build();
+
+        return userRepository.save(user).getId();
     }
 }

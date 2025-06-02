@@ -25,4 +25,11 @@
          WHERE u.id = #{userId}
            AND r.type = 'GENERAL'
     </select>
+
+    <select id="countByHireMonthAndDeptName" resultType="long">
+        SELECT COUNT(*)
+          FROM USER
+         WHERE DATE_FORMAT(HIRE_DATE, '%y%m') = #{yearMonth}
+           AND DEPT_NAME = #{deptName}
+    </select>
 </mapper>

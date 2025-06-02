@@ -92,8 +92,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     String employeeNum = jwtProvider.getEmployeeNum(token);
                     String companySchema = jwtProvider.getCompanySchema(token);
 
+                    log.info("jwt 필터에서 테넌트 설정");
                     // 테넌트 설정
                     TenantContext.setTenant(companySchema);
+                    log.info("테넌트 설정 완료: {}", TenantContext.getTenant());
 
                     // 인증 객체 생성
                     List<GrantedAuthority> authorities = jwtProvider.getRoles(token)

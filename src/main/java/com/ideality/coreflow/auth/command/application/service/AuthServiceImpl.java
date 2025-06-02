@@ -11,9 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -26,7 +26,6 @@ public class AuthServiceImpl implements AuthService {
     private final RedisTemplate<String, String> redisTemplate;
 
     @Override
-    @Transactional
     public TokenResponse login(LoginDTO userInfo, String password, List<String> userOfRoles) {
 
         log.info("로그인 로직 시작");
@@ -53,5 +52,11 @@ public class AuthServiceImpl implements AuthService {
         log.info("Redis 저장 완료");
 
         return new TokenResponse(accessToken, refreshToken, TenantContext.getTenant(), userOfRoles);
+    }
+
+    public String generatePassword() {
+        Random r = new Random();
+        // 100000 ~ 999999
+        return String.valueOf(r.nextInt(900000) + 100000);
     }
 }

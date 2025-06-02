@@ -1,10 +1,7 @@
 package com.ideality.coreflow.user.command.domain.aggregate;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -13,7 +10,7 @@ import java.util.Set;
 @Entity
 @Table(name = "user")
 @Getter
-@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -57,7 +54,4 @@ public class User {
 
     @Column(name = "job_role_name", nullable = false)
     private String jobRoleName = "사원";
-
-    @OneToMany(mappedBy = "userId")
-    private Set<UserOfRole> userRoles = new HashSet<>();
 }

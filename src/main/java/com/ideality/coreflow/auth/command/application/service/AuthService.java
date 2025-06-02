@@ -8,4 +8,6 @@ import java.util.List;
 public interface AuthService {
 
     TokenResponse login(LoginDTO userInfo, String password, List<String> userOfRoles);
+
+    String generatePassword();
 }

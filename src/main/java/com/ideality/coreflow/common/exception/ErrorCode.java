@@ -6,6 +6,9 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
 
+    // 이미 등록된 이메일
+    EMAIL_ALREADY_EXISTS("EMAIL_ALREADY_EXISTS", "이미 등록된 이메일입니다.", HttpStatus.BAD_REQUEST),
+
     // 퇴사한 직원의 계정 로그인 실패
     RESIGNED_USER("RESIGNED_USER", "퇴사한 직원입니다. 로그인 요청이 실패하였습니다.", HttpStatus.BAD_REQUEST),
 

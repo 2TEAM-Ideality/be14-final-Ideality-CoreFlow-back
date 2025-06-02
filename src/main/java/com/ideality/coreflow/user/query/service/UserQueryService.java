@@ -1,8 +1,12 @@
 package com.ideality.coreflow.user.query.service;
 
+import com.ideality.coreflow.user.query.dto.DeptNameAndMonthDTO;
+
 import java.util.List;
 
 public interface UserQueryService {
 
     List<String> findGeneralRolesByUserId(Long userId);
+
+    long countByHireMonthAndDeptName(DeptNameAndMonthDTO countByDeptNameAndMonthDTO);
 }

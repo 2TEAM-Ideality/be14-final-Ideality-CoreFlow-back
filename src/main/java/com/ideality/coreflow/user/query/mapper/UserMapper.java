@@ -9,4 +9,6 @@ import java.util.List;
 public interface UserMapper {
 
     List<UserOfRoleDTO> selectUserOfGeneralRole(Long userId);
+
+    long countByHireMonthAndDeptName(String yearMonth, String deptName);
 }

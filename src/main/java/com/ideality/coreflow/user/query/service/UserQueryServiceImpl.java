@@ -1,5 +1,6 @@
 package com.ideality.coreflow.user.query.service;
 
+import com.ideality.coreflow.user.query.dto.DeptNameAndMonthDTO;
 import com.ideality.coreflow.user.query.dto.UserOfRoleDTO;
 import com.ideality.coreflow.user.query.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -20,5 +21,10 @@ public class UserQueryServiceImpl implements UserQueryService {
     public List<String> findGeneralRolesByUserId(Long userId) {
         List<UserOfRoleDTO> find = userMapper.selectUserOfGeneralRole(userId);
         return find.stream().map(UserOfRoleDTO::getRoleName).collect(Collectors.toList());
+    }
+
+    @Override
+    public long countByHireMonthAndDeptName(DeptNameAndMonthDTO countByDeptNameAndMonthDTO) {
+        return userMapper.countByHireMonthAndDeptName(countByDeptNameAndMonthDTO.getYearMonth(), countByDeptNameAndMonthDTO.getDeptName());
     }
 }

@@ -1,15 +1,17 @@
-package com.ideality.coreflow.auth.command.application.dto.request;
+package com.ideality.coreflow.user.command.application.dto;
 
 import lombok.*;
 
 import java.time.LocalDate;
 
 @Getter
-@Setter
-@AllArgsConstructor
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @ToString
-public class SignUpRequest {
+public class UserInfoDTO {
+    private String employeeNum;
+    private String password;
     private String name;
     private String email;
     private LocalDate birth;
