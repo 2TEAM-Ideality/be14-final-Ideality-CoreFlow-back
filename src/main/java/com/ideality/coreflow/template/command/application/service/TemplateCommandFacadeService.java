@@ -49,7 +49,7 @@ public class TemplateCommandFacadeService {
 		System.out.println(json);
 
 		// 3. 참여 부서 연결
-		// 참여 부서 ID 추출 및 저장
+		// 참여 부서 ID 추출
 		Set<Long> uniqueDeptIds = requestDTO.getNodeList().stream()
 			.flatMap(node -> node.getData().getDeptList().stream()
 				.map(Integer::longValue))

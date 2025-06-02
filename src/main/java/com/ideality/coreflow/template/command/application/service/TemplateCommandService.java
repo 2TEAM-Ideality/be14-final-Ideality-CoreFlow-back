@@ -25,6 +25,10 @@ public class TemplateCommandService {
 
 	@Transactional
 	public Template createTemplate(RequestCreateTemplateDTO requestDTO) {
+		// 템플릿 이름 중복 시 예외 처리
+		if (templateRepository.existsByName(requestDTO.getName())) {
+			throw new BaseException(ErrorCode.DUPLICATED_TEMPLATE_NAME);
+		}
 
 		// 1. 템플릿 DB 저장
 		Template newTemplate = Template.builder()
@@ -42,13 +46,19 @@ public class TemplateCommandService {
 	}
 
 	// 수정
+	@Transactional
 	public void updateTemplateInfo(Long templateId, String name, String description, int duration, int taskCount, Long updatedBy) {
+		if (templateRepository.existsByNameAndIdNot(name, templateId)) {
+			throw new BaseException(ErrorCode.DUPLICATED_TEMPLATE_NAME);
+		}
+
 		Template originTemplate = templateRepository.findById(templateId).
 				orElseThrow(() -> new BaseException(ErrorCode.TEMPLATE_NOT_FOUND));
 
 		originTemplate.updateTemplate(name, description, duration, taskCount, updatedBy);
 	}
 
+	@Transactional
 	public void deleteTemplate(Long templateId) {
 		Template originTemplate = templateRepository.findById(templateId)
 			.orElseThrow(() -> new BaseException(ErrorCode.TEMPLATE_NOT_FOUND));
@@ -57,9 +67,11 @@ public class TemplateCommandService {
 
 	}
 
-	// TEMPLAET_DEPT 테이블 저장 설명. TemplateDeptService 로 따로 분리해야 할 지 ?
+	// TEMPLATE_DEPT 테이블 저장 설명. TemplateDeptService 로 따로 분리해야 할 지 ?
+	@Transactional
 	public void saveTemplateDept(Long templateId, Long deptId) {
 		log.info("Saving template dept {}", deptId);
+
 		TemplateDept dept = TemplateDept.builder()
 			.deptId(deptId)
 			.templateId(templateId)
@@ -67,6 +79,7 @@ public class TemplateCommandService {
 		templateDeptRepository.save(dept);
 	}
 
+	@Transactional
 	public void deleteAllTemplateDepts(Long templateId) {
 		templateDeptRepository.deleteByTemplateId(templateId);
 	}

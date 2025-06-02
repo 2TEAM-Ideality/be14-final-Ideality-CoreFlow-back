@@ -65,6 +65,10 @@ dependencies {
 
     // redis 도입
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    //pdf
+    implementation 'com.itextpdf:itextpdf:5.5.13.3'
+
 }
 
 tasks.named('test') {

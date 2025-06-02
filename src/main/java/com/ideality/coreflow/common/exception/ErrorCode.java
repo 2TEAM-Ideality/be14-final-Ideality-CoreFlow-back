@@ -32,7 +32,8 @@ public enum ErrorCode {
 
     // ✅ 첨부파일 없는 정보
     ATTCHMENT_NOT_FOUND("ATTACHMENT_NOT_FOUND", "해당 첨부파일이 존재하지 않습니다." , HttpStatus.NOT_FOUND),
-    ;
+
+    DUPLICATED_TEMPLATE_NAME("DUPLICATED_TEMPLATE_NAME", "템플릿 이름이 중복되었습니다.", HttpStatus.CONFLICT);
 
     private final String code;
     private final String message;
