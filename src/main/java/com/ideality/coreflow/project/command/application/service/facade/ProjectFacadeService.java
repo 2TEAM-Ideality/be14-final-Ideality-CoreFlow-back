@@ -34,10 +34,6 @@ public class ProjectFacadeService {
          *  유효성 검사를 수행 한 다음에, db에 write를 수행할 것
         *  */
 
-        /* 설명. fall-fast 원칙으로 유효성 검사 */
-        projectService.existsById(requestTaskDTO.getProjectId());
-        taskService.validateWorkId(requestTaskDTO.getPrevWorkId(), requestTaskDTO.getNextWorkId());
-        log.info("유효성 검사 완료");
         /* 설명. 부서 id 조회 -> 조회 해오면서, 예외처리까지
          *  이것 또한 fall-fast 원칙에 맞게 수행
         * */

@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
+@Builder
 public class RequestTaskDTO {
     /* 설명. 사용자는 편하게 flat 구조로 입력 값을 전부 받는다. */
     private String taskName;

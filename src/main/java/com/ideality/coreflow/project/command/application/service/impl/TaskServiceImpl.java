@@ -52,7 +52,8 @@ public class TaskServiceImpl implements TaskService {
             throw new BaseException(TASK_NOT_FOUND);
         }
 
-        if (nextWorkId != null && !taskRepository.existsById(nextWorkId)) {
+        if (prevWorkId != null && prevWorkId != 0
+                && nextWorkId != null && !taskRepository.existsById(nextWorkId)) {
             throw new BaseException(TASK_NOT_FOUND);
         }
     }
