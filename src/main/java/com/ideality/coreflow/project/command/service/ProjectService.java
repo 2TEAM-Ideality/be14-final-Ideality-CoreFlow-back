@@ -34,11 +34,12 @@ public class ProjectService {
                 .startBase(request.getStartBase())
                 .endBase(request.getEndBase())
                 .startExpect(request.getStartBase())
-                .endExpect(request.getEndBase())
+                .endExpect(request.getEndExpect()!=null?request.getEndExpect():request.getEndBase())
                 .progressRate(0.0)
                 .passedRate(0.0)
                 .delayDays(0)
                 .status(Status.PENDING)
+                .templateId(request.getTemplateId())
                 .build();
         projectRepository.save(project);
 

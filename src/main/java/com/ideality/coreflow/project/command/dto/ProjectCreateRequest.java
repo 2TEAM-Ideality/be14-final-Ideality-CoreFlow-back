@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.command.dto;
 
+import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,11 @@ public class ProjectCreateRequest {
     private LocalDate startBase;
     private LocalDate endBase;
 
+    private LocalDate endExpect;
+
     private List<Long> leaderIds;
     private Long directorId;
+
+    private Long templateId;
+    private TemplateDataDTO templateData;
 }

@@ -21,6 +21,7 @@ public class Participant {
 	private Long id;
 
 	@Column(name = "target_type")
+	@Enumerated(EnumType.STRING)
 	private TargetType targetType;
 
 	@Column(name = "target_id")
