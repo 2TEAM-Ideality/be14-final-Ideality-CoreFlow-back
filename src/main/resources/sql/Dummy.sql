@@ -264,18 +264,18 @@ VALUES
         7
     );
 
--- 작업 1은 최상위 작업이므로 parent_task_id = NULL
-INSERT INTO work (name, description, created_at, start_base, end_base, start_expect, end_expect, status, slack_time, parent_task_id, project_id)
-VALUES
-    ('작업 1', '상위 작업 1 설명', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10', 'PENDING', 0, NULL, 1),   -- 최상위 작업
-    ('작업 2', '작업 2 설명', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10', 'PENDING', 0, 1, 1),    -- parent_task_id = 1
-    ('작업 3', '작업 3 설명', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10', 'PENDING', 0, 1, 1),    -- parent_task_id = 1
-    ('작업 4', '작업 4 설명', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10', 'PENDING', 0, 1, 1),    -- parent_task_id = 1
-    ('작업 5', '작업 5 설명', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10', 'PENDING', 0, 1, 1);    -- parent_task_id = 1
-
--- 선행 작업과 후행 작업 관계 설정 (엣지 기준: 2 -> 3 -> 4 -> 5)
-INSERT INTO relation (prev_work_id, next_work_id)
-VALUES
-    (2, 3),  -- 작업 2 -> 작업 3
-    (3, 4),  -- 작업 3 -> 작업 4
-    (4, 5);  -- 작업 4 -> 작업 5
+# -- 작업 1은 최상위 작업이므로 parent_task_id = NULL
+# INSERT INTO work (name, description, created_at, start_base, end_base, start_expect, end_expect, status, slack_time, parent_task_id, project_id)
+# VALUES
+#     ('작업 1', '상위 작업 1 설명', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10', 'PENDING', 0, NULL, 1),   -- 최상위 작업
+#     ('작업 2', '작업 2 설명', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10', 'PENDING', 0, 1, 1),    -- parent_task_id = 1
+#     ('작업 3', '작업 3 설명', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10', 'PENDING', 0, 1, 1),    -- parent_task_id = 1
+#     ('작업 4', '작업 4 설명', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10', 'PENDING', 0, 1, 1),    -- parent_task_id = 1
+#     ('작업 5', '작업 5 설명', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10', 'PENDING', 0, 1, 1);    -- parent_task_id = 1
+#
+# -- 선행 작업과 후행 작업 관계 설정 (엣지 기준: 2 -> 3 -> 4 -> 5)
+# INSERT INTO relation (prev_work_id, next_work_id)
+# VALUES
+#     (2, 3),  -- 작업 2 -> 작업 3
+#     (3, 4),  -- 작업 3 -> 작업 4
+#     (4, 5);  -- 작업 4 -> 작업 5

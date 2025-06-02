@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.command.application.service.facade;
 
+import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.*;
@@ -91,4 +92,11 @@ public class ProjectFacadeService {
         Long updateTaskId = taskService.updateStatusProgress(taskId);
         return updateTaskId;
     }
+
+//    @Transactional
+//    public Long createDetail(RequestDetailDTO requestDetailDTO){
+//        return 0.0;
+//    }
+
+    
 }

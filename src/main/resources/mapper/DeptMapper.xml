@@ -14,4 +14,12 @@
           FROM dept
          WHERE name = #{deptName}
     </select>
+
+    <!-- 부서명만 조회하는 SQL -->
+    <select id="findAllDeptNames" resultType="string">
+        SELECT name
+        FROM dept
+    </select>
+
+
 </mapper>

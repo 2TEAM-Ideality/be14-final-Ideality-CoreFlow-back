@@ -1,15 +1,17 @@
 package com.ideality.coreflow.project.command.application.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
-public class DetailRequest {
-
+@ToString
+@Builder
+public class RequestDetailDTO {
     private Long projectId; // 프로젝트 ID
     private Long parentTaskId; // 태스크 ID //
 
@@ -22,7 +24,6 @@ public class DetailRequest {
     private Long predecessorTaskId;  // 선행 일정 ID -> relation 에 저장
     private Long successorTaskId;    // 후행 일정 ID
 
-    private Long assigneeId;  // 책임자 ID ->
-    private List<Long> participantIds;  // 참여자 ID 리스트
-
+    private Long assigneeId;  // 책임자 이름 ->
+    private List<Long> participantIds;  // 참여자 이름 리스트
 }
