@@ -5,6 +5,7 @@ import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.security.jwt.JwtProvider;
+import com.ideality.coreflow.security.jwt.JwtUtil;
 import com.ideality.coreflow.user.command.application.dto.LoginDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final RedisTemplate<String, String> redisTemplate;
+    private final JwtUtil jwtUtil;
 
     @Override
     public TokenResponse login(LoginDTO userInfo, String password, List<String> userOfRoles) {
@@ -59,4 +61,20 @@ public class AuthServiceImpl implements AuthService {
         // 100000 ~ 999999
         return String.valueOf(r.nextInt(900000) + 100000);
     }
+
+    @Override
+    public void logout(String accessToken) {
+        Long userId = jwtUtil.getUserIdFromToken(accessToken);
+
+        // AccessToken 블랙리스트 처리
+        long expiration = jwtUtil.getExpiration(accessToken);
+        String blacklistKey = "Blacklist:" + accessToken;
+        redisTemplate.opsForValue().set(blacklistKey, "logout", expiration, TimeUnit.MILLISECONDS);
+
+        // Redis에 저장된 RefreshToken 제거
+        String refreshKey = "Refresh:" + TenantContext.getTenant() + userId;
+        redisTemplate.delete(refreshKey);
+    }
+
+
 }

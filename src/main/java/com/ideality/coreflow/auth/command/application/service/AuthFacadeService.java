@@ -8,7 +8,6 @@ import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.email.command.application.dto.UserLoginInfo;
 import com.ideality.coreflow.email.command.application.service.EmailSendService;
-import com.ideality.coreflow.security.jwt.JwtUtil;
 import com.ideality.coreflow.user.command.application.dto.LoginDTO;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.application.service.RoleService;
@@ -38,7 +37,6 @@ public class AuthFacadeService {
     private final EmailSendService emailSendService;
     private final RoleService roleService;
     private final UserOfRoleService userOfRoleService;
-    private final JwtUtil jwtUtil;
 
     // 로그인
     @Transactional
@@ -112,6 +110,7 @@ public class AuthFacadeService {
         emailSendService.sendEmailUserLoginInfo(userLoginInfo);
     }
 
+    // 사번 생성
     private String generateEmployeeNum(String deptName, LocalDate hireDate) {
 
         // 입사 연월 추출
@@ -129,12 +128,9 @@ public class AuthFacadeService {
         return String.format("%s%s%03d", deptCode, yearMonth, sequence);
     }
 
+    // 로그아웃
     @Transactional
     public void logout(String accessToken) {
-        Long userId = jwtUtil.getUserIdFromToken(accessToken);
-
-        // AccessToken 블랙리스트 처리
-        long expiration = jwtUtil.getExpiration(accessToken);
-        String blacklistKey = "Blacklist:" + accessToken;
+        authService.logout(accessToken);
     }
 }

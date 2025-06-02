@@ -10,4 +10,6 @@ public interface AuthService {
     TokenResponse login(LoginDTO userInfo, String password, List<String> userOfRoles);
 
     String generatePassword();
+
+    void logout(String accessToken);
 }
