@@ -49,6 +49,9 @@ public class UserServiceImpl implements UserService {
                     .orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
         }
 
+        if (user.getIsResign()) {
+            throw new BaseException(ErrorCode.RESIGNED_USER);
+        }
         result.setId(user.getId());
         result.setEmployeeNum(user.getEmployeeNum());
         result.setPassword(user.getPassword());

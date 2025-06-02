@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -43,6 +44,11 @@ public class JwtProvider {
                 .setExpiration(new Date(System.currentTimeMillis() + accessExpirationTimeInMillis))
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
+    }
+
+    // UUID 기반 refresh token 생성
+    public String generateRefreshToken() {
+        return UUID.randomUUID().toString();
     }
 
     // 토큰에서 Claims 꺼내기

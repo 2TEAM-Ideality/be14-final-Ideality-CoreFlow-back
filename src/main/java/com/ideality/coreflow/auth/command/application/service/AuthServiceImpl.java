@@ -8,11 +8,13 @@ import com.ideality.coreflow.security.jwt.JwtProvider;
 import com.ideality.coreflow.user.command.application.dto.LoginDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -21,6 +23,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Override
     @Transactional
@@ -33,15 +36,22 @@ public class AuthServiceImpl implements AuthService {
             throw new BaseException(ErrorCode.INVALID_PASSWORD);
         }
 
-        log.info("비밀번호 매칭 완료, 토큰 생성 시작");
+        log.info("비밀번호 매칭 완료");
 
         // accessToken 생성
         String accessToken = jwtProvider.generateAccessToken(userInfo.getId(), userInfo.getEmployeeNum(), TenantContext.getTenant(), userOfRoles);
+        log.info("AccessToken 발급 완료: {}", accessToken);
 
-        // refreshToken 생성할 곳
+        // refreshToken 생성
+        String refreshToken = jwtProvider.generateRefreshToken();
+        log.info("RefreshToken 발급 완료: {}", refreshToken);
 
-        // Redis 저장할 곳
+        // Redis 저장
+        String redisKey = "Refresh:" + TenantContext.getTenant() + userInfo.getId();
+        log.info("Redis 저장 시도: key={}, value={}", redisKey, refreshToken);
+        redisTemplate.opsForValue().set(redisKey, refreshToken, 7, TimeUnit.DAYS);
+        log.info("Redis 저장 완료");
 
-        return new TokenResponse(accessToken, null, TenantContext.getTenant(), userOfRoles);
+        return new TokenResponse(accessToken, refreshToken, TenantContext.getTenant(), userOfRoles);
     }
 }

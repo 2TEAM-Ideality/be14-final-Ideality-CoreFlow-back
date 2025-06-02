@@ -60,11 +60,13 @@ public class JwtUtil {
     // Access Token 추출
     public String extractAccessToken(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
-        if (header == null || !header.startsWith("Bearer ")) {
+        if (header != null && header.startsWith("Bearer ")) {
             return header.substring(7);
         }
         return null;
     }
+
+    // Refresh Token 추출
 
     // subject 추출
     public Long getUserIdFromToken(String token) { return Long.valueOf(getClaimsAllowExpired(token).toString()); }

@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ideality.coreflow.auth.command.application.dto.request.LoginRequest;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.infra.redis.util.RedisUtil;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
-import com.ideality.coreflow.security.filter.CachedBodyHttpServletRequest;
+import com.ideality.coreflow.security.custom.CachedBodyHttpServletRequest;
 import com.ideality.coreflow.tenant.command.application.service.TenantService;
-import jakarta.servlet.DispatcherType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,6 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
     private final ObjectMapper objectMapper;
     private final TenantService tenantService;
+    private final RedisUtil redisUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -80,9 +81,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // 토큰 유효성 검증
                 if (jwtUtil.validateToken(token)) {
-                    // 블랙리스트 검사 로직 들어갈 예정
-
-                    // -------------------
+                    // 블랙리스트 검사
+                    String blacklistKey = "Blacklist:" + token;
+                    if (redisUtil.hasKey(blacklistKey)) {
+                        log.warn("Access Token이 blacklist에 있음 - 인증 중단");
+                        filterChain.doFilter(request, response);
+                        return;
+                    }
 
                     String employeeNum = jwtProvider.getEmployeeNum(token);
                     String companySchema = jwtProvider.getCompanySchema(token);

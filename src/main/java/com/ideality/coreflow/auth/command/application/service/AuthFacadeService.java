@@ -1,5 +1,6 @@
 package com.ideality.coreflow.auth.command.application.service;
 
+import com.ideality.coreflow.auth.command.application.dto.request.SignUpRequest;
 import com.ideality.coreflow.auth.command.domain.aggregate.LoginType;
 import com.ideality.coreflow.auth.command.application.dto.request.LoginRequest;
 import com.ideality.coreflow.auth.command.application.dto.response.TokenResponse;
@@ -23,6 +24,7 @@ public class AuthFacadeService {
     private final AuthService authService;
     private final UserQueryService userQueryService;
 
+    // 로그인
     public TokenResponse login(LoginRequest loginRequest) {
 
         log.info("request identifier: {}", loginRequest.getIdentifier());
@@ -37,5 +39,10 @@ public class AuthFacadeService {
         log.info("해당 유저 역할 정보 조회: {}", userOfRoles);
 
         return authService.login(userInfo, loginRequest.getPassword(), userOfRoles);
+    }
+
+    // 회원가입
+    public void signUp(SignUpRequest signUpRequest) {
+
     }
 }

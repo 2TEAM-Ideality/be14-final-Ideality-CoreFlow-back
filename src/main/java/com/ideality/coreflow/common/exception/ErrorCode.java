@@ -6,6 +6,9 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
 
+    // 퇴사한 직원의 계정 로그인 실패
+    RESIGNED_USER("RESIGNED_USER", "퇴사한 직원입니다. 로그인 요청이 실패하였습니다.", HttpStatus.BAD_REQUEST),
+
     // 로그인 요청 시 바디 읽기 실패
     INVALID_LOGIN_REQUEST("INVALID_LOGIN_REQUEST", "로그인 요청이 실패하였습니다.", HttpStatus.BAD_REQUEST),
 
