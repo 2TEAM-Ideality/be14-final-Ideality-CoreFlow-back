@@ -24,5 +24,6 @@ public class WorkDept {
 	private Dept dept;
 
 	@Column(name = "is_deleted")
+	@Builder.Default
 	private boolean isDeleted = false;
 }
