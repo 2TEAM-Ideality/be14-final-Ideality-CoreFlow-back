@@ -2,6 +2,8 @@ package com.ideality.coreflow.template.command.application.service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +18,6 @@ import com.ideality.coreflow.infra.service.S3Service;
 import com.ideality.coreflow.template.command.application.dto.RequestCreateTemplateDTO;
 import com.ideality.coreflow.template.command.application.dto.RequestUpdateTemplateDTO;
 import com.ideality.coreflow.template.command.domain.aggregate.Template;
-import com.ideality.coreflow.template.command.domain.repository.TemplateRepository;
 import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
 
 import lombok.RequiredArgsConstructor;
@@ -47,14 +48,26 @@ public class TemplateCommandFacadeService {
 		String json = serializeJsonOrThrow(data);
 		System.out.println(json);
 
-		// 3. 파일명 및 폴더 경로 지정
+		// 3. 참여 부서 연결
+		// 참여 부서 ID 추출 및 저장
+		Set<Long> uniqueDeptIds = requestDTO.getNodeList().stream()
+			.flatMap(node -> node.getData().getDeptList().stream()
+				.map(Integer::longValue))
+			.collect(Collectors.toSet());
+
+		// template_dept 테이블 저장
+		for (Long deptId : uniqueDeptIds) {
+			templateCommandService.saveTemplateDept(template.getId(), deptId);
+		}
+
+		// 4. 파일명 및 폴더 경로 지정
 		String fileName = template.getId() + ".json";
 		String folder = "template-json";
 
-		// 4. S3에 업로드
+		// 5. S3에 업로드
 		String fileUrl = uploadToS3OrThrow(json, folder, fileName);
 
-		// 5. AttachmentEntity 생성 및 DB 저장
+		// 6. AttachmentEntity 생성 및 DB 저장
 		attachmentCommandService.createAttachmentForTemplate(
 			template.getId(), fileName, fileUrl, requestDTO.getCreatedBy(), json
 		);
