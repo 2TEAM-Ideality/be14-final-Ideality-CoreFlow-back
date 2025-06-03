@@ -1,7 +1,7 @@
-package com.ideality.coreflow.project.query.controller;
+package com.ideality.coreflow.holiday.query.controller;
 
-import com.ideality.coreflow.project.query.dto.HolidayQueryDto;
-import com.ideality.coreflow.project.query.service.HolidayQueryService;
+import com.ideality.coreflow.holiday.query.dto.HolidayQueryDto;
+import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;

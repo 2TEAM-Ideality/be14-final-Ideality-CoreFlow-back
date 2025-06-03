@@ -1,4 +1,4 @@
-package com.ideality.coreflow.project.query.service;
+package com.ideality.coreflow.holiday.query.service;
 
 public interface DeptQueryService {
 
