@@ -41,7 +41,7 @@ public class UserQueryServiceImpl implements UserQueryService {
     }
 
     @Override
-    public long countByHireMonthAndDeptName(DeptNameAndMonthDTO countByDeptNameAndMonthDTO) {
+    public Long countByHireMonthAndDeptName(DeptNameAndMonthDTO countByDeptNameAndMonthDTO) {
         return userMapper.countByHireMonthAndDeptName(countByDeptNameAndMonthDTO.getYearMonth(), countByDeptNameAndMonthDTO.getDeptName());
     }
 }
