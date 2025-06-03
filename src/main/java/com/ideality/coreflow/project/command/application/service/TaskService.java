@@ -8,4 +8,8 @@ public interface TaskService {
     void validateWorkId(Long prevWorkId, Long nextWorkId);
 
     Long updateStatusProgress(Long taskId);
+
+    Long updateStatusComplete(Long taskId);
+
+    Long softDeleteTask(Long taskId);
 }

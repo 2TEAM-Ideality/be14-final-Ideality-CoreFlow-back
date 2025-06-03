@@ -26,10 +26,6 @@ public class TemplateInfoDTO {
 	private int duration;
 	private int taskCount;
 	private int usingProjects;
-	private String deptList;
-
-	public List<String> getDeptList() {
-		return deptList != null ? Arrays.asList(deptList.split(",")) : List.of();
-	}
+	private List<DeptDTO> deptList;
 
 }
