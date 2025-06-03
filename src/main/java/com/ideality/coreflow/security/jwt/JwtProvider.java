@@ -66,6 +66,10 @@ public class JwtProvider {
         return claims.get(claimKey, clazz);
     }
 
+    // id 추출(subject)
+    public String getUserId(String token) {
+        return getClaims(token).getSubject();
+    }
     // 사번 추출
     public String getEmployeeNum(String token) {
         return getClaimFromToken(token, "employeeNum", String.class);

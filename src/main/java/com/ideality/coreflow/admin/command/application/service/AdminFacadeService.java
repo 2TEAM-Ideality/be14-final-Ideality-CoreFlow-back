@@ -21,6 +21,7 @@ public class AdminFacadeService {
     public void modifyUserInfoByAdmin(Long userId, RequestUserUpdateByAdmin request) {
 
         UserInfoDTO updateUserInfo = UserInfoDTO.builder()
+                .id(userId)
                 .name(request.getName())
                 .email(request.getEmail())
                 .isResign(request.getIsResign())
@@ -31,7 +32,7 @@ public class AdminFacadeService {
                 .build();
 
         // 유저 정보 수정
-        userService.updateUser(userId, updateUserInfo);
+        userService.updateUser(updateUserInfo);
 
         if (request.getIsCreation() != null) {
             long roleId = roleService.findRoleByName("Creator");

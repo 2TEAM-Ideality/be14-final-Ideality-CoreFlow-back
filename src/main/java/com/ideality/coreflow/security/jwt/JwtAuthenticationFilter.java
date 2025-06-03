@@ -104,6 +104,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             return;
                         }
 
+                        String id = jwtProvider.getUserId(token);
                         String employeeNum = jwtProvider.getEmployeeNum(token);
                         String companySchema = jwtProvider.getCompanySchema(token);
 
@@ -120,7 +121,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                         UsernamePasswordAuthenticationToken authentication =
                                 new UsernamePasswordAuthenticationToken(
-                                        employeeNum,
+                                        id,
                                         null,
                                         authorities);
 

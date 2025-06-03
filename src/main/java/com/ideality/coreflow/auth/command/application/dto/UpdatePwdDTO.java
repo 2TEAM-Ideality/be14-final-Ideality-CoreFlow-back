@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class UpdatePwdDTO {
-    String employeeNum;
+    long id;
     String prevPassword;
     String newPassword;
 }

@@ -14,7 +14,7 @@ public interface UserService {
 
     String findEmployeeNumById(Long userId);
 
-    void updateUser(Long userId, UserInfoDTO updateUserInfo);
+    void updateUser(UserInfoDTO updateUserInfo);
 
-    UserInfoDTO findPwdByEmployeeNum(String employeeNum);
+    String findPwdById(long id);
 }

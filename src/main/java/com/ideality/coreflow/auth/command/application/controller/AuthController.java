@@ -59,11 +59,11 @@ public class AuthController {
     }
 
     // 비밀번호 수정
-    @PatchMapping("/update")
+    @PatchMapping("/update-pwd")
     public ResponseEntity<APIResponse<?>> modifyPassword(@RequestBody RequestUpdatePwd request) {
 
         UpdatePwdDTO updatePwdInfo = UpdatePwdDTO.builder()
-                .employeeNum(SecurityContextHolder.getContext().getAuthentication().getName())
+                .id(Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName()))
                 .prevPassword(request.getPrevPassword())
                 .newPassword(request.getNewPassword())
                 .build();

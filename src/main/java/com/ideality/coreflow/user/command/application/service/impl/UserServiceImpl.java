@@ -78,8 +78,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(Long userId, UserInfoDTO updateUserInfo) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
+    public void updateUser(UserInfoDTO updateUserInfo) {
+        User user = userRepository.findById(updateUserInfo.getId()).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
 
         user.updateFrom(updateUserInfo);
 
@@ -87,12 +87,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserInfoDTO findPwdByEmployeeNum(String employeeNum) {
-        User user = userRepository.findByEmployeeNum(employeeNum).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
-
-        return UserInfoDTO.builder()
-                .id(user.getId())
-                .password(user.getPassword())
-                .build();
+    public String findPwdById(long id) {
+        return userRepository.findById(id).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND)).getPassword();
     }
 }

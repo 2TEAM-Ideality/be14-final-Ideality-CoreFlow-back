@@ -189,19 +189,20 @@ public class AuthFacadeService {
     }
 
     public void modifyPassword(UpdatePwdDTO updatePwdInfo) {
-        UserInfoDTO userInfo = userService.findPwdByEmployeeNum(updatePwdInfo.getEmployeeNum());
+        String pwd = userService.findPwdById(updatePwdInfo.getId());
 
         // 현재 비밀번호 검증
-        authService.validatePwd(updatePwdInfo, userInfo.getPassword());
+        authService.validatePwd(updatePwdInfo, pwd);
 
         log.info("이전 비밀번호: {}", updatePwdInfo.getPrevPassword());
         log.info("새 비밀번호: {}", updatePwdInfo.getNewPassword());
         String newPassword = passwordEncoder.encode(updatePwdInfo.getNewPassword());
 
         UserInfoDTO updateUserInfo = UserInfoDTO.builder()
+                .id(updatePwdInfo.getId())
                 .password(newPassword)
                 .build();
 
-        userService.updateUser(userInfo.getId(), updateUserInfo);
+        userService.updateUser(updateUserInfo);
     }
 }
