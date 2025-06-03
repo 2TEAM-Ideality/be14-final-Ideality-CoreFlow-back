@@ -26,6 +26,8 @@ public class RelationServiceImpl implements RelationService {
     public void appendRelation(List<Long> prevWorkId, Long nextWorkId) {
 
         for (Long workId : prevWorkId) {
+
+            if (workId == 0) continue; // 🔥 0번 값 무시
             Work prevWork = taskRepository.getReferenceById(workId);
             Work nextWork = taskRepository.getReferenceById(nextWorkId);
             Relation relation = Relation

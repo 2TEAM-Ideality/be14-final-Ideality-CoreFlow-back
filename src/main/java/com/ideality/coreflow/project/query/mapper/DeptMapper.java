@@ -1,4 +1,4 @@
-package com.ideality.coreflow.holiday.query.mapper;
+package com.ideality.coreflow.project.query.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import java.util.Optional;

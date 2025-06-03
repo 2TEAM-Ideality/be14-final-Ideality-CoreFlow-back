@@ -84,7 +84,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         for (Long sourceId : source) {
-            if (!taskRepository.existsById(sourceId)) {
+            if (sourceId != 0 && !taskRepository.existsById(sourceId)) {
                 throw new BaseException(TASK_NOT_FOUND);
             }
         }
