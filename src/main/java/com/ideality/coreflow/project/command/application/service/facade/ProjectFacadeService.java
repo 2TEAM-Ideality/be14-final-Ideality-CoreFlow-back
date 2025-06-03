@@ -6,7 +6,7 @@ import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
-import com.ideality.coreflow.project.query.service.DeptQueryService;
+import com.ideality.coreflow.holiday.query.service.DeptQueryService;
 import com.ideality.coreflow.template.query.dto.DeptDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 import com.ideality.coreflow.template.query.dto.TemplateNodeDataDTO;
@@ -14,7 +14,6 @@ import com.ideality.coreflow.user.query.service.UserQueryService;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.TreeMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -76,6 +75,10 @@ public class ProjectFacadeService {
             Map<String, Long> taskMap=new HashMap<>();
             for(NodeDTO node : request.getTemplateData().getNodeList()){
                 TemplateNodeDataDTO data=node.getData();
+                String nodeId=node.getId();
+                List<Long> sourceIds=new ArrayList<>();
+                List<Long> targetIds=new ArrayList<>();
+
                 RequestTaskDTO requestTaskDTO=RequestTaskDTO.builder()
                         .label(data.getLabel())
                         .description(data.getDescription())
@@ -83,8 +86,12 @@ public class ProjectFacadeService {
                         .endBaseLine(LocalDate.parse(data.getEndBaseLine()))
                         .projectId(project.getId())
                         .deptList(data.getDeptList().stream()
-                                .map(DeptDTO::getId)
-                        .toList())
+                                .map(Long::valueOf)
+                                .toList())
+//                        .source(sourceIds)
+//                        .target(targetIds)
+                        .build();
+
             }
         }
 
