@@ -72,9 +72,10 @@ public class ProjectFacadeService {
         // 리더 정보 저장
         participantService.createParticipants(leaders);
         // 태스크
+        // region
+
         if(request.getTemplateData()!=null) {
             Map<String, Long> taskMap=new HashMap<>();
-
             for(NodeDTO node : request.getTemplateData().getNodeList()){
                 String nodeId=node.getId();
                 List<Long> sourceIds=new ArrayList<>();
@@ -105,6 +106,7 @@ public class ProjectFacadeService {
 
             }
         }
+        // endregion
 
         return project;
     }
