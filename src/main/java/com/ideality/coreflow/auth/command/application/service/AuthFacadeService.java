@@ -140,7 +140,7 @@ public class AuthFacadeService {
         // 토큰 유효성 검증
         authService.validateRefreshToken(refreshToken, userId);
 
-        String employeeNum = userService.findUserById(userId);
+        String employeeNum = userService.findEmployeeNumById(userId);
         log.info("employeeNum 조회: {}", employeeNum);
 
         List<String> userOfRoles = userQueryService.findGeneralRolesByUserId(userId);

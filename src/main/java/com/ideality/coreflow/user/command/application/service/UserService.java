@@ -15,5 +15,5 @@ public interface UserService {
 
     Long registUser(UserInfoDTO userInfo);
 
-    String findUserById(Long userId);
+    String findEmployeeNumById(Long userId);
 }
