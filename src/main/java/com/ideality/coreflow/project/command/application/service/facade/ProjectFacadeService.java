@@ -8,7 +8,6 @@ import com.ideality.coreflow.project.command.application.dto.ProjectCreateReques
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
-import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -79,7 +78,7 @@ public class ProjectFacadeService {
                         .startBaseLine(LocalDate.parse(node.getData().getStartBaseLine()))
                         .endBaseLine(LocalDate.parse(node.getData().getEndBaseLine()))
                         .projectId(project.getId())
-//                        .deptList(node.getData().getDeptList())
+                        .deptList(node.getData().getDeptList())
                         .build();
             }
         }
