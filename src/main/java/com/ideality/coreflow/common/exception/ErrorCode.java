@@ -50,7 +50,12 @@ public enum ErrorCode {
     DEPARTMENT_NOT_FOUND("DEPARTMENT_NOT_FOUND", "존재하지 않는 부서입니다.", HttpStatus.NOT_FOUND),
     PARTICIPANT_NOT_FOUND("PARTICIPANT_NOT_FOUND", "참여자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     // ✅ 상태 전이 오류
-    INVALID_STATUS_TRANSITION("INVALID_STATUS_TRANSITION", "현재 상태에서는 해당 작업을 수행할 수 없습니다.", HttpStatus.CONFLICT)
+    INVALID_STATUS_PROGRESS("INVALID_STATUS_PROGRESS", "이미 시작된 작업입니다.", HttpStatus.CONFLICT),
+    INVALID_STATUS_COMPLETED("INVALID_STATUS_COMPLETED", "이미 완료 처리된 작업입니다.", HttpStatus.CONFLICT),
+    INVALID_STATUS_DELETED("INVALID_STATUS_DELETED", "이미 삭제된 작업입니다.", HttpStatus.CONFLICT),
+
+    INVALID_SOURCE_LIST("INVALID_SOURCE_LIST", "source는 null이거나 비어 있을 수 없습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_TARGET_LIST("INVALID_TARGET_LIST", "target은 비어 있을 수 없습니다.", HttpStatus.BAD_REQUEST)
     ;
 
     private final String code;

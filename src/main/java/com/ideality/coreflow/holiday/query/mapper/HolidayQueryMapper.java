@@ -1,6 +1,6 @@
-package com.ideality.coreflow.project.query.mapper;
+package com.ideality.coreflow.holiday.query.mapper;
 
-import com.ideality.coreflow.project.query.dto.HolidayQueryDto;
+import com.ideality.coreflow.holiday.query.dto.HolidayQueryDto;
 import java.time.LocalDate;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;

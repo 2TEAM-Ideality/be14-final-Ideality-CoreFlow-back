@@ -25,13 +25,34 @@ public class TaskController {
         );
     }
 
-    @PutMapping("progress/{taskId}")
+    @PutMapping("/progress/{taskId}")
     public ResponseEntity<APIResponse<Map<String, Long>>> updateTaskByProgress(
             @PathVariable Long taskId) {
         Long updatedTaskId = projectFacadeService.updateStatusProgress(taskId);
         return ResponseEntity.ok(
                 APIResponse.success(Map.of("taskId", updatedTaskId),
-                        "태스크 상태가 'PROGRESS'로 변경되었습니다.")
+                        "태스크 상태가 진행 상태로 변경되었습니다.")
+        );
+    }
+
+    @PutMapping("/complete/{taskId}")
+    public ResponseEntity<APIResponse<Map<String, Long>>> updateTaskByComplete(
+            @PathVariable Long taskId) {
+        Long updatedTaskId = projectFacadeService.updateStatusComplete(taskId);
+        return ResponseEntity.ok(
+                APIResponse.success(Map.of("taskId", updatedTaskId),
+                        "태스크가 완료 상태로 변경되었습니다.")
+        );
+    }
+
+    @PutMapping("/delete/{taskId}")
+    public ResponseEntity<APIResponse<Map<String, Long>>> softDeleteTask(
+            @PathVariable Long taskId
+    ) {
+        Long deleteTaskId = projectFacadeService.deleteTaskBySoft(taskId);
+        return ResponseEntity.ok(
+                APIResponse.success(Map.of("taskId", deleteTaskId),
+                        "태스크가 삭제 되었습니다.")
         );
     }
 }

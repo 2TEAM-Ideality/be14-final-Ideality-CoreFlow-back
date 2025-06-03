@@ -1,4 +1,4 @@
-package com.ideality.coreflow.project.query.dto;
+package com.ideality.coreflow.holiday.query.dto;
 
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
