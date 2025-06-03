@@ -8,7 +8,4 @@ import java.util.List;
 public interface ParticipantService {
     void createParticipants(List<ParticipantDTO> taskParticipants);
 
-
-    void updateTeamLeader(Long leaderId, Long taskId, TargetType targetType);
-
 }
