@@ -2,6 +2,7 @@ package com.ideality.coreflow.project.query.service;
 
 
 import com.ideality.coreflow.project.query.dto.DetailDTO;
+import com.ideality.coreflow.project.query.dto.WorkDetailDTO;
 
 import java.util.List;
 
@@ -11,4 +12,5 @@ public interface WorkService {
 
     List<DetailDTO> getSubTaskDetailsByParentTaskId(Long parentTaskId);
 
+    WorkDetailDTO getWorkDetailById(Long workId);
 }

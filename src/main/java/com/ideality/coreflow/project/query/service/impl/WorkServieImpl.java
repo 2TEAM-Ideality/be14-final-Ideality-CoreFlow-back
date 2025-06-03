@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.query.service.impl;
 
 import com.ideality.coreflow.project.query.dto.DetailDTO;
+import com.ideality.coreflow.project.query.dto.WorkDetailDTO;
 import com.ideality.coreflow.project.query.mapper.WorkMapper;
 import com.ideality.coreflow.project.query.service.WorkService;
 import lombok.RequiredArgsConstructor;
@@ -25,4 +26,9 @@ public class WorkServieImpl implements WorkService {
     public List<DetailDTO> getSubTaskDetailsByParentTaskId(Long parentTaskId) {
         return workMapper.findSubTaskDetailsByParentTaskId(parentTaskId);
     }
-}
+
+    // 작업 상세 정보 조회
+    @Override
+    public WorkDetailDTO getWorkDetailById(Long workId) {
+        return workMapper.findWorkDetailById(workId);
+    }}

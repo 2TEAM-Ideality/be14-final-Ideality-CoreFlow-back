@@ -2,6 +2,7 @@ package com.ideality.coreflow.project.query.controller;
 
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.project.query.dto.DetailDTO;
+import com.ideality.coreflow.project.query.dto.WorkDetailDTO;
 import com.ideality.coreflow.project.query.service.WorkService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +38,15 @@ public class WorkController {
 
         // 응답을 APIResponse로 감싸서 반환
         return APIResponse.success(subTaskDetails, "세부 일정과 담당 부서 목록 조회 성공");
+    }
+
+    @GetMapping("/detail")
+    public APIResponse<WorkDetailDTO> getWorkDetail(@RequestParam Long workId) {
+        // 세부 일정 상세 정보를 조회
+        WorkDetailDTO workDetail = workService.getWorkDetailById(workId);
+
+        // 응답을 APIResponse로 감싸서 반환
+        return APIResponse.success(workDetail, "세부 일정 조회 성공");
     }
 
 

@@ -11,6 +11,4 @@ public class ParticipantDTO {
     private Long userId;
     private Long roleId;
     private String userName;
-
-
 }
