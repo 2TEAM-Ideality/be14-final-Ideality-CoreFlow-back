@@ -1,6 +1,6 @@
 package com.ideality.coreflow.admin.command.application.service;
 
-import com.ideality.coreflow.admin.command.application.dto.RequestUserUpdate;
+import com.ideality.coreflow.admin.command.application.dto.RequestUserUpdateByAdmin;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.application.service.RoleService;
 import com.ideality.coreflow.user.command.application.service.UserOfRoleService;
@@ -18,7 +18,7 @@ public class AdminFacadeService {
     private final UserOfRoleService userOfRoleService;
 
     @Transactional
-    public void updateUserinfo(Long userId, RequestUserUpdate request) {
+    public void updateUserinfo(Long userId, RequestUserUpdateByAdmin request) {
 
         UserInfoDTO updateUserInfo = UserInfoDTO.builder()
                 .name(request.getName())
@@ -36,7 +36,7 @@ public class AdminFacadeService {
         if (request.getIsCreation() != null) {
             long roleId = roleService.findRoleByName("Creator");
 
-            userOfRoleService.updateCreation(request.getIsCreation(), userId, roleId);
+            userOfRoleService.updateAuthorities(request.getIsCreation(), userId, roleId);
         }
     }
 }

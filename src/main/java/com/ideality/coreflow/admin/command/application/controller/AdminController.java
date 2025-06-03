@@ -1,6 +1,6 @@
 package com.ideality.coreflow.admin.command.application.controller;
 
-import com.ideality.coreflow.admin.command.application.dto.RequestUserUpdate;
+import com.ideality.coreflow.admin.command.application.dto.RequestUserUpdateByAdmin;
 import com.ideality.coreflow.admin.command.application.service.AdminFacadeService;
 import com.ideality.coreflow.common.response.APIResponse;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +15,9 @@ public class AdminController {
     private final AdminFacadeService adminFacadeService;
 
     @PatchMapping("/user/{userId}")
-    public ResponseEntity<APIResponse<?>> updateUserInfo(@PathVariable Long userId, @RequestBody RequestUserUpdate requestUserUpdate) {
+    public ResponseEntity<APIResponse<?>> updateUserInfo(@PathVariable Long userId, @RequestBody RequestUserUpdateByAdmin requestUserUpdateByAdmin) {
 
-        adminFacadeService.updateUserinfo(userId, requestUserUpdate);
+        adminFacadeService.updateUserinfo(userId, requestUserUpdateByAdmin);
 
         return ResponseEntity.ok(APIResponse.success(null, "유저 정보 수정 완료"));
     }

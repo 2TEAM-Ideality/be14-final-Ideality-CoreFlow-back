@@ -100,10 +100,10 @@ public class AuthFacadeService {
 
         // 생성 권한 넣기
         // 프로젝트 생성 역할 id 가져오기
-        long roleId = roleService.findRoleByName("Creator");
+        long roleId = roleService.findRoleByName("CREATOR");
 
         // 해당 회원에게 권한 넣기 (false면 안들어감)
-        userOfRoleService.updateCreation(requestSignUp.isCreation(), userId, roleId);
+        userOfRoleService.updateAuthorities(requestSignUp.isCreation(), userId, roleId);
 
         log.info("메일 발송");
         UserLoginInfo userLoginInfo = UserLoginInfo.builder()
@@ -170,5 +170,20 @@ public class AuthFacadeService {
         long userId = userService.registUser(userInfo);
         log.info("userId: {}", userId);
         log.info("협력업체 계정 생성");
+
+        // 생성 권한 넣기
+        // 협력업체 역할 id 가져오기
+        long roleId = roleService.findRoleByName("PARTNER");
+
+        // 해당 회원에게 외부 역할 넣기 (false면 안들어감)
+        userOfRoleService.updateAuthorities(true, userId, roleId);
+
+        log.info("메일 발송");
+        UserLoginInfo loginInfo = UserLoginInfo.builder()
+                .employeeNum(partnerNum)
+                .email(request.getEmail())
+                .password(password)
+                .build();
+        emailSendService.sendEmailUserLoginInfo(loginInfo);
     }
 }

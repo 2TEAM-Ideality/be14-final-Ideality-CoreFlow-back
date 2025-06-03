@@ -13,7 +13,7 @@ public class UserOfRoleServiceImpl implements UserOfRoleService {
     private final UserOfRoleRepository userOfRoleRepository;
 
     @Override
-    public void updateCreation(boolean isCreation, long userId, long roleId) {
+    public void updateAuthorities(boolean isCreation, long userId, long roleId) {
 
         if (isCreation) {
             // 권한 추가
