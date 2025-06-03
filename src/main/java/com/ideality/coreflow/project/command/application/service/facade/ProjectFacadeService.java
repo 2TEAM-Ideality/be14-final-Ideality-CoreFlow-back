@@ -6,7 +6,7 @@ import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
-import com.ideality.coreflow.project.query.service.DeptQueryService;
+import com.ideality.coreflow.holiday.query.service.DeptQueryService;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
