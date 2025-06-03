@@ -32,6 +32,12 @@
          WHERE DATE_FORMAT(HIRE_DATE, '%y') = #{year}
            AND DEPT_NAME = #{deptName}
     </select>
+
+    <select id="countByJobRoleName" resultType="long">
+        SELECT COUNT(*)
+          FROM USER
+         WHERE JOB_ROLE_NAME = #{roleName}
+    </select>
     
     <select id="selectAllUserByDeptName" resultType="_long">
         SELECT

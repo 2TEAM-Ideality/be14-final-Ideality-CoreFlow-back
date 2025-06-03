@@ -8,9 +8,11 @@ public interface UserQueryService {
 
     List<String> findGeneralRolesByUserId(Long userId);
 
-    Long countByHireMonthAndDeptName(DeptNameAndYearDTO countByDeptNameAndYearDTO);
+    Long countByHireYearAndDeptName(DeptNameAndYearDTO countByDeptNameAndYearDTO);
 
     List<Long> selectAllUserByDeptName(String deptName);
 
     Long selectLeaderByDeptName(String deptName);
+
+    long countByJobRoleName(String roleName);
 }

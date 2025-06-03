@@ -1,6 +1,7 @@
-package com.ideality.coreflow.email.command.application.service;
+package com.ideality.coreflow.email.command.application.service.impl;
 
 import com.ideality.coreflow.email.command.application.dto.UserLoginInfo;
+import com.ideality.coreflow.email.command.application.service.EmailSendService;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -25,7 +26,7 @@ public class EmailSendServiceImpl implements EmailSendService {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
 
             String htmlMsg = "<div style='font-family:Arial,sans-serif;'>"
-                    + "<h2>" + TenantContext.getTenant() + "회원 정보</h2>"
+                    + "<h2>" + TenantContext.getTenant() + " 회원 정보</h2>"
                     + "<p>사번: " + userLoginInfo.getEmployeeNum() + "</p>"
                     + "<p>비밀번호: " + userLoginInfo.getPassword() + "</p>"
                     + "</div>";

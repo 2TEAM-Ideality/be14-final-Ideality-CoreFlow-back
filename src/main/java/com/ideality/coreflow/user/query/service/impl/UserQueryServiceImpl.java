@@ -36,13 +36,18 @@ public class UserQueryServiceImpl implements UserQueryService {
     }
 
     @Override
+    public long countByJobRoleName(String roleName) {
+        return userMapper.countByJobRoleName(roleName);
+    }
+
+    @Override
     public List<String> findGeneralRolesByUserId(Long userId) {
         List<UserOfRoleDTO> find = userMapper.selectUserOfGeneralRole(userId);
         return find.stream().map(UserOfRoleDTO::getRoleName).collect(Collectors.toList());
     }
 
     @Override
-    public Long countByHireMonthAndDeptName(DeptNameAndYearDTO countByDeptNameAndYearDTO) {
+    public Long countByHireYearAndDeptName(DeptNameAndYearDTO countByDeptNameAndYearDTO) {
 
         return userMapper.countByHireMonthAndDeptName(countByDeptNameAndYearDTO.getDeptName(),
                 countByDeptNameAndYearDTO.getHireDate().format(DateTimeFormatter.ofPattern("yy")));

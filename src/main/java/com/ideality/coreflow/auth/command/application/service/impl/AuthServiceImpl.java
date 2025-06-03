@@ -111,4 +111,9 @@ public class AuthServiceImpl implements AuthService {
 
         return String.format("%s%03d%03d", yearMonth, deptId, sequence);
     }
+
+    @Override
+    public String generatePartnerNum(LocalDate createDate, Long deptId, long sequence) {
+        return String.format("%s%03d%03d", createDate.format(DateTimeFormatter.ofPattern("yyMM")), deptId, sequence);
+    }
 }

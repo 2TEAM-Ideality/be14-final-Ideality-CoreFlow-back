@@ -19,4 +19,6 @@ public interface AuthService {
     ResponseToken reissuAccessToken(Long userId, String employeeNum, List<String> userOfRoles);
 
     String generateEmployeeNum(LocalDate hireDate, Long deptId, long sequence);
+
+    String generatePartnerNum(LocalDate createDate, Long deptId, long sequence);
 }
