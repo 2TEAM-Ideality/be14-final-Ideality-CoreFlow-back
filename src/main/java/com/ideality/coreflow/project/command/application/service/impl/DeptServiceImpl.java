@@ -1,7 +1,7 @@
-package com.ideality.coreflow.dept.command.application.service.impl;
+package com.ideality.coreflow.project.command.application.service.impl;
 
-import com.ideality.coreflow.dept.command.application.service.DeptService;
-import com.ideality.coreflow.dept.command.domain.repository.DeptRepository;
+import com.ideality.coreflow.project.command.application.service.DeptService;
+import com.ideality.coreflow.project.command.domain.repository.DeptRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

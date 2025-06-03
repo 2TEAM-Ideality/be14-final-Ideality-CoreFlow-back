@@ -1,6 +1,5 @@
 package com.ideality.coreflow.project.command.domain.aggregate;
 
-import com.ideality.coreflow.dept.command.domain.aggregate.Dept;
 import jakarta.persistence.*;
 import lombok.*;
 

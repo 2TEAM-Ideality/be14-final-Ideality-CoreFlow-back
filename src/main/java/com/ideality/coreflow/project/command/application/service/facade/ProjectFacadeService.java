@@ -4,7 +4,7 @@ import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
-import com.ideality.coreflow.dept.query.service.DeptQueryService;
+import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

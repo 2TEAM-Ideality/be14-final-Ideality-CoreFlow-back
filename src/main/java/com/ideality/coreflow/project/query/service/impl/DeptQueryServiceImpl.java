@@ -1,8 +1,8 @@
-package com.ideality.coreflow.dept.query.service.impl;
+package com.ideality.coreflow.project.query.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
-import com.ideality.coreflow.dept.query.mapper.DeptMapper;
-import com.ideality.coreflow.dept.query.service.DeptQueryService;
+import com.ideality.coreflow.project.query.mapper.DeptMapper;
+import com.ideality.coreflow.project.query.service.DeptQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
