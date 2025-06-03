@@ -1,6 +1,7 @@
 package com.ideality.coreflow.auth.command.application.service;
 
 import com.ideality.coreflow.auth.command.application.dto.RequestSignUp;
+import com.ideality.coreflow.auth.command.application.dto.RequestSignUpPartner;
 import com.ideality.coreflow.auth.command.domain.aggregate.LoginType;
 import com.ideality.coreflow.auth.command.application.dto.RequestLogin;
 import com.ideality.coreflow.auth.command.application.dto.ResponseToken;
@@ -8,13 +9,12 @@ import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.email.command.application.dto.UserLoginInfo;
 import com.ideality.coreflow.email.command.application.service.EmailSendService;
-import com.ideality.coreflow.security.jwt.JwtUtil;
 import com.ideality.coreflow.user.command.application.dto.LoginDTO;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.application.service.RoleService;
 import com.ideality.coreflow.user.command.application.service.UserOfRoleService;
 import com.ideality.coreflow.user.command.application.service.UserService;
-import com.ideality.coreflow.user.query.dto.DeptNameAndMonthDTO;
+import com.ideality.coreflow.user.query.dto.DeptNameAndYearDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +22,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -67,8 +65,14 @@ public class AuthFacadeService {
             throw new BaseException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
-        // 사번 생성
-        String employeeNum = generateEmployeeNum(requestSignUp.getDeptName(), requestSignUp.getHireDate());
+        // 사번 생성 로직
+        DeptNameAndYearDTO deptNameAndYearDTO = DeptNameAndYearDTO.builder()
+                                                    .deptName(requestSignUp.getDeptName())
+                                                    .hireDate(requestSignUp.getHireDate())
+                                                    .build();
+        // 같은해 입사 부서 인원 조회
+        long count = userQueryService.countByHireMonthAndDeptName(deptNameAndYearDTO);
+        String employeeNum = authService.generateEmployeeNum( requestSignUp.getHireDate(), requestSignUp.getDeptId(), count + 1);
         log.info("사번 생성 {}", employeeNum);
 
         // 랜덤 비밀번호 생성
@@ -97,10 +101,8 @@ public class AuthFacadeService {
         // 프로젝트 생성 역할 id 가져오기
         long roleId = roleService.findRoleByName("Creator");
 
-        // 해당 회원에게 권한 넣기 (false면 안넣음)
+        // 해당 회원에게 권한 넣기 (false면 안들어감)
         userOfRoleService.updateCreation(requestSignUp.isCreation(), userId, roleId);
-
-
 
         log.info("메일 발송");
         UserLoginInfo userLoginInfo = UserLoginInfo.builder()
@@ -111,29 +113,13 @@ public class AuthFacadeService {
         emailSendService.sendEmailUserLoginInfo(userLoginInfo);
     }
 
-    // 사번 생성
-    private String generateEmployeeNum(String deptName, LocalDate hireDate) {
-
-        // 입사 연월 추출
-        String yearMonth = hireDate.format(DateTimeFormatter.ofPattern("yyMM"));
-
-        // 부서명 -> 부서 약어
-        String deptCode = "";
-
-        DeptNameAndMonthDTO deptNameAndMonthDTO = new DeptNameAndMonthDTO(deptName, yearMonth);
-
-        // 해당 입사월 + 부서의 기존 유저 수
-        long count = userQueryService.countByHireMonthAndDeptName(deptNameAndMonthDTO);
-
-        return String.format("%s%s%03d", deptCode, yearMonth, count + 1);
-    }
-
     // 로그아웃
     @Transactional
     public void logout(String accessToken) {
         authService.logout(accessToken);
     }
 
+    @Transactional
     public ResponseToken reissueAccessToken(String refreshToken, Long userId) {
         // 토큰 유효성 검증
         authService.validateRefreshToken(refreshToken, userId);
@@ -145,5 +131,16 @@ public class AuthFacadeService {
         log.info("해당 유저 역할 정보 조회: {}", userOfRoles);
 
         return authService.reissuAccessToken(userId, employeeNum, userOfRoles);
+    }
+
+    @Transactional
+    public void signUpPartner(RequestSignUpPartner request) {
+
+        log.info("등록된 이메일인지 확인");
+        // 등록된 이메일인지 확인
+        if (userService.isExistEmail(request.getEmail())) {
+            throw new BaseException(ErrorCode.EMAIL_ALREADY_EXISTS);
+        }
+
     }
 }

@@ -10,7 +10,7 @@ public interface UserMapper {
 
     List<UserOfRoleDTO> selectUserOfGeneralRole(Long userId);
 
-    long countByHireMonthAndDeptName(String yearMonth, String deptName);
+    Long countByHireMonthAndDeptName(String deptName, String year);
 
     List<Long> selectAllUserByDeptName(String deptName);
 

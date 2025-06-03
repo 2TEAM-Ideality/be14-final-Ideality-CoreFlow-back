@@ -10,6 +10,7 @@ public class RequestSignUp {
     private String email;
     private LocalDate birth;
     private LocalDate hireDate;
+    private Long deptId;
     private String deptName;
     private String jobRankName;
     private String jobRoleName;

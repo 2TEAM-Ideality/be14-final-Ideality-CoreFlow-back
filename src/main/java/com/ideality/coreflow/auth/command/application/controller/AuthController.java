@@ -2,6 +2,7 @@ package com.ideality.coreflow.auth.command.application.controller;
 
 import com.ideality.coreflow.auth.command.application.dto.RequestLogin;
 import com.ideality.coreflow.auth.command.application.dto.RequestSignUp;
+import com.ideality.coreflow.auth.command.application.dto.RequestSignUpPartner;
 import com.ideality.coreflow.auth.command.application.dto.RequestTokenReissue;
 import com.ideality.coreflow.auth.command.application.service.AuthFacadeService;
 import com.ideality.coreflow.common.response.APIResponse;
@@ -30,6 +31,13 @@ public class AuthController {
     public ResponseEntity<APIResponse<?>> signupEntry(@RequestBody RequestSignUp requestSignUp) {
         authFacadeService.signUp(requestSignUp);
         return ResponseEntity.ok(APIResponse.success(null, "회원가입 성공"));
+    }
+
+    // 협력 업체 계정 생성
+    @PostMapping("/signup-partner")
+    public ResponseEntity<APIResponse<?>> signupPartner(@RequestBody RequestSignUpPartner request) {
+        authFacadeService.signUpPartner(request);
+        return ResponseEntity.ok(APIResponse.success(null, "협력업체 계정 생성 완료"));
     }
 
     @PostMapping("logout")

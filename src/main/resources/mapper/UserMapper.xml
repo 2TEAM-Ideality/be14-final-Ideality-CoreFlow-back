@@ -29,7 +29,7 @@
     <select id="countByHireMonthAndDeptName" resultType="long">
         SELECT COUNT(*)
           FROM USER
-         WHERE DATE_FORMAT(HIRE_DATE, '%y%m') = #{yearMonth}
+         WHERE DATE_FORMAT(HIRE_DATE, '%y') = #{year}
            AND DEPT_NAME = #{deptName}
     </select>
     

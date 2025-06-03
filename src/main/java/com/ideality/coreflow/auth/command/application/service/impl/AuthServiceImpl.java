@@ -14,6 +14,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -99,5 +101,14 @@ public class AuthServiceImpl implements AuthService {
         String newAccessToken = jwtProvider.generateAccessToken(userId, employeeNum, TenantContext.getTenant(), userOfRoles);
         log.info("AccessToken 발급 완료: {}", newAccessToken);
         return new ResponseToken(newAccessToken, null, TenantContext.getTenant(), userOfRoles);
+    }
+
+    @Override
+    public String generateEmployeeNum(LocalDate hireDate, Long deptId, long sequence) {
+
+        // 입사 연월 추출
+        String yearMonth = hireDate.format(DateTimeFormatter.ofPattern("yyMM"));
+
+        return String.format("%s%03d%03d", yearMonth, deptId, sequence);
     }
 }
