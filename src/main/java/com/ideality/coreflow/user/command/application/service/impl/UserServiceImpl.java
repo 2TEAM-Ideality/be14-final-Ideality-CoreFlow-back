@@ -13,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -80,11 +78,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUserByAdmin(Long userId, UserInfoDTO updateUserInfo) {
+    public void updateUser(Long userId, UserInfoDTO updateUserInfo) {
         User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
 
         user.updateFrom(updateUserInfo);
 
         userRepository.save(user);
+    }
+
+    @Override
+    public UserInfoDTO findPwdByEmployeeNum(String employeeNum) {
+        User user = userRepository.findByEmployeeNum(employeeNum).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
+
+        return UserInfoDTO.builder()
+                .id(user.getId())
+                .password(user.getPassword())
+                .build();
     }
 }

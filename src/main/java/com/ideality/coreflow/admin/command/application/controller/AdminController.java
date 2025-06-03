@@ -15,9 +15,9 @@ public class AdminController {
     private final AdminFacadeService adminFacadeService;
 
     @PatchMapping("/user/{userId}")
-    public ResponseEntity<APIResponse<?>> updateUserInfo(@PathVariable Long userId, @RequestBody RequestUserUpdateByAdmin requestUserUpdateByAdmin) {
+    public ResponseEntity<APIResponse<?>> modifyUserInfoByAdmin(@PathVariable Long userId, @RequestBody RequestUserUpdateByAdmin requestUserUpdateByAdmin) {
 
-        adminFacadeService.updateUserinfo(userId, requestUserUpdateByAdmin);
+        adminFacadeService.modifyUserInfoByAdmin(userId, requestUserUpdateByAdmin);
 
         return ResponseEntity.ok(APIResponse.success(null, "유저 정보 수정 완료"));
     }

@@ -10,6 +10,7 @@ import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.email.command.application.dto.UserLoginInfo;
 import com.ideality.coreflow.email.command.application.service.EmailSendService;
 import com.ideality.coreflow.user.command.application.dto.LoginDTO;
+import com.ideality.coreflow.auth.command.application.dto.UpdatePwdDTO;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.application.service.RoleService;
 import com.ideality.coreflow.user.command.application.service.UserOfRoleService;
@@ -185,5 +186,22 @@ public class AuthFacadeService {
                 .password(password)
                 .build();
         emailSendService.sendEmailUserLoginInfo(loginInfo);
+    }
+
+    public void modifyPassword(UpdatePwdDTO updatePwdInfo) {
+        UserInfoDTO userInfo = userService.findPwdByEmployeeNum(updatePwdInfo.getEmployeeNum());
+
+        // 현재 비밀번호 검증
+        authService.validatePwd(updatePwdInfo, userInfo.getPassword());
+
+        log.info("이전 비밀번호: {}", updatePwdInfo.getPrevPassword());
+        log.info("새 비밀번호: {}", updatePwdInfo.getNewPassword());
+        String newPassword = passwordEncoder.encode(updatePwdInfo.getNewPassword());
+
+        UserInfoDTO updateUserInfo = UserInfoDTO.builder()
+                .password(newPassword)
+                .build();
+
+        userService.updateUser(userInfo.getId(), updateUserInfo);
     }
 }

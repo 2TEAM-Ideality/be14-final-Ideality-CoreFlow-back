@@ -1,6 +1,7 @@
 package com.ideality.coreflow.auth.command.application.service.impl;
 
 import com.ideality.coreflow.auth.command.application.dto.ResponseToken;
+import com.ideality.coreflow.auth.command.application.dto.UpdatePwdDTO;
 import com.ideality.coreflow.auth.command.application.service.AuthService;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
@@ -115,5 +116,13 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String generatePartnerNum(LocalDate createDate, Long deptId, long sequence) {
         return String.format("%s%03d%03d", createDate.format(DateTimeFormatter.ofPattern("yyMM")), deptId, sequence);
+    }
+
+    @Override
+    public void validatePwd(UpdatePwdDTO updatePwdInfo, String prevPassword) {
+        log.info(prevPassword);
+        if (!passwordEncoder.matches(updatePwdInfo.getPrevPassword(), prevPassword)) {
+            throw new BaseException(ErrorCode.INVALID_PASSWORD);
+        }
     }
 }

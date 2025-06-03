@@ -1,6 +1,7 @@
 package com.ideality.coreflow.auth.command.application.service;
 
 import com.ideality.coreflow.auth.command.application.dto.ResponseToken;
+import com.ideality.coreflow.auth.command.application.dto.UpdatePwdDTO;
 import com.ideality.coreflow.user.command.application.dto.LoginDTO;
 
 import java.time.LocalDate;
@@ -21,4 +22,6 @@ public interface AuthService {
     String generateEmployeeNum(LocalDate hireDate, Long deptId, long sequence);
 
     String generatePartnerNum(LocalDate createDate, Long deptId, long sequence);
+
+    void validatePwd(UpdatePwdDTO updatePwdInfo, String prevPassword);
 }

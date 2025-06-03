@@ -7,10 +7,13 @@ import com.ideality.coreflow.auth.command.application.dto.RequestTokenReissue;
 import com.ideality.coreflow.auth.command.application.service.AuthFacadeService;
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.security.jwt.JwtUtil;
+import com.ideality.coreflow.auth.command.application.dto.RequestUpdatePwd;
+import com.ideality.coreflow.auth.command.application.dto.UpdatePwdDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -53,5 +56,20 @@ public class AuthController {
         String refreshToken = request.getRefreshToken();
         Long userId = request.getUserId();
         return ResponseEntity.ok(APIResponse.success(authFacadeService.reissueAccessToken(refreshToken, userId), "Access Token 재발급 완료"));
+    }
+
+    // 비밀번호 수정
+    @PatchMapping("/update")
+    public ResponseEntity<APIResponse<?>> modifyPassword(@RequestBody RequestUpdatePwd request) {
+
+        UpdatePwdDTO updatePwdInfo = UpdatePwdDTO.builder()
+                .employeeNum(SecurityContextHolder.getContext().getAuthentication().getName())
+                .prevPassword(request.getPrevPassword())
+                .newPassword(request.getNewPassword())
+                .build();
+
+        authFacadeService.modifyPassword(updatePwdInfo);
+
+        return ResponseEntity.ok(APIResponse.success(null, "비밀번호 변경 완료"));
     }
 }

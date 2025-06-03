@@ -3,7 +3,6 @@ package com.ideality.coreflow.user.command.application.service;
 import com.ideality.coreflow.auth.command.domain.aggregate.LoginType;
 import com.ideality.coreflow.user.command.application.dto.LoginDTO;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
-import com.ideality.coreflow.user.command.domain.aggregate.User;
 
 public interface UserService {
 
@@ -15,5 +14,7 @@ public interface UserService {
 
     String findEmployeeNumById(Long userId);
 
-    void updateUserByAdmin(Long userId, UserInfoDTO updateUserInfo);
+    void updateUser(Long userId, UserInfoDTO updateUserInfo);
+
+    UserInfoDTO findPwdByEmployeeNum(String employeeNum);
 }

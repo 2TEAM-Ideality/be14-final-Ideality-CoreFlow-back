@@ -18,7 +18,7 @@ public class AdminFacadeService {
     private final UserOfRoleService userOfRoleService;
 
     @Transactional
-    public void updateUserinfo(Long userId, RequestUserUpdateByAdmin request) {
+    public void modifyUserInfoByAdmin(Long userId, RequestUserUpdateByAdmin request) {
 
         UserInfoDTO updateUserInfo = UserInfoDTO.builder()
                 .name(request.getName())
@@ -31,7 +31,7 @@ public class AdminFacadeService {
                 .build();
 
         // 유저 정보 수정
-        userService.updateUserByAdmin(userId, updateUserInfo);
+        userService.updateUser(userId, updateUserInfo);
 
         if (request.getIsCreation() != null) {
             long roleId = roleService.findRoleByName("Creator");
