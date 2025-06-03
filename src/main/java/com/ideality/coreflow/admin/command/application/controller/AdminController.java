@@ -14,7 +14,7 @@ public class AdminController {
 
     private final AdminFacadeService adminFacadeService;
 
-    @PostMapping("/users/{userId}")
+    @PatchMapping("/user/{userId}")
     public ResponseEntity<APIResponse<?>> updateUserInfo(@PathVariable Long userId, @RequestBody RequestUserUpdate requestUserUpdate) {
 
         adminFacadeService.updateUserinfo(userId, requestUserUpdate);
