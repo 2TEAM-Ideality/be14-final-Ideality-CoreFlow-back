@@ -7,8 +7,12 @@ import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
+import com.ideality.coreflow.template.query.dto.NodeDTO;
+import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.TreeMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,6 +40,7 @@ public class ProjectFacadeService {
         // 프로젝트 생성
         Project project=projectService.createProject(request);
         // 디렉터 DTO 생성
+        // region
         List<ParticipantDTO> director=new ArrayList<>();
         ParticipantDTO participant=ParticipantDTO.builder()
                 .taskId(project.getId())
@@ -44,12 +49,11 @@ public class ProjectFacadeService {
                 .roleId(1L)
                 .build();
         director.add(participant);
+        // endregion
         // 디렉터 저장
         participantService.createParticipants(director);
-
-        //for문 내부에서
-            // 1. Leader 객체 생성
-            // 2. Leader 저장
+        // 리더 정보 생성
+        // region
         List<ParticipantDTO> leaders=new ArrayList<>();
         if(request.getLeaderIds()!=null) {
             for(Long leaderId:request.getLeaderIds()) {
@@ -62,7 +66,24 @@ public class ProjectFacadeService {
                 leaders.add(participant);
             }
         }
+        // endregion
+        // 리더 정보 저장
         participantService.createParticipants(leaders);
+        // 태스크
+        if(request.getTemplateData()!=null) {
+            Map<String, RequestTaskDTO> taskMap = new TreeMap<>();
+            for(NodeDTO node : request.getTemplateData().getNodeList()){
+                RequestTaskDTO requestTaskDTO=RequestTaskDTO.builder()
+                        .label(node.getData().getLabel())
+                        .description(node.getData().getDescription())
+                        .startBaseLine(LocalDate.parse(node.getData().getStartBaseLine()))
+                        .endBaseLine(LocalDate.parse(node.getData().getEndBaseLine()))
+                        .projectId(project.getId())
+//                        .deptList(node.getData().getDeptList())
+                        .build();
+            }
+        }
+
         return project;
     }
 
