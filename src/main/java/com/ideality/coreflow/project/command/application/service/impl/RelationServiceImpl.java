@@ -1,6 +1,5 @@
 package com.ideality.coreflow.project.command.application.service.impl;
 
-import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.project.command.application.service.RelationService;
 import com.ideality.coreflow.project.command.domain.aggregate.Relation;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
@@ -11,8 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.ideality.coreflow.common.exception.ErrorCode.INTERNAL_SERVER_ERROR;
-import static com.ideality.coreflow.common.exception.ErrorCode.RESOURCE_NOT_FOUND;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -25,36 +23,51 @@ public class RelationServiceImpl implements RelationService {
 
     @Override
     @Transactional
-    public void appendRelation(Long prevWorkId, Long nextWorkId, Long taskId) {
+    public void appendRelation(List<Long> prevWorkId, Long nextWorkId) {
 
-        if (prevWorkId != null && nextWorkId != null) {
-            log.info("둘 다 값이 있는 상황에 왔음");
-            relationRepository.deleteByPrevWorkIdAndNextWorkId(prevWorkId, nextWorkId);
+        for (Long workId : prevWorkId) {
+            Work prevWork = taskRepository.getReferenceById(workId);
+            Work nextWork = taskRepository.getReferenceById(nextWorkId);
+            Relation relation = Relation
+                    .builder()
+                    .prevWork(prevWork)
+                    .nextWork(nextWork)
+                    .build();
 
-//            if (result == 0) throw new BaseException(RESOURCE_NOT_FOUND);
-
-            insertRelation(prevWorkId, taskId);
-            insertRelation(taskId, prevWorkId);
+            relationRepository.save(relation);
         }
-
-        if (prevWorkId != null && nextWorkId == null && prevWorkId != 0) {
-            log.info("리프 노드 같은 상황 - prev: {}, next: {}, task: {}", prevWorkId, nextWorkId, taskId);
-            insertRelation(prevWorkId, taskId);
-        }
-
-        log.info("관계 생성 x : 처음 생성되는 노드");
     }
 
-    @Transactional
-    public void insertRelation(Long prevId, Long nextId) {
-        Work prevWork = taskRepository.getReferenceById(prevId);
-        Work nextWork = taskRepository.getReferenceById(nextId);
-        Relation relation = Relation
-                .builder()
-                .prevWork(prevWork)
-                .nextWork(nextWork)
-                .build();
+    @Override
+    public void appendMiddleRelation(List<Long> source, List<Long> target, Long taskId) {
+        for (Long sourceId : source) {
+            for (Long targetId : target) {
+                relationRepository.deleteByPrevWorkIdAndNextWorkId(sourceId, targetId);
+            }
 
-        relationRepository.save(relation);
+            /* 설명. 일차 저장 */
+            Work prevWork = taskRepository.getReferenceById(sourceId);
+            Work nextWork = taskRepository.getReferenceById(taskId);
+            Relation relation = Relation
+                    .builder()
+                    .prevWork(prevWork)
+                    .nextWork(nextWork)
+                    .build();
+
+            relationRepository.save(relation);
+        }
+
+        for (Long targetId : target) {
+            Work prevWork = taskRepository.getReferenceById(taskId);
+            Work nextWork = taskRepository.getReferenceById(targetId);
+            Relation relation = Relation
+                    .builder()
+                    .prevWork(prevWork)
+                    .nextWork(nextWork)
+                    .build();
+
+            relationRepository.save(relation);
+        }
     }
+
 }

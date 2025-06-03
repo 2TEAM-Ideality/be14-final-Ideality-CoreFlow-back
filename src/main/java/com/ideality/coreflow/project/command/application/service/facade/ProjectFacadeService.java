@@ -49,8 +49,14 @@ public class ProjectFacadeService {
 
         /* 설명. 태스크 부터 */
         Long taskId = taskService.createTask(requestTaskDTO);
-        relationService.appendRelation
-                (requestTaskDTO.getSource(), requestTaskDTO.getTarget(), taskId);
+        taskService.validateSource(requestTaskDTO.getSource());
+        if (requestTaskDTO.getTarget() == null || requestTaskDTO.getTarget().isEmpty()) {
+            // target이 없으면 target=null로 관계 생성
+            relationService.appendRelation(requestTaskDTO.getSource(), taskId);
+        } else {
+            taskService.validateTarget(requestTaskDTO.getTarget());
+            relationService.appendMiddleRelation(requestTaskDTO.getSource(), requestTaskDTO.getTarget(), taskId);
+        }
         log.info("태스크 및 태스트별 관계 설정 완료");
 
 
