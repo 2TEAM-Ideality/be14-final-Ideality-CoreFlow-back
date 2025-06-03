@@ -9,4 +9,24 @@
         WHERE parent_task_id = #{parentTaskId}
     </select>
 
+    <!-- 동일한 태스크의 세부일정 상세목록 조회 -->
+    <select id="findSubTaskDetailsByParentTaskId" resultType="com.ideality.coreflow.project.query.dto.DetailDTO">
+        SELECT
+        w.id AS work_id,             -- 작업 ID
+        w.name AS task_name,         -- 작업 이름
+        w.end_expect,                -- 예상 마감일
+        w.delay_days,                -- 지연 일수
+        w.progress_rate,             -- 진행률
+        wd.dept_id,                  -- 부서 ID
+        d.name AS dept_name          -- 부서 이름
+        FROM work w
+        LEFT JOIN work_dept wd ON w.id = wd.work_id    -- 작업과 부서 연결
+        LEFT JOIN dept d ON wd.dept_id = d.id          -- 부서 테이블과 연결
+        WHERE w.parent_task_id = #{parentTaskId}      -- parent_task_id로 필터링
+        AND wd.is_deleted = FALSE                      -- 삭제되지 않은 부서만 조회
+    </select>
+
+
+
+
 </mapper>
