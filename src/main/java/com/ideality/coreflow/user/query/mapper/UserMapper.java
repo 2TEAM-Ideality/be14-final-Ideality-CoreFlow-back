@@ -8,5 +8,5 @@ import java.util.List;
 public interface UserMapper {
     List<Long> selectAllUserByDeptName(String deptName);
 
-    Long selectLeaderByDeptName(String deptName);
+    List<Long> selectLeadersByDeptName(String deptName);
 }
