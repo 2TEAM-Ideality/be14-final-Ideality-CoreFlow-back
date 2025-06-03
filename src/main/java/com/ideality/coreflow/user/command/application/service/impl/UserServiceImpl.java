@@ -1,4 +1,4 @@
-package com.ideality.coreflow.user.command.application.service;
+package com.ideality.coreflow.user.command.application.service.impl;
 
 import com.ideality.coreflow.auth.command.domain.aggregate.LoginType;
 import com.ideality.coreflow.common.exception.BaseException;
@@ -6,6 +6,7 @@ import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.user.command.application.dto.LoginDTO;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
+import com.ideality.coreflow.user.command.application.service.UserService;
 import com.ideality.coreflow.user.command.domain.aggregate.User;
 import com.ideality.coreflow.user.command.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,17 +1,16 @@
-package com.ideality.coreflow.user.command.application.service;
+package com.ideality.coreflow.user.command.application.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.user.command.application.service.RoleService;
 import com.ideality.coreflow.user.command.domain.aggregate.Role;
 import com.ideality.coreflow.user.command.domain.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
-public class RoleServiceImpl implements RoleService{
+public class RoleServiceImpl implements RoleService {
 
     private final RoleRepository roleRepository;
 
