@@ -1,11 +1,14 @@
 package com.ideality.coreflow.project.command.application.service.facade;
 
+import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.*;
+import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.user.query.service.UserQueryService;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,6 +31,78 @@ public class ProjectFacadeService {
 
     private final DeptQueryService deptQueryService;
     private final UserQueryService userQueryService;
+
+    public Project createProject(ProjectCreateRequest request) {
+        // 프로젝트 생성
+        Project project=projectService.createProject(request);
+        // 디렉터 DTO 생성
+        // region
+        List<ParticipantDTO> director=new ArrayList<>();
+        ParticipantDTO participant=ParticipantDTO.builder()
+                .taskId(project.getId())
+                .userId(request.getDirectorId())
+                .targetType(TargetType.PROJECT)
+                .roleId(1L)
+                .build();
+        director.add(participant);
+        // endregion
+        // 디렉터 저장
+        participantService.createParticipants(director);
+        // 리더 정보 생성
+        // region
+        List<ParticipantDTO> leaders=new ArrayList<>();
+        if(request.getLeaderIds()!=null) {
+            for(Long leaderId:request.getLeaderIds()) {
+                participant=ParticipantDTO.builder()
+                        .taskId(project.getId())
+                        .userId(request.getDirectorId())
+                        .targetType(TargetType.PROJECT)
+                        .roleId(2L)
+                        .build();
+                leaders.add(participant);
+            }
+        }
+        // endregion
+        // 리더 정보 저장
+        participantService.createParticipants(leaders);
+        // 태스크
+        // region
+
+//        if(request.getTemplateData()!=null) {
+//            Map<String, Long> taskMap=new HashMap<>();
+//            for(NodeDTO node : request.getTemplateData().getNodeList()){
+//                String nodeId=node.getId();
+//                List<Long> sourceIds=new ArrayList<>();
+//                List<Long> targetIds=new ArrayList<>();
+//                for(EdgeDTO edge:request.getTemplateData().getEdgeList()){
+//                    if(nodeId.equals(edge.getSource())){
+//                        targetIds.add(Long.parseLong(edge.getTarget()));
+//                    } else if (nodeId.equals(edge.getTarget())) {
+//                        sourceIds.add(Long.parseLong(edge.getSource()));
+//                    }
+//                }
+//                if (sourceIds.isEmpty()) {
+//                    sourceIds.add(0L);
+//                }
+//                TemplateNodeDataDTO data=node.getData();
+//                RequestTaskDTO requestTaskDTO=RequestTaskDTO.builder()
+//                        .label(data.getLabel())
+//                        .description(data.getDescription())
+//                        .startBaseLine(LocalDate.parse(data.getStartBaseLine()))
+//                        .endBaseLine(LocalDate.parse(data.getEndBaseLine()))
+//                        .projectId(project.getId())
+//                        .deptList(data.getDeptList().stream()
+//                                .map(Long::valueOf)
+//                                .toList())
+//                        .source(sourceIds)
+//                        .target(targetIds)
+//                        .build();
+//
+//            }
+//        }
+        // endregion
+        return project;
+    }
 
     @Transactional
     public Long createTask(RequestTaskDTO requestTaskDTO) {

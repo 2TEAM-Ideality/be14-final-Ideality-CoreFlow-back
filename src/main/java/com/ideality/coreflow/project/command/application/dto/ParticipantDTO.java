@@ -8,6 +8,7 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
+@Builder
 public class ParticipantDTO {
     private Long taskId;
     private Long userId;
