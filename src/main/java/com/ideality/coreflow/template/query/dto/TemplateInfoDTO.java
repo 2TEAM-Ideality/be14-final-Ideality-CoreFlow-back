@@ -27,5 +27,4 @@ public class TemplateInfoDTO {
 	private int taskCount;
 	private int usingProjects;
 	private List<DeptDTO> deptList;
-
 }

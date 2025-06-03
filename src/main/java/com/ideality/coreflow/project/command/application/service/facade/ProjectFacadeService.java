@@ -7,10 +7,13 @@ import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
+import com.ideality.coreflow.template.query.dto.DeptDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
+import com.ideality.coreflow.template.query.dto.TemplateNodeDataDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.TreeMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -70,16 +73,18 @@ public class ProjectFacadeService {
         participantService.createParticipants(leaders);
         // 태스크
         if(request.getTemplateData()!=null) {
-            Map<String, RequestTaskDTO> taskMap = new TreeMap<>();
+            Map<String, Long> taskMap=new HashMap<>();
             for(NodeDTO node : request.getTemplateData().getNodeList()){
+                TemplateNodeDataDTO data=node.getData();
                 RequestTaskDTO requestTaskDTO=RequestTaskDTO.builder()
-                        .label(node.getData().getLabel())
-                        .description(node.getData().getDescription())
-                        .startBaseLine(LocalDate.parse(node.getData().getStartBaseLine()))
-                        .endBaseLine(LocalDate.parse(node.getData().getEndBaseLine()))
+                        .label(data.getLabel())
+                        .description(data.getDescription())
+                        .startBaseLine(LocalDate.parse(data.getStartBaseLine()))
+                        .endBaseLine(LocalDate.parse(data.getEndBaseLine()))
                         .projectId(project.getId())
-                        .deptList(node.getData().getDeptList())
-                        .build();
+                        .deptList(data.getDeptList().stream()
+                                .map(DeptDTO::getId)
+                        .toList())
             }
         }
 
