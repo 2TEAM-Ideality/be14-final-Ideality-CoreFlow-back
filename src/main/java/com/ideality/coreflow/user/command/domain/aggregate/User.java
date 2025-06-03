@@ -57,6 +57,7 @@ public class User {
     private String jobRoleName = "사원";
 
     public void updateFrom(UserInfoDTO dto) {
+        if (dto.getPassword() != null) this.password = dto.getPassword();
         if (dto.getName() != null) this.name = dto.getName();
         if (dto.getEmail() != null) this.email = dto.getEmail();
         if (dto.getHireDate() != null) this.hireDate = dto.getHireDate();

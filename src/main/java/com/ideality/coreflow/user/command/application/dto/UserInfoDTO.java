@@ -10,6 +10,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @ToString
 public class UserInfoDTO {
+    private long id;
     private String employeeNum;
     private String password;
     private String name;
