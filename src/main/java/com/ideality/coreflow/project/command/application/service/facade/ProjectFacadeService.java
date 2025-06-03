@@ -8,6 +8,7 @@ import com.ideality.coreflow.project.command.application.dto.ProjectCreateReques
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.holiday.query.service.DeptQueryService;
 import com.ideality.coreflow.template.query.dto.DeptDTO;
+import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 import com.ideality.coreflow.template.query.dto.TemplateNodeDataDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
@@ -73,12 +74,22 @@ public class ProjectFacadeService {
         // 태스크
         if(request.getTemplateData()!=null) {
             Map<String, Long> taskMap=new HashMap<>();
+
             for(NodeDTO node : request.getTemplateData().getNodeList()){
-                TemplateNodeDataDTO data=node.getData();
                 String nodeId=node.getId();
                 List<Long> sourceIds=new ArrayList<>();
                 List<Long> targetIds=new ArrayList<>();
-
+                for(EdgeDTO edge:request.getTemplateData().getEdgeList()){
+                    if(nodeId.equals(edge.getSource())){
+                        targetIds.add(Long.parseLong(edge.getTarget()));
+                    } else if (nodeId.equals(edge.getTarget())) {
+                        sourceIds.add(Long.parseLong(edge.getSource()));
+                    }
+                }
+                if (sourceIds.isEmpty()) {
+                    sourceIds.add(0L);
+                }
+                TemplateNodeDataDTO data=node.getData();
                 RequestTaskDTO requestTaskDTO=RequestTaskDTO.builder()
                         .label(data.getLabel())
                         .description(data.getDescription())
@@ -88,8 +99,8 @@ public class ProjectFacadeService {
                         .deptList(data.getDeptList().stream()
                                 .map(Long::valueOf)
                                 .toList())
-//                        .source(sourceIds)
-//                        .target(targetIds)
+                        .source(sourceIds)
+                        .target(targetIds)
                         .build();
 
             }
