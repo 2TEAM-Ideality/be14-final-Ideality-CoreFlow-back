@@ -10,4 +10,5 @@ public interface ParticipantService {
 
 
     void updateTeamLeader(Long leaderId, Long taskId, TargetType targetType);
+
 }
