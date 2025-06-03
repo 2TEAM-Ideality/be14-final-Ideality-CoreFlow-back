@@ -1,6 +1,6 @@
 package com.ideality.coreflow.auth.command.application.service.impl;
 
-import com.ideality.coreflow.auth.command.application.dto.response.TokenResponse;
+import com.ideality.coreflow.auth.command.application.dto.ResponseToken;
 import com.ideality.coreflow.auth.command.application.service.AuthService;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
@@ -29,7 +29,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtil jwtUtil;
 
     @Override
-    public TokenResponse login(LoginDTO userInfo, String password, List<String> userOfRoles) {
+    public ResponseToken login(LoginDTO userInfo, String password, List<String> userOfRoles) {
 
         log.info("로그인 로직 시작");
 
@@ -54,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
         redisTemplate.opsForValue().set(redisKey, refreshToken, 7, TimeUnit.DAYS);
         log.info("Redis 저장 완료");
 
-        return new TokenResponse(accessToken, refreshToken, TenantContext.getTenant(), userOfRoles);
+        return new ResponseToken(accessToken, refreshToken, TenantContext.getTenant(), userOfRoles);
     }
 
     public String generatePassword() {
@@ -94,10 +94,10 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public TokenResponse reissuAccessToken(Long userId, String employeeNum, List<String> userOfRoles) {
+    public ResponseToken reissuAccessToken(Long userId, String employeeNum, List<String> userOfRoles) {
 
         String newAccessToken = jwtProvider.generateAccessToken(userId, employeeNum, TenantContext.getTenant(), userOfRoles);
         log.info("AccessToken 발급 완료: {}", newAccessToken);
-        return new TokenResponse(newAccessToken, null, TenantContext.getTenant(), userOfRoles);
+        return new ResponseToken(newAccessToken, null, TenantContext.getTenant(), userOfRoles);
     }
 }

@@ -1,8 +1,8 @@
 package com.ideality.coreflow.auth.command.application.controller;
 
-import com.ideality.coreflow.auth.command.application.dto.request.LoginRequest;
-import com.ideality.coreflow.auth.command.application.dto.request.SignUpRequest;
-import com.ideality.coreflow.auth.command.application.dto.request.TokenReissueRequest;
+import com.ideality.coreflow.auth.command.application.dto.RequestLogin;
+import com.ideality.coreflow.auth.command.application.dto.RequestSignUp;
+import com.ideality.coreflow.auth.command.application.dto.RequestTokenReissue;
 import com.ideality.coreflow.auth.command.application.service.AuthFacadeService;
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.security.jwt.JwtUtil;
@@ -22,13 +22,13 @@ public class AuthController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("login")
-    public ResponseEntity<APIResponse<?>> loginEntry(@RequestBody LoginRequest loginRequest) {
-        return ResponseEntity.ok(APIResponse.success(authFacadeService.login(loginRequest), "로그인 성공"));
+    public ResponseEntity<APIResponse<?>> loginEntry(@RequestBody RequestLogin requestLogin) {
+        return ResponseEntity.ok(APIResponse.success(authFacadeService.login(requestLogin), "로그인 성공"));
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<APIResponse<?>> signupEntry(@RequestBody SignUpRequest signUpRequest) {
-        authFacadeService.signUp(signUpRequest);
+    public ResponseEntity<APIResponse<?>> signupEntry(@RequestBody RequestSignUp requestSignUp) {
+        authFacadeService.signUp(requestSignUp);
         return ResponseEntity.ok(APIResponse.success(null, "회원가입 성공"));
     }
 
@@ -41,7 +41,7 @@ public class AuthController {
 
     // 재발급
     @PostMapping("/reissue")
-    public ResponseEntity<APIResponse<?>> reissueToken(@RequestBody TokenReissueRequest request) {
+    public ResponseEntity<APIResponse<?>> reissueToken(@RequestBody RequestTokenReissue request) {
         String refreshToken = request.getRefreshToken();
         Long userId = request.getUserId();
         return ResponseEntity.ok(APIResponse.success(authFacadeService.reissueAccessToken(refreshToken, userId), "Access Token 재발급 완료"));

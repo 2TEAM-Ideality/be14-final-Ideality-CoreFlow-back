@@ -1,8 +1,8 @@
 package com.ideality.coreflow.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ideality.coreflow.auth.command.application.dto.request.LoginRequest;
-import com.ideality.coreflow.auth.command.application.dto.request.TokenReissueRequest;
+import com.ideality.coreflow.auth.command.application.dto.RequestLogin;
+import com.ideality.coreflow.auth.command.application.dto.RequestTokenReissue;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.redis.util.RedisUtil;
@@ -15,8 +15,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -51,9 +49,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if ("POST".equalsIgnoreCase(request.getMethod()) && "/api/auth/login".equals(request.getRequestURI())) {
             // JSON -> LoginRequest 객체 파싱
             try {
-                LoginRequest loginRequest = objectMapper.readValue(cachedRequest.getInputStream(), LoginRequest.class);
+                RequestLogin requestLogin = objectMapper.readValue(cachedRequest.getInputStream(), RequestLogin.class);
                 // TenantContext에 schema 설정
-                String schema = tenantService.findSchemaNameByCompanyCode(loginRequest.getCompanyCode());
+                String schema = tenantService.findSchemaNameByCompanyCode(requestLogin.getCompanyCode());
                 TenantContext.setTenant(schema);
             } catch (Exception e) {
                 // 실패하면 에러
@@ -69,9 +67,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } else if("POST".equalsIgnoreCase(request.getMethod()) && "/api/auth/reissue".equals(request.getRequestURI())) {
             // JSON -> LoginRequest 객체 파싱
             try {
-                TokenReissueRequest tokenReissueRequest = objectMapper.readValue(cachedRequest.getInputStream(), TokenReissueRequest.class);
+                RequestTokenReissue requestTokenReissue = objectMapper.readValue(cachedRequest.getInputStream(), RequestTokenReissue.class);
                 // TenantContext에 schema 설정
-                String schema = tokenReissueRequest.getCompanySchema();
+                String schema = requestTokenReissue.getCompanySchema();
                 TenantContext.setTenant(schema);
             } catch (Exception e) {
                 // 실패하면 에러

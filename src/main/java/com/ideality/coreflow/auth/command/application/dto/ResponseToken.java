@@ -1,4 +1,4 @@
-package com.ideality.coreflow.auth.command.application.dto.response;
+package com.ideality.coreflow.auth.command.application.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-public class TokenResponse {
+public class ResponseToken {
     String accessToken;
     String refreshToken;
     String schemaName;
