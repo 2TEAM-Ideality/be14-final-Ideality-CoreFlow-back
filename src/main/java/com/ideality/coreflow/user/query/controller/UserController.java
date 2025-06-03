@@ -18,10 +18,9 @@ public class UserController {
     private final UserQueryService userService;
 
     // @이름으로 회원 조회 (id, name만 반환)
-    @GetMapping("/search/name")
+    @GetMapping("/name")
     public List<UserNameIdDto> searchUsersByName(@RequestParam String name) {
         return userService.searchUsersByName(name);
     }
-
 
 }

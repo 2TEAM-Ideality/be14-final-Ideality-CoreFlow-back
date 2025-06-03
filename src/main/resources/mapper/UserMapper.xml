@@ -19,11 +19,11 @@
            AND b.target_type = 'PROJECT'
     </select>
     <select id="searchUsersByName" resultType="com.ideality.coreflow.user.query.dto.UserNameIdDto">
-        SELECT
-            name,id
+        SELECT name, id
         FROM user
         WHERE name LIKE CONCAT('%', #{name}, '%')
         LIMIT 10;
     </select>
+
 
 </mapper>
