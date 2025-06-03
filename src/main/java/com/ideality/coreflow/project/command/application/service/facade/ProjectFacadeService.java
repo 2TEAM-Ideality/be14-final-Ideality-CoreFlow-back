@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProjectFacadeService {
 
+    private final ProjectService projectService;
     private final TaskService taskService;
     private final RelationService relationService;
     private final WorkDeptService workDeptService;
