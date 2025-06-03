@@ -2,8 +2,7 @@ package com.ideality.coreflow.project.query.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
-import com.ideality.coreflow.holiday.query.mapper.DeptMapper;
-import com.ideality.coreflow.holiday.query.service.impl.DeptQueryServiceImpl;
+import com.ideality.coreflow.project.query.mapper.DeptMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
