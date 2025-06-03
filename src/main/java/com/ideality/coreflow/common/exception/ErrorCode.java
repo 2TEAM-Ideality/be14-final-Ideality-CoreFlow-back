@@ -60,7 +60,12 @@ public enum ErrorCode {
     INVALID_STATUS_PROGRESS("INVALID_STATUS_PROGRESS", "이미 시작된 작업입니다.", HttpStatus.CONFLICT),
     INVALID_STATUS_COMPLETED("INVALID_STATUS_COMPLETED", "이미 완료 처리된 작업입니다.", HttpStatus.CONFLICT),
     INVALID_STATUS_DELETED("INVALID_STATUS_DELETED", "이미 삭제된 작업입니다.", HttpStatus.CONFLICT),
-    ;
+
+    // 잘못된 json 요청 양식
+    INVALID_JSON_FORMAT("INVALID_JSON_FORMAT", "잘못된 json 양식", HttpStatus.BAD_REQUEST),
+
+    // 잘못된 tenant 설정
+    INVALID_TENANT("INVALID_TENANT", "Tenant 설정 오류", HttpStatus.BAD_REQUEST);
 
     private final String code;
     private final String message;
