@@ -1,5 +1,6 @@
 package com.ideality.coreflow.user.query.controller;
 
+import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.user.query.dto.UserNameIdDto;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +20,9 @@ public class UserController {
 
     // @이름으로 회원 조회 (id, name만 반환)
     @GetMapping("/name")
-    public List<UserNameIdDto> searchUsersByName(@RequestParam String name) {
-        return userService.searchUsersByName(name);
+    public APIResponse<List<UserNameIdDto>> searchUsersByName(@RequestParam String name) {
+        List<UserNameIdDto> users = userService.searchUsersByName(name);
+        return APIResponse.success(users,"@user이름으로 조회 완료");  // 성공 응답 생성
     }
 
 }

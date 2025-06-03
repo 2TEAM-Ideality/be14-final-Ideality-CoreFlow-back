@@ -22,6 +22,6 @@ public class DeptController {
     @GetMapping("/all")
     public APIResponse<List<String>> getAllDeptNames() {  // 반환 타입을 APIResponse로 변경
         List<String> deptNames = deptQueryService.findAllDeptNames();
-        return APIResponse.success(deptNames);  // 성공 응답 생성
+        return APIResponse.success(deptNames,"부서목록 조회 완료");  // 성공 응답 생성
     }
 }
