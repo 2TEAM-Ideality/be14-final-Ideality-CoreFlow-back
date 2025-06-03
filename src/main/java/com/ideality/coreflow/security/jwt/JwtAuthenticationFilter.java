@@ -44,9 +44,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        CachedBodyHttpServletRequest cachedRequest = new CachedBodyHttpServletRequest(request);
-
         if ("POST".equalsIgnoreCase(request.getMethod()) && "/api/auth/login".equals(request.getRequestURI())) {
+
+            CachedBodyHttpServletRequest cachedRequest = new CachedBodyHttpServletRequest(request);
+
             // JSON -> LoginRequest 객체 파싱
             try {
                 RequestLogin requestLogin = objectMapper.readValue(cachedRequest.getInputStream(), RequestLogin.class);
@@ -65,6 +66,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 TenantContext.clear();
             }
         } else if("POST".equalsIgnoreCase(request.getMethod()) && "/api/auth/reissue".equals(request.getRequestURI())) {
+
+            CachedBodyHttpServletRequest cachedRequest = new CachedBodyHttpServletRequest(request);
+
             // JSON -> LoginRequest 객체 파싱
             try {
                 RequestTokenReissue requestTokenReissue = objectMapper.readValue(cachedRequest.getInputStream(), RequestTokenReissue.class);

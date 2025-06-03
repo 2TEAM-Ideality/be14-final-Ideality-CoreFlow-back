@@ -38,7 +38,6 @@ public class AuthFacadeService {
     private final EmailSendService emailSendService;
     private final RoleService roleService;
     private final UserOfRoleService userOfRoleService;
-    private final JwtUtil jwtUtil;
 
     // 로그인
     @Transactional
@@ -49,13 +48,13 @@ public class AuthFacadeService {
         LoginType loginType = LoginType.fromIdentifier(requestLogin.getIdentifier());
         log.info("loginType: {}", loginType);
 
-        LoginDTO userInfo = userService.findUserInfoByIdentifier(requestLogin.getIdentifier(), loginType);
-        log.info("로그인 유저 정보 조회: {}", userInfo);
+        LoginDTO loginInfo = userService.findLoginInfoByIdentifier(requestLogin.getIdentifier(), loginType);
+        log.info("로그인 유저 정보 조회: {}", loginInfo);
 
-        List<String> userOfRoles = userQueryService.findGeneralRolesByUserId(userInfo.getId());
+        List<String> userOfRoles = userQueryService.findGeneralRolesByUserId(loginInfo.getId());
         log.info("해당 유저 역할 정보 조회: {}", userOfRoles);
 
-        return authService.login(userInfo, requestLogin.getPassword(), userOfRoles);
+        return authService.login(loginInfo, requestLogin.getPassword(), userOfRoles);
     }
 
     // 회원가입
@@ -96,11 +95,11 @@ public class AuthFacadeService {
 
         // 생성 권한 넣기
         // 프로젝트 생성 역할 id 가져오기
-        if (requestSignUp.isCreation()) {
-            long roleId = roleService.findRoleByName("Creator");
-            // 해당 회원에게 권한 넣기
-            userOfRoleService.registAuthorities(userId, roleId);
-        }
+        long roleId = roleService.findRoleByName("Creator");
+
+        // 해당 회원에게 권한 넣기 (false면 안넣음)
+        userOfRoleService.updateCreation(requestSignUp.isCreation(), userId, roleId);
+
 
 
         log.info("메일 발송");
@@ -125,9 +124,8 @@ public class AuthFacadeService {
 
         // 해당 입사월 + 부서의 기존 유저 수
         long count = userQueryService.countByHireMonthAndDeptName(deptNameAndMonthDTO);
-        long sequence = count + 1;
 
-        return String.format("%s%s%03d", deptCode, yearMonth, sequence);
+        return String.format("%s%s%03d", deptCode, yearMonth, count + 1);
     }
 
     // 로그아웃

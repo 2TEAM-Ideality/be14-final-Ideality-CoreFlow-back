@@ -1,5 +1,6 @@
 package com.ideality.coreflow.user.command.domain.aggregate;
 
+import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +12,7 @@ import java.util.Set;
 @Table(name = "user")
 @Getter
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class User {
 
@@ -54,4 +55,22 @@ public class User {
 
     @Column(name = "job_role_name", nullable = false)
     private String jobRoleName = "사원";
+
+    public void updateFrom(UserInfoDTO dto) {
+        if (dto.getName() != null) this.name = dto.getName();
+        if (dto.getEmail() != null) this.email = dto.getEmail();
+        if (dto.getHireDate() != null) this.hireDate = dto.getHireDate();
+        if (dto.getIsResign() != null) {
+            if (dto.getIsResign()) {
+                this.isResign = true;
+                this.resignDate = LocalDate.now();
+            } else {
+                this.isResign = false;
+            }
+        }
+        if (dto.getProfileImage() != null) this.profileImage = dto.getProfileImage();
+        if (dto.getDeptName() != null) this.deptName = dto.getDeptName();
+        if (dto.getJobRankName() != null) this.jobRankName = dto.getJobRankName();
+        if (dto.getJobRoleName() != null) this.jobRoleName = dto.getJobRoleName();
+    }
 }

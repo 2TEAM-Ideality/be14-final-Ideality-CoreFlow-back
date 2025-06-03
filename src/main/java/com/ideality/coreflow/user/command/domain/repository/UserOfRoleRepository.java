@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserOfRoleRepository extends JpaRepository<UserOfRole, Long> {
 
+    void deleteByUserIdAndRoleId(long userId, long roleId);
 }

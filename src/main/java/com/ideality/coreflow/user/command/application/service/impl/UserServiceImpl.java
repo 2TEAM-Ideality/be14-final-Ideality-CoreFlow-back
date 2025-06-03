@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -21,19 +23,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public User findUserByIdentifier(String identifier, LoginType loginType) {
-
-        if (loginType == LoginType.EMPLOYEE_NUM) {
-            return userRepository.findByEmployeeNum(identifier)
-                    .orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
-        } else {
-            return userRepository.findByEmail(identifier)
-                    .orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
-        }
-    }
-
-    @Override
-    public LoginDTO findUserInfoByIdentifier(String identifier, LoginType loginType) {
+    public LoginDTO findLoginInfoByIdentifier(String identifier, LoginType loginType) {
 
         log.info("Transactional Propagation.REQUIRES_NEW");
         log.info("userService에요");
@@ -87,5 +77,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public String findEmployeeNumById(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND)).getEmployeeNum();
+    }
+
+    @Override
+    public void updateUserByAdmin(Long userId, UserInfoDTO updateUserInfo) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
+
+        user.updateFrom(updateUserInfo);
+
+        userRepository.save(user);
     }
 }

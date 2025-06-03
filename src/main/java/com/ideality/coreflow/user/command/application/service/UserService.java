@@ -7,13 +7,13 @@ import com.ideality.coreflow.user.command.domain.aggregate.User;
 
 public interface UserService {
 
-    User findUserByIdentifier(String identifier, LoginType loginType);
-
-    LoginDTO findUserInfoByIdentifier(String identifier, LoginType loginType);
+    LoginDTO findLoginInfoByIdentifier(String identifier, LoginType loginType);
 
     Boolean isExistEmail(String email);
 
     Long registUser(UserInfoDTO userInfo);
 
     String findEmployeeNumById(Long userId);
+
+    void updateUserByAdmin(Long userId, UserInfoDTO updateUserInfo);
 }
