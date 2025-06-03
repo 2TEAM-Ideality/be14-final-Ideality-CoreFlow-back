@@ -2,6 +2,7 @@ package com.ideality.coreflow.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ideality.coreflow.auth.command.application.dto.RequestLogin;
+import com.ideality.coreflow.auth.command.application.dto.RequestResetPassword;
 import com.ideality.coreflow.auth.command.application.dto.RequestTokenReissue;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
@@ -54,35 +55,53 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // TenantContext에 schema 설정
                 String schema = tenantService.findSchemaNameByCompanyCode(requestLogin.getCompanyCode());
                 TenantContext.setTenant(schema);
+
+                // 필터 체인에 래핑된 요청 전단 (RequestBody를 다시 읽을 수 있도록)
+                filterChain.doFilter(cachedRequest, response);
             } catch (Exception e) {
                 // 실패하면 에러
                 throw new BaseException(ErrorCode.INVALID_LOGIN_REQUEST);
-            }
-            try {
-                // 필터 체인에 래핑된 요청 전단 (RequestBody를 다시 읽을 수 있도록)
-                filterChain.doFilter(cachedRequest, response);
             } finally {
                 // 요청 처리 완료 후 클리어
                 TenantContext.clear();
             }
-        } else if("POST".equalsIgnoreCase(request.getMethod()) && "/api/auth/reissue".equals(request.getRequestURI())) {
+        } else if ("POST".equalsIgnoreCase(request.getMethod()) && "/api/auth/reissue".equals(request.getRequestURI())) {
 
             CachedBodyHttpServletRequest cachedRequest = new CachedBodyHttpServletRequest(request);
 
-            // JSON -> LoginRequest 객체 파싱
+            // JSON -> RequestOkenReissue 객체 파싱
             try {
                 RequestTokenReissue requestTokenReissue = objectMapper.readValue(cachedRequest.getInputStream(), RequestTokenReissue.class);
                 // TenantContext에 schema 설정
                 String schema = requestTokenReissue.getCompanySchema();
                 TenantContext.setTenant(schema);
-            } catch (Exception e) {
-                // 실패하면 에러
-                throw new BaseException(ErrorCode.INVALID_LOGIN_REQUEST);
-            }
-            try {
+
                 // 필터 체인에 래핑된 요청 전단 (RequestBody를 다시 읽을 수 있도록)
                 filterChain.doFilter(cachedRequest, response);
-                } finally {
+            } catch (Exception e) {
+                // 실패하면 에러
+                throw new BaseException(ErrorCode.INVALID_TOKEN);
+            } finally {
+                // 요청 처리 완료 후 클리어
+                TenantContext.clear();
+            }
+        } else if ("POST".equalsIgnoreCase(request.getMethod()) && "/api/auth/password/reset".equals(request.getRequestURI())) {
+
+            CachedBodyHttpServletRequest cachedRequest = new CachedBodyHttpServletRequest(request);
+
+            // JSON -> RequestResetPassword 객체 파싱
+            try {
+                RequestResetPassword requestResetPassword = objectMapper.readValue(cachedRequest.getInputStream(), RequestResetPassword.class);
+                // TenantContext에 schema 설정
+                String schema = tenantService.findSchemaNameByCompanyCode(requestResetPassword.getCompanyCode());
+                TenantContext.setTenant(schema);
+
+                // 필터 체인에 래핑된 요청 전단 (RequestBody를 다시 읽을 수 있도록)
+                filterChain.doFilter(cachedRequest, response);
+            } catch (Exception e) {
+                // 실패하면 에러
+                throw new BaseException(ErrorCode.INVALID_TOKEN);
+            } finally {
                 // 요청 처리 완료 후 클리어
                 TenantContext.clear();
             }

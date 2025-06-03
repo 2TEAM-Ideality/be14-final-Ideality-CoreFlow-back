@@ -1,14 +1,9 @@
 package com.ideality.coreflow.auth.command.application.controller;
 
-import com.ideality.coreflow.auth.command.application.dto.RequestLogin;
-import com.ideality.coreflow.auth.command.application.dto.RequestSignUp;
-import com.ideality.coreflow.auth.command.application.dto.RequestSignUpPartner;
-import com.ideality.coreflow.auth.command.application.dto.RequestTokenReissue;
+import com.ideality.coreflow.auth.command.application.dto.*;
 import com.ideality.coreflow.auth.command.application.service.AuthFacadeService;
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.security.jwt.JwtUtil;
-import com.ideality.coreflow.auth.command.application.dto.RequestUpdatePwd;
-import com.ideality.coreflow.auth.command.application.dto.UpdatePwdDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -71,5 +66,11 @@ public class AuthController {
         authFacadeService.modifyPassword(updatePwdInfo);
 
         return ResponseEntity.ok(APIResponse.success(null, "비밀번호 변경 완료"));
+    }
+
+    // 비밀번호 찾기
+    @PostMapping("/password/reset")
+    public ResponseEntity<APIResponse<?>> resetPassword(@RequestBody RequestResetPassword request) {
+
     }
 }
