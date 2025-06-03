@@ -61,9 +61,30 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     public Long updateStatusProgress(Long taskId) {
-        Work updatedTask = taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+        Work updatedTask = taskRepository.findById(taskId)
+                .orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
 
         updatedTask.startTask();
         return updatedTask.getId();
+    }
+
+    @Override
+    @Transactional
+    public Long updateStatusComplete(Long taskId) {
+        Work updatedTask = taskRepository.findById(taskId)
+                .orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+
+        updatedTask.endTask();
+        return updatedTask.getId();
+    }
+
+    @Override
+    @Transactional
+    public Long softDeleteTask(Long taskId) {
+        Work deleteTask = taskRepository.findById(taskId)
+                .orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+
+        deleteTask.softDeleteTask();
+        return deleteTask.getId();
     }
 }

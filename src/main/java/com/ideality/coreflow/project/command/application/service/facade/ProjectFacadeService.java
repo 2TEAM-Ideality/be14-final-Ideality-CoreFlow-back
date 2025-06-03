@@ -91,4 +91,15 @@ public class ProjectFacadeService {
         Long updateTaskId = taskService.updateStatusProgress(taskId);
         return updateTaskId;
     }
+
+    @Transactional
+    public Long updateStatusComplete(Long taskId) {
+        Long updateTaskId = taskService.updateStatusComplete(taskId);
+        return updateTaskId;
+    }
+
+    public Long deleteTaskBySoft(Long taskId) {
+        Long deleteTaskId = taskService.softDeleteTask(taskId);
+        return deleteTaskId;
+    }
 }
