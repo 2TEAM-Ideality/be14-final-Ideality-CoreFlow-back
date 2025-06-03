@@ -31,14 +31,4 @@ public class ParticipantServiceImpl implements ParticipantService {
         }
     }
 
-    @Override
-    @Transactional
-    public void updateTeamLeader(Long leaderId, Long taskId, TargetType targetType) {
-        Participant updateParticipant =
-                participantRepository
-                        .findByUserIdAndTargetIdAndTargetType(leaderId, taskId, targetType);
-
-        updateParticipant.changeRoleId();
-    }
-
 }

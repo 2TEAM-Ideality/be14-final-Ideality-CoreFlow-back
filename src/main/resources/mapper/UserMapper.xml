@@ -9,7 +9,7 @@
           FROM user
          WHERE dept_name = #{deptName}
     </select>
-    <select id="selectLeaderByDeptName" resultType="_long">
+    <select id="selectLeadersByDeptName" resultType="_long">
         SELECT
                a.id
           FROM user a
