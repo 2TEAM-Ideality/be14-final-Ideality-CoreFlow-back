@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -30,14 +31,14 @@ public class TaskControllerTest {
     @DisplayName("✅ 태스크 생성 성공")
     void createTask_success() throws Exception {
         RequestTaskDTO dto = RequestTaskDTO.builder()
-                .taskName("도식화")
-                .taskDescription("도식화입니다")
+                .label("도식화")
+                .description("도식화입니다")
                 .projectId(1L)  // 🔹 존재하는 projectId
-                .startBase(LocalDate.of(2025, 6, 1))
-                .endBase(LocalDate.of(2025, 12, 1))
-                .deptName("기획")
-                .prevWorkId(0L)
-                .nextWorkId(null)
+                .startBaseLine(LocalDate.of(2025, 6, 1))
+                .endBaseLine(LocalDate.of(2025, 12, 1))
+                .deptList(List.of(1L))
+                .source(0L)
+                .target(null)
                 .build();
 
         mockMvc.perform(post("/api/task")

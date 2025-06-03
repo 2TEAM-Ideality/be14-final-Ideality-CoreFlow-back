@@ -1,4 +1,4 @@
-package com.ideality.coreflow.project.command.domain.aggregate;
+package com.ideality.coreflow.dept.command.domain.aggregate;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -28,5 +28,4 @@ public class Dept {
 	@ManyToOne
 	@JoinColumn(name = "parent_dept_id")
 	private Dept parentDept;
-
 }
