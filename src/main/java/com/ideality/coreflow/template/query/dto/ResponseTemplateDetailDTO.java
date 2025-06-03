@@ -21,5 +21,4 @@ public class ResponseTemplateDetailDTO {
 
 	private Map<String, Object> templateData;	// 노드/엣지 데이터
 
-
 }

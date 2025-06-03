@@ -7,53 +7,55 @@
     <!-- 템플릿 목록 조회 -->
     <resultMap id="templateListResultMap" type="com.ideality.coreflow.template.query.dto.ResponseTemplateListDTO">
         <id property="id" column="ID"/>
-        <result property="name" column="NAME" />
+        <result property="name" column="NAME"/>
         <result property="createdAt" column="CREATED_AT"/>
         <result property="createdBy" column="CREATED_BY"/>
         <result property="duration" column="DURATION"/>
         <result property="taskCount" column="TASK_COUNT"/>
         <result property="usingProjects" column="USING_PROJECTS"/>
-        <result property="deptList" column="DEPT_LIST"/>
+        <collection property="deptList"
+                    ofType="com.ideality.coreflow.template.query.dto.DeptDTO"
+                    column="ID"
+                    select="selectDeptListByTemplateId"/>
     </resultMap>
 
     <select id="selectAllTemplates" resultMap="templateListResultMap">
         SELECT
-        t.id,
-        t.name,
-        t.created_at,
-        u.name AS created_by,
-        t.duration,
-        t.task_count,
-        (
-        SELECT COUNT(*)
-        FROM project p
-        WHERE p.template_id = t.id
-        ) AS using_projects,
-        GROUP_CONCAT(DISTINCT d.name SEPARATOR ',') AS dept_list
+            t.id,
+            t.name,
+            t.created_at,
+            u.name AS created_by,
+            t.duration,
+            t.task_count,
+            (
+            SELECT COUNT(*)
+            FROM project p
+            WHERE p.template_id = t.id
+            ) AS using_projects
         FROM template t
-        JOIN user u ON t.created_by = u.id
-        LEFT JOIN template_dept td ON td.template_id = t.id
-        LEFT JOIN dept d ON td.dept_id = d.id
-        WHERE t.is_deleted = FALSE
-        GROUP BY t.id;
+            JOIN user u ON t.created_by = u.id
+                WHERE t.is_deleted = FALSE
     </select>
 
 
     <!-- 템플릿 상세 정보 조회 -->
     <resultMap id="templateDetailResultMap" type="com.ideality.coreflow.template.query.dto.TemplateInfoDTO">
         <id property="id" column="ID"/>
-        <result property="name" column="NAME" />
-        <result property="description" column="DESCRIPTION" />
+        <result property="name" column="NAME"/>
+        <result property="description" column="DESCRIPTION"/>
         <result property="createdAt" column="CREATED_AT"/>
         <result property="createdBy" column="CREATED_BY"/>
         <result property="duration" column="DURATION"/>
         <result property="taskCount" column="TASK_COUNT"/>
         <result property="usingProjects" column="USING_PROJECTS"/>
-        <result property="deptList" column="DEPT_LIST"/>
+        <collection property="deptList"
+                    ofType="com.ideality.coreflow.template.query.dto.DeptDTO"
+                    column="ID"
+                    select="selectDeptListByTemplateId"/>
     </resultMap>
 
     <select id="selectTemplateDetail" parameterType="_long" resultMap="templateDetailResultMap">
-            SELECT
+        SELECT
             t.id AS ID,
             t.name AS NAME,
             t.description AS DESCRIPTION,
@@ -66,17 +68,23 @@
             FROM project p
             WHERE p.template_id = t.id
             ) AS USING_PROJECTS,
-            a.url AS URL,
-            GROUP_CONCAT(DISTINCT d.name SEPARATOR ',') AS DEPT_LIST
-            FROM template t
+            a.url AS URL
+        FROM template t
             LEFT JOIN user u ON t.created_by = u.id
             LEFT JOIN attachment a
-            ON a.target_type = 'TEMPLATE'
+        ON a.target_type = 'TEMPLATE'
             AND a.target_id = t.id
-            LEFT JOIN template_dept td ON td.template_id = t.id
-            LEFT JOIN dept d ON td.dept_id = d.id
-            WHERE t.id = #{templateId}
+        WHERE t.id = #{templateId}
             AND t.is_deleted = FALSE
-            GROUP BY t.id
-        </select>
+    </select>
+
+    <!-- 템플릿 ID로 부서 목록 조회 -->
+    <select id="selectDeptListByTemplateId" resultType="com.ideality.coreflow.template.query.dto.DeptDTO">
+        SELECT
+            d.id, d.name
+        FROM template_dept td
+            JOIN dept d ON td.dept_id = d.id
+                WHERE td.template_id = #{ID}
+    </select>
+
 </mapper>
