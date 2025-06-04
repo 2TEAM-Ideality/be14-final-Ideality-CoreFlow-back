@@ -3,9 +3,8 @@ package com.ideality.coreflow.auth.command.application.dto;
 import lombok.Getter;
 
 @Getter
-public class RequestResetPassword {
+public class RequestResetPasswordVerify {
     String companyCode;
-    String name;
     String email;
-    String employeeNum;
+    String verificationCode;
 }

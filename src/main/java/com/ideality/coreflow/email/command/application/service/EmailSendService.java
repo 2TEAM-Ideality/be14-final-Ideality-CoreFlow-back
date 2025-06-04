@@ -1,8 +1,10 @@
 package com.ideality.coreflow.email.command.application.service;
 
-import com.ideality.coreflow.email.command.application.dto.UserLoginInfo;
+import com.ideality.coreflow.email.command.domail.aggregate.EmailType;
+
+import java.util.Map;
 
 public interface EmailSendService {
 
-    public void sendEmailUserLoginInfo(UserLoginInfo userLoginInfo);
+    void sendEmail(EmailType emailType, Map<String, String> data);
 }
