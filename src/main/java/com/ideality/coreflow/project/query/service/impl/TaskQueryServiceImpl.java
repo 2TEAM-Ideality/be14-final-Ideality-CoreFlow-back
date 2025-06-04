@@ -24,9 +24,10 @@ public class TaskQueryServiceImpl implements TaskQueryService {
 
     @Override
     public ResponseTaskInfoDTO selectTaskInfo(Long taskId) {
-//        SelectTaskDTO dto = taskMapper.selectTaskInfo(taskId);
-//        ResponseTaskInfoDTO resDto = new ResponseTaskInfoDTO(dto);
-        return null;
+        SelectTaskDTO dto = taskMapper.selectTaskInfo(taskId);
+        ResponseTaskInfoDTO resDto = new ResponseTaskInfoDTO();
+        resDto.setSelectTask(dto);
+        return resDto;
     }
 
     @Override

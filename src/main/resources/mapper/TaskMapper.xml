@@ -42,14 +42,16 @@
 
     <select id="selectTasks" parameterType="map" resultMap="TasksMap">
         SELECT
-               a.id
-             , a.name
-             , a.description
-             , a.start_base
-             , a.end_base
-             , a.slack_time
+            a.id
+            , a.name
+            , a.description
+            , a.start_base
+            , a.end_base
+            , a.slack_time
           FROM work a
-          JOIN project b ON a.project_id = b.id
-         WHERE b.id = #{projectId}
+         JOIN project b ON a.project_id = b.id
+        WHERE b.id = #{projectId}
+          AND a.parent_task_id IS NULL
     </select>
+
 </mapper>
