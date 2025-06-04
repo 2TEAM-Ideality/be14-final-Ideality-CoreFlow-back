@@ -18,6 +18,6 @@ public class RelationQueryServiceImpl implements RelationQueryService {
     @Override
     public void selectRelation(Long taskId, ResponseTaskInfoDTO selectTask) {
         prevTaskDTO relation = relationMapper.selectRelation(taskId);
-        selectTask.setRelation(relation);
+//        selectTask.setRelation(relation);
     }
 }

@@ -16,6 +16,15 @@
         <result property="delayDay" column="delay_days"/>
     </resultMap>
 
+    <resultMap id="TasksMap" type="com.ideality.coreflow.project.query.dto.ResponseTaskDTO">
+        <id property="id" column="id" />
+        <result property="label" column="name"/>
+        <result property="description" column="description"/>
+        <result property="startBaseLine" column="start_base"/>
+        <result property="endBaseLine" column="end_base"/>
+        <result property="slackTime" column="slack_time"/>
+    </resultMap>
+
     <select id="selectTaskInfo" parameterType="map" resultMap="TaskResultMap">
         SELECT
                id
@@ -29,5 +38,18 @@
              , delay_days
           FROM work
          WHERE id = #{taskId}
+    </select>
+
+    <select id="selectTasks" parameterType="map" resultMap="TasksMap">
+        SELECT
+               a.id
+             , a.name
+             , a.description
+             , a.start_base
+             , a.end_base
+             , a.slack_time
+          FROM work a
+          JOIN project b ON a.project_id = b.id
+         WHERE b.id = #{projectId}
     </select>
 </mapper>
