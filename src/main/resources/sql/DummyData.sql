@@ -1,21 +1,26 @@
+USE company_a;
+
 INSERT INTO job_rank (name)
 VALUES ("사원"),
        ("대리"),
        ("과장"),
        ("차장"),
-       ("부장");
+       ("부장"),
+       ("협력업체");
 
 INSERT INTO job_role (name)
 VALUES ("팀원"),
        ("파트장"),
-       ("본부장");
+       ("본부장"),
+       ("협력업체");
 
 
 INSERT INTO dept (name, dept_code)
 VALUES ("기획", "PM"),
        ("디자인", "DES"),
        ("소싱", "MD"),
-       ("생산", "MFG");
+       ("생산", "MFG"),
+       ("협력업체", "PART");
 
 INSERT INTO user
 (employee_num,
@@ -31,7 +36,7 @@ INSERT INTO user
 VALUES
 (
     'abcd',
-    '1234',
+    '$2a$12$dD0aS4kIMvZnWIWxVXr.3us3W97791wgVLi2gyY4kuCU6/KQMHrcG',
     '장하오',
     'haojang@naver.com',
     '2001-01-01',
@@ -42,7 +47,7 @@ VALUES
 ),
 (
     'abce',
-    '1234',
+    '$2a$12$dD0aS4kIMvZnWIWxVXr.3us3W97791wgVLi2gyY4kuCU6/KQMHrcG',
     '김신위',
     'xinyu@naver.com',
     '2003-01-01',
@@ -146,6 +151,18 @@ VALUES
 ),
 (
     'VIEWER', 'PROJECT'
+),
+(
+    'ASSIGNEE', 'PROJECT'
+),
+(
+    'PARTICIPANT', 'PROJECT'
+),
+(
+    'CREATOR', 'GENERAL'
+),
+(
+    'PARTNER', 'GENERAL'
 )
 ;
 
