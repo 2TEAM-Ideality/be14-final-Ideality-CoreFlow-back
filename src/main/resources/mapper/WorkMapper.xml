@@ -73,5 +73,15 @@
         AND p.target_type = 'DETAILED'
     </select>
 
+    <select id="findWorkNamesByIds" resultType="java.lang.String">
+        SELECT w.name
+        FROM work w
+        WHERE w.id IN
+        <foreach item="item" index="index" collection="workIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
 
 </mapper>

@@ -19,4 +19,6 @@ public interface WorkMapper {
     WorkDetailDTO findWorkDetailById(Long workId);
 
     List<ParticipantDTO> findParticipantsByWorkId(Long participantId);
+
+    List<String> findWorkNamesByIds(List<Long> workIds);
 }
