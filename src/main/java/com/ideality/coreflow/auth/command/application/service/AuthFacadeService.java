@@ -225,6 +225,7 @@ public class AuthFacadeService {
         }
     }
 
+    @Transactional
     public void resetPasswordVerify(RequestResetPasswordVerify request) {
         if (authService.validateCode(request)) {
             log.info("인증 완료");

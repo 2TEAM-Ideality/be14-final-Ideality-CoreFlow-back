@@ -46,14 +46,17 @@ public class AdminFacadeService {
         }
     }
 
+    @Transactional
     public void registJobRank(String name) {
         jobRankService.registJobRank(name);
     }
 
+    @Transactional
     public void deleteJobRank(long id) {
         jobRankService.deleteJobRank(id);
     }
 
+    @Transactional
     public void modifyJobRank(RequestModifyJobRank request) {
         jobRankService.updateJobRank(request.getPrevJobRankName(), request.getNewJobRankName());
     }
