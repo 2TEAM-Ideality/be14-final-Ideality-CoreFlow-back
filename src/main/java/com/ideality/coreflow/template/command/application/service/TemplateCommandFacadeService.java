@@ -3,6 +3,7 @@ package com.ideality.coreflow.template.command.application.service;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,9 +24,7 @@ import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.template.command.application.dto.RequestCreateTemplateDTO;
 import com.ideality.coreflow.template.command.application.dto.RequestProjectTemplateDTO;
 import com.ideality.coreflow.template.command.application.dto.RequestUpdateTemplateDTO;
-import com.ideality.coreflow.template.command.application.dto.ResponseCreateTemplateDTO;
 import com.ideality.coreflow.template.command.domain.aggregate.Template;
-import com.ideality.coreflow.template.query.dto.DeptDTO;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
@@ -46,6 +45,7 @@ public class TemplateCommandFacadeService {
 	private final S3Service s3Service;
 	private final ObjectMapper objectMapper;	// Jackson 라이브러리 제공 클래스 (Json 직렬화, 역직렬화에서 사용)
 
+
 	// 템플릿 생성
 	@Transactional
 	public void createTemplate(RequestCreateTemplateDTO requestDTO) {
@@ -54,36 +54,15 @@ public class TemplateCommandFacadeService {
 		Template template = templateCommandService.createTemplate(requestDTO);
 
 		// 2. JSON 직렬화
-		TemplateDataDTO data = TemplateDataDTO.builder()
-			.edgeList(requestDTO.getEdgeList())
-			.nodeList(requestDTO.getNodeList())
-			.build();
-		String json = serializeJsonOrThrow(data);
-		System.out.println(json);
+		String json = buildTemplateJsonData(requestDTO.getNodeList(), requestDTO.getEdgeList());
 
-		// 3. 참여 부서 연결
-		// 참여 부서 ID 추출 및 저장
-		Set<Long> uniqueDeptIds = requestDTO.getNodeList().stream()
-			.flatMap(node -> node.getData().getDeptList().stream()
-				.map(TaskDeptDTO::getId))
-			.collect(Collectors.toSet());
+		// 3. 참여 부서 추출 및 저장
+		Set<Long> deptIds = extractUniqueDeptIds(requestDTO.getNodeList());
+		saveTemplateDepts(template.getId(), deptIds);
 
-		// template_dept 테이블 저장
-		for (Long deptId : uniqueDeptIds) {
-			templateCommandService.saveTemplateDept(template.getId(), deptId);
-		}
+		// 4. S3에 업로드 & AttachmentEntity 생성 및 DB 저장
+		uploadAndSaveAttachment(template.getId(), json, requestDTO.getCreatedBy());
 
-		// 4. 파일명 및 폴더 경로 지정
-		String fileName = template.getId() + ".json";
-		String folder = "template-json";
-
-		// 5. S3에 업로드
-		String fileUrl = uploadToS3OrThrow(json, folder, fileName);
-
-		// 6. AttachmentEntity 생성 및 DB 저장
-		attachmentCommandService.createAttachmentForTemplate(
-			template.getId(), fileName, fileUrl, requestDTO.getCreatedBy(), json
-		);
 	}
 
 
@@ -110,67 +89,19 @@ public class TemplateCommandFacadeService {
 		// 엣지 리스트 정보 가져오기
 		List<EdgeDTO> edgeList = taskQueryService.getEdgeList(taskList);
 
-		// JSON
-		TemplateDataDTO data = TemplateDataDTO.builder()
-			.edgeList(edgeList)
-			.nodeList(nodeList)
-			.build();
-		String json = serializeJsonOrThrow(data);
-		System.out.println(json);
+		// JSON 직렬화
+		String json = buildTemplateJsonData(nodeList, edgeList);
 
-		Set<Long> uniqueDeptIds = nodeList.stream()
-			.flatMap(node ->
-				(node.getData().getDeptList() != null ? node.getData().getDeptList() : List.<TaskDeptDTO>of())
-					.stream()
-					.map(TaskDeptDTO::getId)
-			)
-			.collect(Collectors.toSet());
+		// 3. 참여 부서 추출 및 저장
+		Set<Long> deptIds = extractUniqueDeptIds(nodeList);
+		saveTemplateDepts(template.getId(), deptIds);
 
-		// template_dept 테이블 저장
-		for (Long deptId : uniqueDeptIds) {
-			templateCommandService.saveTemplateDept(template.getId(), deptId);
-		}
-
-		// 4. 파일명 및 폴더 경로 지정
-		String fileName = template.getId() + ".json";
-		String folder = "template-json";
-
-		// 5. S3에 업로드
-		String fileUrl = uploadToS3OrThrow(json, folder, fileName);
-
-		// 6. AttachmentEntity 생성 및 DB 저장
-		attachmentCommandService.createAttachmentForTemplate(
-			template.getId(), fileName, fileUrl, requestDTO.getCreatedBy(), json
-		);
+		// 4. S3에 업로드 & AttachmentEntity 생성 및 DB 저장
+		uploadAndSaveAttachment(template.getId(), json, requestDTO.getCreatedBy());
 
 	}
 
-	// 태스크 리스트 -> 노드 리스트 변환
-	private List<NodeDTO> taskListToNode(List<ResponseTaskDTO> taskList) {
-		return taskList.stream()
-			.map(task -> {
 
-				TemplateNodeDataDTO data = TemplateNodeDataDTO.builder()
-					.label(task.getLabel())
-					.description(task.getDescription())
-					.slackTime(task.getSlackTime())
-					.startBaseLine(String.valueOf(task.getStartBaseLine()))
-					.endBaseLine(String.valueOf(task.getEndBaseLine()))
-					.deptList(task.getDepts())
-					.build();
-
-
-				// Node의 ID는 문자열이어야 함 TODO. 프로젝트 템플릿화 태스크 아이디는 다르게 할 지 ?
-				NodeDTO node = NodeDTO.builder()
-					.id(String.valueOf(task.getId()))
-					.type("custom")
-					.data(data)
-					.build();
-
-				return node;
-			})
-			.collect(Collectors.toList());
-	}
 
 	// 템플릿 수정
 	@Transactional
@@ -230,6 +161,54 @@ public class TemplateCommandFacadeService {
 		attachmentCommandService.deleteAttachment(templateId, FileTargetType.TEMPLATE);
 	}
 
+
+
+
+	// 참여 부서 추출
+	private Set<Long> extractUniqueDeptIds(List<NodeDTO> nodeList) {
+		return nodeList.stream()
+			.flatMap(node ->
+				Optional.ofNullable(node.getData().getDeptList())
+					.orElse(List.of())
+					.stream()
+					.map(TaskDeptDTO::getId)
+			)
+			.collect(Collectors.toSet());
+	}
+
+	// 참여 부서 저장
+	private void saveTemplateDepts(Long templateId, Set<Long> deptIds) {
+		for (Long deptId : deptIds) {
+			templateCommandService.saveTemplateDept(templateId, deptId);
+		}
+	}
+
+
+	// 노드 리스트 & 엣지 리스트 JSON화
+	private String buildTemplateJsonData(List<NodeDTO> nodeList, List<EdgeDTO> edgeList) {
+		TemplateDataDTO data = TemplateDataDTO.builder()
+			.nodeList(nodeList)
+			.edgeList(edgeList)
+			.build();
+
+		return serializeJsonOrThrow(data);
+
+	}
+
+	// 첨부파일 관련 저장
+	private void uploadAndSaveAttachment(Long templateId, String json, Long createdBy) {
+		String fileName = templateId + ".json";
+		String folder = "template-json";
+
+		// s3 업로드
+		String fileUrl = uploadToS3OrThrow(json, folder, fileName);
+
+		// 첨부파일 테이블 저장
+		attachmentCommandService.createAttachmentForTemplate(
+			templateId, fileName, fileUrl, createdBy, json
+		);
+	}
+
 	// S3 업로드
 	private String uploadToS3OrThrow(String json, String folder, String fileName) {
 		try {
@@ -252,6 +231,34 @@ public class TemplateCommandFacadeService {
 			log.error("JSON 직렬화 실패", e);
 			throw new BaseException(ErrorCode.JSON_SERIALIZATION_ERROR);
 		}
+	}
+
+
+	// 태스크 리스트 -> 노드 리스트 변환
+	private List<NodeDTO> taskListToNode(List<ResponseTaskDTO> taskList) {
+		return taskList.stream()
+			.map(task -> {
+
+				TemplateNodeDataDTO data = TemplateNodeDataDTO.builder()
+					.label(task.getLabel())
+					.description(task.getDescription())
+					.slackTime(task.getSlackTime())
+					.startBaseLine(String.valueOf(task.getStartBaseLine()))
+					.endBaseLine(String.valueOf(task.getEndBaseLine()))
+					.deptList(task.getDepts())
+					.build();
+
+
+				// Node의 ID는 문자열이어야 함 TODO. 프로젝트 템플릿화 태스크 아이디는 다르게 할 지 ?
+				NodeDTO node = NodeDTO.builder()
+					.id(String.valueOf(task.getId()))
+					.type("custom")
+					.data(data)
+					.build();
+
+				return node;
+			})
+			.collect(Collectors.toList());
 	}
 
 }
