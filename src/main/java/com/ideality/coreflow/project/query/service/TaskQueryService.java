@@ -1,10 +1,13 @@
 package com.ideality.coreflow.project.query.service;
 
+import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
+import com.ideality.coreflow.project.query.dto.ResponseTaskInfoDTO;
+
 import java.util.List;
 
 
-import com.ideality.coreflow.template.query.dto.NodeDTO;
-
 public interface TaskQueryService {
-	List<NodeDTO> getTasksByProjectId(Long projectId);
+    ResponseTaskInfoDTO selectTaskInfo(Long taskId);
+
+    List<ResponseTaskDTO> selectTasks(Long projectId);
 }
