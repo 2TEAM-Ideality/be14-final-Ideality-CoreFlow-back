@@ -8,8 +8,13 @@ import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
+import com.ideality.coreflow.template.query.dto.EdgeDTO;
+import com.ideality.coreflow.template.query.dto.NodeDTO;
+import com.ideality.coreflow.template.query.dto.TemplateNodeDataDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -69,39 +74,40 @@ public class ProjectFacadeService {
         participantService.createParticipants(leaders);
         // 태스크
         // region
-
-//        if(request.getTemplateData()!=null) {
-//            Map<String, Long> taskMap=new HashMap<>();
-//            for(NodeDTO node : request.getTemplateData().getNodeList()){
-//                String nodeId=node.getId();
-//                List<Long> sourceIds=new ArrayList<>();
-//                List<Long> targetIds=new ArrayList<>();
-//                for(EdgeDTO edge:request.getTemplateData().getEdgeList()){
-//                    if(nodeId.equals(edge.getSource())){
-//                        targetIds.add(Long.parseLong(edge.getTarget()));
-//                    } else if (nodeId.equals(edge.getTarget())) {
-//                        sourceIds.add(Long.parseLong(edge.getSource()));
-//                    }
-//                }
-//                if (sourceIds.isEmpty()) {
-//                    sourceIds.add(0L);
-//                }
-//                TemplateNodeDataDTO data=node.getData();
-//                RequestTaskDTO requestTaskDTO=RequestTaskDTO.builder()
-//                        .label(data.getLabel())
-//                        .description(data.getDescription())
-//                        .startBaseLine(LocalDate.parse(data.getStartBaseLine()))
-//                        .endBaseLine(LocalDate.parse(data.getEndBaseLine()))
-//                        .projectId(project.getId())
-//                        .deptList(data.getDeptList().stream()
-//                                .map(Long::valueOf)
-//                                .toList())
-//                        .source(sourceIds)
-//                        .target(targetIds)
-//                        .build();
-//
-//            }
-//        }
+        if(request.getTemplateData()!=null) {
+            // 엣지 정보 다 뽑아내기
+            List<String[]> edgeList=new ArrayList<>();
+            for(EdgeDTO edge:request.getTemplateData().getEdgeList()){
+                edgeList.add(new String[]{edge.getSource(), edge.getTarget()});
+            }
+            // 태스크 생성 및 edgeList 업데이트
+            for(NodeDTO node : request.getTemplateData().getNodeList()){
+                String nodeId=node.getId();
+                TemplateNodeDataDTO data=node.getData();
+                RequestTaskDTO requestTaskDTO=RequestTaskDTO.builder()
+                        .label(data.getLabel())
+                        .description(data.getDescription())
+                        .startBaseLine(LocalDate.parse(data.getStartBaseLine()))
+                        .endBaseLine(LocalDate.parse(data.getEndBaseLine()))
+                        .projectId(project.getId())
+                        .build();
+                // 작업별 부서 정보 저장
+                // 작업들 저장하면서 edgeList 업데이트
+                Long taskId=taskService.createTask(requestTaskDTO);
+                System.out.println("taskId = " + taskId + "생성 완료.");
+                for (String[] edge : edgeList) {
+                    for (int i = 0; i < edge.length; i++) {
+                        if (edge[i].equals(nodeId)) {
+                            edge[i] = taskId.toString();
+                        }
+                    }
+                }
+            }
+            // edgeList 저장
+            for(String[] edge : edgeList) {
+                relationService.createRelation(Long.parseLong(edge[0]), Long.parseLong(edge[1]));
+            }
+        }
         // endregion
         return project;
     }
