@@ -24,7 +24,10 @@ public class ProjectQueryFacadeService {
         ResponseTaskInfoDTO selectTask =
                 taskQueryService.selectTaskInfo(taskId);
 
-        relationQueryService.selectRelation(taskId, selectTask);
+        log.info("selectTaskInfo: {}", selectTask);
+
+        relationQueryService.selectPrevRelation(taskId, selectTask);
+        relationQueryService.selectNextRelation(taskId, selectTask);
         return selectTask;
     }
 

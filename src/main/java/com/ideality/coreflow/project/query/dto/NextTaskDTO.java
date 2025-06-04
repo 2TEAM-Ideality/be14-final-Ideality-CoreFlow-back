@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @ToString
 @EqualsAndHashCode
-public class nextTaskDTO {
+public class NextTaskDTO {
     private Long relationId;
     private Long nextWorkId;
     private String nextWorkName;
