@@ -90,22 +90,4 @@ public class UserServiceImpl implements UserService {
     public String findPwdById(long id) {
         return userRepository.findById(id).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND)).getPassword();
     }
-
-    @Override
-    public UserInfoDTO findUserByEmployeeNum(String employeeNum) {
-        User user = userRepository.findByEmployeeNum(employeeNum).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
-
-        return UserInfoDTO.builder()
-                .id(user.getId())
-                .password(user.getPassword())
-                .email(user.getEmail())
-                .name(user.getName())
-                .employeeNum(user.getEmployeeNum())
-                .build();
-    }
-
-    @Override
-    public long findUserIdByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND)).getId();
-    }
 }

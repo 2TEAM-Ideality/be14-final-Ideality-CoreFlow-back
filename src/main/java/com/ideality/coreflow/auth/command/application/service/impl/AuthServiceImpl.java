@@ -1,7 +1,5 @@
 package com.ideality.coreflow.auth.command.application.service.impl;
 
-import com.ideality.coreflow.auth.command.application.dto.RequestResetPassword;
-import com.ideality.coreflow.auth.command.application.dto.RequestResetPasswordVerify;
 import com.ideality.coreflow.auth.command.application.dto.ResponseToken;
 import com.ideality.coreflow.auth.command.application.dto.UpdatePwdDTO;
 import com.ideality.coreflow.auth.command.application.service.AuthService;
@@ -11,7 +9,6 @@ import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.security.jwt.JwtProvider;
 import com.ideality.coreflow.security.jwt.JwtUtil;
 import com.ideality.coreflow.user.command.application.dto.LoginDTO;
-import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -127,44 +124,5 @@ public class AuthServiceImpl implements AuthService {
         if (!passwordEncoder.matches(updatePwdInfo.getPrevPassword(), prevPassword)) {
             throw new BaseException(ErrorCode.INVALID_PASSWORD);
         }
-    }
-
-    @Override
-    public boolean verificationUserInfo(UserInfoDTO userInfo, RequestResetPassword request) {
-        // 이름, 이메일 검증
-        if (userInfo.getName().equals(request.getName()) && userInfo.getEmail().equals(request.getEmail())) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public String generateVerificationCode(String email) {
-
-        // 인증 코드 생성
-        String verificationCode = generatePassword();
-
-        // 인증 키 생성
-        String key = "emailAuth:" + email;
-
-        // 유효 시간 5분
-        redisTemplate.opsForValue().set(key, verificationCode, 5, TimeUnit.MINUTES);
-
-        return verificationCode;
-    }
-
-    @Override
-    public boolean validateCode(RequestResetPasswordVerify request) {
-
-        String key = "emailAuth:" + request.getEmail();
-
-        String storedVerificationCode = redisTemplate.opsForValue().get(key);
-
-        if(storedVerificationCode == null || !storedVerificationCode.equals(request.getVerificationCode())) {
-            return false;
-        }
-
-        return true;
     }
 }

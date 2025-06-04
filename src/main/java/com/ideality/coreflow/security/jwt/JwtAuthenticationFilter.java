@@ -3,7 +3,6 @@ package com.ideality.coreflow.security.jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ideality.coreflow.auth.command.application.dto.RequestLogin;
 import com.ideality.coreflow.auth.command.application.dto.RequestResetPassword;
-import com.ideality.coreflow.auth.command.application.dto.RequestResetPasswordVerify;
 import com.ideality.coreflow.auth.command.application.dto.RequestTokenReissue;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
@@ -44,8 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Set<String> CUSTOM_SCHEMA_URIS = Set.of(
             "/api/auth/login",
             "/api/auth/reissue",
-            "/api/auth/reset-password/request",
-            "/api/auth/reset-password/verify"
+            "/api/auth/password/reset"
     );
 
     @Override
@@ -140,13 +138,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     RequestTokenReissue requestTokenReissue = parseRequest(cachedRequest, RequestTokenReissue.class);
                     TenantContext.setTenant(requestTokenReissue.getCompanySchema());
                 }
-                case "/api/auth/reset-password/request" -> {
+                case "/api/auth/password/reset" -> {
                     RequestResetPassword requestResetPassword = parseRequest(cachedRequest, RequestResetPassword.class);
                     TenantContext.setTenant(tenantService.findSchemaNameByCompanyCode(requestResetPassword.getCompanyCode()));
-                }
-                case "/api/auth/reset-password/verify" -> {
-                    RequestResetPasswordVerify requestResetPasswordVerify = parseRequest(cachedRequest, RequestResetPasswordVerify.class);
-                    TenantContext.setTenant(tenantService.findSchemaNameByCompanyCode(requestResetPasswordVerify.getCompanyCode()));
                 }
             }
             filterChain.doFilter(cachedRequest, response);

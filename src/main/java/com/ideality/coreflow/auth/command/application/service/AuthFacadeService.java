@@ -1,12 +1,16 @@
 package com.ideality.coreflow.auth.command.application.service;
 
-import com.ideality.coreflow.auth.command.application.dto.*;
+import com.ideality.coreflow.auth.command.application.dto.RequestSignUp;
+import com.ideality.coreflow.auth.command.application.dto.RequestSignUpPartner;
 import com.ideality.coreflow.auth.command.domain.aggregate.LoginType;
+import com.ideality.coreflow.auth.command.application.dto.RequestLogin;
+import com.ideality.coreflow.auth.command.application.dto.ResponseToken;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.email.command.application.dto.UserLoginInfo;
 import com.ideality.coreflow.email.command.application.service.EmailSendService;
-import com.ideality.coreflow.email.command.domail.aggregate.EmailType;
 import com.ideality.coreflow.user.command.application.dto.LoginDTO;
+import com.ideality.coreflow.auth.command.application.dto.UpdatePwdDTO;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.application.service.RoleService;
 import com.ideality.coreflow.user.command.application.service.UserOfRoleService;
@@ -21,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -104,13 +107,12 @@ public class AuthFacadeService {
         userOfRoleService.updateAuthorities(requestSignUp.isCreation(), userId, roleId);
 
         log.info("메일 발송");
-        log.info("메일 발송");
-        Map<String, String> data = Map.of(
-                "email", requestSignUp.getEmail(),
-                "employeeNum", employeeNum,
-                "password", password
-        );
-        emailSendService.sendEmail(EmailType.USER_LOGIN_INFO, data);
+        UserLoginInfo userLoginInfo = UserLoginInfo.builder()
+                                        .employeeNum(employeeNum)
+                                        .email(requestSignUp.getEmail())
+                                        .password(password)
+                                        .build();
+        emailSendService.sendEmailUserLoginInfo(userLoginInfo);
     }
 
     // 로그아웃
@@ -178,15 +180,14 @@ public class AuthFacadeService {
         userOfRoleService.updateAuthorities(true, userId, roleId);
 
         log.info("메일 발송");
-        Map<String, String> data = Map.of(
-                "email", request.getEmail(),
-                "employeeNum", partnerNum,
-                "password", password
-        );
-        emailSendService.sendEmail(EmailType.USER_LOGIN_INFO, data);
+        UserLoginInfo loginInfo = UserLoginInfo.builder()
+                .employeeNum(partnerNum)
+                .email(request.getEmail())
+                .password(password)
+                .build();
+        emailSendService.sendEmailUserLoginInfo(loginInfo);
     }
 
-    @Transactional
     public void modifyPassword(UpdatePwdDTO updatePwdInfo) {
         String pwd = userService.findPwdById(updatePwdInfo.getId());
 
@@ -203,53 +204,5 @@ public class AuthFacadeService {
                 .build();
 
         userService.updateUser(updateUserInfo);
-    }
-
-    @Transactional
-    public void resetPasswordRequest(RequestResetPassword request) {
-
-        UserInfoDTO userInfo = userService.findUserByEmployeeNum(request.getEmployeeNum());
-
-        log.info(userInfo.toString());
-
-        if (authService.verificationUserInfo(userInfo, request)) {
-            String verificationCode = authService.generateVerificationCode(request.getEmail());
-            // 인증 메일 보내기
-            Map<String, String> data = Map.of(
-                    "email", request.getEmail(),
-                    "verificationCode", verificationCode
-            );
-            emailSendService.sendEmail(EmailType.VERIFICATION_CODE, data);
-        } else {
-            throw new BaseException(ErrorCode.INVALID_USER_INFO);
-        }
-    }
-
-    public void resetPasswordVerify(RequestResetPasswordVerify request) {
-        if (authService.validateCode(request)) {
-            log.info("인증 완료");
-            String newPassword = authService.generatePassword();
-            String encodedPassword = passwordEncoder.encode(newPassword);
-
-            long userId = userService.findUserIdByEmail(request.getEmail());
-
-            UserInfoDTO updateUserInfo = UserInfoDTO.builder()
-                    .id(userId)
-                    .password(encodedPassword)
-                    .build();
-
-            userService.updateUser(updateUserInfo);
-            log.info("새 비밀번호로 업데이트");
-
-            Map<String, String> data = Map.of(
-                    "email", request.getEmail(),
-                    "password", newPassword
-            );
-
-            log.info("새 비밀번호 발송");
-            emailSendService.sendEmail(EmailType.NEW_PASSWORD, data);
-        } else {
-            throw new BaseException(ErrorCode.INVALID_VERIFICATION_CODE);
-        }
     }
 }

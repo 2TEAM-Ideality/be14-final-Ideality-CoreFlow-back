@@ -68,17 +68,9 @@ public class AuthController {
         return ResponseEntity.ok(APIResponse.success(null, "비밀번호 변경 완료"));
     }
 
-    // 비밀번호 찾기 (인증 번호 발송)
-    @PostMapping("/reset-password/request")
-    public ResponseEntity<APIResponse<?>> resetPasswordRequest(@RequestBody RequestResetPassword request) {
-        authFacadeService.resetPasswordRequest(request);
-        return ResponseEntity.ok(APIResponse.success(null, "이메일로 인증 코드를 발송했습니다."));
-    }
+    // 비밀번호 찾기
+    @PostMapping("/password/reset")
+    public ResponseEntity<APIResponse<?>> resetPassword(@RequestBody RequestResetPassword request) {
 
-    // 비밀번호 찾기 (인증 번호 검증)
-    @PostMapping("/reset-password/verify")
-    public ResponseEntity<APIResponse<?>> resetPasswordVerify(@RequestBody RequestResetPasswordVerify request) {
-        authFacadeService.resetPasswordVerify(request);
-        return ResponseEntity.ok(APIResponse.success(null, "이메일로 새 비밀번호가 발급되었습니다."));
     }
 }
