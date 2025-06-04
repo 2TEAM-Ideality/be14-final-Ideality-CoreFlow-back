@@ -2,6 +2,7 @@ package com.ideality.coreflow.user.query.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.template.query.dto.DeptDTO;
 import com.ideality.coreflow.user.query.mapper.UserMapper;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import lombok.RequiredArgsConstructor;
@@ -30,4 +31,10 @@ public class UserQueryServiceImpl implements UserQueryService {
     public List<Long> selectLeadersByDeptName(String deptName) {
         return userMapper.selectLeadersByDeptName(deptName);
     }
+
+    @Override
+    public String getDeptNameByUserId(Long userId) {
+        return userMapper.selectDeptNameByUserId(userId);
+    }
+
 }

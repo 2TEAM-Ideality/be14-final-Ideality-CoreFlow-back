@@ -18,4 +18,10 @@
            AND b.role_id = 2
            AND b.target_type = 'PROJECT'
     </select>
+    <select id="selectDeptNameByUserId" resultType="string" parameterType="_long">
+        SELECT
+            u.dept_name
+        FROM user u
+            WHERE #{userId} = u.id
+    </select>
 </mapper>

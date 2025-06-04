@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponsePersonalDTO {
+public class ResponseScheduleDTO {
 	private Long id;
 	private String scheduleName;
 	private String content;

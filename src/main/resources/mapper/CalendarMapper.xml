@@ -5,7 +5,7 @@
 <mapper namespace="com.ideality.coreflow.calendar.query.mapper.CalendarMapper">
 
     <!--  개인 일정 정보 조회  -->
-    <resultMap id="PersonalResultMap" type="com.ideality.coreflow.calendar.query.dto.ResponsePersonalDTO">
+    <resultMap id="PersonalResultMap" type="com.ideality.coreflow.calendar.query.dto.ResponseScheduleDTO">
         <id property="id" column="ID" />
         <result property="scheduleName" column="name"/>
         <result property="content" column="CONTENT"/>

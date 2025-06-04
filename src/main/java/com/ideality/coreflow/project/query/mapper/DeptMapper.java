@@ -8,4 +8,6 @@ public interface DeptMapper {
     Optional<String> findNameById(Long id);
 
     Optional<String> findDeptCodeByName(String deptName);
+
+	Optional<Long> findDeptIdByName(String deptName);
 }
