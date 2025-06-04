@@ -1,4 +1,4 @@
-package com.ideality.coreflow.approval.domain.aggregate;
+package com.ideality.coreflow.approval.command.domain.aggregate;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -1,4 +1,4 @@
-package com.ideality.coreflow.approval.domain.aggregate;
+package com.ideality.coreflow.approval.command.domain.aggregate;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,7 +25,7 @@ public class ApprovalParticipant {
     @Column(name = "user_id")
     private Long userId;
 
-    private Role role;
+    private ApprovalRole role;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

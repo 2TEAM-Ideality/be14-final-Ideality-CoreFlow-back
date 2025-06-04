@@ -1,4 +1,4 @@
-package com.ideality.coreflow.approval.domain.aggregate;
+package com.ideality.coreflow.approval.command.domain.aggregate;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,9 +25,9 @@ public class Approval {
 
     private String title;
 
-    private Type type;
+    private ApprovalType type;
 
-    private Status status;
+    private ApprovalStatus status;
 
     private String content;
 

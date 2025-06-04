@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ideality.coreflow.approval.query.mapper.ApprovalMapper">
+    <resultMap id="ApprovalResultMap" type="com.ideality.coreflow.approval.query.dto.ResponseQueryApproval">
+        <id property="id" column="ID" />
+        <result property="requesterId" column="REQUESTER_ID" />
+        <result property="title" column="TITLE" />
+        <result property="type" column="TYPE" />
+        <result property="status" column="STATUS" />
+        <result property="content" column="CONTENT" />
+        <result property="createdAt" column="CREATED_AT" />
+        <result property="approvedAt" column="APPROVED_AT" />
+        <result property="role" column="ROLE" />
+        <result property="delayDays" column="DELAY_DAYS" />
+        <result property="actionDetail" column="ACTION_DETAIL" />
+        <result property="reason" column="REASON" />
+        <result property="" column="" />
+    </resultMap>
+
+    <select id="selectMyApproval" parameterType="long" resultMap="ApprovalResultMap">
+        SELECT
+               a.id AS ID
+             , a.user_id AS REQUESTER_ID
+             , a.title AS TITLE
+             , a.type AS TYPE
+             , a.status AS STATUS
+             , a.content AS CONTENT
+             , a.created_at AS CREATED_AT
+             , a.approved_at AS APPROVED_AT
+             , ap.role AS ROLE
+             , da.delay_days AS DELAY_DAYS
+             , da.action_detail AS ACTION_DETAIL
+             , dr.reason AS REASON
+          FROM approval a
+          LEFT JOIN approval_participant ap ON a.id = ap.approval_id
+          LEFT JOIN delay_approval da ON a.id = da.approval_id
+          LEFT JOIN delay_reason dr ON da.delay_reason_id = dr.id
+         WHERE ap.user_id = #{userId}
+    </select>
+</mapper>
