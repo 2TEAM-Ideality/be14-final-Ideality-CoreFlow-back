@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ideality.coreflow.project.query.mapper.RelationMapper">
+
+    <resultMap id="prevRelationMap" type="com.ideality.coreflow.project.query.dto.PrevTaskDTO">
+        <result property="relationId" column="id"/>
+        <result property="prevWorkId" column="prev_work_id"/>
+        <result property="prevWorkName" column="name"/>
+    </resultMap>
+
+    <resultMap id="nextRelationMap" type="com.ideality.coreflow.project.query.dto.NextTaskDTO">
+        <result property="relationId" column="id"/>
+        <result property="nextWorkId" column="prev_work_id"/>
+        <result property="nextWorkName" column="name"/>
+    </resultMap>
+
+    <select id="selectPrevRelation" parameterType="map" resultMap="prevRelationMap">
+        SELECT
+               a.id
+             , a.prev_work_id
+             , b.name
+          FROM relation a
+          JOIN work b ON a.next_work_id = b.id
+         WHERE a.next_work_id = #{taskId}
+    </select>
+
+    <select id="selectNextRelation" parameterType="map" resultMap="prevRelationMap">
+        SELECT
+               a.id
+             , a.next_work_id
+             , b.name
+          FROM relation a
+          JOIN work b ON a.prev_work_id = b.id
+         WHERE a.prev_work_id = #{taskId}
+    </select>
+</mapper>

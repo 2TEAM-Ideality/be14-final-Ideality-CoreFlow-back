@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ideality.coreflow.project.query.mapper.WorkDeptMapper">
+
+    <resultMap id="selectDeptListMap" type="com.ideality.coreflow.project.query.dto.WorkDeptDTO">
+        <result property="taskId" column="work_id" />
+        <result property="deptId" column="id" />
+        <result property="deptName" column="name" />
+    </resultMap>
+    <select id="selectDeptListMap" parameterType="map" resultMap="selectDeptListMap">
+        SELECT
+               a.work_id
+             , b.id
+             , b.name
+          FROM work_dept a
+          JOIN dept b ON a.dept_id = b.id
+         WHERE a.work_id IN
+        <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
+            #{taskId}
+        </foreach>
+        AND a.is_deleted = 0
+        ORDER BY a.work_id, b.id
+    </select>
+</mapper>

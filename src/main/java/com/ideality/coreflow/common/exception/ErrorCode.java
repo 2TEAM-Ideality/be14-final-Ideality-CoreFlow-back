@@ -30,6 +30,17 @@ public enum ErrorCode {
     // ✅ JSON 직렬화 실패
     JSON_SERIALIZATION_ERROR("JSON_SERIALIZATION_ERROR", "JSON 변환에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
+    // ✅ 선행 작업과 후행 작업 실패
+    PREDECESSOR_NOT_FOUND("PREDECESSOR_NOT_FOUND", "선행 작업이 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
+    SUCCESSOR_NOT_FOUND("SUCCESSOR_NOT_FOUND", "후행 작업이 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
+    PREDECESSOR_AND_SUCCESSOR_REQUIRED("PREDECESSOR_AND_SUCCESSOR_REQUIRED", "선행 작업과 후행 작업이 모두 필요합니다.", HttpStatus.BAD_REQUEST),
+
+    // ✅ 없는 부서
+    DEPT_NOT_FOUND("DEPT_NOT_FOUND", "부서를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+
+    // ✅ 추가된 에러 코드: 선행 작업을 찾을 수 없는 경우
+    PARENT_TASK_NOT_FOUND("PARENT_TASK_NOT_FOUND", "선행 작업을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+
     RESOURCE_NOT_FOUND("DATABASE_RESOURCE_NOT_FOUND", "요청한 리소스를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     // ✅ 첨부파일 없는 정보
     ATTCHMENT_NOT_FOUND("ATTACHMENT_NOT_FOUND", "해당 첨부파일이 존재하지 않습니다." , HttpStatus.NOT_FOUND),
