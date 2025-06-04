@@ -9,6 +9,7 @@ import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.application.service.RoleService;
 import com.ideality.coreflow.user.command.application.service.UserOfRoleService;
 import com.ideality.coreflow.user.command.application.service.UserService;
+import com.ideality.coreflow.user.command.domain.aggregate.OrgType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +56,7 @@ public class AdminFacadeService {
     @Transactional
     public void modifyJobRank(RequestModifyJobRank request) {
         jobRankService.updateJobRank(request.getPrevJobRankName(), request.getNewJobRankName());
+        userService.updateUserOrg(OrgType.JOB_RANK, request.getPrevJobRankName(), request.getNewJobRankName());
     }
 
     @Transactional
@@ -70,6 +72,7 @@ public class AdminFacadeService {
     @Transactional
     public void modifyJobRole(RequestModifyJobROle request) {
         jobRoleService.updateJobRole(request.getPrevJobRoleName(), request.getNewJobRoleName());
+        userService.updateUserOrg(OrgType.JOB_ROLE, request.getPrevJobRoleName(), request.getNewJobRoleName());
     }
 
     @Transactional

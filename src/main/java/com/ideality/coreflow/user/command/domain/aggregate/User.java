@@ -74,4 +74,12 @@ public class User {
         if (dto.getJobRankName() != null) this.jobRankName = dto.getJobRankName();
         if (dto.getJobRoleName() != null) this.jobRoleName = dto.getJobRoleName();
     }
+
+    public void updateOrg(OrgType type, String newName) {
+        switch (type) {
+            case DEPT -> this.deptName = newName;
+            case JOB_RANK -> this.jobRankName = newName;
+            case JOB_ROLE -> this.jobRoleName = newName;
+        }
+    }
 }

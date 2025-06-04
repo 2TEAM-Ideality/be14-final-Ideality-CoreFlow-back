@@ -7,11 +7,14 @@ import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.user.command.application.dto.LoginDTO;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.application.service.UserService;
+import com.ideality.coreflow.user.command.domain.aggregate.OrgType;
 import com.ideality.coreflow.user.command.domain.aggregate.User;
 import com.ideality.coreflow.user.command.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -107,5 +110,27 @@ public class UserServiceImpl implements UserService {
     @Override
     public long findUserIdByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND)).getId();
+    }
+
+    @Override
+    public void updateUserOrg(OrgType type, String prevName, String newName) {
+
+        List<User> users = List.of();
+        
+        switch (type) {
+            case DEPT -> {
+                users = userRepository.findByDeptNameAndIsResign(prevName, false);
+            }
+            case JOB_RANK -> {
+                users = userRepository.findByJobRankNameAndIsResign(prevName, false);
+            }
+            case JOB_ROLE -> {
+                users = userRepository.findByJobRoleNameAndIsResign(prevName, false);
+            }
+        }
+        
+        for (User user : users) {
+            user.updateOrg(type, newName);
+        }
     }
 }
