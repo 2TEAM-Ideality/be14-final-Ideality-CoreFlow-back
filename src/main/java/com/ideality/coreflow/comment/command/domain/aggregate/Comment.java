@@ -13,7 +13,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Comment {
+public class
+Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +24,11 @@ public class Comment {
     private String content;
 
     @Column(name = "is_deleted", nullable = false)
+    @Builder.Default
     private boolean isDeleted = false;
 
     @Column(name = "is_notice", nullable = false)
+    @Builder.Default
     private boolean isNotice = false;
 
     @Column(nullable = false)
