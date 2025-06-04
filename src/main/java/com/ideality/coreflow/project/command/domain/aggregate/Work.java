@@ -4,9 +4,13 @@ package com.ideality.coreflow.project.command.domain.aggregate;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 
 @Entity
@@ -52,6 +56,7 @@ public class Work {
 	@Column(name = "passed_rate", nullable = false)
 	@Builder.Default
 	private Double passedRate = 0.0;
+
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
