@@ -14,7 +14,7 @@ public interface UserMapper {
 
     List<Long> selectAllUserByDeptName(String deptName);
 
-    Long selectLeaderByDeptName(String deptName);
-
     long countByJobRoleName(String roleName);
+
+    List<Long> selectLeadersByDeptName(String deptName);
 }

@@ -71,7 +71,11 @@ public enum ErrorCode {
     INVALID_USER_INFO("INVALID_USER_INFO", "유저 이름 또는 이메일이 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
 
     // 잘못 입력한 인증 코드
-    INVALID_VERIFICATION_CODE("INVALID_VERIFICATION_CODE", "인증 시간이 만료되었거나 코드가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),;
+    INVALID_VERIFICATION_CODE("INVALID_VERIFICATION_CODE", "인증 시간이 만료되었거나 코드가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+
+    INVALID_SOURCE_LIST("INVALID_SOURCE_LIST", "source는 null이거나 비어 있을 수 없습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_TARGET_LIST("INVALID_TARGET_LIST", "target은 비어 있을 수 없습니다.", HttpStatus.BAD_REQUEST)
+    ;
 
     private final String code;
     private final String message;
