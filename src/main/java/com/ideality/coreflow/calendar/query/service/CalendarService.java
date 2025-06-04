@@ -19,22 +19,15 @@ public class CalendarService {
 
 	private final CalendarMapper calendarMapper;
 
-	public List<ResponseScheduleDTO> getAllPersonalSchedule(Long userId) {
-		return calendarMapper.selectAllPersonal(userId)
-			.orElseThrow(()-> new BaseException(ErrorCode.FORBIDDEN));
-	}
-
 	public ResponseScheduleDTO getPersonalDetail(Long userId, Long taskId) {
 		Map<String, Object> param = new HashMap<>();
 		param.put("memberId", userId);
 		param.put("taskId", taskId);
 
-		return calendarMapper.selectPersonalDetail(param)
-			.orElseThrow(()-> new BaseException(ErrorCode.FORBIDDEN));
+		return calendarMapper.selectPersonalDetail(param);
 	}
 
-	public List<ResponseScheduleDTO> getAllDeptSchedule(Long deptId) {
-		return calendarMapper.seelctAllDeptSchedule(deptId)
-			.orElseThrow(()-> new BaseException(ErrorCode.FORBIDDEN));
+	public List<ResponseScheduleDTO> getAllPersonalSchedule(Long userId) {
+		return calendarMapper.selectAllPersonal(userId);
 	}
 }

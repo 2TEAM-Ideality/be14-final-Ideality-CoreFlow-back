@@ -15,7 +15,7 @@
         WHERE name = #{deptName}
     </select>
 
-    <select id="findDeptIdByName" resultMap="_long" parameterType="string">
+    <select id="findDeptIdByName" resultType="long" parameterType="string">
         SELECT id
         FROM dept
         WHERE name=#{deptName}
