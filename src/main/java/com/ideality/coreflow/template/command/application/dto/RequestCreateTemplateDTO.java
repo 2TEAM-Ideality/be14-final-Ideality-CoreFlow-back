@@ -22,7 +22,6 @@ public class RequestCreateTemplateDTO {
 	// 템플릿 생성 요청
 	private String name;
 	private String description;
-	private LocalDateTime createdAt;	// 생성일
 	private Long createdBy;				// 생성자
 	private int duration; 				// 총 소요일
 	private int taskCount; 				// 전체 태스크 개수

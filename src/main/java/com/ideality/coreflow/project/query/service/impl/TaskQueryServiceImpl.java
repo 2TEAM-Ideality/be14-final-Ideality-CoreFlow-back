@@ -1,10 +1,14 @@
 package com.ideality.coreflow.project.query.service.impl;
 
+import com.ideality.coreflow.project.query.dto.RelationDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskInfoDTO;
 import com.ideality.coreflow.project.query.dto.SelectTaskDTO;
+import com.ideality.coreflow.project.query.mapper.RelationMapper;
 import com.ideality.coreflow.project.query.mapper.TaskMapper;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
+import com.ideality.coreflow.template.query.dto.EdgeDTO;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TaskQueryServiceImpl implements TaskQueryService {
     private final TaskMapper taskMapper;
+    private final RelationMapper relationMapper;
 
     @Override
     public ResponseTaskInfoDTO selectTaskInfo(Long taskId) {
@@ -27,5 +32,27 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     @Override
     public List<ResponseTaskDTO> selectTasks(Long projectId) {
         return taskMapper.selectTasks(projectId);
+    }
+
+    @Override
+    public List<EdgeDTO> getEdgeList(List<ResponseTaskDTO> taskList) {
+        // 1. 태스크 ID 추출
+        List<Long> taskIds = taskList.stream()
+            .map(ResponseTaskDTO::getId)
+            .toList();
+
+        // 2. relation 테이블에서 관련된 모든 관계 조회
+        List<RelationDTO> relations = relationMapper.findAllRelationsForTaskIds(taskIds);
+
+        // 3. EdgeDTO로 변환
+        return relations.stream()
+            .filter(rel -> taskIds.contains(rel.getPrevWorkId()) && taskIds.contains(rel.getNextWorkId()))
+            .map(rel -> EdgeDTO.builder()
+                .id("e" + rel.getPrevWorkId() + "-" + rel.getNextWorkId())
+                .source(String.valueOf(rel.getPrevWorkId()))
+                .target(String.valueOf(rel.getNextWorkId()))
+                .type("default")
+                .build())
+            .toList();
     }
 }

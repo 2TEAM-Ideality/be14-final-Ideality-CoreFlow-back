@@ -17,12 +17,19 @@ import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.service.S3Service;
 import com.ideality.coreflow.project.command.application.service.ProjectService;
+import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
+import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
+import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.template.command.application.dto.RequestCreateTemplateDTO;
+import com.ideality.coreflow.template.command.application.dto.RequestProjectTemplateDTO;
 import com.ideality.coreflow.template.command.application.dto.RequestUpdateTemplateDTO;
 import com.ideality.coreflow.template.command.application.dto.ResponseCreateTemplateDTO;
 import com.ideality.coreflow.template.command.domain.aggregate.Template;
+import com.ideality.coreflow.template.query.dto.DeptDTO;
+import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
+import com.ideality.coreflow.template.query.dto.TemplateNodeDataDTO;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TemplateCommandFacadeService {
 
 	private final ProjectService projectService;
+	private final TaskQueryService taskQueryService;
 	private final TemplateCommandService templateCommandService;
 	private final AttachmentCommandService attachmentCommandService;
 	private final S3Service s3Service;
@@ -57,7 +65,7 @@ public class TemplateCommandFacadeService {
 		// 참여 부서 ID 추출 및 저장
 		Set<Long> uniqueDeptIds = requestDTO.getNodeList().stream()
 			.flatMap(node -> node.getData().getDeptList().stream()
-				.map(Integer::longValue))
+				.map(TaskDeptDTO::getId))
 			.collect(Collectors.toSet());
 
 		// template_dept 테이블 저장
@@ -81,21 +89,88 @@ public class TemplateCommandFacadeService {
 
 	// TODO. 프로젝트 템플릿화
 	@Transactional
-	public ResponseCreateTemplateDTO createTemplateByProject(Long projectId) {
+	public void createTemplateByProject(RequestProjectTemplateDTO requestDTO) {
 		// ID로 해당 프로젝트 찾기
 		// 프로젝트 상태 - 완료인지 확인
-		if (!projectService.isCompleted(projectId)) {
+		if (!projectService.isCompleted(requestDTO.getProjectId())) {
 			throw new BaseException(ErrorCode.PROJECT_NOT_COMPLETED);
 		}
 		// 프로젝트 id 로 해당하는 태스크 목록 가져오기
 		// 거기서 템플릿에서 활용되는 것만 뽑아서 템플릿으로 생성해야 함.
-		// List<NodeDTO> taskDTO = taskQueryService.getTasksByProjectId(projectId);
+		List<ResponseTaskDTO> taskList = taskQueryService.selectTasks(requestDTO.getProjectId());
 
-		ResponseCreateTemplateDTO response = new ResponseCreateTemplateDTO();
-		return response;
+		// TODO.  duration, taskCount 넘겨주어야 함.
+
+		int durtaion = 30;
+
+		Template template = templateCommandService.createTemplateByProject(requestDTO, taskList.size(), durtaion);
+
+		// 노드 리스트 만들기
+		List<NodeDTO> nodeList = taskListToNode(taskList);
+		// 엣지 리스트 정보 가져오기
+		List<EdgeDTO> edgeList = taskQueryService.getEdgeList(taskList);
+
+		// JSON
+		TemplateDataDTO data = TemplateDataDTO.builder()
+			.edgeList(edgeList)
+			.nodeList(nodeList)
+			.build();
+		String json = serializeJsonOrThrow(data);
+		System.out.println(json);
+
+		Set<Long> uniqueDeptIds = nodeList.stream()
+			.flatMap(node ->
+				(node.getData().getDeptList() != null ? node.getData().getDeptList() : List.<TaskDeptDTO>of())
+					.stream()
+					.map(TaskDeptDTO::getId)
+			)
+			.collect(Collectors.toSet());
+
+		// template_dept 테이블 저장
+		for (Long deptId : uniqueDeptIds) {
+			templateCommandService.saveTemplateDept(template.getId(), deptId);
+		}
+
+		// 4. 파일명 및 폴더 경로 지정
+		String fileName = template.getId() + ".json";
+		String folder = "template-json";
+
+		// 5. S3에 업로드
+		String fileUrl = uploadToS3OrThrow(json, folder, fileName);
+
+		// 6. AttachmentEntity 생성 및 DB 저장
+		attachmentCommandService.createAttachmentForTemplate(
+			template.getId(), fileName, fileUrl, requestDTO.getCreatedBy(), json
+		);
 
 	}
 
+	// 태스크 리스트 -> 노드 리스트 변환
+	private List<NodeDTO> taskListToNode(List<ResponseTaskDTO> taskList) {
+		return taskList.stream()
+			.map(task -> {
+
+				TemplateNodeDataDTO data = TemplateNodeDataDTO.builder()
+					.label(task.getLabel())
+					.description(task.getDescription())
+					.slackTime(task.getSlackTime())
+					.startBaseLine(String.valueOf(task.getStartBaseLine()))
+					.endBaseLine(String.valueOf(task.getEndBaseLine()))
+					.deptList(task.getDepts())
+					.build();
+
+
+				// Node의 ID는 문자열이어야 함 TODO. 프로젝트 템플릿화 태스크 아이디는 다르게 할 지 ?
+				NodeDTO node = NodeDTO.builder()
+					.id(String.valueOf(task.getId()))
+					.type("custom")
+					.data(data)
+					.build();
+
+				return node;
+			})
+			.collect(Collectors.toList());
+	}
 
 	// 템플릿 수정
 	@Transactional
@@ -124,11 +199,12 @@ public class TemplateCommandFacadeService {
 		templateCommandService.deleteAllTemplateDepts(templateId);
 
 		// 3-2. 새로운 부서 ID 추출 및 저장
-		Set<Long> updatedDeptIds = requestDTO.getNodeList().stream()
-			.flatMap(node -> node.getData().getDeptList().stream().map(Integer::longValue))
+		Set<Long> uniqueDeptIds = requestDTO.getNodeList().stream()
+			.flatMap(node -> node.getData().getDeptList().stream()
+				.map(TaskDeptDTO::getId))
 			.collect(Collectors.toSet());
 
-		for (Long deptId : updatedDeptIds) {
+		for (Long deptId : uniqueDeptIds) {
 			templateCommandService.saveTemplateDept(templateId, deptId);
 		}
 

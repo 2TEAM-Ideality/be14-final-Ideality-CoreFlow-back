@@ -16,4 +16,17 @@
           JOIN work c ON a.next_work_id = c.id
          WHERE
     </select>
+
+    <select id="findAllRelationsForTaskIds" resultType="com.ideality.coreflow.project.query.dto.RelationDTO">
+        SELECT prev_work_id, next_work_id
+            FROM relation
+        WHERE prev_work_id IN
+        <foreach collection="taskIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        OR next_work_id IN
+        <foreach collection="taskIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>
