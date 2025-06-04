@@ -15,13 +15,11 @@ public class WorkDept {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne
-	@JoinColumn(name = "work_id")
-	private Work work;
+	@Column(name = "work_id", nullable = false)
+	private Long workId;
 
-	@ManyToOne
-	@JoinColumn(name = "dept_id")
-	private Dept dept;
+	@Column(name = "dept_id", nullable = false)
+	private Long deptId;
 
 	@Column(name = "is_deleted")
 	@Builder.Default

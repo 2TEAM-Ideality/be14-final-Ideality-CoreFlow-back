@@ -15,4 +15,6 @@ public interface UserQueryService {
     Long selectLeaderByDeptName(String deptName);
 
     long countByJobRoleName(String roleName);
+
+    List<Long> selectLeadersByDeptName(String deptName);
 }

@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 import static com.ideality.coreflow.common.exception.ErrorCode.DEPARTMENT_NOT_FOUND;
 
 @Service
@@ -18,9 +16,10 @@ public class DeptQueryServiceImpl implements DeptQueryService {
 
     private final DeptMapper deptMapper;
 
+
     @Override
-    public Long findIdByName(String deptName) {
-        return deptMapper.findIdByDeptName(deptName)
+    public String findNameById(Long id) {
+        return deptMapper.findNameById(id)
                 .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
     }
 

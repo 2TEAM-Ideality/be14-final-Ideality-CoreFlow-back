@@ -6,24 +6,6 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
 
-    // 이미 등록된 이메일
-    EMAIL_ALREADY_EXISTS("EMAIL_ALREADY_EXISTS", "이미 등록된 이메일입니다.", HttpStatus.BAD_REQUEST),
-
-    // 퇴사한 직원의 계정 로그인 실패
-    RESIGNED_USER("RESIGNED_USER", "퇴사한 직원입니다. 로그인 요청이 실패하였습니다.", HttpStatus.BAD_REQUEST),
-
-    // 로그인 요청 시 바디 읽기 실패
-    INVALID_LOGIN_REQUEST("INVALID_LOGIN_REQUEST", "로그인 요청이 실패하였습니다.", HttpStatus.BAD_REQUEST),
-
-    // 비밀번호가 틀림
-    INVALID_PASSWORD("INVALID_PASSWORD", "비밀번호가 틀립니다.", HttpStatus.NOT_FOUND),
-
-    // 유효하지 않은 토큰
-    INVALID_TOKEN("INVALID_TOKEN", "유효하지 않은 토큰입니다.", HttpStatus.UNAUTHORIZED),
-
-    // 해당 정보 없음
-    NOT_FOUND("NOT_FOUND", "해당 정보가 없습니다.", HttpStatus.NOT_FOUND), // 404
-
     // ✅ 인증(Authentication) 관련
     UNAUTHORIZED("UNAUTHORIZED", "인증이 필요합니다.", HttpStatus.UNAUTHORIZED),          // 401
 
@@ -71,7 +53,11 @@ public enum ErrorCode {
     INVALID_USER_INFO("INVALID_USER_INFO", "유저 이름 또는 이메일이 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
 
     // 잘못 입력한 인증 코드
-    INVALID_VERIFICATION_CODE("INVALID_VERIFICATION_CODE", "인증 시간이 만료되었거나 코드가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),;
+    INVALID_VERIFICATION_CODE("INVALID_VERIFICATION_CODE", "인증 시간이 만료되었거나 코드가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+
+    INVALID_SOURCE_LIST("INVALID_SOURCE_LIST", "source는 null이거나 비어 있을 수 없습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_TARGET_LIST("INVALID_TARGET_LIST", "target은 비어 있을 수 없습니다.", HttpStatus.BAD_REQUEST)
+    ;
 
     private final String code;
     private final String message;
