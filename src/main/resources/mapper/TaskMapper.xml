@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ideality.coreflow.project.query.mapper.TaskMapper">
+
+    <resultMap id="TaskResultMap" type="com.ideality.coreflow.project.query.dto.SelectTaskDTO" >
+        <id property="id" column="id" />
+        <result property="description" column="description"/>
+        <result property="startBaseLine" column="start_base"/>
+        <result property="endBaseLine" column="end_base"/>
+        <result property="expectStartDate" column="start_expect"/>
+        <result property="expectEndDate" column="end_expect"/>
+        <result property="progressRate" column="progress_rate"/>
+        <result property="passedRate" column="passed_rate"/>
+        <result property="delayDay" column="delay_days"/>
+    </resultMap>
+
+    <select id="selectTaskInfo" parameterType="map" resultMap="TaskResultMap">
+        SELECT
+               id
+             , description
+             , start_base
+             , end_base
+             , start_expect
+             , end_expect
+             , progress_rate
+             , passed_rate
+             , delay_days
+          FROM work
+         WHERE id = #{taskId}
+    </select>
+</mapper>
