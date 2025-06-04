@@ -1,6 +1,7 @@
 package com.ideality.coreflow.template.command.application.service;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -15,9 +16,15 @@ import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.service.S3Service;
+import com.ideality.coreflow.project.command.application.service.ProjectService;
+import com.ideality.coreflow.project.command.application.service.TaskService;
+import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.template.command.application.dto.RequestCreateTemplateDTO;
 import com.ideality.coreflow.template.command.application.dto.RequestUpdateTemplateDTO;
+import com.ideality.coreflow.template.command.application.dto.ResponseCreateTemplateDTO;
 import com.ideality.coreflow.template.command.domain.aggregate.Template;
+import com.ideality.coreflow.template.query.dto.DeptDTO;
+import com.ideality.coreflow.template.query.dto.NodeDTO;
 import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
 
 import lombok.RequiredArgsConstructor;
@@ -29,7 +36,9 @@ import lombok.extern.slf4j.Slf4j;
 public class TemplateCommandFacadeService {
 
 	private final TemplateCommandService templateCommandService;
+	private final TaskQueryService taskQueryService;
 	private final AttachmentCommandService attachmentCommandService;
+	private final ProjectService projectService;
 	private final S3Service s3Service;
 	private final ObjectMapper objectMapper;	// Jackson 라이브러리 제공 클래스 (Json 직렬화, 역직렬화에서 사용)
 
@@ -51,9 +60,9 @@ public class TemplateCommandFacadeService {
 		// 3. 참여 부서 연결
 		// 참여 부서 ID 추출 및 저장
 		Set<Long> uniqueDeptIds = requestDTO.getNodeList().stream()
-			.flatMap(node -> node.getData().getDeptList().stream()
-				.map(Integer::longValue))
+			.flatMap(node -> node.getDeptList().stream().map(DeptDTO::getId))
 			.collect(Collectors.toSet());
+
 
 		// template_dept 테이블 저장
 		for (Long deptId : uniqueDeptIds) {
@@ -72,6 +81,22 @@ public class TemplateCommandFacadeService {
 			template.getId(), fileName, fileUrl, requestDTO.getCreatedBy(), json
 		);
 	}
+
+	// TODO. 프로젝트 템플릿화
+	@Transactional
+	public ResponseCreateTemplateDTO createProjectToTemplate(Long projectId) {
+		// ID로 해당 프로젝트 찾기
+		// 프로젝트 상태 - 완료인지 확인
+		if (!projectService.isCompleted(projectId)) {
+			throw new BaseException(ErrorCode.PROJECT_NOT_COMPLETED);
+		}
+		// 프로젝트 id 로 해당하는 태스크 목록 가져오기
+		// 거기서 템플릿에서 활용되는 것만 뽑아서 템플릿으로 생성해야 함.
+		List<NodeDTO> taskDTO = taskQueryService.getTasksByProjectId(projectId);
+
+
+	}
+
 
 	// 템플릿 수정
 	@Transactional
@@ -100,11 +125,12 @@ public class TemplateCommandFacadeService {
 		templateCommandService.deleteAllTemplateDepts(templateId);
 
 		// 3-2. 새로운 부서 ID 추출 및 저장
-		Set<Long> updatedDeptIds = requestDTO.getNodeList().stream()
-			.flatMap(node -> node.getData().getDeptList().stream().map(Integer::longValue))
+		Set<Long> uniqueDeptIds = requestDTO.getNodeList().stream()
+			.flatMap(node -> node.getDeptList().stream().map(DeptDTO::getId))
 			.collect(Collectors.toSet());
 
-		for (Long deptId : updatedDeptIds) {
+
+		for (Long deptId : uniqueDeptIds) {
 			templateCommandService.saveTemplateDept(templateId, deptId);
 		}
 

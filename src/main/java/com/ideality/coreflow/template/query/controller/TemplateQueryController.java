@@ -13,7 +13,7 @@ import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.template.query.dto.ResponseTemplateDetailDTO;
-import com.ideality.coreflow.template.query.dto.ResponseTemplateListDTO;
+import com.ideality.coreflow.template.query.dto.TemplateInfoDTO;
 import com.ideality.coreflow.template.query.service.TemplateQueryFacadeService;
 import com.ideality.coreflow.template.query.service.TemplateQueryService;
 
@@ -30,8 +30,8 @@ public class TemplateQueryController {
 
 	// TODO. 템플릿 목록 조회
 	@GetMapping("/list")
-	public ResponseEntity<APIResponse<List<ResponseTemplateListDTO>>> getTemplates() {
-		List<ResponseTemplateListDTO> templates = templateQueryService.getAllTemplates();
+	public ResponseEntity<APIResponse<List<TemplateInfoDTO>>> getTemplates() {
+		List<TemplateInfoDTO> templates = templateQueryService.getAllTemplates();
 		return ResponseEntity.ok(APIResponse.success(templates, "템플릿 목록 조회 성공 ✅"));
 	}
 

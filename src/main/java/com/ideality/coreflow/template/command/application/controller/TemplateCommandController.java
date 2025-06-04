@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.template.command.application.dto.RequestUpdateTemplateDTO;
+import com.ideality.coreflow.template.command.application.dto.ResponseCreateTemplateDTO;
 import com.ideality.coreflow.template.command.application.service.TemplateCommandFacadeService;
 import com.ideality.coreflow.template.command.application.dto.RequestCreateTemplateDTO;
 
@@ -57,7 +58,16 @@ public class TemplateCommandController {
 	}
 
 	// TODO. 프로젝트 템플릿화
-//	@PostMapping("/")
+	// 프로젝트 아이디를 전달 받아 해당 프로젝트를 템플릿으로 만드는 기능
+	@PostMapping("/")
+	public ResponseEntity<APIResponse<?>> createProjectToTemplate(
+		@PathVariable Long projectId
+	){
+		ResponseCreateTemplateDTO response = templateCommandFacadeService.createProjectToTemplate(projectId);
+		return ResponseEntity.ok(
+			APIResponse.success(null, "프로젝트가 성공적으로 템플릿화되었습니다. ✅")
+		);
+	}
 
 
 }
