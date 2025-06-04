@@ -33,7 +33,6 @@ public class TemplateCommandController {
 		);
 	}
 
-
 	// 템플릿 수정
 	@PutMapping("/{templateId}")
 	public ResponseEntity<APIResponse<?>> updateTemplate(
@@ -58,16 +57,15 @@ public class TemplateCommandController {
 	}
 
 	// TODO. 프로젝트 템플릿화
-	// 프로젝트 아이디를 전달 받아 해당 프로젝트를 템플릿으로 만드는 기능
 	@PostMapping("/")
-	public ResponseEntity<APIResponse<?>> createProjectToTemplate(
-		@PathVariable Long projectId
-	){
-		ResponseCreateTemplateDTO response = templateCommandFacadeService.createProjectToTemplate(projectId);
+	public ResponseEntity<APIResponse<?>> createTemplateByProject(@RequestBody Long projectId){
+		ResponseCreateTemplateDTO response = templateCommandFacadeService.createTemplateByProject(projectId);
+
 		return ResponseEntity.ok(
-			APIResponse.success(null, "프로젝트가 성공적으로 템플릿화되었습니다. ✅")
+			APIResponse.success(response, "템플릿이 성공적으로 생성되었습니다.✅")
 		);
 	}
+
 
 
 }

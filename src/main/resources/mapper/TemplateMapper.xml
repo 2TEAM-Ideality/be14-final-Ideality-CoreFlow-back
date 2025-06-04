@@ -8,6 +8,7 @@
     <resultMap id="templateListResultMap" type="com.ideality.coreflow.template.query.dto.TemplateInfoDTO">
         <id property="id" column="ID"/>
         <result property="name" column="NAME"/>
+        <result property="description" column="DESCRIPTION"/>
         <result property="createdAt" column="CREATED_AT"/>
         <result property="createdBy" column="CREATED_BY"/>
         <result property="duration" column="DURATION"/>
@@ -23,6 +24,7 @@
         SELECT
             t.id,
             t.name,
+            t.description AS DESCRIPTION,
             t.created_at,
             u.name AS created_by,
             t.duration,

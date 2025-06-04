@@ -18,7 +18,6 @@ public class TemplateQueryService{
 	private final TemplateMapper templateMapper;
 
 	public List<TemplateInfoDTO> getAllTemplates() {
-
 		return templateMapper.selectAllTemplates();
 	}
 
