@@ -28,34 +28,50 @@
 
     <select id="findWorkDetailById" resultType="com.ideality.coreflow.project.query.dto.WorkDetailDTO">
         SELECT
-        w.id AS work_id,              -- 작업 ID
-        w.name AS task_name,          -- 작업 이름
-        w.description AS task_description,  -- 작업 설명
-        w.start_expect,               -- 예상 시작일
-        w.end_expect,                 -- 예상 마감일
-        w.start_real,                 -- 실제 시작일
-        w.end_real,                   -- 실제 마감일
-        w.progress_rate,              -- 진행률
-        w.delay_days,                 -- 지연 일수
-        w.status AS task_status,      -- 상태
-        wd.dept_id,                   -- 부서 ID
-        d.name AS dept_name,          -- 부서 이름
-        r.prev_work_id,               -- 선행 일정
-        r.next_work_id,               -- 후행 일정
+        w.id AS work_id,
+        w.name AS task_name,
+        w.description AS task_description,
+        w.start_expect,
+        w.end_expect,
+        w.start_real,
+        w.end_real,
+        w.progress_rate,
+        w.delay_days,
+        w.status AS task_status,
+        wd.dept_id,
+        d.name AS dept_name,
+        -- 선행 일정 prev_work_ids에 workId를 제외한 값만 반환
+        IFNULL(GROUP_CONCAT(DISTINCT CASE
+        WHEN r.prev_work_id != #{workId} THEN r.prev_work_id
+        ELSE NULL END), '') AS prev_work_ids_string,  -- 선행 일정
+        -- 후행 일정 next_work_ids에 workId를 제외한 값만 반환
+        IFNULL(GROUP_CONCAT(DISTINCT CASE
+        WHEN r.next_work_id != #{workId} THEN r.next_work_id
+        ELSE NULL END), '') AS next_work_ids_string,  -- 후행 일정
         p.user_id AS participant_user_id,  -- 참여자 ID
         p.role_id AS participant_role_id,  -- 참여자 역할
         u.name AS participant_name     -- 참여자 이름
         FROM work w
-        LEFT JOIN work_dept wd ON w.id = wd.work_id    -- 작업과 부서 연결
-        LEFT JOIN dept d ON wd.dept_id = d.id          -- 부서 테이블과 연결
-        LEFT JOIN relation r ON w.id = r.prev_work_id OR w.id = r.next_work_id  -- 선행/후행 일정 연결
-        LEFT JOIN participant p ON w.id = p.target_id AND p.target_type = 'TASK'   -- 참여자 연결
-        LEFT JOIN user u ON p.user_id = u.id             -- 참여자 정보 조회
-        WHERE w.id = #{workId}  -- workId로 필터링
-        AND wd.is_deleted = FALSE                        -- 삭제되지 않은 부서만 조회
+        LEFT JOIN work_dept wd ON w.id = wd.work_id
+        LEFT JOIN dept d ON wd.dept_id = d.id
+        LEFT JOIN relation r ON w.id = r.prev_work_id OR w.id = r.next_work_id
+        LEFT JOIN participant p ON w.id = p.target_id AND p.target_type = 'DETAILED'
+        LEFT JOIN user u ON p.user_id = u.id
+        WHERE w.id = #{workId}
+        AND wd.is_deleted = FALSE
+        GROUP BY w.id, w.name, w.description, w.start_expect, w.end_expect, w.start_real, w.end_real, w.progress_rate, w.delay_days, w.status, wd.dept_id, d.name
     </select>
 
-
+    <select id="findParticipantsByWorkId" resultType="com.ideality.coreflow.project.query.dto.ParticipantDTO">
+        SELECT
+        p.user_id AS userId,           -- 참여자 ID
+        p.role_id AS roleId,           -- 참여자 역할 ID
+        u.name AS name      -- 참여자 이름
+        FROM participant p
+        LEFT JOIN user u ON p.user_id = u.id  -- 사용자 정보 조회
+        WHERE p.target_id = #{workId}
+        AND p.target_type = 'DETAILED'
+    </select>
 
 
 </mapper>

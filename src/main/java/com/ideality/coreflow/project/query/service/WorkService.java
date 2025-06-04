@@ -13,4 +13,6 @@ public interface WorkService {
     List<DetailDTO> getSubTaskDetailsByParentTaskId(Long parentTaskId);
 
     WorkDetailDTO getWorkDetailById(Long workId);
+
+
 }

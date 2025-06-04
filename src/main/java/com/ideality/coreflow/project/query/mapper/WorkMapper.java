@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.query.mapper;
 
 import com.ideality.coreflow.project.query.dto.DetailDTO;
+import com.ideality.coreflow.project.query.dto.ParticipantDTO;
 import com.ideality.coreflow.project.query.dto.WorkDetailDTO;
 import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
@@ -17,4 +18,5 @@ public interface WorkMapper {
     // 작업 ID로 세부 일정을 조회
     WorkDetailDTO findWorkDetailById(Long workId);
 
+    List<ParticipantDTO> findParticipantsByWorkId(Long participantId);
 }

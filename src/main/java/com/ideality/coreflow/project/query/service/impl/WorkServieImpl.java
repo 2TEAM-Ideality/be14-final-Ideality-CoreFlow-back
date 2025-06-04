@@ -1,12 +1,14 @@
 package com.ideality.coreflow.project.query.service.impl;
 
 import com.ideality.coreflow.project.query.dto.DetailDTO;
+import com.ideality.coreflow.project.query.dto.ParticipantDTO;
 import com.ideality.coreflow.project.query.dto.WorkDetailDTO;
 import com.ideality.coreflow.project.query.mapper.WorkMapper;
 import com.ideality.coreflow.project.query.service.WorkService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -30,5 +32,17 @@ public class WorkServieImpl implements WorkService {
     // 작업 상세 정보 조회
     @Override
     public WorkDetailDTO getWorkDetailById(Long workId) {
-        return workMapper.findWorkDetailById(workId);
-    }}
+        WorkDetailDTO workDetail = workMapper.findWorkDetailById(workId);
+
+        // 선행 및 후행 일정 ID들을 List<Long>으로 변환
+        workDetail.setPrevWorkIds();
+        workDetail.setNextWorkIds();
+
+        // 참여자 정보 매핑
+        List<ParticipantDTO> participants = workMapper.findParticipantsByWorkId(workId);
+
+        workDetail.setParticipants(participants != null ? participants : new ArrayList<ParticipantDTO>());  // 빈 리스트 처리
+
+        return workDetail;
+    }
+}
