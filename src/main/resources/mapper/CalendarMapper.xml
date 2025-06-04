@@ -14,7 +14,7 @@
         <result property="isRepeat" column="IS_REPEAT"/>
     </resultMap>
 
-    <select id="selectAllPersonal" parameterType="long_" resultMap="PersonalResultMap">
+    <select id="selectAllPersonal" parameterType="long" resultMap="PersonalResultMap">
         SELECT
             p.id,
             p.name,
@@ -22,8 +22,19 @@
             p.start_at,
             p.end_at,
             p.is_repeat
-        FROM SCHEDULE
+        FROM SCHEDULE as p
         WHERE user_id = #{memberId}
+    </select>
 
+    <select id="selectPersonalDetail" parameterType="Map" resultMap="PersonalResultMap">
+        SELECT
+            p.id,
+            p.name,
+            p.content,
+            p.start_at,
+            p.end_at,
+            p.is_repeat
+        FROM SCHEDULE as p
+        WHERE user_id = #{memberId} AND id = #{taskId}
     </select>
 </mapper>

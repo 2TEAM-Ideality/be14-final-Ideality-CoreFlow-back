@@ -51,9 +51,9 @@ public class TemplateCommandFacadeService {
 		// 3. 참여 부서 연결
 		// 참여 부서 ID 추출 및 저장
 		Set<Long> uniqueDeptIds = requestDTO.getNodeList().stream()
-			.flatMap(node -> node.getData().getDeptList().stream()
-				.map(Integer::longValue))
-			.collect(Collectors.toSet());
+			.flatMap(node -> node.getData().getDeptList().stream()) // List<Long>을 펼침
+			.collect(Collectors.toSet()); // 중복 제거해서 Set<Long>으로 수집
+
 
 		// template_dept 테이블 저장
 		for (Long deptId : uniqueDeptIds) {
@@ -100,11 +100,11 @@ public class TemplateCommandFacadeService {
 		templateCommandService.deleteAllTemplateDepts(templateId);
 
 		// 3-2. 새로운 부서 ID 추출 및 저장
-		Set<Long> updatedDeptIds = requestDTO.getNodeList().stream()
-			.flatMap(node -> node.getData().getDeptList().stream().map(Integer::longValue))
-			.collect(Collectors.toSet());
+		Set<Long> uniqueDeptIds = requestDTO.getNodeList().stream()
+			.flatMap(node -> node.getData().getDeptList().stream()) // List<Long>을 펼침
+			.collect(Collectors.toSet()); // 중복 제거해서 Set<Long>으로 수집
 
-		for (Long deptId : updatedDeptIds) {
+		for (Long deptId : uniqueDeptIds) {
 			templateCommandService.saveTemplateDept(templateId, deptId);
 		}
 

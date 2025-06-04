@@ -11,8 +11,7 @@ import lombok.RequiredArgsConstructor;
 public class CalendarCommandController {
 	
 	
-	// 부서 일정 생성? 은 없음. 조회만 있음. 
-	
+	// 부서 일정 생성? 은 없음. 조회만 있음.
 	
 	// 개인 일정 생성
 

@@ -18,5 +18,4 @@ public class ResponsePersonalDTO {
 	private LocalDateTime startAt;
 	private LocalDateTime endAt;
 	private Boolean isRepeat;
-
 }
