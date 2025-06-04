@@ -1,5 +1,6 @@
 package com.ideality.coreflow.approval.query.service.impl;
 
+import com.ideality.coreflow.approval.query.dto.ResponseApprovalByTaskId;
 import com.ideality.coreflow.approval.query.dto.ResponseQueryApproval;
 import com.ideality.coreflow.approval.query.mapper.ApprovalMapper;
 import com.ideality.coreflow.approval.query.service.ApprovalQueryService;
@@ -17,8 +18,13 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
 
     @Override
     @Transactional
-    public List<ResponseQueryApproval> searchMayApproval(long id) {
+    public List<ResponseQueryApproval> searchMyApproval(long id) {
 
         return approvalMapper.selectMyApproval(id);
+    }
+
+    @Override
+    public List<ResponseApprovalByTaskId> searchApprovalByTaskId(long taskId) {
+        return approvalMapper.selectApprovalByTaskId(taskId);
     }
 }

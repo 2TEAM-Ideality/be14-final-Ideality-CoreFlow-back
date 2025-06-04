@@ -16,7 +16,13 @@
         <result property="delayDays" column="DELAY_DAYS" />
         <result property="actionDetail" column="ACTION_DETAIL" />
         <result property="reason" column="REASON" />
-        <result property="" column="" />
+    </resultMap>
+
+    <resultMap id="PreviewApprovalResultMap" type="com.ideality.coreflow.approval.query.dto.ResponseApprovalByTaskId">
+        <id property="id" column="ID" />
+        <result property="requesterName" column="REQUESTER_NAME" />
+        <result property="title" column="TITLE" />
+        <result property="approvedAt" column="APPROVED_AT" />
     </resultMap>
 
     <select id="selectMyApproval" parameterType="long" resultMap="ApprovalResultMap">
@@ -38,5 +44,17 @@
           LEFT JOIN delay_approval da ON a.id = da.approval_id
           LEFT JOIN delay_reason dr ON da.delay_reason_id = dr.id
          WHERE ap.user_id = #{userId}
+    </select>
+
+    <select id="selectApprovalByTaskId" parameterType="long" resultMap="PreviewApprovalResultMap">
+        SELECT
+               a.id AS ID
+             , u.name AS REQUESTER_NAME
+             , a.title AS TITLE
+             , a.approved_at AS APPROVED_AT
+          FROM approval a
+          LEFT JOIN user u ON a.user_id = u.id
+         WHERE a.work_id = #{taskId}
+           AND a.status = 'APPROVED'
     </select>
 </mapper>
