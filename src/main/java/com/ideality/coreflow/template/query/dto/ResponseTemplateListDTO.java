@@ -26,10 +26,10 @@ public class ResponseTemplateListDTO {
 	private int taskCount; 	// 전체 태스크 개수
 	private int usingProjects;
 
-	private String deptList;
+	private List<DeptDTO> deptList;
 
-	public List<String> getDeptList() {
-		return deptList != null ? Arrays.asList(deptList.split(",")) : List.of();
-	}
+//	public List<String> getDeptList() {
+//		return deptList != null ? Arrays.asList(deptList.split(",")) : List.of();
+//	}
 
 }

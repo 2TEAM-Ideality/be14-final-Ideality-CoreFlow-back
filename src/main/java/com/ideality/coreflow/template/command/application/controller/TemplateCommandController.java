@@ -56,4 +56,8 @@ public class TemplateCommandController {
 		);
 	}
 
+	// TODO. 프로젝트 템플릿화
+//	@PostMapping("/")
+
+
 }

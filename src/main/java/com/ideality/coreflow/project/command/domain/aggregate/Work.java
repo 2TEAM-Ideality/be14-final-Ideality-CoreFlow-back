@@ -2,12 +2,12 @@ package com.ideality.coreflow.project.command.domain.aggregate;
 
 
 import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static com.ideality.coreflow.common.exception.ErrorCode.INVALID_STATUS_TRANSITION;
 
 @Entity
 @Table(name = "work")
@@ -69,10 +69,25 @@ public class Work {
 
 	public void startTask() {
 		if (this.status == Status.PROGRESS) {
-			throw new BaseException(INVALID_STATUS_TRANSITION);
+			throw new BaseException(ErrorCode.INVALID_STATUS_PROGRESS);
 		}
 
 		this.status = Status.PROGRESS;
+	}
+
+	public void endTask() {
+		if (this.status == Status.COMPLETED || this.status == Status.PENDING) {
+			throw new BaseException(ErrorCode.INVALID_STATUS_COMPLETED);
+		}
+
+		this.status = Status.COMPLETED;
+	}
+
+	public void softDeleteTask() {
+		if (this.status == Status.DELETED) {
+			throw new BaseException(ErrorCode.INVALID_STATUS_DELETED);
+		}
+		this.status = Status.DELETED;
 	}
 }
 
