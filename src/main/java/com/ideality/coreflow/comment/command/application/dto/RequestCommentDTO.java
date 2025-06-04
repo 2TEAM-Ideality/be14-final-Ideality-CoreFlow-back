@@ -1,7 +1,7 @@
 package com.ideality.coreflow.comment.command.application.dto;
 
-import com.ideality.coreflow.comment.command.domain.aggregate.CommentType;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -11,8 +11,7 @@ import lombok.*;
 public class RequestCommentDTO {
     private String content;
     private Boolean isNotice;
-    private CommentType type;
-    private Long taskId;
     private Long userId;
     private Long parentCommentId;
+    private MultipartFile attachmentFile;
 }

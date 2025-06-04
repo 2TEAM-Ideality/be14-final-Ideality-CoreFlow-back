@@ -1,8 +1,5 @@
 package com.ideality.coreflow.comment.command.domain.aggregate;
 
-import com.ideality.coreflow.project.command.domain.aggregate.Work;
-import com.ideality.coreflow.user.command.domain.aggregate.User;
-
 import jakarta.persistence.*;
 import lombok.*;
 

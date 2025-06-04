@@ -5,10 +5,7 @@ import com.ideality.coreflow.comment.command.application.service.facade.CommentF
 import com.ideality.coreflow.common.response.APIResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -19,10 +16,13 @@ public class CommentController {
 
     private final CommentFacadeService commentFacadeService;
 
-    @PostMapping
-    public ResponseEntity<APIResponse<Map<String, Long>>> createComment(@RequestBody RequestCommentDTO commentDTO) {
-        Long commentId = commentFacadeService.createComment(commentDTO);
+    @PostMapping("/{taskId}")
+    public ResponseEntity<APIResponse<Map<String, Long>>>
+    createComment(@RequestBody RequestCommentDTO commentDTO,
+                  @PathVariable Long taskId) {
+        Long commentId = commentFacadeService.createComment(commentDTO, taskId);
 
-        return null;
+        return ResponseEntity.ok(APIResponse.success(Map.of("taskId", commentId),
+                "댓글 작성이 완료되었습니다."));
     }
 }
