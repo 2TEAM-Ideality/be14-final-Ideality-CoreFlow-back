@@ -1,6 +1,9 @@
 package com.ideality.coreflow.admin.command.application.service;
 
+import com.ideality.coreflow.admin.command.application.dto.RequestModifyJobRank;
 import com.ideality.coreflow.admin.command.application.dto.RequestUserUpdateByAdmin;
+import com.ideality.coreflow.org.command.application.service.JobRankService;
+import com.ideality.coreflow.org.command.application.service.JobRoleService;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.application.service.RoleService;
 import com.ideality.coreflow.user.command.application.service.UserOfRoleService;
@@ -16,6 +19,8 @@ public class AdminFacadeService {
     private final UserService userService;
     private final RoleService roleService;
     private final UserOfRoleService userOfRoleService;
+    private final JobRankService jobRankService;
+    private final JobRoleService jobRoleService;
 
     @Transactional
     public void modifyUserInfoByAdmin(Long userId, RequestUserUpdateByAdmin request) {
@@ -39,5 +44,17 @@ public class AdminFacadeService {
 
             userOfRoleService.updateAuthorities(request.getIsCreation(), userId, roleId);
         }
+    }
+
+    public void registJobRank(String name) {
+        jobRankService.registJobRank(name);
+    }
+
+    public void deleteJobRank(long id) {
+        jobRankService.deleteJobRank(id);
+    }
+
+    public void modifyJobRank(RequestModifyJobRank request) {
+        jobRankService.updateJobRank(request.getPrevJobRankName(), request.getNewJobRankName());
     }
 }
