@@ -34,16 +34,16 @@ public class JobRankServiceImpl implements JobRankService {
     }
 
     @Override
-    public void deleteJobRank(long id) {
-        jobRankRepository.deleteById(id);
-    }
-
-    @Override
     public void updateJobRank(String prevJobRankName, String newJobRankName) {
         JobRank jobRank = jobRankRepository.findByName(prevJobRankName).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
 
         jobRank.updateNameFrom(newJobRankName);
 
         jobRankRepository.save(jobRank);
+    }
+
+    @Override
+    public void deleteJobRank(long id) {
+        jobRankRepository.deleteById(id);
     }
 }

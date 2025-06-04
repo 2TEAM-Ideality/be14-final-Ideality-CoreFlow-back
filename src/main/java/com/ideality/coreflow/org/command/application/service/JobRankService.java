@@ -10,7 +10,7 @@ public interface JobRankService {
 
     void registJobRank(String name);
 
-    void deleteJobRank(long id);
-
     void updateJobRank(String prevJobRankName, String newJobRankName);
+
+    void deleteJobRank(long id);
 }

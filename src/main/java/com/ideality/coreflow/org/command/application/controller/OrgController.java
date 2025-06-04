@@ -21,6 +21,9 @@ public class OrgController {
         return ResponseEntity.ok(APIResponse.success(orgFacadeService.searchAllJobRank(), "모든 직위 조회"));
     }
 
-    // 직책
-
+    // 직책 조회
+    @GetMapping("/job-role/search")
+    public ResponseEntity<APIResponse<?>> searchAllJobRole() {
+        return ResponseEntity.ok(APIResponse.success(orgFacadeService.searchAllJobRole(), "모든 직책 조회"));
+    }
 }
