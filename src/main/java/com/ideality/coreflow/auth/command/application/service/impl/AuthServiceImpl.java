@@ -60,7 +60,11 @@ public class AuthServiceImpl implements AuthService {
         redisTemplate.opsForValue().set(redisKey, refreshToken, 7, TimeUnit.DAYS);
         log.info("Redis 저장 완료");
 
-        return new ResponseToken(accessToken, refreshToken, TenantContext.getTenant(), userOfRoles);
+        return new ResponseToken(accessToken, refreshToken, TenantContext.getTenant(), userOfRoles, isTempPassword(password));
+    }
+
+    private boolean isTempPassword(String password) {
+        return password.matches("^\\d{6}$");
     }
 
     public String generatePassword() {
@@ -104,7 +108,7 @@ public class AuthServiceImpl implements AuthService {
 
         String newAccessToken = jwtProvider.generateAccessToken(userId, employeeNum, TenantContext.getTenant(), userOfRoles);
         log.info("AccessToken 발급 완료: {}", newAccessToken);
-        return new ResponseToken(newAccessToken, null, TenantContext.getTenant(), userOfRoles);
+        return new ResponseToken(newAccessToken, null, TenantContext.getTenant(), userOfRoles, false);
     }
 
     @Override
@@ -132,11 +136,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public boolean verificationUserInfo(UserInfoDTO userInfo, RequestResetPassword request) {
         // 이름, 이메일 검증
-        if (userInfo.getName().equals(request.getName()) && userInfo.getEmail().equals(request.getEmail())) {
-            return true;
-        } else {
-            return false;
-        }
+        return userInfo.getName().equals(request.getName()) && userInfo.getEmail().equals(request.getEmail());
     }
 
     @Override
@@ -161,10 +161,6 @@ public class AuthServiceImpl implements AuthService {
 
         String storedVerificationCode = redisTemplate.opsForValue().get(key);
 
-        if(storedVerificationCode == null || !storedVerificationCode.equals(request.getVerificationCode())) {
-            return false;
-        }
-
-        return true;
+        return storedVerificationCode != null && storedVerificationCode.equals(request.getVerificationCode());
     }
 }

@@ -14,4 +14,5 @@ public class ResponseToken {
     String refreshToken;
     String schemaName;
     List<String> roles;
+    boolean isTemp;
 }
