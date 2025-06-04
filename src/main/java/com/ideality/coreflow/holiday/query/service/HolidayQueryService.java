@@ -1,7 +1,7 @@
-package com.ideality.coreflow.project.query.service;
+package com.ideality.coreflow.holiday.query.service;
 
-import com.ideality.coreflow.project.query.dto.HolidayQueryDto;
-import com.ideality.coreflow.project.query.mapper.HolidayQueryMapper;
+import com.ideality.coreflow.holiday.query.dto.HolidayQueryDto;
+import com.ideality.coreflow.holiday.query.mapper.HolidayQueryMapper;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

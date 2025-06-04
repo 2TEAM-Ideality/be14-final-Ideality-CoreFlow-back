@@ -11,6 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.List;
+
+import static com.ideality.coreflow.common.exception.ErrorCode.INVALID_SOURCE_LIST;
 import static com.ideality.coreflow.common.exception.ErrorCode.TASK_NOT_FOUND;
 
 @Service
@@ -39,31 +42,64 @@ public class TaskServiceImpl implements TaskService {
         return taskWork.getId();
     }
 
-    @Override
-    public void validateWorkId(Long prevWorkId, Long nextWorkId) {
-        /* 설명.
-         *  prevWorkId = 0, nextWorkId = null => 아무것도 없는 상황에서 태스크 생성
-         *  prevWorkId = 값 존재, nextWorkId = null => 리프 노드
-         *  prevWorkId = 값, nextWorkId = 값 -> 중간 노드
-         *  prev == next -> 월요일에 수정해서 올리기
-        * */
-
-        if (prevWorkId != null && prevWorkId != 0 && !taskRepository.existsById(prevWorkId)) {
-            throw new BaseException(TASK_NOT_FOUND);
-        }
-
-        if (prevWorkId != null && prevWorkId != 0
-                && nextWorkId != null && !taskRepository.existsById(nextWorkId)) {
-            throw new BaseException(TASK_NOT_FOUND);
-        }
-    }
 
     @Override
     @Transactional
     public Long updateStatusProgress(Long taskId) {
-        Work updatedTask = taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+        Work updatedTask = taskRepository.findById(taskId)
+                .orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
 
         updatedTask.startTask();
         return updatedTask.getId();
+    }
+
+    @Override
+    @Transactional
+    public Long updateStatusComplete(Long taskId) {
+        Work updatedTask = taskRepository.findById(taskId)
+                .orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+
+        updatedTask.endTask();
+        return updatedTask.getId();
+    }
+
+    @Override
+    @Transactional
+    public Long softDeleteTask(Long taskId) {
+        Work deleteTask = taskRepository.findById(taskId)
+                .orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+
+        deleteTask.softDeleteTask();
+        return deleteTask.getId();
+    }
+
+    @Override
+    public void validateSource(List<Long> source) {
+        if (source.isEmpty()) {
+            throw new BaseException(INVALID_SOURCE_LIST);
+        }
+
+        if (source.contains(null)){
+            throw new BaseException(INVALID_SOURCE_LIST);
+        }
+
+        for (Long sourceId : source) {
+            if (sourceId != 0 && !taskRepository.existsById(sourceId)) {
+                throw new BaseException(TASK_NOT_FOUND);
+            }
+        }
+    }
+
+    @Override
+    public void validateTarget(List<Long> target) {
+        if (target.isEmpty()) {
+            throw new BaseException(INVALID_SOURCE_LIST);
+        }
+
+        for (Long targetId : target) {
+            if (!taskRepository.existsById(targetId)) {
+                throw new BaseException(TASK_NOT_FOUND);
+            }
+        }
     }
 }
