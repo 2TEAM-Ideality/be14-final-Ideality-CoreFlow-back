@@ -24,7 +24,13 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
     }
 
     @Override
+    @Transactional
     public List<ResponseApprovalByTaskId> searchApprovalByTaskId(long taskId) {
         return approvalMapper.selectApprovalByTaskId(taskId);
+    }
+
+    @Override
+    public ResponseQueryApproval getApprovalById(long id) {
+        return approvalMapper.selectApprovalById(id);
     }
 }

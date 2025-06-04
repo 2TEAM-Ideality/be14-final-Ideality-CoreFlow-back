@@ -12,4 +12,6 @@ public interface ApprovalMapper {
     List<ResponseQueryApproval> selectMyApproval(long id);
 
     List<ResponseApprovalByTaskId> selectApprovalByTaskId(long taskId);
+
+    ResponseQueryApproval selectApprovalById(long id);
 }

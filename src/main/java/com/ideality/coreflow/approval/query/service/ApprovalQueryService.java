@@ -9,4 +9,6 @@ public interface ApprovalQueryService {
     List<ResponseQueryApproval> searchMyApproval(long id);
 
     List<ResponseApprovalByTaskId> searchApprovalByTaskId(long taskId);
+
+    ResponseQueryApproval getApprovalById(long id);
 }
