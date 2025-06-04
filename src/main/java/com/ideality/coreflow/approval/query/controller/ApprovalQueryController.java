@@ -21,12 +21,12 @@ public class ApprovalQueryController {
     @GetMapping("/my-approval")
     public ResponseEntity<APIResponse<?>> searchMyApproval() {
         long id = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
-        return ResponseEntity.ok(APIResponse.success(approvalQueryService.searchMyApproval(id)));
+        return ResponseEntity.ok(APIResponse.success(approvalQueryService.searchMyApproval(id), "수신한 결재내역 조회"));
     }
 
     // workId로 결재 승인 이력 조회
     @GetMapping("/{taskId}")
     public ResponseEntity<APIResponse<?>> searchApprovalByTaskId(@PathVariable long taskId) {
-        return ResponseEntity.ok(APIResponse.success(approvalQueryService.searchApprovalByTaskId(taskId)));
+        return ResponseEntity.ok(APIResponse.success(approvalQueryService.searchApprovalByTaskId(taskId), "태스크 승인 이력 조회"));
     }
 }
