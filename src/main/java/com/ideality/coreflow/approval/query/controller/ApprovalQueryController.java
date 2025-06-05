@@ -1,5 +1,6 @@
 package com.ideality.coreflow.approval.query.controller;
 
+import com.ideality.coreflow.approval.query.service.ApprovalQueryFacadeService;
 import com.ideality.coreflow.approval.query.service.ApprovalQueryService;
 import com.ideality.coreflow.common.response.APIResponse;
 import lombok.RequiredArgsConstructor;
@@ -15,25 +16,31 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/approval")
 public class ApprovalQueryController {
 
-    private final ApprovalQueryService approvalQueryService;
+    private final ApprovalQueryFacadeService approvalQueryFacadeService;
 
     // 수신한 결재 조회
     @GetMapping("/my-approval/receive")
     public ResponseEntity<APIResponse<?>> searchMyApprovalReceive() {
         long id = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
-        return ResponseEntity.ok(APIResponse.success(approvalQueryService.searchMyApprovalReceive(id), "수신한 결재내역 조회"));
-    }
-
-    // workId로 결재 승인 이력 조회
-    @GetMapping("/task-approval/{taskId}")
-    public ResponseEntity<APIResponse<?>> searchApprovalByTaskId(@PathVariable long taskId) {
-        return ResponseEntity.ok(APIResponse.success(approvalQueryService.searchApprovalByTaskId(taskId), "태스크 승인 이력 조회"));
+        return ResponseEntity.ok(APIResponse.success(approvalQueryFacadeService.searchMyApprovalReceive(id), "수신한 결재내역 조회"));
     }
 
     // 발신 내역 조회
     @GetMapping("/my-approval/sent")
     public ResponseEntity<APIResponse<?>> searchMyApprovalSent() {
         long id = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
-        return ResponseEntity.ok(APIResponse.success(approvalQueryService.searchMyApprovalSent(id), "결재 발신 내역 조회"));
+        return ResponseEntity.ok(APIResponse.success(approvalQueryFacadeService.searchMyApprovalSent(id), "결재 발신 내역 조회"));
+    }
+
+    // workId로 결재 승인 이력 조회
+    @GetMapping("/task-approval/{taskId}")
+    public ResponseEntity<APIResponse<?>> searchApprovalByTaskId(@PathVariable long taskId) {
+        return ResponseEntity.ok(APIResponse.success(approvalQueryFacadeService.searchApprovalByTaskId(taskId), "태스크 승인 이력 조회"));
+    }
+
+    // 결재 상세 내역 조회
+    @GetMapping("/details/{approvalId}")
+    public ResponseEntity<APIResponse<?>> searchApprovalDetailsById(@PathVariable long approvalId) {
+        return ResponseEntity.ok(APIResponse.success(approvalQueryFacadeService.searchApprovalDetailsById(approvalId, Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName())), "결재 상세 내역 조회"));
     }
 }

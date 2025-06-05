@@ -1,8 +1,8 @@
 package com.ideality.coreflow.approval.query.service.impl;
 
-import com.ideality.coreflow.approval.query.dto.ApprovalDetailedDTO;
+import com.ideality.coreflow.approval.query.dto.ApprovalDetailsDTO;
+import com.ideality.coreflow.approval.query.dto.ApprovalParticipantDTO;
 import com.ideality.coreflow.approval.query.dto.ResponsePreviewApproval;
-import com.ideality.coreflow.approval.query.dto.ResponseApproval;
 import com.ideality.coreflow.approval.query.mapper.ApprovalMapper;
 import com.ideality.coreflow.approval.query.service.ApprovalQueryService;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +19,8 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
 
     @Override
     @Transactional
-    public List<ResponsePreviewApproval> searchMyApprovalReceive(long id) {
-        return approvalMapper.selectMyApprovalReceive(id);
+    public List<ResponsePreviewApproval> searchMyApprovalReceive(long userId) {
+        return approvalMapper.selectMyApprovalReceive(userId);
     }
 
     @Override
@@ -30,17 +30,22 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
     }
 
     @Override
-    public ApprovalDetailedDTO searchApprovalById(long id) {
-        return approvalMapper.selectApprovedApprovalById(id);
-    }
-
-    @Override
     public long searchApproverIdByApprovalId(long approvalId) {
-        return approvalMapper.selectApprovedApprovalById(approvalId).getApproverId();
+        return approvalMapper.selectApprovedApprovalById(approvalId);
     }
 
     @Override
-    public List<ResponsePreviewApproval> searchMyApprovalSent(long id) {
-        return approvalMapper.selectMyApprovalSent(id);
+    public List<ResponsePreviewApproval> searchMyApprovalSent(long userId) {
+        return approvalMapper.selectMyApprovalSent(userId);
+    }
+
+    @Override
+    public List<ApprovalParticipantDTO> searchApprovalParticipantById(long approvalId) {
+        return approvalMapper.selectApprovalParticipantById(approvalId);
+    }
+
+    @Override
+    public ApprovalDetailsDTO searchApprovalDetailsById(long approvalId) {
+        return approvalMapper.selectApprovalDetailsById(approvalId);
     }
 }
