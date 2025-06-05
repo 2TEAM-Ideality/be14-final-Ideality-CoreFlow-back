@@ -12,10 +12,18 @@
         <result property="content" column="CONTENT" />
         <result property="createdAt" column="CREATED_AT" />
         <result property="approvedAt" column="APPROVED_AT" />
-        <result property="role" column="ROLE" />
+        <result property="myRole" column="MY_ROLE" />
         <result property="delayDays" column="DELAY_DAYS" />
         <result property="actionDetail" column="ACTION_DETAIL" />
         <result property="reason" column="REASON" />
+
+        <collection property="participantList" ofType="com.ideality.coreflow.approval.query.dto.ResponseParticipant">
+            <id property="id" column="APPROVAL_PARTICIPANT_ID" />
+            <result property="approvalId" column="APPROVAL_ID" />
+            <result property="userId" column="PARTICIPANT_ID" />
+            <result property="role" column="PARTICIPANT_ROLE" />
+            <result property="createdAt" column="PARTICIPANT_CREATED_AT" />
+        </collection>
     </resultMap>
 
     <resultMap id="ApprovalDetailedResultMap" type="com.ideality.coreflow.approval.query.dto.ApprovalDetailedDTO">
@@ -50,15 +58,24 @@
              , a.content AS CONTENT
              , a.created_at AS CREATED_AT
              , a.approved_at AS APPROVED_AT
-             , ap.role AS ROLE
+             , ap.role AS MY_ROLE
              , da.delay_days AS DELAY_DAYS
              , da.action_detail AS ACTION_DETAIL
              , dr.reason AS REASON
+
+             , ap.id AS APPROVAL_PARTICIPANT_ID
+             , ap.approval_id AS APPROVAL_ID
+             , ap.user_id AS PARTICIPANT_ID
+             , ap.role AS PARTICIPANT_ROLE
+             , ap.created_at AS PARTICIPANT_CREATED_AT
           FROM approval a
           LEFT JOIN approval_participant ap ON a.id = ap.approval_id
-          LEFT JOIN delay_approval da ON a.status = 'DELAY' AND a.id = da.approval_id
-          LEFT JOIN delay_reason dr ON a.status = 'DELAY' AND da.delay_reason_id = dr.id
-         WHERE ap.user_id = #{userId}
+          LEFT JOIN delay_approval da ON a.id = da.approval_id
+          LEFT JOIN delay_reason dr ON da.delay_reason_id = dr.id
+         WHERE a.id IN (
+            SELECT approval_id FROM approval_participant WHERE user_id = #{userId}
+         )
+         ORDER BY a.id DESC
     </select>
 
     <select id="selectApprovalById" parameterType="long" resultMap="ApprovalDetailedResultMap">

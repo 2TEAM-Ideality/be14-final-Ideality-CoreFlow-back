@@ -6,6 +6,7 @@ import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalType;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 public class ResponseApproval {
@@ -17,9 +18,11 @@ public class ResponseApproval {
     String content;
     LocalDateTime createdAt;
     LocalDateTime approvedAt;
-    ApprovalRole role;
+    ApprovalRole myRole;
 
     Integer delayDays;
     String actionDetail;
     String reason;
+
+    List<ResponseParticipant> participantList;
 }
