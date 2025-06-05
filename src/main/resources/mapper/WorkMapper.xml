@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ideality.coreflow.project.query.mapper.WorkMapper">
+
+    <!-- parent_task_id가 동일한 세부일정 이름 목록 조회 -->
+    <select id="findSubTaskNamesByParentTaskId" resultType="string">
+        SELECT name
+        FROM work
+        WHERE parent_task_id = #{parentTaskId}
+    </select>
+
+    <!-- 동일한 태스크의 세부일정 상세목록 조회 -->
+    <select id="findSubTaskDetailsByParentTaskId" resultType="com.ideality.coreflow.project.query.dto.DetailDTO">
+        SELECT
+        w.id AS work_id,             -- 작업 ID
+        w.name AS task_name,         -- 작업 이름
+        w.end_expect,                -- 예상 마감일
+        w.delay_days,                -- 지연 일수
+        w.progress_rate,             -- 진행률
+        wd.dept_id,                  -- 부서 ID
+        d.name AS dept_name          -- 부서 이름
+        FROM work w
+        LEFT JOIN work_dept wd ON w.id = wd.work_id    -- 작업과 부서 연결
+        LEFT JOIN dept d ON wd.dept_id = d.id          -- 부서 테이블과 연결
+        WHERE w.parent_task_id = #{parentTaskId}      -- parent_task_id로 필터링
+        AND wd.is_deleted = FALSE                      -- 삭제되지 않은 부서만 조회
+    </select>
+
+    <select id="findWorkDetailById" resultType="com.ideality.coreflow.project.query.dto.WorkDetailDTO">
+        SELECT
+        w.id AS work_id,
+        w.name AS task_name,
+        w.description AS task_description,
+        w.start_expect,
+        w.end_expect,
+        w.start_real,
+        w.end_real,
+        w.progress_rate,
+        w.delay_days,
+        w.status AS task_status,
+        wd.dept_id,
+        d.name AS dept_name,
+        -- 선행 일정 prev_work_ids에 workId를 제외한 값만 반환
+        IFNULL(GROUP_CONCAT(DISTINCT CASE
+        WHEN r.prev_work_id != #{workId} THEN r.prev_work_id
+        ELSE NULL END), '') AS prev_work_ids_string,  -- 선행 일정
+        -- 후행 일정 next_work_ids에 workId를 제외한 값만 반환
+        IFNULL(GROUP_CONCAT(DISTINCT CASE
+        WHEN r.next_work_id != #{workId} THEN r.next_work_id
+        ELSE NULL END), '') AS next_work_ids_string,  -- 후행 일정
+        p.user_id AS participant_user_id,  -- 참여자 ID
+        p.role_id AS participant_role_id,  -- 참여자 역할
+        u.name AS participant_name     -- 참여자 이름
+        FROM work w
+        LEFT JOIN work_dept wd ON w.id = wd.work_id
+        LEFT JOIN dept d ON wd.dept_id = d.id
+        LEFT JOIN relation r ON w.id = r.prev_work_id OR w.id = r.next_work_id
+        LEFT JOIN participant p ON w.id = p.target_id AND p.target_type = 'DETAILED'
+        LEFT JOIN user u ON p.user_id = u.id
+        WHERE w.id = #{workId}
+        AND wd.is_deleted = FALSE
+        GROUP BY w.id, w.name, w.description, w.start_expect, w.end_expect, w.start_real, w.end_real, w.progress_rate, w.delay_days, w.status, wd.dept_id, d.name
+    </select>
+
+    <select id="findParticipantsByWorkId" resultType="com.ideality.coreflow.project.query.dto.ParticipantDTO">
+        SELECT
+        p.user_id AS userId,           -- 참여자 ID
+        p.role_id AS roleId,           -- 참여자 역할 ID
+        u.name AS name      -- 참여자 이름
+        FROM participant p
+        LEFT JOIN user u ON p.user_id = u.id  -- 사용자 정보 조회
+        WHERE p.target_id = #{workId}
+        AND p.target_type = 'DETAILED'
+    </select>
+
+    <!-- 부서별 세부일정 조회 -->
+    <resultMap id="deptWorkMap" type="com.ideality.coreflow.project.query.dto.DeptWorkDTO">
+        <id property="id" column="work_id"/>
+        <result property="taskName" column="task_name"/>
+        <result property="taskDescription" column="task_description"/>
+        <result property="slackTime" column="slack_time"/>
+        <result property="startExpect" column="start_expect"/>
+        <result property="endExpect" column="end_expect"/>
+        <result property="startReal" column="start_real"/>
+        <result property="endReal" column="end_real"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="projectId" column="project_id"/>
+
+        <collection property="participants" ofType="com.ideality.coreflow.project.query.dto.ParticipantDTO">
+            <result property="userId" column="user_id"/>
+            <result property="roleId" column="role_id"/>
+            <result property="name" column="user_name"/>
+        </collection>
+    </resultMap>
+    <select id="findWorkListByDeptId" parameterType="long" resultMap="deptWorkMap">
+        SELECT
+            w.id AS work_id,
+            w.name AS task_name,
+            w.description AS task_description,
+            w.slack_time,
+            w.start_expect,
+            w.end_expect,
+            w.start_real,
+            w.end_real,
+            w.project_id,
+            wd.dept_id,
+            d.name AS dept_name,
+
+            p.user_id,
+            p.role_id,
+            u.name AS user_name
+         FROM work w
+          JOIN work_dept wd ON w.id = wd.work_id
+           JOIN dept d ON wd.dept_id = d.id
+        LEFT JOIN participant p ON p.target_id = w.id AND p.target_type = 'DETAILED'
+         LEFT JOIN user u ON p.user_id = u.id
+        WHERE wd.dept_id = #{deptId}
+            AND w.parent_task_id IS NOT NULL
+            AND wd.is_deleted = FALSE
+    </select>
+</mapper>

@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
 import com.ideality.coreflow.attachment.query.dto.ResponseAttachmentDTO;
 import com.ideality.coreflow.attachment.query.mapper.AttachmentMapper;
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +31,7 @@ public class AttachmentQueryService {
 
 		if (response == null) {
 			log.warn("첨부파일 조회 실패 - targetId: {}, targetType: {}", templateId, targetType.name());
-			throw new RuntimeException("첨부파일이 존재하지 않습니다.");
+			throw new BaseException(ErrorCode.ATTCHMENT_NOT_FOUND);
 		}
 
 		return response.getUrl();

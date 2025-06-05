@@ -6,6 +6,7 @@ import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
+import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
@@ -95,7 +96,7 @@ public class ProjectFacadeService {
                 // Task 생성
                 Long taskId=taskService.createTask(requestTaskDTO);
                 // work_dept 정보 삽입
-                List<Long> deptList=data.getDeptList();
+                List<Long> deptList=data.getDeptList().stream().map(TaskDeptDTO::getId).toList();
                 for(Long deptId:deptList) {
                     workDeptService.createWorkDept(taskId, deptId);
                 }
@@ -103,9 +104,11 @@ public class ProjectFacadeService {
                 List<ParticipantDTO> taskLeaders=new ArrayList<>();
                 for(ParticipantDTO leader:leaders) {
                     // 1. 팀장의 부서 이름 조회
-                    String leaderDeptName=userQueryService.findDeptNameByUserId(leader.getUserId());
+//                    String leaderDeptName=userQueryService.findDeptNameByUserId(leader.getUserId());
+                    String leaderDeptName=userQueryService.getDeptNameByUserId(leader.getUserId());
                     // 2. 부서 이름으로 부서id 조회
-                    Long leaderDeptId=deptQueryService.findIdByName(leaderDeptName);
+//                    Long leaderDeptId=deptQueryService.findIdByName(leaderDeptName);
+                    Long leaderDeptId=deptQueryService.findDeptIdByName(leaderDeptName);
                     // 3. 현재 태스크의 참여 부서와 비교
                     if(deptList.contains(leaderDeptId)) {
                         // 4. 해당 리더를 태스크의 팀장으로 등록
@@ -208,6 +211,7 @@ public class ProjectFacadeService {
         return updateTaskId;
     }
 
+
     @Transactional
     public Long updateStatusComplete(Long taskId) {
         Long updateTaskId = taskService.updateStatusComplete(taskId);
@@ -218,4 +222,5 @@ public class ProjectFacadeService {
         Long deleteTaskId = taskService.softDeleteTask(taskId);
         return deleteTaskId;
     }
+
 }

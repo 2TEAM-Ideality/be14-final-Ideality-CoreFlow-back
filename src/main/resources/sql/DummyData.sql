@@ -1,3 +1,5 @@
+USE company_a;
+
 INSERT INTO job_rank (name)
 VALUES ("사원"),
        ("대리"),
