@@ -22,9 +22,9 @@ public class TemplateQueryService{
 		return templateMapper.selectAllTemplates();
 	}
 
-	public TemplateInfoDTO getTemplateDetail(Long templateId) {
-		TemplateInfoDTO first = templateMapper.selectTemplateDetail(templateId);
-
-		return first;
-	}
+	// public TemplateInfoDTO getTemplateDetail(Long templateId) {
+	// 	TemplateInfoDTO first = templateMapper.selectTemplateDetail(templateId);
+	//
+	// 	return first;
+	// }
 }

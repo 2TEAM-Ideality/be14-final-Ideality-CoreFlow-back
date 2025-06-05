@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ideality.coreflow.calendar.query.dto.RequestUserDTO;
 import com.ideality.coreflow.calendar.query.dto.ResponseScheduleDTO;
+import com.ideality.coreflow.calendar.query.dto.TodayScheduleDTO;
 import com.ideality.coreflow.calendar.query.service.CalendarQueryFacadeService;
 import com.ideality.coreflow.common.response.APIResponse;
 
@@ -54,6 +55,16 @@ public class CalendarQueryController {
 		ResponseScheduleDTO response = calendarQueryFacadeService.getPersonalDetail(requestDTO.getUserId(), taskId);
 
 		return ResponseEntity.ok(APIResponse.success(response, "개인 일정 상세 조회 성공 ✅"));
+	}
+
+	// TODO. 오늘의 개인 일정 목록 조회
+	@GetMapping("/personal/today")
+	public ResponseEntity<APIResponse<List<TodayScheduleDTO>>> getPersonalScheduleToday(
+		@RequestBody RequestUserDTO requestDTO
+	){
+		List<TodayScheduleDTO> response = calendarQueryFacadeService.getTodayPersonal(requestDTO.getUserId());
+
+		return ResponseEntity.ok(APIResponse.success(response, "오늘의 개인 일정 목록 조회 성공 ✅"));
 	}
 
 

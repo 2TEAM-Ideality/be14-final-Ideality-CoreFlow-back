@@ -23,7 +23,7 @@
             p.end_at,
             p.is_repeat
         FROM SCHEDULE as p
-        WHERE user_id = #{memberId}
+            WHERE user_id = #{memberId}
     </select>
 
     <select id="selectPersonalDetail" parameterType="Map" resultMap="PersonalResultMap">
@@ -35,6 +35,33 @@
             p.end_at,
             p.is_repeat
         FROM SCHEDULE as p
-        WHERE user_id = #{memberId} AND id = #{taskId}
+            WHERE user_id = #{memberId} AND id = #{taskId}
     </select>
+
+
+    <!-- 오늘의 개인 일정 목록 조회 -->
+    <resultMap id="TodaySchedule" type="com.ideality.coreflow.calendar.query.dto.TodayScheduleDTO">
+        <id property="id" column="ID" />
+        <result property="scheduleName" column="name"/>
+        <result property="content" column="CONTENT"/>
+        <result property="startAt" column="START_AT"/>
+        <result property="endAt" column="END_AT"/>
+        <result property="isRepeat" column="IS_REPEAT"/>
+    </resultMap>
+
+    <select id="selectTodayPersonal" parameterType="map" resultMap="TodaySchedule">
+        SELECT
+            id,
+            name,
+            content,
+            start_at,
+            end_at,
+            is_repeat
+         FROM schedule
+          WHERE event_type = 'PERSONAL'
+            AND user_id = #{userId}
+            AND DATE(#{today}) BETWEEN DATE(start_at) AND DATE(end_at)
+    </select>
+
+
 </mapper>

@@ -1,8 +1,7 @@
-package com.ideality.coreflow.calendar.query.dto;
+package com.ideality.coreflow.calendar.command.application.dto;
 
 import java.time.LocalDateTime;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,9 +10,15 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class RequestScheduleDTO {
+	private Long createdBy;
+
 	private String name;
-	private String description;
+	private String content;
 	private LocalDateTime startDate;
 	private LocalDateTime endDate;
 
+	private String eventType;
+
+	private Boolean isRepeat;
+	private String repeatType;
 }
