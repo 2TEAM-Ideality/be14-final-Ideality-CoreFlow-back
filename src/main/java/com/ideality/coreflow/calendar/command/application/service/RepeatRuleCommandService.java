@@ -54,8 +54,5 @@ public class RepeatRuleCommandService {
 
 		}
 
-		// RepeatRule repeatRule = RepeatRule.builder()
-		// 	.scheduleId(targetScheduleId)
-		// 	.
 	}
 }
