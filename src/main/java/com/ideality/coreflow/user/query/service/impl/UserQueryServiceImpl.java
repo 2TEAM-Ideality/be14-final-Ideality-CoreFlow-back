@@ -2,7 +2,6 @@ package com.ideality.coreflow.user.query.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
-import com.ideality.coreflow.template.query.dto.DeptDTO;
 import com.ideality.coreflow.user.query.dto.UserNameIdDto;
 import com.ideality.coreflow.user.query.mapper.UserMapper;
 import com.ideality.coreflow.user.query.service.UserQueryService;
@@ -39,9 +38,16 @@ public class UserQueryServiceImpl implements UserQueryService {
         return userMapper.searchUsersByName(name);
     }
 
+    // UserId로 부서 이름 조회
     @Override
     public String getDeptNameByUserId(Long userId) {
         return userMapper.selectDeptNameByUserId(userId);
+    }
+
+    // UserId로 회원 조회
+    @Override
+    public Boolean selectUserById(Long userId) {
+        return userMapper.selectUserById(userId);
     }
 
 }

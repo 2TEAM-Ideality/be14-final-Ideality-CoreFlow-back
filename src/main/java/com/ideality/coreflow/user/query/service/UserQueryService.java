@@ -13,4 +13,5 @@ public interface UserQueryService {
 
     String getDeptNameByUserId(Long userId);
 
+    Boolean selectUserById(Long userId);
 }

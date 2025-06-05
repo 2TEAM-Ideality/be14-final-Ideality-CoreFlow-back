@@ -38,9 +38,10 @@ public class CalendarQueryController {
 
 	// TODO. 개인 일정 목록 조회
 	@GetMapping("/personal")
-	public ResponseEntity<APIResponse<List<ResponseScheduleDTO>>> getPersonalScheduleDetail(@RequestBody RequestUserDTO requestDTO) {
+	public ResponseEntity<APIResponse<List<ResponseScheduleDTO>>> getPersonalScheduleDetail(
+		@RequestBody RequestUserDTO requestDTO
+	) {
 		// TODO. 로그인한 사용자의 아이디 가져오기
-		Long userId = 1L;
 		List<ResponseScheduleDTO> personalSchedules = calendarQueryFacadeService.getAllPersonalSchedule(requestDTO.getUserId());
 
 		return ResponseEntity.ok(APIResponse.success(personalSchedules, "개인 일정 목록 조회 성공 ✅"));
@@ -57,7 +58,7 @@ public class CalendarQueryController {
 		return ResponseEntity.ok(APIResponse.success(response, "개인 일정 상세 조회 성공 ✅"));
 	}
 
-	// TODO. 오늘의 개인 일정 목록 조회
+	// TODO. 오늘의 일정 목록 조회
 	@GetMapping("/today")
 	public ResponseEntity<APIResponse<List<TodayScheduleDTO>>> getPersonalScheduleToday(
 		@RequestBody RequestUserDTO requestDTO
@@ -66,7 +67,5 @@ public class CalendarQueryController {
 
 		return ResponseEntity.ok(APIResponse.success(response, "오늘의 개인 일정 목록 조회 성공 ✅"));
 	}
-
-
 
 }

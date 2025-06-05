@@ -12,6 +12,8 @@ import com.ideality.coreflow.calendar.query.dto.ResponseDeptScheduleDTO;
 import com.ideality.coreflow.calendar.query.dto.ResponseScheduleDTO;
 import com.ideality.coreflow.calendar.query.dto.TodayScheduleDTO;
 import com.ideality.coreflow.calendar.query.mapper.CalendarMapper;
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 
@@ -23,34 +25,33 @@ public class CalendarQueryFacadeService {
 
 	private final CalendarService calendarService;
 	private final UserQueryService userQueryService;
-	private final DeptQueryService deptQueryService;
-
-	// 부서 일정 목록 조회
-	public List<ResponseDeptScheduleDTO> getDeptScheduleList(Long userId) {
-
-		// TODO. 로그인한 유저 정보 가져오기
-		String deptName = userQueryService.getDeptNameByUserId(userId);
-		Long deptId = deptQueryService.findDeptIdByName(deptName);
-		// 부서별 세부일정 목록 가져와야 함
-		//
- 		// 근데 여기서 할 건가 이게? TASK 쪽에서 가져와야 할 것 같은데 ....
-
-		return new ArrayList<>();
-	}
 
 	// 개인 일정 상세 정보 조회
 	public ResponseScheduleDTO getPersonalDetail(Long userId, Long taskId) {
-		return calendarService.getPersonalDetail(userId, taskId);
+		if(!userQueryService.selectUserById(userId)){
+			throw new BaseException(ErrorCode.USER_NOT_FOUND);
+		}// getPersonalDetail
+		ResponseScheduleDTO result = calendarService.getPersonalDetail(userId, taskId);
+		if (result == null) {
+			throw new BaseException(ErrorCode.SCHEDULE_NOT_FOUND);
+		}
+		return result;
 	}
 
 	// 개인 일정 목록 조회
 	public List<ResponseScheduleDTO> getAllPersonalSchedule(Long userId) {
+		// 유저 확인
+		if(!userQueryService.selectUserById(userId)){
+			throw new BaseException(ErrorCode.USER_NOT_FOUND);
+		}
 		return calendarService.getAllPersonalSchedule(userId);
 	}
 
 	// 오늘의 개인 일정 목록 조회
 	public List<TodayScheduleDTO> getTodayPersonal(Long userId) {
-		// 시작 시간 ~ 종료 시간이 TODAY 일 때
+		if(!userQueryService.selectUserById(userId)){
+			throw new BaseException(ErrorCode.USER_NOT_FOUND);
+		}
 
 		// 오늘의 날짜. 및 시간
 		LocalDateTime now = LocalDateTime.now();    // 2019-11-12T16:34:30.388

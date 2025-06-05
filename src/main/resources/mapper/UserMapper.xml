@@ -31,5 +31,13 @@
         LIMIT 10;
     </select>
 
+    <select id="selectUserById" resultType="java.lang.Boolean" parameterType="long">
+        SELECT EXISTS (
+            SELECT 1
+            FROM user
+            WHERE id = #{userId}
+        ) AS is_exist;
+    </select>
+
 
 </mapper>

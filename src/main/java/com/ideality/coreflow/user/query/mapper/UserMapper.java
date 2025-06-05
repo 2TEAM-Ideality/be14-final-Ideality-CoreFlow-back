@@ -15,4 +15,6 @@ public interface UserMapper {
     List<Long> selectLeadersByDeptName(String deptName);
 
     String selectDeptNameByUserId(Long userId);
+
+    Boolean selectUserById(Long userId);
 }
