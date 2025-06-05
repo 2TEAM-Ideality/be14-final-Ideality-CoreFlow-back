@@ -105,4 +105,11 @@ public class TaskServiceImpl implements TaskService {
             }
         }
     }
+
+    @Override
+    public void validateTask(Long taskId) {
+        if (!taskRepository.existsById(taskId)) {
+            throw new BaseException(TASK_NOT_FOUND);
+        }
+    }
 }
