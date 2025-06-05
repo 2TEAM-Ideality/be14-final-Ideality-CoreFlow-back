@@ -43,12 +43,14 @@ public enum ErrorCode {
 
     RESOURCE_NOT_FOUND("DATABASE_RESOURCE_NOT_FOUND", "요청한 리소스를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     // ✅ 첨부파일 없는 정보
-    ATTCHMENT_NOT_FOUND("ATTACHMENT_NOT_FOUND", "해당 첨부파일이 존재하지 않습니다." , HttpStatus.NOT_FOUND),
+    ATTCHMENT_NOT_FOUND("ATTACHMENT_NOT_FOUND", "해당 타겟에 대한 첨부파일이 존재하지 않습니다." , HttpStatus.NOT_FOUND),
+    DUPLICATED_TARGET_ID("DUPLICATED_TARGET_ID", "해당 타겟에 대한 첨부파일이 이미 존재합니다.", HttpStatus.CONFLICT),
 
     PROJECT_NOT_FOUND("PROJECT_NOT_FOUND", "존재하지 않는 프로젝트입니다.", HttpStatus.NOT_FOUND),
     TASK_NOT_FOUND("TASK_NOT_FOUND", "존재하는 않는 테스크입니다.", HttpStatus.NOT_FOUND),
     DEPARTMENT_NOT_FOUND("DEPARTMENT_NOT_FOUND", "존재하지 않는 부서입니다.", HttpStatus.NOT_FOUND),
     PARTICIPANT_NOT_FOUND("PARTICIPANT_NOT_FOUND", "참여자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    PROJECT_NOT_COMPLETED("PROJECT_NOT_COMPLETED", "완료되지 않은 프로젝트입니다.", HttpStatus.CONFLICT ),
     COMMENT_NOT_FOUND("COMMENT_NOT_FOUND", "존재하지 않는 댓글입니다.", HttpStatus.NOT_FOUND),
     // ✅ 상태 전이 오류
     INVALID_STATUS_PROGRESS("INVALID_STATUS_PROGRESS", "이미 시작된 작업입니다.", HttpStatus.CONFLICT),
@@ -57,8 +59,9 @@ public enum ErrorCode {
 
     INVALID_SOURCE_LIST("INVALID_SOURCE_LIST", "source는 null이거나 비어 있을 수 없습니다.", HttpStatus.BAD_REQUEST),
     INVALID_TARGET_LIST("INVALID_TARGET_LIST", "target은 비어 있을 수 없습니다.", HttpStatus.BAD_REQUEST),
-    TASK_PROGRESS_NOT_COMPLETED("TASK_PROGRESS_NOT_COMPLETED","진행률이 100%여야 작업을 완료할 수 있습니다.", HttpStatus.BAD_REQUEST)
+    TASK_PROGRESS_NOT_COMPLETED("TASK_PROGRESS_NOT_COMPLETED","진행률이 100%여야 작업을 완료할 수 있습니다.", HttpStatus.BAD_REQUEST),
     ;
+
 
     private final String code;
     private final String message;

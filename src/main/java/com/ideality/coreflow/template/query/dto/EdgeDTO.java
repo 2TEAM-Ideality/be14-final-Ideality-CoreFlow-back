@@ -1,6 +1,7 @@
 package com.ideality.coreflow.template.query.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,6 +11,7 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class EdgeDTO {
 	private String id; 		//
 	private String source; 	// 출발 노드 id

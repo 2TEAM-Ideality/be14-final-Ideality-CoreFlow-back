@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class TemplateQueryFacadeService {
 
-	private final TemplateMapper templateMapper;
+	private final TemplateQueryService templateQueryService;
 	private final AttachmentQueryService attachmentQueryService;
 	private final S3Service s3Service;
 	private final ObjectMapper objectMapper;
@@ -32,7 +32,7 @@ public class TemplateQueryFacadeService {
 	public ResponseTemplateDetailDTO getTemplateDetail(Long templateId) throws JsonProcessingException {
 
 		// 1. 템플릿 메타 정보 조회
-		TemplateInfoDTO templateInfo = templateMapper.selectTemplateDetail(templateId);
+		TemplateInfoDTO templateInfo = templateQueryService.getTemplateDetail(templateId);
 		if (templateInfo == null) {
 			throw new BaseException(ErrorCode.TEMPLATE_NOT_FOUND);
 		}
@@ -42,12 +42,12 @@ public class TemplateQueryFacadeService {
 
 		// 3. s3 에서 json 데이터 가져오기
 		String jsonContent = s3Service.getJsonFile(templateUrl);
-		Map<String, Object> parsed = objectMapper.readValue(jsonContent, Map.class);
+		Map parsed = objectMapper.readValue(jsonContent, Map.class);
 
 		return ResponseTemplateDetailDTO.builder()
 			.templateInfo(templateInfo)
-			.templateData(parsed).build();
-
+			.templateData(parsed)
+			.build();
 	}
 
 }
