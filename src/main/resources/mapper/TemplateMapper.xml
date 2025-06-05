@@ -56,7 +56,7 @@
                     select="selectDeptListByTemplateId"/>
     </resultMap>
 
-    <select id="selectTemplateDetail" parameterType="_long" resultMap="templateDetailResultMap">
+    <select id="selectTemplateDetail" parameterType="long" resultMap="templateDetailResultMap">
         SELECT
             t.id AS ID,
             t.name AS NAME,

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.template.command.application.dto.RequestProjectTemplateDTO;
 import com.ideality.coreflow.template.command.application.dto.RequestUpdateTemplateDTO;
-import com.ideality.coreflow.template.command.application.dto.ResponseCreateTemplateDTO;
 import com.ideality.coreflow.template.command.application.service.TemplateCommandFacadeService;
 import com.ideality.coreflow.template.command.application.dto.RequestCreateTemplateDTO;
 

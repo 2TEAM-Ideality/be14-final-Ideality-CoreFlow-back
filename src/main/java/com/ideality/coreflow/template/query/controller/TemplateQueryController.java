@@ -37,7 +37,9 @@ public class TemplateQueryController {
 
 	// TODO. 템플릿 상세 조회
 	@GetMapping("/{templateId}")
-	public ResponseEntity<APIResponse<ResponseTemplateDetailDTO>> getTemplateDetail(@PathVariable("templateId") Long templateId){
+	public ResponseEntity<APIResponse<ResponseTemplateDetailDTO>> getTemplateDetail(
+		@PathVariable("templateId") Long templateId
+	){
 		ResponseTemplateDetailDTO template = null;
 		try {
 			template = templateQueryFacadeService.getTemplateDetail(templateId);

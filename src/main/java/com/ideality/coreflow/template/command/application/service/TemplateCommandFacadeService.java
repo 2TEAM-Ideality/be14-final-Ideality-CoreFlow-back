@@ -119,35 +119,38 @@ public class TemplateCommandFacadeService {
 		);
 
 		// 2. Json 직렬화
-		TemplateDataDTO data = TemplateDataDTO.builder()
-			.edgeList(requestDTO.getEdgeList())
-			.nodeList(requestDTO.getNodeList())
-			.build();
-		String json = serializeJsonOrThrow(data);
+		String json = buildTemplateJsonData(requestDTO.getNodeList(), requestDTO.getEdgeList());
+		// TemplateDataDTO data = TemplateDataDTO.builder()
+		// 	.edgeList(requestDTO.getEdgeList())
+		// 	.nodeList(requestDTO.getNodeList())
+		// 	.build();
+		// String json = serializeJsonOrThrow(data);
 
 		// 3. 참여 부서 갱신
 		// 3-1. 기존 부서 관계 삭제
 		templateCommandService.deleteAllTemplateDepts(templateId);
 
 		// 3-2. 새로운 부서 ID 추출 및 저장
-		Set<Long> uniqueDeptIds = requestDTO.getNodeList().stream()
-			.flatMap(node -> node.getData().getDeptList().stream()
-				.map(TaskDeptDTO::getId))
-			.collect(Collectors.toSet());
+		Set<Long> deptIds = extractUniqueDeptIds(requestDTO.getNodeList());
+		saveTemplateDepts(templateId, deptIds);
+		// Set<Long> uniqueDeptIds = requestDTO.getNodeList().stream()
+		// 	.flatMap(node -> node.getData().getDeptList().stream()
+		// 		.map(TaskDeptDTO::getId))
+		// 	.collect(Collectors.toSet());
 
-		for (Long deptId : uniqueDeptIds) {
-			templateCommandService.saveTemplateDept(templateId, deptId);
-		}
+		// for (Long deptId : deptIds) {
+		// 	templateCommandService.saveTemplateDept(templateId, deptId);
+		// }
 
 		//3. S3 업로드
-		String fileName = templateId + ".json";
-		String folder = "template-json";
-		String fileUrl = uploadToS3OrThrow(json, folder, fileName);
-		String size = String.valueOf(json.getBytes(StandardCharsets.UTF_8).length) + " bytes";
-
-		// 4. 첨부 파일 정보 업데이트
-		attachmentCommandService.updateAttachmentForTemplate(FileTargetType.TEMPLATE, templateId, fileName, fileUrl, size);
-
+		uploadAndSaveAttachment(templateId, json, requestDTO.getUpdatedBy());
+		// String fileName = templateId + ".json";
+		// String folder = "template-json";
+		// String fileUrl = uploadToS3OrThrow(json, folder, fileName);
+		// String size = String.valueOf(json.getBytes(StandardCharsets.UTF_8).length) + " bytes";
+		//
+		// // 4. 첨부 파일 정보 업데이트
+		// attachmentCommandService.updateAttachmentForTemplate(FileTargetType.TEMPLATE, templateId, fileName, fileUrl, size);
 	}
 
 	// 템플릿 삭제
@@ -160,9 +163,6 @@ public class TemplateCommandFacadeService {
 		// 2. 첨부파일 삭제 여부 변경
 		attachmentCommandService.deleteAttachment(templateId, FileTargetType.TEMPLATE);
 	}
-
-
-
 
 	// 참여 부서 추출
 	private Set<Long> extractUniqueDeptIds(List<NodeDTO> nodeList) {
@@ -183,7 +183,6 @@ public class TemplateCommandFacadeService {
 		}
 	}
 
-
 	// 노드 리스트 & 엣지 리스트 JSON화
 	private String buildTemplateJsonData(List<NodeDTO> nodeList, List<EdgeDTO> edgeList) {
 		TemplateDataDTO data = TemplateDataDTO.builder()
@@ -197,6 +196,10 @@ public class TemplateCommandFacadeService {
 
 	// 첨부파일 관련 저장
 	private void uploadAndSaveAttachment(Long templateId, String json, Long createdBy) {
+		// 같은 타겟 아이디로 첨부파일이 있는 지 확인
+		if(attachmentCommandService.findAttachmentByTargetId(templateId)){
+			throw new BaseException(ErrorCode.DUPLICATED_TARGET_ID);
+		}
 		String fileName = templateId + ".json";
 		String folder = "template-json";
 
@@ -219,7 +222,6 @@ public class TemplateCommandFacadeService {
 		}
 	}
 
-
 	// JSON 직렬화
 	private String serializeJsonOrThrow(TemplateDataDTO requestDTO) {
 		try {
@@ -232,7 +234,6 @@ public class TemplateCommandFacadeService {
 			throw new BaseException(ErrorCode.JSON_SERIALIZATION_ERROR);
 		}
 	}
-
 
 	// 태스크 리스트 -> 노드 리스트 변환
 	private List<NodeDTO> taskListToNode(List<ResponseTaskDTO> taskList) {
@@ -248,15 +249,12 @@ public class TemplateCommandFacadeService {
 					.deptList(task.getDepts())
 					.build();
 
-
 				// Node의 ID는 문자열이어야 함 TODO. 프로젝트 템플릿화 태스크 아이디는 다르게 할 지 ?
-				NodeDTO node = NodeDTO.builder()
+				return NodeDTO.builder()
 					.id(String.valueOf(task.getId()))
 					.type("custom")
 					.data(data)
 					.build();
-
-				return node;
 			})
 			.collect(Collectors.toList());
 	}

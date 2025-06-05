@@ -43,12 +43,12 @@ public class TemplateQueryFacadeService {
 
 		// 3. s3 에서 json 데이터 가져오기
 		String jsonContent = s3Service.getJsonFile(templateUrl);
-		Map<String, Object> parsed = objectMapper.readValue(jsonContent, Map.class);
+		Map parsed = objectMapper.readValue(jsonContent, Map.class);
 
 		return ResponseTemplateDetailDTO.builder()
 			.templateInfo(templateInfo)
-			.templateData(parsed).build();
-
+			.templateData(parsed)
+			.build();
 	}
 
 }
