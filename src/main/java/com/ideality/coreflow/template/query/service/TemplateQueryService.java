@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.ideality.coreflow.template.query.dto.TemplateInfoDTO;
-import com.ideality.coreflow.template.query.dto.ResponseTemplateListDTO;
 import com.ideality.coreflow.template.query.mapper.TemplateMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -18,13 +17,11 @@ public class TemplateQueryService{
 
 	private final TemplateMapper templateMapper;
 
-	public List<ResponseTemplateListDTO> getAllTemplates() {
+	public List<TemplateInfoDTO> getAllTemplates() {
 		return templateMapper.selectAllTemplates();
 	}
 
-	// public TemplateInfoDTO getTemplateDetail(Long templateId) {
-	// 	TemplateInfoDTO first = templateMapper.selectTemplateDetail(templateId);
-	//
-	// 	return first;
-	// }
+	public TemplateInfoDTO getTemplateDetail(Long templateId) {
+		return templateMapper.selectTemplateDetail(templateId);
+	}
 }

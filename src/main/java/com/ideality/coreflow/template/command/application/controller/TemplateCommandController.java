@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ideality.coreflow.common.response.APIResponse;
+import com.ideality.coreflow.template.command.application.dto.RequestProjectTemplateDTO;
 import com.ideality.coreflow.template.command.application.dto.RequestUpdateTemplateDTO;
 import com.ideality.coreflow.template.command.application.service.TemplateCommandFacadeService;
 import com.ideality.coreflow.template.command.application.dto.RequestCreateTemplateDTO;
@@ -31,7 +32,6 @@ public class TemplateCommandController {
 			APIResponse.success(null, "템플릿이 성공적으로 생성되었습니다.✅")
 		);
 	}
-
 
 	// 템플릿 수정
 	@PutMapping("/{templateId}")
@@ -57,7 +57,15 @@ public class TemplateCommandController {
 	}
 
 	// TODO. 프로젝트 템플릿화
-//	@PostMapping("/")
+	@PostMapping("/project")
+	public ResponseEntity<APIResponse<?>> createTemplateByProject(@RequestBody RequestProjectTemplateDTO requestDTO){
+		templateCommandFacadeService.createTemplateByProject(requestDTO);
+
+		return ResponseEntity.ok(
+			APIResponse.success(null, "템플릿이 성공적으로 생성되었습니다.✅")
+		);
+	}
+
 
 
 }
