@@ -41,44 +41,14 @@
         <result property="reason" column="REASON" />
     </resultMap>
 
-    <resultMap id="PreviewApprovalResultMap" type="com.ideality.coreflow.approval.query.dto.ResponseApprovalByTaskId">
+    <resultMap id="PreviewApprovalResultMap" type="com.ideality.coreflow.approval.query.dto.ResponsePreviewApproval">
         <id property="id" column="ID" />
         <result property="requesterName" column="REQUESTER_NAME" />
         <result property="title" column="TITLE" />
         <result property="approvedAt" column="APPROVED_AT" />
     </resultMap>
 
-    <select id="selectMyApproval" parameterType="long" resultMap="ApprovalResultMap">
-        SELECT
-               a.id AS ID
-             , a.user_id AS REQUESTER_ID
-             , a.title AS TITLE
-             , a.type AS TYPE
-             , a.status AS STATUS
-             , a.content AS CONTENT
-             , a.created_at AS CREATED_AT
-             , a.approved_at AS APPROVED_AT
-             , ap.role AS MY_ROLE
-             , da.delay_days AS DELAY_DAYS
-             , da.action_detail AS ACTION_DETAIL
-             , dr.reason AS REASON
-
-             , ap.id AS APPROVAL_PARTICIPANT_ID
-             , ap.approval_id AS APPROVAL_ID
-             , ap.user_id AS PARTICIPANT_ID
-             , ap.role AS PARTICIPANT_ROLE
-             , ap.created_at AS PARTICIPANT_CREATED_AT
-          FROM approval a
-          LEFT JOIN approval_participant ap ON a.id = ap.approval_id
-          LEFT JOIN delay_approval da ON a.id = da.approval_id
-          LEFT JOIN delay_reason dr ON da.delay_reason_id = dr.id
-         WHERE a.id IN (
-            SELECT approval_id FROM approval_participant WHERE user_id = #{userId}
-         )
-         ORDER BY a.id DESC
-    </select>
-
-    <select id="selectApprovalById" parameterType="long" resultMap="ApprovalDetailedResultMap">
+    <select id="selectApprovedApprovalById" parameterType="long" resultMap="ApprovalDetailedResultMap">
         SELECT
                a.id AS ID
              , a.user_id AS REQUESTER_ID
@@ -93,10 +63,35 @@
              , da.action_detail AS ACTION_DETAIL
              , dr.reason AS REASON
           FROM approval a
-          LEFT JOIN approval_participant ap ON a.id = ap.approval_id AND ap.role = 'APPROVER'
-          LEFT JOIN delay_approval da ON a.status = 'DELAY' AND a.id = da.approval_id
-          LEFT JOIN delay_reason dr ON a.status = 'DELAY' AND da.delay_reason_id = dr.id
+          LEFT JOIN approval_participant ap ON ap.role = 'APPROVER'
+          LEFT JOIN delay_approval da ON a.id = da.approval_id
+          LEFT JOIN delay_reason dr ON da.delay_reason_id = dr.id
          WHERE a.id=#{id}
+    </select>
+
+    <!-- 수신 내역 조회 -->
+    <select id="selectMyApprovalReceive" parameterType="long" resultMap="PreviewApprovalResultMap">
+        SELECT
+               a.id AS ID
+             , u.name AS REQUESTER_NAME
+             , a.title AS TITLE
+             , a.approved_at AS APPROVED_AT
+          FROM approval a
+          LEFT JOIN user u ON a.user_id = u.id
+          LEFT JOIN approval_participant ap ON a.id = ap.approval_id
+         WHERE ap.user_id = #{id}
+    </select>
+
+    <!-- 발신 내역 조회 -->
+    <select id="selectMyApprovalSent" parameterType="long" resultMap="PreviewApprovalResultMap">
+        SELECT
+               a.id AS ID
+             , u.name AS REQUESTER_NAME
+             , a.title AS TITLE
+             , a.approved_at AS APPROVED_AT
+          FROM approval a
+          LEFT JOIN user u ON a.user_id = u.id
+         WHERE a.user_id = #{id}
     </select>
 
     <select id="selectApprovalByTaskId" parameterType="long" resultMap="PreviewApprovalResultMap">

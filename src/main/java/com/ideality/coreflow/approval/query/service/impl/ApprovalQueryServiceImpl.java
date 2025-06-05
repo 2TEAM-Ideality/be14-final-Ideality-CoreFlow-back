@@ -1,7 +1,7 @@
 package com.ideality.coreflow.approval.query.service.impl;
 
 import com.ideality.coreflow.approval.query.dto.ApprovalDetailedDTO;
-import com.ideality.coreflow.approval.query.dto.ResponseApprovalByTaskId;
+import com.ideality.coreflow.approval.query.dto.ResponsePreviewApproval;
 import com.ideality.coreflow.approval.query.dto.ResponseApproval;
 import com.ideality.coreflow.approval.query.mapper.ApprovalMapper;
 import com.ideality.coreflow.approval.query.service.ApprovalQueryService;
@@ -19,23 +19,28 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
 
     @Override
     @Transactional
-    public List<ResponseApproval> searchMyApproval(long id) {
-        return approvalMapper.selectMyApproval(id);
+    public List<ResponsePreviewApproval> searchMyApprovalReceive(long id) {
+        return approvalMapper.selectMyApprovalReceive(id);
     }
 
     @Override
     @Transactional
-    public List<ResponseApprovalByTaskId> searchApprovalByTaskId(long taskId) {
+    public List<ResponsePreviewApproval> searchApprovalByTaskId(long taskId) {
         return approvalMapper.selectApprovalByTaskId(taskId);
     }
 
     @Override
     public ApprovalDetailedDTO searchApprovalById(long id) {
-        return approvalMapper.selectApprovalById(id);
+        return approvalMapper.selectApprovedApprovalById(id);
     }
 
     @Override
     public long searchApproverIdByApprovalId(long approvalId) {
-        return approvalMapper.selectApprovalById(approvalId).getApproverId();
+        return approvalMapper.selectApprovedApprovalById(approvalId).getApproverId();
+    }
+
+    @Override
+    public List<ResponsePreviewApproval> searchMyApprovalSent(long id) {
+        return approvalMapper.selectMyApprovalSent(id);
     }
 }
