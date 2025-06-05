@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.ideality.coreflow.calendar.query.dto.ResponseDeptScheduleDTO;
 import com.ideality.coreflow.calendar.query.dto.ResponseScheduleDTO;
+import com.ideality.coreflow.calendar.query.dto.ScheduleDetailDTO;
 import com.ideality.coreflow.calendar.query.dto.TodayScheduleDTO;
 import com.ideality.coreflow.calendar.query.mapper.CalendarMapper;
 import com.ideality.coreflow.common.exception.BaseException;
@@ -27,11 +28,12 @@ public class CalendarQueryFacadeService {
 	private final UserQueryService userQueryService;
 
 	// 개인 일정 상세 정보 조회
-	public ResponseScheduleDTO getPersonalDetail(Long userId, Long taskId) {
+	public ScheduleDetailDTO getPersonalDetail(Long userId, Long scheduleId) {
 		if(!userQueryService.selectUserById(userId)){
 			throw new BaseException(ErrorCode.USER_NOT_FOUND);
-		}// getPersonalDetail
-		ResponseScheduleDTO result = calendarService.getPersonalDetail(userId, taskId);
+		}
+
+		ScheduleDetailDTO result = calendarService.getPersonalDetail(userId, scheduleId);
 		if (result == null) {
 			throw new BaseException(ErrorCode.SCHEDULE_NOT_FOUND);
 		}
@@ -68,4 +70,17 @@ public class CalendarQueryFacadeService {
 			schedule.setLeftDateTime(Math.abs(Duration.between(now, schedule.getStartAt()).toMinutes()));
 		}).toList();
 	}
+
+	// TODO. 해당 월에 대한 개인 일정 목록 조회
+	public List<ResponseScheduleDTO> getScheduleByMonth(Long userId, int year, int month){
+		if (!userQueryService.selectUserById(userId)) {
+			throw new BaseException(ErrorCode.USER_NOT_FOUND);
+		}
+
+		List<ResponseScheduleDTO> schedules = calendarService.getScheduleByMonth(userId, year, month);
+
+
+		return schedules;
+	}
+
 }

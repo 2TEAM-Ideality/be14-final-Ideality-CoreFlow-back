@@ -7,14 +7,20 @@ import java.util.Optional;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.ideality.coreflow.calendar.command.application.dto.FrequencyInfo;
 import com.ideality.coreflow.calendar.query.dto.ResponseScheduleDTO;
+import com.ideality.coreflow.calendar.query.dto.ScheduleDetailDTO;
 import com.ideality.coreflow.calendar.query.dto.TodayScheduleDTO;
 
 @Mapper
 public interface CalendarMapper {
 	List<ResponseScheduleDTO> selectAllPersonal(Long userId);
 
-	ResponseScheduleDTO selectPersonalDetail(Map<String, Object> param);
+	ScheduleDetailDTO selectScheduleDetail(Map<String, Object> param);
 
 	List<TodayScheduleDTO> selectTodayPersonal(Map<String, Object> param);
+
+	FrequencyInfo selectRepeatRule(Long scheduleId);
+
+	List<ResponseScheduleDTO> selectScheduleByMonth(Map<String, Object> param);
 }

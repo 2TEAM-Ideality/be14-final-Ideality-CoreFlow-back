@@ -20,5 +20,5 @@ public class RequestScheduleDTO {
 	private String eventType;
 
 	private Boolean isRepeat;
-	private String repeatType;
+	private FrequencyInfo frequencyInfo;
 }

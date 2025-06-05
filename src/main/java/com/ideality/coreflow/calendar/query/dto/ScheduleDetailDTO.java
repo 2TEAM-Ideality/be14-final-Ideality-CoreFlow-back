@@ -13,11 +13,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseScheduleDTO {
+public class ScheduleDetailDTO {
 	private Long id;
 	private String scheduleName;
 	private String content;
 	private LocalDateTime startAt;
 	private LocalDateTime endAt;
 	private Boolean isRepeat;
+
+	private FrequencyInfo frequencyInfo;
 }
