@@ -23,9 +23,12 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public Long createComment(RequestCommentDTO commentDTO, Long taskId) {
 
-        if (!commentRepository.existsById(commentDTO.getParentCommentId())) {
+        /* 설명. 잘못된 대댓글 접근에 대한 예외처리 */
+        if (commentDTO.getParentCommentId() != null
+                &&!commentRepository.existsById(commentDTO.getParentCommentId())) {
             throw new BaseException(COMMENT_NOT_FOUND);
         }
+
         Comment newComment =
                 Comment.builder()
                         .content(commentDTO.getContent())

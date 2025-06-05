@@ -302,7 +302,7 @@ CREATE TABLE attachment (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     origin_name VARCHAR(255) NOT NULL,
     stored_name VARCHAR(255) NOT NULL,
-    url VARCHAR(255) NOT NULL,
+    url TEXT NOT NULL,
     file_type VARCHAR(255) NOT NULL,
     size VARCHAR(255) NOT NULL,
     upload_at DATETIME NOT NULL,

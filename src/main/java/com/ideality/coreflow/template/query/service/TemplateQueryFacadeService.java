@@ -1,7 +1,6 @@
 package com.ideality.coreflow.template.query.service;
 
 
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
@@ -12,9 +11,8 @@ import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
 import com.ideality.coreflow.attachment.query.service.AttachmentQueryService;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
-import com.ideality.coreflow.infra.service.S3Service;
+import com.ideality.coreflow.infra.s3.S3Service;
 import com.ideality.coreflow.template.query.dto.ResponseTemplateDetailDTO;
-import com.ideality.coreflow.template.query.dto.ResponseTemplateListDTO;
 import com.ideality.coreflow.template.query.dto.TemplateInfoDTO;
 import com.ideality.coreflow.template.query.mapper.TemplateMapper;
 

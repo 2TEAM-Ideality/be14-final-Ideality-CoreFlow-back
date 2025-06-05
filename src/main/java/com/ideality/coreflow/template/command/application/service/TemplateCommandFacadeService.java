@@ -14,7 +14,7 @@ import com.ideality.coreflow.attachment.command.application.service.AttachmentCo
 import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
-import com.ideality.coreflow.infra.service.S3Service;
+import com.ideality.coreflow.infra.s3.S3Service;
 import com.ideality.coreflow.template.command.application.dto.RequestCreateTemplateDTO;
 import com.ideality.coreflow.template.command.application.dto.RequestUpdateTemplateDTO;
 import com.ideality.coreflow.template.command.domain.aggregate.Template;
