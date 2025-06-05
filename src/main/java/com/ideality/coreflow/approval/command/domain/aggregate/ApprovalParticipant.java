@@ -25,6 +25,7 @@ public class ApprovalParticipant {
     @Column(name = "user_id")
     private Long userId;
 
+    @Enumerated(EnumType.STRING)
     private ApprovalRole role;
 
     @Column(name = "created_at", nullable = false)

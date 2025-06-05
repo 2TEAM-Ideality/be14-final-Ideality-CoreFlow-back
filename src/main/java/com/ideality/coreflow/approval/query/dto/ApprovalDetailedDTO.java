@@ -8,7 +8,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class ResponseQueryApproval {
+public class ApprovalDetailedDTO {
     long id;
     long requesterId;
     String title;
@@ -17,9 +17,13 @@ public class ResponseQueryApproval {
     String content;
     LocalDateTime createdAt;
     LocalDateTime approvedAt;
-    ApprovalRole role;
+    long approverId;
 
     Integer delayDays;
     String actionDetail;
     String reason;
+
+    public void updateStatus(ApprovalStatus status) {
+        this.status = status;
+    }
 }

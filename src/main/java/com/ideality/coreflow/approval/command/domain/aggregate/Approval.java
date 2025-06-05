@@ -25,8 +25,10 @@ public class Approval {
 
     private String title;
 
+    @Enumerated(EnumType.STRING)
     private ApprovalType type;
 
+    @Enumerated(EnumType.STRING)
     private ApprovalStatus status;
 
     private String content;
@@ -39,4 +41,9 @@ public class Approval {
 
     @Column(name = "work_id")
     private Long workId;
+
+    public void approve(ApprovalStatus status) {
+        this.status = status;
+        this.approvedAt = LocalDateTime.now();
+    }
 }

@@ -25,7 +25,7 @@ public class ApprovalQueryController {
     }
 
     // workId로 결재 승인 이력 조회
-    @GetMapping("/{taskId}")
+    @GetMapping("/task-approval/{taskId}")
     public ResponseEntity<APIResponse<?>> searchApprovalByTaskId(@PathVariable long taskId) {
         return ResponseEntity.ok(APIResponse.success(approvalQueryService.searchApprovalByTaskId(taskId), "태스크 승인 이력 조회"));
     }
