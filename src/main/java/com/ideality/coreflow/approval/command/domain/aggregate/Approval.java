@@ -42,8 +42,15 @@ public class Approval {
     @Column(name = "work_id")
     private Long workId;
 
-    public void approve(ApprovalStatus status) {
+    @Column(name = "reject_reason")
+    private String rejectReason;
+
+    public void updateStatus(ApprovalStatus status) {
         this.status = status;
         this.approvedAt = LocalDateTime.now();
+    }
+
+    public void updateReason(String rejectReason) {
+        this.rejectReason = rejectReason;
     }
 }

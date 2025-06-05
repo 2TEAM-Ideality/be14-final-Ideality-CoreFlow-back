@@ -74,7 +74,10 @@ public enum ErrorCode {
     INVALID_VERIFICATION_CODE("INVALID_VERIFICATION_CODE", "인증 시간이 만료되었거나 코드가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
 
     INVALID_SOURCE_LIST("INVALID_SOURCE_LIST", "source는 null이거나 비어 있을 수 없습니다.", HttpStatus.BAD_REQUEST),
-    INVALID_TARGET_LIST("INVALID_TARGET_LIST", "target은 비어 있을 수 없습니다.", HttpStatus.BAD_REQUEST)
+    INVALID_TARGET_LIST("INVALID_TARGET_LIST", "target은 비어 있을 수 없습니다.", HttpStatus.BAD_REQUEST),
+
+    // 이미 처리된 결재 혹은 결재자가 아님
+    ACCESS_DENIED_APPROVAL("ACCESS_DENIED_APPROVAL", "결재자가 아니거나 이미 처리된 결재입니다.", HttpStatus.BAD_REQUEST)
     ;
 
     private final String code;

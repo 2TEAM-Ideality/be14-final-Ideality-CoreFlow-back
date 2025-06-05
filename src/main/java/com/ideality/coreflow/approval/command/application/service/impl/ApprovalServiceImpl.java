@@ -17,14 +17,21 @@ public class ApprovalServiceImpl implements ApprovalService {
 
     private final ApprovalRepository approvalRepository;
 
-    @Override
-    public void approve(long approvalId) {
-        log.info("approve 시작");
-        Approval approval = approvalRepository.findById(approvalId).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
-        log.info("approve 조회해옴");
+    public void updateStatus(Approval approval, ApprovalStatus status) {
         // 결재 승인
-        approval.approve(ApprovalStatus.APPROVED);
+        approval.updateStatus(status);
         log.info("status 업데이트");
         approvalRepository.save(approval);
+    }
+
+    @Override
+    public void updateRejectReson(Approval approval, String reason) {
+        approval.updateReason(reason);
+        approvalRepository.save(approval);
+    }
+
+    @Override
+    public Approval findApprovalById(long approvalId) {
+        return approvalRepository.findById(approvalId).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
     }
 }

@@ -2,10 +2,8 @@ package com.ideality.coreflow.approval.command.application.dto;
 
 import lombok.Getter;
 
-import java.util.List;
-
 @Getter
-public class RequestApproval {
+public class RequestReject {
     long approvalId;
-    List<Long> viewerIds;
+    String reason;
 }
