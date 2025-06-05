@@ -41,9 +41,6 @@ public class CommentFacadeService {
                     taskId,
                     commentDTO.getUserId());
         }
-
-
-
         return commentId;
     }
 }
