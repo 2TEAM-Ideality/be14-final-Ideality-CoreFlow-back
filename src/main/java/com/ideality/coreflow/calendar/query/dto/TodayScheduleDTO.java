@@ -22,5 +22,4 @@ public class TodayScheduleDTO {
 	private Boolean  isToday;
 
 	private Boolean isRepeat;
-	// private RepeatInfo repeatInfo;
 }

@@ -25,17 +25,6 @@ public class CalendarQueryController {
 
 	private final CalendarQueryFacadeService calendarQueryFacadeService;
 
-	// TODO. 내가 속한 부서의 프로젝트 일정 가져오기 (세부일정)
-	// @GetMapping("/dept")
-	// public ResponseEntity<APIResponse<List<ResponseDeptScheduleDTO>>> getDeptScheduleList(@RequestBody RequestUserDTO requestDTO) {
-	//
-	// 	List<ResponseDeptScheduleDTO> response = calendarQueryFacadeService.getDeptScheduleList(requestDTO.getUserId());
-	// 	return ResponseEntity.ok(APIResponse.success(response, "부서 일정 목록 조회 성공"));
-	//
-	// }
-
-
-
 	// TODO. 개인 일정 목록 조회
 	@GetMapping("/personal")
 	public ResponseEntity<APIResponse<List<ResponseScheduleDTO>>> getPersonalScheduleDetail(

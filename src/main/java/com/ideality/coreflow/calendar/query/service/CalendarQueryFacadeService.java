@@ -65,7 +65,7 @@ public class CalendarQueryFacadeService {
 				!now.toLocalDate().isBefore(schedule.getStartAt().toLocalDate()) &&
 					!now.toLocalDate().isAfter(schedule.getEndAt().toLocalDate())
 			);
-			schedule.setLeftDateTime(Duration.between(now, schedule.getStartAt()).toMinutes());
+			schedule.setLeftDateTime(Math.abs(Duration.between(now, schedule.getStartAt()).toMinutes()));
 		}).toList();
 	}
 }
