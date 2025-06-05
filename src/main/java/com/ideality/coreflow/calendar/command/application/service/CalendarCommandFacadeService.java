@@ -1,6 +1,7 @@
 package com.ideality.coreflow.calendar.command.application.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ideality.coreflow.calendar.command.application.dto.RequestScheduleDTO;
 
@@ -16,6 +17,7 @@ public class CalendarCommandFacadeService {
 	private final RepeatRuleCommandService repeatRuleCommandService;
 
 	// 개인 일정 생성
+	@Transactional
 	public void createPersonalSchedule(RequestScheduleDTO requestDTO) {
 
 		// 일정 테이블에 개인 일정 생성

@@ -56,7 +56,7 @@ public class TemplateCommandController {
 		);
 	}
 
-	// TODO. 프로젝트 템플릿화
+	// 프로젝트 템플릿화
 	@PostMapping("/project")
 	public ResponseEntity<APIResponse<?>> createTemplateByProject(@RequestBody RequestProjectTemplateDTO requestDTO){
 		templateCommandFacadeService.createTemplateByProject(requestDTO);
