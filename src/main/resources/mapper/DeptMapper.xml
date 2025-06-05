@@ -15,11 +15,13 @@
         WHERE name = #{deptName}
     </select>
 
-    <!-- 부서명만 조회하는 SQL -->
-    <select id="findAllDeptNames" resultType="string">
-        SELECT name
+
+    <!-- 부서명과 부서 ID 조회하는 SQL -->
+    <select id="findAllDeptNames" resultType="com.ideality.coreflow.project.query.dto.DepartmentDTO">
+        SELECT id AS deptId, name AS deptName
         FROM dept
     </select>
+
 
 
 </mapper>
