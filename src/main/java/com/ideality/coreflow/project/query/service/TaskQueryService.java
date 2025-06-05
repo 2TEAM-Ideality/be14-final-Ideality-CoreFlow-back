@@ -13,4 +13,5 @@ public interface TaskQueryService {
     List<ResponseTaskDTO> selectTasks(Long projectId);
 
     List<EdgeDTO> getEdgeList(List<ResponseTaskDTO> taskList);
+
 }
