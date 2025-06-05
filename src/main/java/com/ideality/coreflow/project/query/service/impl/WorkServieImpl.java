@@ -50,8 +50,8 @@ public class WorkServieImpl implements WorkService {
     // 부서 아이디로 해당 부서의 세부일정 목록 조회
     @Override
     public List<DeptWorkDTO> selectWorksByDeptId(Long deptId) {
-        List<DeptWorkDTO> deptList = workMapper.findWorkListByDeptId(deptId);
 
-        return deptList;
+        // 부서별 세부일정 목록 조회
+		return workMapper.findWorkListByDeptId(deptId);
     }
 }

@@ -18,7 +18,6 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 public class DeptWorkDTO {
-	// 그냥 다 보내주고 null 이면 알아서 거기서 처리하도록 하자.
 
 	private Long id;
 	private String taskName;
@@ -36,9 +35,6 @@ public class DeptWorkDTO {
 
 	private List<ParticipantDTO> participants;  // 참여자 목록
 
-	// setParticipants 메서드 추가: 참여자 정보 처리
-	public void setParticipants(List<ParticipantDTO> participants) {
-		this.participants = participants != null ? participants : new ArrayList<>();
-	}
+	private Long projectId;						// 프로젝트 아이디
 
 }

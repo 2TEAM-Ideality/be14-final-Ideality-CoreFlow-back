@@ -74,25 +74,73 @@
     </select>
 
     <!-- 부서별 세부일정 조회 -->
-    <select id="findWorkListByDeptId" parameterType="long" resultType="com.ideality.coreflow.project.query.dto.DeptWorkDTO">
+
+    <resultMap id="deptWorkMap" type="com.ideality.coreflow.project.query.dto.DeptWorkDTO">
+        <id property="id" column="work_id"/>
+        <result property="taskName" column="task_name"/>
+        <result property="taskDescription" column="task_description"/>
+        <result property="slackTime" column="slack_time"/>
+        <result property="startExpect" column="start_expect"/>
+        <result property="endExpect" column="end_expect"/>
+        <result property="startReal" column="start_real"/>
+        <result property="endReal" column="end_real"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="projectId" column="project_id"/>
+
+        <collection property="participants" ofType="com.ideality.coreflow.project.query.dto.ParticipantDTO">
+            <result property="userId" column="user_id"/>
+            <result property="roleId" column="role_id"/>
+            <result property="name" column="user_name"/>
+        </collection>
+    </resultMap>
+    <select id="findWorkListByDeptId" parameterType="long" resultMap="deptWorkMap">
         SELECT
-            w.id,
-            w.name AS taskName,
-            w.description AS taskDescription,
+            w.id AS work_id,
+            w.name AS task_name,
+            w.description AS task_description,
             w.slack_time,
             w.start_expect,
             w.end_expect,
             w.start_real,
             w.end_real,
+            w.project_id,
             wd.dept_id,
-            d.name AS deptName
+            d.name AS dept_name,
+
+            p.user_id,
+            p.role_id,
+            u.name AS user_name
          FROM work w
           JOIN work_dept wd ON w.id = wd.work_id
-        JOIN dept d ON wd.dept_id = d.id
+           JOIN dept d ON wd.dept_id = d.id
+        LEFT JOIN participant p ON p.target_id = w.id AND p.target_type = 'DETAILED'
+         LEFT JOIN user u ON p.user_id = u.id
         WHERE wd.dept_id = #{deptId}
-          AND w.parent_task_id IS NOT NULL
-          AND wd.is_deleted = FALSE
+            AND w.parent_task_id IS NOT NULL
+            AND wd.is_deleted = FALSE
     </select>
+
+
+    <!--    <select id="findWorkListByDeptId" parameterType="long" resultType="com.ideality.coreflow.project.query.dto.DeptWorkDTO">-->
+<!--        SELECT-->
+<!--            w.id,-->
+<!--            w.name AS taskName,-->
+<!--            w.description AS taskDescription,-->
+<!--            w.slack_time,-->
+<!--            w.start_expect,-->
+<!--            w.end_expect,-->
+<!--            w.start_real,-->
+<!--            w.end_real,-->
+<!--            wd.dept_id,-->
+<!--            d.name AS deptName-->
+<!--         FROM work w-->
+<!--          JOIN work_dept wd ON w.id = wd.work_id-->
+<!--        JOIN dept d ON wd.dept_id = d.id-->
+<!--        WHERE wd.dept_id = #{deptId}-->
+<!--          AND w.parent_task_id IS NOT NULL-->
+<!--          AND wd.is_deleted = FALSE-->
+<!--    </select>-->
 
 
 
