@@ -1,6 +1,7 @@
 package com.ideality.coreflow.calendar.command.application.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,4 +22,6 @@ public class RequestScheduleDTO {
 
 	private Boolean isRepeat;
 	private FrequencyInfo frequencyInfo;
+
+	private List<LocalDateTime> reminder;
 }
