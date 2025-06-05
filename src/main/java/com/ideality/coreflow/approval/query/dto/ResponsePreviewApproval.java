@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 public class ResponsePreviewApproval {
     long id;
     String requesterName;
+    String approverName;
     String title;
     LocalDateTime approvedAt;
 }

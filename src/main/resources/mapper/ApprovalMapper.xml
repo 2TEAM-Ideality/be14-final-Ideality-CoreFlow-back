@@ -7,6 +7,7 @@
     <resultMap id="ApprovalPreviewResultMap" type="com.ideality.coreflow.approval.query.dto.ResponsePreviewApproval">
         <id property="id" column="ID" />
         <result property="requesterName" column="REQUESTER_NAME" />
+        <result property="approverName" column="APPROVER_NAME" />
         <result property="title" column="TITLE" />
         <result property="approvedAt" column="APPROVED_AT" />
     </resultMap>
@@ -86,25 +87,30 @@
     <select id="selectMyApprovalReceive" parameterType="long" resultMap="ApprovalPreviewResultMap">
         SELECT
                a.id AS ID
-             , u.name AS REQUESTER_NAME
+             , u1.name AS REQUESTER_NAME
+             , u2.name AS APPROVER_NAME
              , a.title AS TITLE
              , a.approved_at AS APPROVED_AT
           FROM approval a
-          LEFT JOIN user u ON a.user_id = u.id
+          LEFT JOIN user u1 ON a.user_id = u1.id
           LEFT JOIN approval_participant ap ON a.id = ap.approval_id
-         WHERE ap.user_id = #{userId}
+          LEFT JOIN user u2 ON ap.user_id = u2.id
+         WHERE ap.user_id = #{userId} AND ap.role = 'APPROVER'
     </select>
 
     <!-- 발신 내역 조회 -->
     <select id="selectMyApprovalSent" parameterType="long" resultMap="ApprovalPreviewResultMap">
         SELECT
                a.id AS ID
-             , u.name AS REQUESTER_NAME
+             , u1.name AS REQUESTER_NAME
+             , u2.name AS APPROVER_NAME
              , a.title AS TITLE
              , a.approved_at AS APPROVED_AT
           FROM approval a
-          LEFT JOIN user u ON a.user_id = u.id
-         WHERE a.user_id = #{userId}
+          LEFT JOIN user u1 ON a.user_id = u1.id
+          LEFT JOIN approval_participant ap ON ap.approval_id = a.id
+          LEFT JOIN user u2 ON ap.user_id = u2.id
+         WHERE a.user_id = #{userId} AND ap.role = 'APPROVER'
     </select>
 
     <select id="selectApprovalByTaskId" parameterType="long" resultMap="ApprovalPreviewResultMap">
