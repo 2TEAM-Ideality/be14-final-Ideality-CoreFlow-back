@@ -30,4 +30,9 @@ public class UserQueryServiceImpl implements UserQueryService {
     public List<Long> selectLeadersByDeptName(String deptName) {
         return userMapper.selectLeadersByDeptName(deptName);
     }
+
+    @Override
+    public String findDeptNameByUserId(Long userId) {
+        return userMapper.findDeptNameByUserId(userId);
+    }
 }

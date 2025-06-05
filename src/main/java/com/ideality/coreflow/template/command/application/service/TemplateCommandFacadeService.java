@@ -52,7 +52,7 @@ public class TemplateCommandFacadeService {
 		// 참여 부서 ID 추출 및 저장
 		Set<Long> uniqueDeptIds = requestDTO.getNodeList().stream()
 			.flatMap(node -> node.getData().getDeptList().stream()
-				.map(Integer::longValue))
+				.map(Long::longValue))
 			.collect(Collectors.toSet());
 
 		// template_dept 테이블 저장
@@ -101,7 +101,7 @@ public class TemplateCommandFacadeService {
 
 		// 3-2. 새로운 부서 ID 추출 및 저장
 		Set<Long> updatedDeptIds = requestDTO.getNodeList().stream()
-			.flatMap(node -> node.getData().getDeptList().stream().map(Integer::longValue))
+			.flatMap(node -> node.getData().getDeptList().stream().map(Long::longValue))
 			.collect(Collectors.toSet());
 
 		for (Long deptId : updatedDeptIds) {

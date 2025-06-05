@@ -28,4 +28,9 @@ public class DeptQueryServiceImpl implements DeptQueryService {
         return deptMapper.findDeptCodeByName(deptName)
                 .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
     }
+
+    @Override
+    public Long findIdByName(String leaderDeptName) {
+        return deptMapper.findDeptIdByName(leaderDeptName);
+    }
 }

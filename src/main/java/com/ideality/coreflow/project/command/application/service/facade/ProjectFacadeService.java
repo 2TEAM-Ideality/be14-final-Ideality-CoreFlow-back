@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.modeler.ParameterInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -62,7 +63,7 @@ public class ProjectFacadeService {
             for(Long leaderId:request.getLeaderIds()) {
                 participant=ParticipantDTO.builder()
                         .taskId(project.getId())
-                        .userId(request.getDirectorId())
+                        .userId(leaderId)
                         .targetType(TargetType.PROJECT)
                         .roleId(2L)
                         .build();
@@ -91,9 +92,34 @@ public class ProjectFacadeService {
                         .endBaseLine(LocalDate.parse(data.getEndBaseLine()))
                         .projectId(project.getId())
                         .build();
-                // 작업별 부서 정보 저장
-                // 작업들 저장하면서 edgeList 업데이트
+                // Task 생성
                 Long taskId=taskService.createTask(requestTaskDTO);
+                // work_dept 정보 삽입
+                List<Long> deptList=data.getDeptList();
+                for(Long deptId:deptList) {
+                    workDeptService.createWorkDept(taskId, deptId);
+                }
+                // 각 태스크에 팀장 추가 (participant)
+                List<ParticipantDTO> taskLeaders=new ArrayList<>();
+                for(ParticipantDTO leader:leaders) {
+                    // 1. 팀장의 부서 이름 조회
+                    String leaderDeptName=userQueryService.findDeptNameByUserId(leader.getUserId());
+                    // 2. 부서 이름으로 부서id 조회
+                    Long leaderDeptId=deptQueryService.findIdByName(leaderDeptName);
+                    // 3. 현재 태스크의 참여 부서와 비교
+                    if(deptList.contains(leaderDeptId)) {
+                        // 4. 해당 리더를 태스크의 팀장으로 등록
+                        ParticipantDTO taskLeader=ParticipantDTO.builder()
+                                .taskId(taskId)
+                                .userId(leader.getUserId())
+                                .targetType(TargetType.TASK)
+                                .roleId(2L)
+                                .build();
+                        taskLeaders.add(taskLeader);
+                    }
+                }
+                participantService.createParticipants(taskLeaders);
+                // edgeList 업데이트
                 System.out.println("taskId = " + taskId + "생성 완료.");
                 for (String[] edge : edgeList) {
                     for (int i = 0; i < edge.length; i++) {

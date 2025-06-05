@@ -9,4 +9,6 @@ public interface UserMapper {
     List<Long> selectAllUserByDeptName(String deptName);
 
     List<Long> selectLeadersByDeptName(String deptName);
+
+    String findDeptNameByUserId(Long userId);
 }

@@ -5,4 +5,6 @@ public interface DeptQueryService {
     String findNameById(Long id);
 
     String findDeptCodeByName(String deptName);
+
+    Long findIdByName(String leaderDeptName);
 }
