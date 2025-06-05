@@ -13,8 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.ideality.coreflow.common.exception.ErrorCode.INVALID_SOURCE_LIST;
-import static com.ideality.coreflow.common.exception.ErrorCode.TASK_NOT_FOUND;
+import static com.ideality.coreflow.common.exception.ErrorCode.*;
 
 @Service
 @Slf4j
@@ -58,6 +57,10 @@ public class TaskServiceImpl implements TaskService {
     public Long updateStatusComplete(Long taskId) {
         Work updatedTask = taskRepository.findById(taskId)
                 .orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+
+        if (updatedTask.getProgressRate() != 100) {
+            throw new BaseException(TASK_PROGRESS_NOT_COMPLETED);
+        }
 
         updatedTask.endTask();
         return updatedTask.getId();
