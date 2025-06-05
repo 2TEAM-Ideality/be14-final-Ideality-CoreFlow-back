@@ -74,7 +74,6 @@
         AND p.target_type = 'DETAILED'
     </select>
 
-<<<<<<< HEAD
     <select id="findWorkNamesByIds" resultType="java.lang.String">
         SELECT w.name
         FROM work w
@@ -85,7 +84,6 @@
     </select>
 
 
-=======
     <!-- 부서별 세부일정 조회 -->
     <resultMap id="deptWorkMap" type="com.ideality.coreflow.project.query.dto.DeptWorkDTO">
         <id property="id" column="work_id"/>
@@ -99,8 +97,6 @@
         <result property="deptId" column="dept_id"/>
         <result property="deptName" column="dept_name"/>
         <result property="projectId" column="project_id"/>
->>>>>>> d635a846e2819ae209b8733a1bb34c29a4d92581
-
         <collection property="participants" ofType="com.ideality.coreflow.project.query.dto.ParticipantDTO">
             <result property="userId" column="user_id"/>
             <result property="roleId" column="role_id"/>
