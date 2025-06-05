@@ -73,5 +73,27 @@
         AND p.target_type = 'DETAILED'
     </select>
 
+    <!-- 부서별 세부일정 조회 -->
+    <select id="findWorkListByDeptId" parameterType="long" resultType="com.ideality.coreflow.project.query.dto.DeptWorkDTO">
+        SELECT
+            w.id,
+            w.name AS taskName,
+            w.description AS taskDescription,
+            w.slack_time,
+            w.start_expect,
+            w.end_expect,
+            w.start_real,
+            w.end_real,
+            wd.dept_id,
+            d.name AS deptName
+         FROM work w
+          JOIN work_dept wd ON w.id = wd.work_id
+        JOIN dept d ON wd.dept_id = d.id
+        WHERE wd.dept_id = #{deptId}
+          AND w.parent_task_id IS NOT NULL
+          AND wd.is_deleted = FALSE
+    </select>
+
+
 
 </mapper>

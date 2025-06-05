@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ideality.coreflow.calendar.query.dto.RequestUserDTO;
+import com.ideality.coreflow.calendar.query.dto.ResponseDeptScheduleDTO;
 import com.ideality.coreflow.calendar.query.dto.ResponseScheduleDTO;
 import com.ideality.coreflow.calendar.query.dto.TodayScheduleDTO;
 import com.ideality.coreflow.calendar.query.service.CalendarQueryFacadeService;
@@ -26,9 +27,9 @@ public class CalendarQueryController {
 
 	// TODO. 내가 속한 부서의 프로젝트 일정 가져오기 (세부일정)
 	// @GetMapping("/dept")
-	// public ResponseEntity<APIResponse<List<ResponseScheduleDTO>>> getDeptScheduleList() {
+	// public ResponseEntity<APIResponse<List<ResponseDeptScheduleDTO>>> getDeptScheduleList(@RequestBody RequestUserDTO requestDTO) {
 	//
-	// 	List<ResponseScheduleDTO> response = calendarQueryFacadeService.getDeptScheduleList();
+	// 	List<ResponseDeptScheduleDTO> response = calendarQueryFacadeService.getDeptScheduleList(requestDTO.getUserId());
 	// 	return ResponseEntity.ok(APIResponse.success(response, "부서 일정 목록 조회 성공"));
 	//
 	// }
@@ -51,14 +52,13 @@ public class CalendarQueryController {
 		@RequestBody RequestUserDTO requestDTO,
 		@PathVariable Long taskId)
 	{
-		// TODO. 로그인한 사용자의 아이디 가져오기
 		ResponseScheduleDTO response = calendarQueryFacadeService.getPersonalDetail(requestDTO.getUserId(), taskId);
 
 		return ResponseEntity.ok(APIResponse.success(response, "개인 일정 상세 조회 성공 ✅"));
 	}
 
 	// TODO. 오늘의 개인 일정 목록 조회
-	@GetMapping("/personal/today")
+	@GetMapping("/today")
 	public ResponseEntity<APIResponse<List<TodayScheduleDTO>>> getPersonalScheduleToday(
 		@RequestBody RequestUserDTO requestDTO
 	){

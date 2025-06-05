@@ -3,10 +3,12 @@ package com.ideality.coreflow.calendar.query.service;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.ideality.coreflow.calendar.query.dto.ResponseDeptScheduleDTO;
 import com.ideality.coreflow.calendar.query.dto.ResponseScheduleDTO;
 import com.ideality.coreflow.calendar.query.dto.TodayScheduleDTO;
 import com.ideality.coreflow.calendar.query.mapper.CalendarMapper;
@@ -19,21 +21,22 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CalendarQueryFacadeService {
 
-	private final CalendarMapper calendarMapper;
 	private final CalendarService calendarService;
 	private final UserQueryService userQueryService;
 	private final DeptQueryService deptQueryService;
 
 	// 부서 일정 목록 조회
-	// public List<ResponseScheduleDTO> getDeptScheduleList(Long userId) {
-	//
-	// 	// TODO. 로그인한 유저 정보 가져오기
-	//
-	// 	String deptName = userQueryService.getDeptNameByUserId(userId);
-	// 	Long deptId = deptQueryService.findDeptIdByName(deptName);
-	//
-	// 	return
-	// }
+	public List<ResponseDeptScheduleDTO> getDeptScheduleList(Long userId) {
+
+		// TODO. 로그인한 유저 정보 가져오기
+		String deptName = userQueryService.getDeptNameByUserId(userId);
+		Long deptId = deptQueryService.findDeptIdByName(deptName);
+		// 부서별 세부일정 목록 가져와야 함
+		//
+ 		// 근데 여기서 할 건가 이게? TASK 쪽에서 가져와야 할 것 같은데 ....
+
+		return new ArrayList<>();
+	}
 
 	// 개인 일정 상세 정보 조회
 	public ResponseScheduleDTO getPersonalDetail(Long userId, Long taskId) {
@@ -52,10 +55,10 @@ public class CalendarQueryFacadeService {
 		// 오늘의 날짜. 및 시간
 		LocalDateTime now = LocalDateTime.now();    // 2019-11-12T16:34:30.388
 
-		// MyBatis로 오늘 일정만 가져오기 (쿼리에서는 날짜 조건만 처리)
+		// 오늘 일정 목록 가져오기
 		List<TodayScheduleDTO> scheduleList = calendarService.getTodayPersonal(userId, now);
 
-		// Java에서 leftDateTime, isToday 계산해서 DTO에 추가
+		// leftDateTime, isToday 계산해서 DTO에 추가
 		return scheduleList.stream().peek(schedule -> {
 			schedule.setIsToday(
 				!now.toLocalDate().isBefore(schedule.getStartAt().toLocalDate()) &&
