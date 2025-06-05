@@ -42,9 +42,9 @@ public class ProjectFacadeService {
     private final ParticipantQueryService participantQueryService;
 
     public Project createProject(ProjectCreateRequest request) {
-        // 프로젝트 생성
+        // (1) 프로젝트
         Project project=projectService.createProject(request);
-        // 디렉터 DTO 생성
+        // (2) 프로젝트 디렉터
         // region
         List<ParticipantDTO> director=new ArrayList<>();
         ParticipantDTO participant=ParticipantDTO.builder()
@@ -54,10 +54,9 @@ public class ProjectFacadeService {
                 .roleId(1L)
                 .build();
         director.add(participant);
-        // endregion
-        // 디렉터 저장
         participantService.createParticipants(director);
-        // 리더 정보 생성
+        // endregion
+        // (3) 프로젝트 팀장
         // region
         List<ParticipantDTO> leaders=new ArrayList<>();
         if(request.getLeaderIds()!=null) {
@@ -71,18 +70,17 @@ public class ProjectFacadeService {
                 leaders.add(participant);
             }
         }
-        // endregion
-        // 리더 정보 저장
         participantService.createParticipants(leaders);
-        // 태스크
+        // endregion
+        // (4) 템플릿 적용
         // region
         if(request.getTemplateData()!=null) {
-            // 엣지 정보 다 뽑아내기
+            // (4-1) 관계 데이터 추출
             List<String[]> edgeList=new ArrayList<>();
             for(EdgeDTO edge:request.getTemplateData().getEdgeList()){
                 edgeList.add(new String[]{edge.getSource(), edge.getTarget()});
             }
-            // 태스크 생성 및 edgeList 업데이트
+            // (4-2) 태스크 생성
             for(NodeDTO node : request.getTemplateData().getNodeList()){
                 String nodeId=node.getId();
                 TemplateNodeDataDTO data=node.getData();
@@ -93,14 +91,14 @@ public class ProjectFacadeService {
                         .endBaseLine(LocalDate.parse(data.getEndBaseLine()))
                         .projectId(project.getId())
                         .build();
-                // Task 생성
+                // (4-2-1) 태스크 저장
                 Long taskId=taskService.createTask(requestTaskDTO);
-                // work_dept 정보 삽입
+                // (4-2-2) work_dept 정보 삽입
                 List<Long> deptList=data.getDeptList().stream().map(TaskDeptDTO::getId).toList();
                 for(Long deptId:deptList) {
                     workDeptService.createWorkDept(taskId, deptId);
                 }
-                // 각 태스크에 팀장 추가 (participant)
+                // (4-2-3) 각 태스크에 팀장 추가 (participant)
                 List<ParticipantDTO> taskLeaders=new ArrayList<>();
                 for(ParticipantDTO leader:leaders) {
                     // 1. 팀장의 부서 이름 조회
@@ -122,7 +120,7 @@ public class ProjectFacadeService {
                     }
                 }
                 participantService.createParticipants(taskLeaders);
-                // edgeList 업데이트
+                // (4-2-4) edgeList 업데이트
                 System.out.println("taskId = " + taskId + "생성 완료.");
                 for (String[] edge : edgeList) {
                     for (int i = 0; i < edge.length; i++) {
@@ -132,7 +130,7 @@ public class ProjectFacadeService {
                     }
                 }
             }
-            // edgeList 저장
+            // (4-3) edgeList 저장
             for(String[] edge : edgeList) {
                 relationService.createRelation(Long.parseLong(edge[0]), Long.parseLong(edge[1]));
             }
