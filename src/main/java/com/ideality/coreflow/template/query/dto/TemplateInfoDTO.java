@@ -21,8 +21,10 @@ public class TemplateInfoDTO {
 	private int id;
 	private String name;	// 템플릿 이름
 	private String description; // 템플릿 설명
+
 	private LocalDateTime createdAt;	// 생성일
 	private String createdBy;			// 생성자
+
 	private int duration;
 	private int taskCount;
 	private int usingProjects;

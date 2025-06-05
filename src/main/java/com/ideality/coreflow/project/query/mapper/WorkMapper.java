@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.query.mapper;
 
+import com.ideality.coreflow.project.query.dto.DeptWorkDTO;
 import com.ideality.coreflow.project.query.dto.DetailDTO;
 import com.ideality.coreflow.project.query.dto.ParticipantDTO;
 import com.ideality.coreflow.project.query.dto.WorkDetailDTO;
@@ -21,4 +22,7 @@ public interface WorkMapper {
     List<ParticipantDTO> findParticipantsByWorkId(Long participantId);
 
     List<String> findWorkNamesByIds(List<Long> workIds);
+
+	List<DeptWorkDTO> findWorkListByDeptId(Long deptId);
+
 }

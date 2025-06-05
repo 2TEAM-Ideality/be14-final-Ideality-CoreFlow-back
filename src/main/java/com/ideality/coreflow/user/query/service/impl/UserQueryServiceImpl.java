@@ -37,4 +37,17 @@ public class UserQueryServiceImpl implements UserQueryService {
     public List<UserNameIdDto> searchUsersByName(String name) {
         return userMapper.searchUsersByName(name);
     }
+
+    // UserId로 부서 이름 조회
+    @Override
+    public String getDeptNameByUserId(Long userId) {
+        return userMapper.selectDeptNameByUserId(userId);
+    }
+
+    // UserId로 회원 조회
+    @Override
+    public Boolean selectUserById(Long userId) {
+        return userMapper.selectUserById(userId);
+    }
+
 }

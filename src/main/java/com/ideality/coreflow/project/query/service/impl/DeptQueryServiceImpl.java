@@ -18,7 +18,6 @@ public class DeptQueryServiceImpl implements DeptQueryService {
 
     private final DeptMapper deptMapper;
 
-
     @Override
     public String findNameById(Long id) {
         return deptMapper.findNameById(id)
@@ -44,5 +43,12 @@ public class DeptQueryServiceImpl implements DeptQueryService {
         // 부서 목록 반환
         return deptList;
     }
+
+
+    @Override
+    public Long findDeptIdByName(String deptName) {
+        return deptMapper.findDeptIdByName(deptName)
+            .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
     }
+}
 

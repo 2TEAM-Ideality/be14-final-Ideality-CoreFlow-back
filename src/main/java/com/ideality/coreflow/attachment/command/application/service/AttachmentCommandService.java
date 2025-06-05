@@ -2,8 +2,8 @@ package com.ideality.coreflow.attachment.command.application.service;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
-import org.hibernate.tool.schema.TargetType;
 import org.springframework.stereotype.Service;
 
 import com.ideality.coreflow.attachment.command.domain.aggregate.Attachment;
@@ -64,5 +64,9 @@ public class AttachmentCommandService {
 
 		originAttachment.delete();
 
+	}
+
+	public Boolean findAttachmentByTargetId(Long templateId) {
+		return attachmentRepository.existsAttachmentByTargetId(templateId);
 	}
 }

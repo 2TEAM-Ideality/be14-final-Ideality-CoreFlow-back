@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.template.command.application.dto.RequestCreateTemplateDTO;
+import com.ideality.coreflow.template.command.application.dto.RequestProjectTemplateDTO;
 import com.ideality.coreflow.template.command.domain.aggregate.Template;
 import com.ideality.coreflow.template.command.domain.aggregate.TemplateDept;
 import com.ideality.coreflow.template.command.domain.repository.TemplateDeptRepository;
@@ -40,8 +41,23 @@ public class TemplateCommandService {
 
 		return newTemplate;
 	}
+	@Transactional
+	public Template createTemplateByProject(RequestProjectTemplateDTO requestDTO, int taskCount, int durtaion) {
+		Template newTemplate = Template.builder()
+			.name(requestDTO.getName())
+			.description(requestDTO.getDescription())
+			.createdAt(LocalDateTime.now())
+			.createdBy(requestDTO.getCreatedBy())
+			.duration(durtaion)
+			.taskCount(taskCount)
+			.build();
+		templateRepository.save(newTemplate);
+
+		return newTemplate;
+	}
 
 	// 수정
+	@Transactional
 	public void updateTemplateInfo(Long templateId, String name, String description, int duration, int taskCount, Long updatedBy) {
 		Template originTemplate = templateRepository.findById(templateId).
 				orElseThrow(() -> new BaseException(ErrorCode.TEMPLATE_NOT_FOUND));
@@ -49,6 +65,7 @@ public class TemplateCommandService {
 		originTemplate.updateTemplate(name, description, duration, taskCount, updatedBy);
 	}
 
+	@Transactional
 	public void deleteTemplate(Long templateId) {
 		Template originTemplate = templateRepository.findById(templateId)
 			.orElseThrow(() -> new BaseException(ErrorCode.TEMPLATE_NOT_FOUND));
@@ -57,7 +74,8 @@ public class TemplateCommandService {
 
 	}
 
-	// TEMPLAET_DEPT 테이블 저장 설명. TemplateDeptService 로 따로 분리해야 할 지 ?
+	@Transactional
+	// TEMPLATE_DEPT 테이블 저장 설명. TemplateDeptService 로 따로 분리해야 할 지 ?
 	public void saveTemplateDept(Long templateId, Long deptId) {
 		log.info("Saving template dept {}", deptId);
 		TemplateDept dept = TemplateDept.builder()
@@ -67,7 +85,10 @@ public class TemplateCommandService {
 		templateDeptRepository.save(dept);
 	}
 
+	@Transactional
 	public void deleteAllTemplateDepts(Long templateId) {
 		templateDeptRepository.deleteByTemplateId(templateId);
 	}
+
+
 }

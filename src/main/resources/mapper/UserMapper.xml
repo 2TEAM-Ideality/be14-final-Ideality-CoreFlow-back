@@ -18,11 +18,25 @@
            AND b.role_id = 2
            AND b.target_type = 'PROJECT'
     </select>
+    <select id="selectDeptNameByUserId" resultType="string" parameterType="_long">
+        SELECT
+            u.dept_name
+        FROM user u
+            WHERE #{userId} = u.id
+    </select>
     <select id="searchUsersByName" resultType="com.ideality.coreflow.user.query.dto.UserNameIdDto">
         SELECT name, id
         FROM user
         WHERE name LIKE CONCAT('%', #{name}, '%')
         LIMIT 10;
+    </select>
+
+    <select id="selectUserById" resultType="java.lang.Boolean" parameterType="long">
+        SELECT EXISTS (
+            SELECT 1
+            FROM user
+            WHERE id = #{userId}
+        ) AS is_exist;
     </select>
 
 

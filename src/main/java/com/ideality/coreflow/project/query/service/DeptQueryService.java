@@ -11,4 +11,7 @@ public interface DeptQueryService {
     String findDeptCodeByName(String deptName);
 
     List<DepartmentDTO> findAllDeptNames();
+
+    Long findDeptIdByName(String deptName);
+
 }

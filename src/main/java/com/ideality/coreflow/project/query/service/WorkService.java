@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.query.service;
 
 
+import com.ideality.coreflow.project.query.dto.DeptWorkDTO;
 import com.ideality.coreflow.project.query.dto.DetailDTO;
 import com.ideality.coreflow.project.query.dto.WorkDetailDTO;
 
@@ -14,5 +15,5 @@ public interface WorkService {
 
     WorkDetailDTO getWorkDetailById(Long workId);
 
-
+    List<DeptWorkDTO> selectWorksByDeptId(Long deptId);
 }

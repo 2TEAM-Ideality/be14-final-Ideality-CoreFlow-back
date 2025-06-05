@@ -6,4 +6,6 @@ import com.ideality.coreflow.project.command.application.dto.ProjectCreateReques
 public interface ProjectService {
     void existsById(Long projectId);
     Project createProject(ProjectCreateRequest request);
+
+    boolean isCompleted(Long projectId);
 }

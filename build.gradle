@@ -79,6 +79,9 @@ dependencies {
     // ✅ Mockito (이미 spring-boot-starter-test에 포함되지만 명시적 관리 가능)
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'org.mockito:mockito-junit-jupiter'
+
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
 }
 
 tasks.named('test') {
