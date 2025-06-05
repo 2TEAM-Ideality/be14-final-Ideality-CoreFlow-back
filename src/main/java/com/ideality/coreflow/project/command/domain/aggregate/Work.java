@@ -78,6 +78,7 @@ public class Work {
 		}
 
 		this.status = Status.PROGRESS;
+		this.startReal = LocalDate.now();
 	}
 
 	public void endTask() {

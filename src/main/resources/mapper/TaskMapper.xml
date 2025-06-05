@@ -38,6 +38,7 @@
              , delay_days
           FROM work
          WHERE id = #{taskId}
+           AND status != 'DELETED'
     </select>
 
     <select id="selectTasks" parameterType="map" resultMap="TasksMap">
@@ -51,5 +52,7 @@
           FROM work a
           JOIN project b ON a.project_id = b.id
          WHERE b.id = #{projectId}
+           AND a.parent_task_id IS NULL
+           AND a.status != 'DELETED'
     </select>
 </mapper>
