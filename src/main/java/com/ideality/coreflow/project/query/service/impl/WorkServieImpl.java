@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.query.service.impl;
 
+import com.ideality.coreflow.project.query.dto.DeptWorkDTO;
 import com.ideality.coreflow.project.query.dto.DetailDTO;
 import com.ideality.coreflow.project.query.dto.ParticipantDTO;
 import com.ideality.coreflow.project.query.dto.WorkDetailDTO;
@@ -44,5 +45,13 @@ public class WorkServieImpl implements WorkService {
         workDetail.setParticipants(participants != null ? participants : new ArrayList<ParticipantDTO>());  // 빈 리스트 처리
 
         return workDetail;
+    }
+
+    // 부서 아이디로 해당 부서의 세부일정 목록 조회
+    @Override
+    public List<DeptWorkDTO> selectWorksByDeptId(Long deptId) {
+
+        // 부서별 세부일정 목록 조회
+		return workMapper.findWorkListByDeptId(deptId);
     }
 }

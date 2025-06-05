@@ -14,4 +14,6 @@ public interface DeptMapper {
     // 모든 부서명 조회 (XML 쿼리와 연결)
     List<String> findAllDeptNames();
 
+
+	Optional<Long> findDeptIdByName(String deptName);
 }

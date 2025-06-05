@@ -1,11 +1,16 @@
 package com.ideality.coreflow.project.query.controller;
 
+import com.ideality.coreflow.calendar.query.dto.RequestUserDTO;
 import com.ideality.coreflow.common.response.APIResponse;
+import com.ideality.coreflow.project.query.dto.DeptWorkDTO;
 import com.ideality.coreflow.project.query.dto.DetailDTO;
 import com.ideality.coreflow.project.query.dto.WorkDetailDTO;
 import com.ideality.coreflow.project.query.service.WorkService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,7 +25,6 @@ public class WorkController {
     private final WorkService workService;
 
     // 태스크 내의 세부일정 이름 목록 조회
-    //선행, 후행 목록 조회에서 선택된 일정 빼는 것은 프론트에서 처리
     @GetMapping("/detail/nameList")
     public APIResponse<List<String>> getSubTaskNames(@RequestParam Long parentTaskId) {
 
@@ -48,6 +52,5 @@ public class WorkController {
         // 응답을 APIResponse로 감싸서 반환
         return APIResponse.success(workDetail, "세부 일정 조회 성공");
     }
-
 
 }

@@ -1,6 +1,5 @@
 package com.ideality.coreflow.template.command.application.service;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -120,37 +119,16 @@ public class TemplateCommandFacadeService {
 
 		// 2. Json 직렬화
 		String json = buildTemplateJsonData(requestDTO.getNodeList(), requestDTO.getEdgeList());
-		// TemplateDataDTO data = TemplateDataDTO.builder()
-		// 	.edgeList(requestDTO.getEdgeList())
-		// 	.nodeList(requestDTO.getNodeList())
-		// 	.build();
-		// String json = serializeJsonOrThrow(data);
 
-		// 3. 참여 부서 갱신
-		// 3-1. 기존 부서 관계 삭제
+		// 3. 참여 부서 관계
 		templateCommandService.deleteAllTemplateDepts(templateId);
 
 		// 3-2. 새로운 부서 ID 추출 및 저장
 		Set<Long> deptIds = extractUniqueDeptIds(requestDTO.getNodeList());
 		saveTemplateDepts(templateId, deptIds);
-		// Set<Long> uniqueDeptIds = requestDTO.getNodeList().stream()
-		// 	.flatMap(node -> node.getData().getDeptList().stream()
-		// 		.map(TaskDeptDTO::getId))
-		// 	.collect(Collectors.toSet());
-
-		// for (Long deptId : deptIds) {
-		// 	templateCommandService.saveTemplateDept(templateId, deptId);
-		// }
 
 		//3. S3 업로드
 		uploadAndSaveAttachment(templateId, json, requestDTO.getUpdatedBy());
-		// String fileName = templateId + ".json";
-		// String folder = "template-json";
-		// String fileUrl = uploadToS3OrThrow(json, folder, fileName);
-		// String size = String.valueOf(json.getBytes(StandardCharsets.UTF_8).length) + " bytes";
-		//
-		// // 4. 첨부 파일 정보 업데이트
-		// attachmentCommandService.updateAttachmentForTemplate(FileTargetType.TEMPLATE, templateId, fileName, fileUrl, size);
 	}
 
 	// 템플릿 삭제
@@ -221,6 +199,7 @@ public class TemplateCommandFacadeService {
 			throw new BaseException(ErrorCode.S3_UPLOAD_FAILED);
 		}
 	}
+
 
 	// JSON 직렬화
 	private String serializeJsonOrThrow(TemplateDataDTO requestDTO) {

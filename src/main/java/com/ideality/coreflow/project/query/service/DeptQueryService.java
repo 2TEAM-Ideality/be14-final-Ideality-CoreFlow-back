@@ -9,4 +9,6 @@ public interface DeptQueryService {
     String findDeptCodeByName(String deptName);
 
     List<String> findAllDeptNames();
+
+    Long findDeptIdByName(String deptName);
 }

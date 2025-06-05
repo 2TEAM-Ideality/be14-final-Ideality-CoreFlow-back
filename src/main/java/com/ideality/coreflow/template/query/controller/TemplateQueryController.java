@@ -25,13 +25,12 @@ import lombok.RequiredArgsConstructor;
 public class TemplateQueryController {
 
 	private final TemplateQueryFacadeService templateQueryFacadeService;
-	private final TemplateQueryService templateQueryService;
 
 
 	// TODO. 템플릿 목록 조회
 	@GetMapping("/list")
 	public ResponseEntity<APIResponse<List<TemplateInfoDTO>>> getTemplates() {
-		List<TemplateInfoDTO> templates = templateQueryService.getAllTemplates();
+		List<TemplateInfoDTO> templates = templateQueryFacadeService.getAllTemplates();
 		return ResponseEntity.ok(APIResponse.success(templates, "템플릿 목록 조회 성공 ✅"));
 	}
 
