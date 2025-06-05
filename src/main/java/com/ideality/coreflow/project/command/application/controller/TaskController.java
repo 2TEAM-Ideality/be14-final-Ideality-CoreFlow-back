@@ -55,4 +55,14 @@ public class TaskController {
                         "태스크가 삭제 되었습니다.")
         );
     }
+
+    @PatchMapping("/detail/update/{taskId}")
+    public ResponseEntity<APIResponse<Map<String, Long>>> updateTaskDetailInfo
+            (@PathVariable Long taskId, @RequestBody RequestTaskDTO requestTaskDTO) {
+        Long updateTask = projectFacadeService.updateTaskDetail(taskId, requestTaskDTO);
+        return ResponseEntity.ok(
+                APIResponse.success(Map.of("taskId", updateTask),
+                        "태스크가 업데이트 되었습니다.")
+        );
+    }
 }

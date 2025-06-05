@@ -183,9 +183,15 @@ public class ProjectFacadeService {
         return updateTaskId;
     }
 
+    @Transactional
     public Long deleteTaskBySoft(Long taskId) {
         Long deleteTaskId = taskService.softDeleteTask(taskId);
         return deleteTaskId;
     }
 
+    @Transactional
+    public Long updateTaskDetail(Long taskId, RequestTaskDTO requestTaskDTO) {
+
+        return taskId;
+    }
 }
