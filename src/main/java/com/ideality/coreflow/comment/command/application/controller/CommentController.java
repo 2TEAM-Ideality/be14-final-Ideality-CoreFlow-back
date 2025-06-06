@@ -23,7 +23,7 @@ public class CommentController {
                   @PathVariable Long taskId) {
         Long commentId = commentFacadeService.createComment(commentDTO, taskId);
 
-        return ResponseEntity.ok(APIResponse.success(Map.of("taskId", commentId),
+        return ResponseEntity.ok(APIResponse.success(Map.of("commentId", commentId),
                 "댓글 작성이 완료되었습니다."));
     }
 }
