@@ -6,6 +6,7 @@ import lombok.Getter;
 
 @Getter
 public class ProjectSummaryDTO {
+    private Long id;
     private String name;
     private Status status;
     private String startDate;
