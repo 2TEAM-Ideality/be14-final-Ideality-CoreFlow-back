@@ -6,6 +6,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.ideality.coreflow.project.command.application.service.ProjectService;
+import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
+import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
+import com.ideality.coreflow.project.query.service.TaskQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,11 +19,7 @@ import com.ideality.coreflow.attachment.command.application.service.AttachmentCo
 import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
-import com.ideality.coreflow.infra.service.S3Service;
-import com.ideality.coreflow.project.command.application.service.ProjectService;
-import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
-import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
-import com.ideality.coreflow.project.query.service.TaskQueryService;
+import com.ideality.coreflow.infra.s3.S3Service;
 import com.ideality.coreflow.template.command.application.dto.RequestCreateTemplateDTO;
 import com.ideality.coreflow.template.command.application.dto.RequestProjectTemplateDTO;
 import com.ideality.coreflow.template.command.application.dto.RequestUpdateTemplateDTO;
