@@ -201,7 +201,7 @@ public class ProjectFacadeService {
                 (requestDetailDTO.getTarget() == null || requestDetailDTO.getTarget().isEmpty())) {
             log.info("source와 target 모두 null이므로 관계 설정을 생략합니다.");
         } else {
-            detailService.validateSource(requestDetailDTO.getSource());
+
             if (requestDetailDTO.getSource() == null || requestDetailDTO.getSource().isEmpty()) {
                 //2. source가 없고, target만 있을 때 관계 설정
                 if (requestDetailDTO.getTarget() != null && !requestDetailDTO.getTarget().isEmpty()) {
@@ -213,14 +213,12 @@ public class ProjectFacadeService {
                     relationService.appendRelation(requestDetailDTO.getSource(), detailId);
                 } else {
                     //4.source와 target 둘 다 있을 때
-                    detailService.validateTarget(requestDetailDTO.getTarget());
+
                     relationService.appendMiddleRelation(requestDetailDTO.getSource(), requestDetailDTO.getTarget(), detailId);
                 }
             }
             log.info("세부 일정 관계 설정");
         }
-
-
 
         Long deptId = requestDetailDTO.getDeptId();
         workDeptService.createWorkDept(detailId, deptId);

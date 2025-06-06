@@ -39,6 +39,7 @@ public class RelationServiceImpl implements RelationService {
     }
 
     @Override
+    @Transactional
     public void appendMiddleRelation(List<Long> source, List<Long> target, Long taskId) {
         for (Long sourceId : source) {
             for (Long targetId : target) {
