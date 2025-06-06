@@ -23,4 +23,16 @@ public class MentionController {
         return ResponseEntity.ok(APIResponse.success(Map.of("mentions", getMentions),
                 "멘션 조회에 성공하였습니다."));
     }
+
+    @GetMapping("/detail")
+    public ResponseEntity<APIResponse<Map<String, List<String>>>> getMentionDetail(
+            @RequestParam Long projectId,
+            @RequestParam Long taskId,
+            @RequestParam(required = false) String detailTarget){
+        List<String> getDetails = mentionFacadeService.getDetailList(projectId,
+                taskId,
+                detailTarget);
+        return ResponseEntity.ok(APIResponse.success(Map.of("details", getDetails),
+                "세부 일정 조회에 성공하였습니다."));
+    }
 }
