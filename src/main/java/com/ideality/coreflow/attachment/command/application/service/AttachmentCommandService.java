@@ -2,8 +2,10 @@ package com.ideality.coreflow.attachment.command.application.service;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.UUID;
 import java.util.Optional;
 
+import com.ideality.coreflow.attachment.command.application.dto.CreateAttachmentDTO;
 import org.springframework.stereotype.Service;
 
 import com.ideality.coreflow.attachment.command.domain.aggregate.Attachment;
@@ -68,5 +70,23 @@ public class AttachmentCommandService {
 
 	public Boolean findAttachmentByTargetId(Long templateId) {
 		return attachmentRepository.existsAttachmentByTargetId(templateId);
+	}
+
+	@Transactional
+	public void createAttachmentForComment(CreateAttachmentDTO attachmentFile, Long taskId, Long userId) {
+		Attachment newComment = Attachment.builder()
+						.originName(attachmentFile.getOriginalName())
+						.storedName(attachmentFile.getStoredName())
+						.url(attachmentFile.getUrl())
+						.fileType(attachmentFile.getFileType())
+						.size(attachmentFile.getSize())
+						.uploadAt(LocalDateTime.now())
+						.targetType(FileTargetType.COMMENT)
+						.targetId(taskId)
+						.uploaderId(userId)
+						.isDeleted(false)
+						.build();
+
+		attachmentRepository.save(newComment);
 	}
 }
