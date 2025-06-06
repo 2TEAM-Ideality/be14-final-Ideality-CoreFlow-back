@@ -27,8 +27,24 @@ public class ParticipantServiceImpl implements ParticipantService {
                     .userId(taskParticipant.getUserId())
                     .roleId(taskParticipant.getRoleId())
                     .build();
+
             participantRepository.save(participant);
         }
     }
+
+    @Transactional
+    @Override
+    public void createAssignee(ParticipantDTO assigneeDTO) {
+        Participant participant = Participant.builder()
+                .targetType(assigneeDTO.getTargetType())
+                .targetId(assigneeDTO.getTaskId())
+                .userId(assigneeDTO.getUserId())
+                .roleId(assigneeDTO.getRoleId())
+                .build();
+
+        participantRepository.save(participant);
+    }
+
+
 
 }

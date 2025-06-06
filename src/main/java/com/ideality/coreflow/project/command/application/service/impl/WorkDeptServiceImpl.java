@@ -26,4 +26,6 @@ public class WorkDeptServiceImpl implements WorkDeptService {
 
         workDeptRepository.save(workDept);
     }
+
+
 }

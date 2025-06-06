@@ -6,4 +6,6 @@ public interface RelationService {
     void appendRelation(List<Long> prevWorkId, Long nextWorkId);
 
     void appendMiddleRelation(List<Long> source, List<Long> target, Long taskId);
+
+    void appendTargetRelation(List<Long> target, Long taskId);
 }

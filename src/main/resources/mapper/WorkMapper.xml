@@ -83,7 +83,6 @@
         </foreach>
     </select>
 
-
     <!-- 부서별 세부일정 조회 -->
     <resultMap id="deptWorkMap" type="com.ideality.coreflow.project.query.dto.DeptWorkDTO">
         <id property="id" column="work_id"/>

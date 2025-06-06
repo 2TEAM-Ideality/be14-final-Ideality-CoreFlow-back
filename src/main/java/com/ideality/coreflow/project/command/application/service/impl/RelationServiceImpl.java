@@ -26,7 +26,6 @@ public class RelationServiceImpl implements RelationService {
 
         for (Long workId : prevWorkId) {
 
-            if (workId == 0) continue; // 🔥 0번 값 무시
             Work prevWork = taskRepository.getReferenceById(workId);
             Work nextWork = taskRepository.getReferenceById(nextWorkId);
             Relation relation = Relation
@@ -61,6 +60,24 @@ public class RelationServiceImpl implements RelationService {
         for (Long targetId : target) {
             Work prevWork = taskRepository.getReferenceById(taskId);
             Work nextWork = taskRepository.getReferenceById(targetId);
+            Relation relation = Relation
+                    .builder()
+                    .prevWork(prevWork)
+                    .nextWork(nextWork)
+                    .build();
+
+            relationRepository.save(relation);
+        }
+    }
+
+
+    @Override
+    @Transactional
+    public void appendTargetRelation(List<Long> target, Long taskId) {
+        for (Long targetId : target) {
+            Work prevWork = taskRepository.getReferenceById(taskId); // 현재 작업이 이전 작업
+            Work nextWork = taskRepository.getReferenceById(targetId); // target 작업이 다음 작업
+
             Relation relation = Relation
                     .builder()
                     .prevWork(prevWork)

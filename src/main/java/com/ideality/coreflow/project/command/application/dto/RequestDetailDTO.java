@@ -24,8 +24,8 @@ public class RequestDetailDTO {
     private LocalDate endBase;
 
     //설명. 프론트에서 보여줄 때 세부일정명만 보여주지만, 실제로 선택시에는 해당 일정명의 id가 저장됨.
-    private List<Long> predecessorTaskId;
-    private List<Long> successorTaskId;
+    private List<Long> Source;
+    private List<Long> Target;
 
     private Long assigneeId;  // 이름과 아이디랑 같이 받아 오긴함.
     private List<Long> participantIds;

@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.command.application.service.facade;
 
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
+import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.*;
@@ -33,6 +34,7 @@ public class ProjectFacadeService {
     private final DeptQueryService deptQueryService;
     private final UserQueryService userQueryService;
     private final ParticipantQueryService participantQueryService;
+    private final DetailService detailService;
 
     public Project createProject(ProjectCreateRequest request) {
         // 프로젝트 생성
@@ -132,7 +134,7 @@ public class ProjectFacadeService {
         Long taskId = taskService.createTask(requestTaskDTO);
         taskService.validateSource(requestTaskDTO.getSource());
         if (requestTaskDTO.getTarget() == null || requestTaskDTO.getTarget().isEmpty()) {
-            // target이 없으면 target=null로 관계 생성
+            // target이 없으면
             relationService.appendRelation(requestTaskDTO.getSource(), taskId);
         } else {
             taskService.validateTarget(requestTaskDTO.getTarget());
@@ -186,6 +188,76 @@ public class ProjectFacadeService {
     public Long deleteTaskBySoft(Long taskId) {
         Long deleteTaskId = taskService.softDeleteTask(taskId);
         return deleteTaskId;
+    }
+
+
+    @Transactional
+    public Long createDetail(RequestDetailDTO requestDetailDTO) {
+        Long detailId = detailService.createDetail(requestDetailDTO);
+        log.info("세부 일정 생성");
+
+        //1. source와 target 모두 null일 경우, 관계 설정을 생략
+        if ((requestDetailDTO.getSource() == null || requestDetailDTO.getSource().isEmpty()) &&
+                (requestDetailDTO.getTarget() == null || requestDetailDTO.getTarget().isEmpty())) {
+            log.info("source와 target 모두 null이므로 관계 설정을 생략합니다.");
+        } else {
+            detailService.validateSource(requestDetailDTO.getSource());
+            if (requestDetailDTO.getSource() == null || requestDetailDTO.getSource().isEmpty()) {
+                //2. source가 없고, target만 있을 때 관계 설정
+                if (requestDetailDTO.getTarget() != null && !requestDetailDTO.getTarget().isEmpty()) {
+                    relationService.appendTargetRelation(requestDetailDTO.getTarget(), detailId); // target에 대한 관계 설정
+                }
+            } else {
+                if (requestDetailDTO.getTarget() == null || requestDetailDTO.getTarget().isEmpty()) {
+                    // 3.source는 있고 target이 없을 때
+                    relationService.appendRelation(requestDetailDTO.getSource(), detailId);
+                } else {
+                    //4.source와 target 둘 다 있을 때
+                    detailService.validateTarget(requestDetailDTO.getTarget());
+                    relationService.appendMiddleRelation(requestDetailDTO.getSource(), requestDetailDTO.getTarget(), detailId);
+                }
+            }
+            log.info("세부 일정 관계 설정");
+        }
+
+
+
+        Long deptId = requestDetailDTO.getDeptId();
+        workDeptService.createWorkDept(detailId, deptId);
+        log.info("참여 부서 설정 완료");
+
+        //DTO로 담당자 정보 받아오기
+        ParticipantDTO AssigneeDTO = ParticipantDTO.builder()
+                .targetType(TargetType.DETAILED)
+                .taskId(detailId)
+                .userId(requestDetailDTO.getAssigneeId())
+                .roleId(6L)
+                .build();
+        participantService.createAssignee(AssigneeDTO);
+        log.info("책임자 설정 완료");
+
+        // 여러 명의 참여자 ID 처리
+        for (Long participantId : requestDetailDTO.getParticipantIds()) {
+            // 담당자 DTO 생성
+            ParticipantDTO participants = ParticipantDTO.builder()
+                    .targetType(TargetType.DETAILED)
+                    .taskId(detailId)  // 해당 세부일정의 ID
+                    .userId(participantId)  // 참여자 ID
+                    .roleId(7L)  // 참여자임을 의미
+                    .build();
+
+            // 서비스 메서드에 DTO 전달
+            participantService.createAssignee(participants);
+            log.info("참여자 설정 완료: {}", participantId);
+        }
+
+
+
+
+
+
+
+        return detailId;
     }
 
 }
