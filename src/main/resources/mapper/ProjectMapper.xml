@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper>
+<mapper namespace="com.ideality.coreflow.project.query.mapper.ProjectMapper">
     <resultMap id="ProjectSummaryMap" type="com.ideality.coreflow.project.query.dto.ProjectSummaryDTO">
         <result property="name" column="project_name"/>
         <result property="status" column="status"/>
@@ -31,7 +31,7 @@
                     WHEN p.status = 'PENDING' THEN p.end_expect
                     WHEN p.status = 'PROGRESS' THEN p.end_expect
                     WHEN p.status = 'COMPLETED' THEN p.end_base
-               END AS end_date,
+               END AS end_date
              , director.name AS director_name
              , director.dept_name AS dept_name
              , director.job_role_name AS job_role_name

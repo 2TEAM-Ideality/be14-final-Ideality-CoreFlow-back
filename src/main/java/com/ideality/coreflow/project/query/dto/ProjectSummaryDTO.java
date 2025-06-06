@@ -2,7 +2,9 @@ package com.ideality.coreflow.project.query.dto;
 
 
 import com.ideality.coreflow.approval.domain.aggregate.Status;
+import lombok.Getter;
 
+@Getter
 public class ProjectSummaryDTO {
     private String name;
     private Status status;
