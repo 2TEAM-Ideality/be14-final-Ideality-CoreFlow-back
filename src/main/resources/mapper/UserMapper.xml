@@ -55,17 +55,6 @@
 
     <select id="selectMentionUserByProjectId" parameterType="map" resultMap="userMentionMap">
         SELECT
-               a.name
-             , a.job_rank_name
-             , a.dept_name
-          FROM user a
-          JOIN participant b ON a.id = b.user_id
-         WHERE b.target_id = #{projectId}
-           AND b.target_type = 'PROJECT'
-    </select>
-
-    <select id="selectMentionUserByDeptName" parameterType="map" resultMap="userMentionMap">
-        SELECT
         a.name
         , a.job_rank_name
         , a.dept_name
@@ -73,20 +62,6 @@
         JOIN participant b ON a.id = b.user_id
         WHERE b.target_id = #{projectId}
         AND b.target_type = 'PROJECT'
-        AND a.dept_name LIKE CONCAT('%', #{deptName}, '%')
-    </select>
-
-    <select id="selectMentionUserByDeptAndJob" parameterType="map" resultMap="userMentionMap">
-        SELECT
-               a.name
-             , a.job_rank_name
-             , a.dept_name
-          FROM user a
-          JOIN participant b ON a.id = b.user_id
-         WHERE b.target_id = #{projectId}
-           AND b.target_type = 'PROJECT'
-           AND a.dept_name LIKE CONCAT('%', #{deptName}, '%')
-           AND a.job_rank_name LIKE CONCAT('%', #{jobRank}, '%')
     </select>
 
     <select id="selectMentionUserByMentionInfo" parameterType="map" resultMap="userMentionMap">
@@ -98,8 +73,26 @@
           JOIN participant b ON a.id = b.user_id
          WHERE b.target_id = #{projectId}
            AND b.target_type = 'PROJECT'
-           AND a.dept_name LIKE CONCAT('%', #{deptName}, '%')
-           AND a.job_rank_name LIKE CONCAT('%', #{jobRank}, '%')
-           AND a.name LIKE CONCAT('%', #{name}, '%')
+        <if test="deptName != null and deptName != ''">
+            AND a.dept_name LIKE CONCAT('%', #{deptName}, '%')
+        </if>
+        <if test="jobRank != null and jobRank != ''">
+            AND a.job_rank_name LIKE CONCAT('%', #{jobRank}, '%')
+        </if>
+        <if test="name != null and name != ''">
+            AND a.name LIKE CONCAT('%', #{name}, '%')
+        </if>
+    </select>
+
+    <select id="selectMentionUserByKeyword" parameterType="map" resultMap="userMentionMap">
+        SELECT
+        a.name,
+        a.job_rank_name,
+        a.dept_name
+        FROM user a
+        JOIN participant b ON a.id = b.user_id
+        WHERE b.target_id = #{projectId}
+        AND b.target_type = 'PROJECT'
+        AND CONCAT_WS('_', a.dept_name, a.job_rank_name, a.name) LIKE CONCAT('%', #{keyword}, '%')
     </select>
 </mapper>

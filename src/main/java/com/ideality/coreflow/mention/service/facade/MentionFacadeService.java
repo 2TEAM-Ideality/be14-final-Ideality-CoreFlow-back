@@ -27,17 +27,7 @@ public class MentionFacadeService {
         projectService.existsById(projectId);
         List<String> mentionParse = mentionService.parseTarget(mentionTarget);
 
-        List<String> mentionResult;
-
-        if (mentionParse == null) {
-            mentionResult = userQueryService.selectMentionUserByProjectId(projectId);
-        } else if (mentionParse.size() == 1) {
-            mentionResult = userQueryService.selectMentionUserByDeptName(mentionParse, projectId);
-        } else if (mentionParse.size() == 2) {
-            mentionResult = userQueryService.selectMentionUserByDeptAndJob(mentionParse, projectId);
-        } else {
-            mentionResult = userQueryService.selectMentionUserByMentionInfo(mentionParse, projectId);
-        }
+        List<String> mentionResult = userQueryService.selectMentionUserByMentionInfo(mentionParse, projectId);
 
         return mentionResult;
     }

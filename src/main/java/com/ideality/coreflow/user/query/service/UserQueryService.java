@@ -15,11 +15,5 @@ public interface UserQueryService {
 
     Boolean selectUserById(Long userId);
 
-    List<String> selectMentionUserByProjectId(Long projectId);
-
-    List<String> selectMentionUserByDeptName(List<String> mentionParse, Long projectId);
-
-    List<String> selectMentionUserByDeptAndJob(List<String> mentionParse, Long projectId);
-
     List<String> selectMentionUserByMentionInfo(List<String> mentionParse, Long projectId);
 }

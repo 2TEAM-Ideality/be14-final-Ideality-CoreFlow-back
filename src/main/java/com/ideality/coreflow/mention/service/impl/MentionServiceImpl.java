@@ -15,9 +15,7 @@ public class MentionServiceImpl implements MentionService {
         if (mentionTarget == null || mentionTarget.isBlank()) {
             return null;
         }
-        // "_" 기준으로 나눔, 0 : name 1 : job_rank_name 2: dept_name
         String[] parts = mentionTarget.split("_");
-        // 결과를 리스트로 변환
         return List.of(parts);
     }
 }

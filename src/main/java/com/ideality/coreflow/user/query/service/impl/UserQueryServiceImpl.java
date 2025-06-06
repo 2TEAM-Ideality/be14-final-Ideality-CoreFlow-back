@@ -52,82 +52,36 @@ public class UserQueryServiceImpl implements UserQueryService {
         return userMapper.selectUserById(userId);
     }
 
-    @Override
-    public List<String> selectMentionUserByProjectId(Long projectId) {
-        List<UserMentionDTO> userMentionInfo = userMapper.selectMentionUserByProjectId(projectId);
-
-        List<String> returnMentionList = new ArrayList<>();
-
-        for (UserMentionDTO userMentionDTO : userMentionInfo) {
-            String name = userMentionDTO.getName();
-            String jobRank = userMentionDTO.getJobRank();
-            String deptName = userMentionDTO.getDeptName();
-
-            returnMentionList.add(deptName + "_" + jobRank + "_" + name);
-        }
-        return returnMentionList;
-    }
-
-    @Override
-    public List<String> selectMentionUserByDeptName(List<String> mentionParse, Long projectId) {
-        String deptName = mentionParse.get(0);
-        List<UserMentionDTO> resultSet = userMapper.selectMentionUserByDeptName(deptName,
-                projectId);
-
-        List<String> returnMentionList = new ArrayList<>();
-
-        for (UserMentionDTO userMentionDTO : resultSet) {
-            String selectName = userMentionDTO.getName();
-            String selectJobRank = userMentionDTO.getJobRank();
-            String selectDeptName = userMentionDTO.getDeptName();
-
-            returnMentionList.add(selectDeptName + "_" + selectJobRank + "_" + selectName);
-        }
-        return returnMentionList;
-    }
-
-    @Override
-    public List<String> selectMentionUserByDeptAndJob(List<String> mentionParse, Long projectId) {
-        String deptName = mentionParse.get(0);
-        String jobRank = mentionParse.get(1);
-
-        List<UserMentionDTO> resultSet = userMapper.selectMentionUserByDeptAndJob(deptName,
-                jobRank,
-                projectId);
-
-        List<String> returnMentionList = new ArrayList<>();
-
-        for (UserMentionDTO userMentionDTO : resultSet) {
-            String selectName = userMentionDTO.getName();
-            String selectJobRank = userMentionDTO.getJobRank();
-            String selectDeptName = userMentionDTO.getDeptName();
-
-            returnMentionList.add(selectDeptName + "_" + selectJobRank + "_" + selectName);
-        }
-        return returnMentionList;
-    }
 
     @Override
     public List<String> selectMentionUserByMentionInfo(List<String> mentionParse, Long projectId) {
+        List<UserMentionDTO> resultSet;
 
-        String deptName = mentionParse.get(0);
-        String jobRank = mentionParse.get(1);
-        String name = mentionParse.get(2);
-        List<UserMentionDTO> resultSet = userMapper.selectMentionUserByMentionInfo(deptName,
-                jobRank,
-                name,
-                projectId);
+        if (mentionParse == null || mentionParse.isEmpty()) {
+            // @만 입력된 경우, 프로젝트 참여자 전체 조회
+            resultSet = userMapper.selectMentionUserByProjectId(projectId);
+        } else if (mentionParse.size() == 1) {
+            // 여기가 keyword 검색?
+            String keyword = mentionParse.get(0);
+            resultSet = userMapper.selectMentionUserByKeyword(keyword, projectId);
+        } else {
+            // 정확하게 파싱 조회
+            String deptName = null;
+            String jobRank = null;
+            String name = null;
 
-        List<String> returnMentionList = new ArrayList<>();
+            if (mentionParse.size() >= 1) deptName = mentionParse.get(0);
+            if (mentionParse.size() >= 2) jobRank = mentionParse.get(1);
+            if (mentionParse.size() >= 3) name = mentionParse.get(2);
 
-        for (UserMentionDTO userMentionDTO : resultSet) {
-            String selectName = userMentionDTO.getName();
-            String selectJobRank = userMentionDTO.getJobRank();
-            String selectDeptName = userMentionDTO.getDeptName();
-
-            returnMentionList.add(selectDeptName + "_" + selectJobRank + "_" + selectName);
+            resultSet = userMapper.selectMentionUserByMentionInfo(deptName, jobRank, name, projectId);
         }
-        return returnMentionList;
-    }
 
+        List<String> result = new ArrayList<>();
+        for (UserMentionDTO user : resultSet) {
+            result.add(user.getDeptName() + "_" + user.getJobRank() + "_" + user.getName());
+        }
+
+        return result;
+    }
 }
