@@ -60,6 +60,8 @@ public class DataSourceConfig {
             "com.ideality.coreflow.attachment.command.domain.aggregate",
             "com.ideality.coreflow.project.command.domain.aggregate",
             "com.ideality.coreflow.holiday.command.domain.aggregate",
+            "com.ideality.coreflow.comment.command.domain.aggregate",
+            "com.ideality.coreflow.holiday.command.domain.aggregate",
             "com.ideality.coreflow.calendar.command.domain.aggregate"
         );
         factory.setJpaVendorAdapter(vendorAdapter);
