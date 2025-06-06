@@ -8,5 +8,5 @@ public interface RelationService {
     void appendMiddleRelation(List<Long> source, List<Long> target, Long taskId);
 
     void appendTargetRelation(List<Long> target, Long taskId);
-    void updateRelations(Long detailId, List<Long> source, List<Long> target);
+//    void updateRelations(Long detailId, List<Long> source, List<Long> target);
 }

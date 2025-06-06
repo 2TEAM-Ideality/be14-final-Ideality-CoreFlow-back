@@ -89,31 +89,33 @@ public class RelationServiceImpl implements RelationService {
         }
     }
 
-    @Transactional
-    public void updateRelations(Long detailId, List<Long> source, List<Long> target) {
-        // 선행 일정 (source) 수정
-        if (source != null && !source.isEmpty()) {
-            // 기존 선행 일정 삭제
-            deleteRelationsByDetailId(detailId);
-            // 새로운 선행 일정 추가
-            appendRelation(source, detailId);
-        }
-
-        // 후행 일정 (target) 수정
-        if (target != null && !target.isEmpty()) {
-            // 기존 후행 일정 삭제
-            deleteTargetRelationsByDetailId((detailId));
-            // 새로운 후행 일정 추가
-            appendTargetRelation(target, detailId);
-        }
-    }
+//    @Transactional
+//    public void updateRelations(Long detailId, List<Long> source, List<Long> target) {
+//        // 선행 일정 (source) 수정
+//        if (source != null && !source.isEmpty()) {
+//            // 기존 선행 일정 삭제
+//            deleteRelationsByDetailId(detailId);
+//            // 새로운 선행 일정 추가
+//            appendRelation(source, detailId);
+//        }
+//
+//        // 후행 일정 (target) 수정
+//        if (target != null && !target.isEmpty()) {
+//            // 기존 후행 일정 삭제
+//            deleteTargetRelationsByDetailId((detailId));
+//            // 새로운 후행 일정 추가
+//            appendTargetRelation(target, detailId);
+//        }
+//    }
 
     // 선행 일정 삭제
+    @Transactional
     public void deleteRelationsByDetailId(Long detailId) {
         relationRepository.deleteByPrevWorkId(detailId);
     }
 
     // 후행 일정 삭제
+    @Transactional
     public void deleteTargetRelationsByDetailId(Long detailId) {
         relationRepository.deleteByNextWorkId(detailId);
     }

@@ -107,7 +107,7 @@ public class DetailServiceImpl implements DetailService {
         existingDetail.setProgressRate(requestDetailDTO.getProgress());
 
         // 선행 일정 (source) 및 후행 일정 (target) 관계 수정
-        relationService.updateRelations(detailId, requestDetailDTO.getSource(), requestDetailDTO.getTarget());
+        //relationService.updateRelations(detailId, requestDetailDTO.getSource(), requestDetailDTO.getTarget());
 
         // 책임자DTO 생성해서 수정
         if (requestDetailDTO.getAssigneeId() != null) {
