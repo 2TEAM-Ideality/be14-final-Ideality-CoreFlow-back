@@ -11,14 +11,14 @@ import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
+import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
 import com.ideality.coreflow.template.query.dto.TemplateNodeDataDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.modeler.ParameterInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -41,102 +41,109 @@ public class ProjectFacadeService {
     private final UserQueryService userQueryService;
     private final ParticipantQueryService participantQueryService;
 
+    @Transactional
     public Project createProject(ProjectCreateRequest request) {
-        // (1) 프로젝트
-        Project project=projectService.createProject(request);
-        // (2) 프로젝트 디렉터
-        // region
-        List<ParticipantDTO> director=new ArrayList<>();
-        ParticipantDTO participant=ParticipantDTO.builder()
-                .taskId(project.getId())
-                .userId(request.getDirectorId())
-                .targetType(TargetType.PROJECT)
-                .roleId(1L)
-                .build();
-        director.add(participant);
-        participantService.createParticipants(director);
-        // endregion
-        // (3) 프로젝트 팀장
-        // region
-        List<ParticipantDTO> leaders=new ArrayList<>();
-        if(request.getLeaderIds()!=null) {
-            for(Long leaderId:request.getLeaderIds()) {
-                participant=ParticipantDTO.builder()
-                        .taskId(project.getId())
-                        .userId(leaderId)
-                        .targetType(TargetType.PROJECT)
-                        .roleId(2L)
-                        .build();
-                leaders.add(participant);
-            }
+        Project project = registerProject(request);
+        registerProjectDirector(project.getId(), request.getDirectorId());
+        List<ParticipantDTO> leaders = registerProjectLeaders(project.getId(), request.getLeaderIds());
+        if (request.getTemplateData() != null){
+            applyTemplate(project.getId(), request.getTemplateData(), leaders);
         }
-        participantService.createParticipants(leaders);
-        // endregion
-        // (4) 템플릿 적용
-        // region
-        if(request.getTemplateData()!=null) {
-            // (4-1) 관계 데이터 추출
-            List<String[]> edgeList=new ArrayList<>();
-            for(EdgeDTO edge:request.getTemplateData().getEdgeList()){
-                edgeList.add(new String[]{edge.getSource(), edge.getTarget()});
-            }
-            // (4-2) 태스크 생성
-            for(NodeDTO node : request.getTemplateData().getNodeList()){
-                String nodeId=node.getId();
-                TemplateNodeDataDTO data=node.getData();
-                RequestTaskDTO requestTaskDTO=RequestTaskDTO.builder()
-                        .label(data.getLabel())
-                        .description(data.getDescription())
-                        .startBaseLine(LocalDate.parse(data.getStartBaseLine()))
-                        .endBaseLine(LocalDate.parse(data.getEndBaseLine()))
-                        .projectId(project.getId())
-                        .build();
-                // (4-2-1) 태스크 저장
-                Long taskId=taskService.createTask(requestTaskDTO);
-                // (4-2-2) work_dept 정보 삽입
-                List<Long> deptList=data.getDeptList().stream().map(TaskDeptDTO::getId).toList();
-                for(Long deptId:deptList) {
-                    workDeptService.createWorkDept(taskId, deptId);
-                }
-                // (4-2-3) 각 태스크에 팀장 추가 (participant)
-                List<ParticipantDTO> taskLeaders=new ArrayList<>();
-                for(ParticipantDTO leader:leaders) {
-                    // 1. 팀장의 부서 이름 조회
-//                    String leaderDeptName=userQueryService.findDeptNameByUserId(leader.getUserId());
-                    String leaderDeptName=userQueryService.getDeptNameByUserId(leader.getUserId());
-                    // 2. 부서 이름으로 부서id 조회
-//                    Long leaderDeptId=deptQueryService.findIdByName(leaderDeptName);
-                    Long leaderDeptId=deptQueryService.findDeptIdByName(leaderDeptName);
-                    // 3. 현재 태스크의 참여 부서와 비교
-                    if(deptList.contains(leaderDeptId)) {
-                        // 4. 해당 리더를 태스크의 팀장으로 등록
-                        ParticipantDTO taskLeader=ParticipantDTO.builder()
+        return project;
+    }
+
+    private void applyTemplate(Long projectId, TemplateDataDTO templateData, List<ParticipantDTO> projectLeaders) {
+        Map<String, Long> nodeIdToTaskId = new HashMap<>();
+
+        for(NodeDTO node:templateData.getNodeList()){
+            Long taskId = createTaskWithDepts(projectId, node);
+            nodeIdToTaskId.put(node.getId(), taskId);
+            assignTaskLeaders(taskId, node.getData().getDeptList(), projectLeaders);
+        }
+
+        for (EdgeDTO edge : templateData.getEdgeList()) {
+            Long sourceId = nodeIdToTaskId.get(edge.getSource());
+            Long targetId = nodeIdToTaskId.get(edge.getTarget());
+            relationService.createRelation(sourceId, targetId);
+        }
+    }
+
+    private void assignTaskLeaders(Long taskId, List<TaskDeptDTO> taskDeptList, List<ParticipantDTO> projectLeaders) {
+        List<Long> taskDeptIds = taskDeptList.stream()
+                .map(TaskDeptDTO::getId)
+                .toList();
+
+        List<ParticipantDTO> matchedLeaders = new ArrayList<>();
+
+        for(ParticipantDTO leader:projectLeaders){
+            String deptName = userQueryService.getDeptNameByUserId(leader.getUserId());
+            Long deptId = deptQueryService.findDeptIdByName(deptName);
+            if (taskDeptIds.contains(deptId)) {
+                matchedLeaders.add(
+                        ParticipantDTO.builder()
                                 .taskId(taskId)
                                 .userId(leader.getUserId())
                                 .targetType(TargetType.TASK)
                                 .roleId(2L)
-                                .build();
-                        taskLeaders.add(taskLeader);
-                    }
-                }
-                participantService.createParticipants(taskLeaders);
-                // (4-2-4) edgeList 업데이트
-                System.out.println("taskId = " + taskId + "생성 완료.");
-                for (String[] edge : edgeList) {
-                    for (int i = 0; i < edge.length; i++) {
-                        if (edge[i].equals(nodeId)) {
-                            edge[i] = taskId.toString();
-                        }
-                    }
-                }
-            }
-            // (4-3) edgeList 저장
-            for(String[] edge : edgeList) {
-                relationService.createRelation(Long.parseLong(edge[0]), Long.parseLong(edge[1]));
+                                .build()
+                );
             }
         }
-        // endregion
-        return project;
+        if (!matchedLeaders.isEmpty()) {
+            participantService.createParticipants(matchedLeaders);
+        }
+    }
+
+    private Long createTaskWithDepts(Long projectId, NodeDTO node) {
+        TemplateNodeDataDTO data = node.getData();
+
+        RequestTaskDTO taskDTO = RequestTaskDTO.builder()
+                .label(data.getLabel())
+                .description(data.getDescription())
+                .startBaseLine(LocalDate.parse(data.getStartBaseLine()))
+                .endBaseLine(LocalDate.parse(data.getEndBaseLine()))
+                .projectId(projectId)
+                .build();
+
+        Long taskId = taskService.createTask(taskDTO);
+
+        List<Long> deptIds = data.getDeptList().stream()
+                .map(TaskDeptDTO::getId)
+                .toList();
+
+        for(Long deptId:deptIds){
+            workDeptService.createWorkDept(taskId, deptId);
+        }
+        return taskId;
+    }
+
+    private List<ParticipantDTO> registerProjectLeaders(Long projectId, List<Long> leaderIds) {
+        if(leaderIds == null || leaderIds.isEmpty()) return List.of();
+
+        List<ParticipantDTO> leaders = leaderIds.stream()
+                .map(userId -> ParticipantDTO.builder()
+                        .taskId(projectId)
+                        .userId(userId)
+                        .targetType(TargetType.PROJECT)
+                        .roleId(2L)
+                        .build()
+                ).toList();
+        participantService.createParticipants(leaders);
+        return leaders;
+    }
+
+    private void registerProjectDirector(Long projectId, Long directorId) {
+        ParticipantDTO participant = ParticipantDTO.builder()
+                .taskId(projectId)
+                .userId(directorId)
+                .targetType(TargetType.PROJECT)
+                .roleId(1L)
+                .build();
+        participantService.createParticipants(List.of(participant));
+    }
+
+    private Project registerProject(ProjectCreateRequest request) {
+        return projectService.createProject(request);
     }
 
     @Transactional
