@@ -7,6 +7,8 @@ import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
+import com.ideality.coreflow.project.command.domain.aggregate.Work;
+import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import com.ideality.coreflow.user.query.service.UserQueryService;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -35,6 +38,7 @@ public class ProjectFacadeService {
     private final UserQueryService userQueryService;
     private final ParticipantQueryService participantQueryService;
     private final DetailService detailService;
+    private final WorkRepository workRepository;
 
     public Project createProject(ProjectCreateRequest request) {
         // 프로젝트 생성
@@ -249,13 +253,13 @@ public class ProjectFacadeService {
             log.info("참여자 설정 완료: {}", participantId);
         }
 
-
-
-
-
-
-
         return detailId;
+    }
+
+    @Transactional
+    public Long updateDetail(Long detailId, RequestDetailDTO requestDetailDTO) {
+        // DetailService에서 세부 일정 수정 로직 호출
+        return detailService.updateDetail(detailId, requestDetailDTO);
     }
 
 }

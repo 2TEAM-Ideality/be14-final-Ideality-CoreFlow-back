@@ -1,10 +1,17 @@
 package com.ideality.coreflow.project.command.application.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
 import com.ideality.coreflow.project.command.application.service.DetailService;
+import com.ideality.coreflow.project.command.application.service.ParticipantService;
+import com.ideality.coreflow.project.command.application.service.RelationService;
+import com.ideality.coreflow.project.command.application.service.WorkDeptService;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
+import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
+import com.ideality.coreflow.project.command.domain.repository.ParticipantRepository;
 import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static com.ideality.coreflow.common.exception.ErrorCode.INVALID_SOURCE_LIST;
 import static com.ideality.coreflow.common.exception.ErrorCode.TASK_NOT_FOUND;
@@ -24,6 +32,11 @@ import static com.ideality.coreflow.common.exception.ErrorCode.TASK_NOT_FOUND;
 public class DetailServiceImpl implements DetailService {
 
     private final WorkRepository workRepository;
+    private final ParticipantService participantService;
+    private final RelationService relationService;
+    private final WorkDeptService workDeptService;
+
+
 
     @Override
     @Transactional
@@ -74,6 +87,56 @@ public class DetailServiceImpl implements DetailService {
             }
         }
     }
+
+
+
+    @Transactional
+    @Override
+    public Long updateDetail(Long detailId, RequestDetailDTO requestDetailDTO) {
+        // 기존 세부 일정 조회
+        Optional<Work> existingDetailOptional = workRepository.findById(detailId);
+        if (existingDetailOptional.isEmpty()) {
+            throw new BaseException(ErrorCode.RESOURCE_NOT_FOUND);  // BaseException을 사용하여 리소스를 찾지 못했을 때 예외 처리
+        }
+        Work existingDetail = existingDetailOptional.get();
+
+        // 세부 일정 수정 (name, description, deptId 등)
+        existingDetail.setName(requestDetailDTO.getName());
+        existingDetail.setDescription(requestDetailDTO.getDescription());
+        existingDetail.setEndExpect(requestDetailDTO.getExpectEnd());
+        existingDetail.setProgressRate(requestDetailDTO.getProgress());
+
+        // 선행 일정 (source) 및 후행 일정 (target) 관계 수정
+        relationService.updateRelations(detailId, requestDetailDTO.getSource(), requestDetailDTO.getTarget());
+
+        // 책임자DTO 생성해서 수정
+        if (requestDetailDTO.getAssigneeId() != null) {
+            ParticipantDTO assigneeDTO = ParticipantDTO.builder()
+                    .targetType(TargetType.DETAILED)
+                    .taskId(detailId)
+                    .userId(requestDetailDTO.getAssigneeId())
+                    .roleId(6L)  // 담당자 역할 ID
+                    .build();
+            participantService.updateAssignee(detailId, assigneeDTO);  // 담당자 수정
+        }
+
+        // 참여자 수정
+        if (requestDetailDTO.getParticipantIds() != null && !requestDetailDTO.getParticipantIds().isEmpty()) {
+            participantService.updateParticipants(detailId, requestDetailDTO.getParticipantIds());  // 참여자 수정
+        }
+
+        // 부서 수정
+        if (requestDetailDTO.getDeptId() != null) {
+            workDeptService.updateWorkDept(detailId, requestDetailDTO.getDeptId()); // 부서 수정
+        }
+
+        // 세부 일정 저장
+        workRepository.save(existingDetail);
+        log.info("세부 일정 수정 완료");
+
+        return detailId;
+    }
+
 
 
 }

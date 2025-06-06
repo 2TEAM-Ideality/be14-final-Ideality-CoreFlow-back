@@ -29,4 +29,7 @@ public class RequestDetailDTO {
 
     private Long assigneeId;  // 이름과 아이디랑 같이 받아 오긴함.
     private List<Long> participantIds;
+
+    private LocalDate expectEnd; //여기서부턴 수정용 속성
+    private double progress;
 }

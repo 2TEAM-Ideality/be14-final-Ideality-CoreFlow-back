@@ -11,4 +11,6 @@ public interface DetailService {
     void validateSource(List<Long> source);
 
     void validateTarget(List<Long> target);
+
+    Long updateDetail(Long detailId, RequestDetailDTO requestDetailDTO);
 }
