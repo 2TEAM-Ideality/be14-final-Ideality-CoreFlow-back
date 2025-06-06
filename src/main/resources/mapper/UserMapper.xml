@@ -3,6 +3,12 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ideality.coreflow.user.query.mapper.UserMapper">
+
+    <resultMap id="userMentionMap" type="com.ideality.coreflow.user.query.dto.UserMentionDTO">
+        <result property="name" column="name"/>
+        <result property="jobRank" column="job_rank_name"/>
+        <result property="deptName" column="dept_name"/>
+    </resultMap>
     <select id="selectAllUserByDeptName" resultType="_long">
         SELECT
                id
@@ -39,5 +45,61 @@
         ) AS is_exist;
     </select>
 
+    <select id="selectAllUserByProjectId" resultType="java.lang.Boolean" parameterType="long">
+        SELECT
+               name
+             ,
+          FROM user a
+          JOIN participant b ON a.id = b.user_id
+    </select>
 
+    <select id="selectMentionUserByProjectId" parameterType="map" resultMap="userMentionMap">
+        SELECT
+               a.name
+             , a.job_rank_name
+             , a.dept_name
+          FROM user a
+          JOIN participant b ON a.id = b.user_id
+         WHERE b.target_id = #{projectId}
+           AND b.target_type = 'PROJECT'
+    </select>
+
+    <select id="selectMentionUserByDeptName" parameterType="map" resultMap="userMentionMap">
+        SELECT
+        a.name
+        , a.job_rank_name
+        , a.dept_name
+        FROM user a
+        JOIN participant b ON a.id = b.user_id
+        WHERE b.target_id = #{projectId}
+        AND b.target_type = 'PROJECT'
+        AND a.dept_name LIKE CONCAT('%', #{deptName}, '%')
+    </select>
+
+    <select id="selectMentionUserByDeptAndJob" parameterType="map" resultMap="userMentionMap">
+        SELECT
+               a.name
+             , a.job_rank_name
+             , a.dept_name
+          FROM user a
+          JOIN participant b ON a.id = b.user_id
+         WHERE b.target_id = #{projectId}
+           AND b.target_type = 'PROJECT'
+           AND a.dept_name LIKE CONCAT('%', #{deptName}, '%')
+           AND a.job_rank_name LIKE CONCAT('%', #{jobRank}, '%')
+    </select>
+
+    <select id="selectMentionUserByMentionInfo" parameterType="map" resultMap="userMentionMap">
+        SELECT
+               a.name
+             , a.job_rank_name
+             , a.dept_name
+          FROM user a
+          JOIN participant b ON a.id = b.user_id
+         WHERE b.target_id = #{projectId}
+           AND b.target_type = 'PROJECT'
+           AND a.dept_name LIKE CONCAT('%', #{deptName}, '%')
+           AND a.job_rank_name LIKE CONCAT('%', #{jobRank}, '%')
+           AND a.name LIKE CONCAT('%', #{name}, '%')
+    </select>
 </mapper>

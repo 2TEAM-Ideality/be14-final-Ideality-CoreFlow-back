@@ -124,7 +124,7 @@ public class ProjectFacadeService {
         Long directorId = participantQueryService.selectDirectorByProjectId(requestTaskDTO.getProjectId());
 
         Map<String, List<Long>> deptUsersMaps = deptNames.stream()
-                .collect(Collectors.toMap(name -> name, userQueryService::selectAllUserByDeptName));
+                .collect(Collectors.toMap(name -> name, userQueryService::selectMentionUserByDeptName));
 
         log.info("조회부터 완료");
 
