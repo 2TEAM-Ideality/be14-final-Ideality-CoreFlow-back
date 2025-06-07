@@ -1,5 +1,9 @@
 package com.ideality.coreflow.template.command.application.service;
 
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -7,9 +11,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.ideality.coreflow.project.command.application.service.ProjectService;
+import com.ideality.coreflow.project.command.application.service.impl.ProjectServiceImpl;
+import com.ideality.coreflow.project.query.dto.ProjectSummaryDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
 import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
+import com.ideality.coreflow.project.query.service.ProjectQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
+import com.ideality.coreflow.template.query.dto.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,13 +29,9 @@ import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.s3.S3Service;
 import com.ideality.coreflow.template.command.application.dto.RequestCreateTemplateDTO;
-import com.ideality.coreflow.template.command.application.dto.RequestProjectTemplateDTO;
+import com.ideality.coreflow.template.command.application.dto.RequestTemplateByProjectDTO;
 import com.ideality.coreflow.template.command.application.dto.RequestUpdateTemplateDTO;
 import com.ideality.coreflow.template.command.domain.aggregate.Template;
-import com.ideality.coreflow.template.query.dto.EdgeDTO;
-import com.ideality.coreflow.template.query.dto.NodeDTO;
-import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
-import com.ideality.coreflow.template.query.dto.TemplateNodeDataDTO;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +41,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class TemplateCommandFacadeService {
 
-	private final ProjectService projectService;
+	private final ProjectServiceImpl projectService;
+	private final ProjectQueryService projectQueryService;
 	private final TaskQueryService taskQueryService;
 	private final TemplateCommandService templateCommandService;
 	private final AttachmentCommandService attachmentCommandService;
@@ -67,24 +72,42 @@ public class TemplateCommandFacadeService {
 
 	// TODO. 프로젝트 템플릿화
 	@Transactional
-	public void createTemplateByProject(RequestProjectTemplateDTO requestDTO) {
+	public void createTemplateByProject(RequestTemplateByProjectDTO requestDTO) {
 		// ID로 해당 프로젝트 찾기
 		// 프로젝트 상태 - 완료인지 확인
 		if (!projectService.isCompleted(requestDTO.getProjectId())) {
 			throw new BaseException(ErrorCode.PROJECT_NOT_COMPLETED);
 		}
 		// 프로젝트 id 로 해당하는 태스크 목록 가져오기
-		// 거기서 템플릿에서 활용되는 것만 뽑아서 템플릿으로 생성해야 함.
 		List<ResponseTaskDTO> taskList = taskQueryService.selectTasks(requestDTO.getProjectId());
 
-		// TODO.  duration, taskCount 넘겨주어야 함.
+		// 소요일 계산
+		ProjectSummaryDTO targetProject = projectQueryService.selectProjectSummary(requestDTO.getProjectId());
+		String startDate = targetProject.getStartDate();
+		String endDate = targetProject.getEndDate();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		LocalDate start = LocalDate.parse(startDate, formatter);
+		LocalDate end = LocalDate.parse(endDate, formatter);
 
-		int durtaion = 30;
+		int duration = (int) ChronoUnit.DAYS.between(start, end) + 1;
 
-		Template template = templateCommandService.createTemplateByProject(requestDTO, taskList.size(), durtaion);
+		// 템플릿 정보 생성
+		Template template = templateCommandService.createTemplateByProject(requestDTO, taskList.size(), duration);
+
+        for (ResponseTaskDTO responseTaskDTO : taskList) {
+            System.out.println(responseTaskDTO);
+        }
 
 		// 노드 리스트 만들기
-		List<NodeDTO> nodeList = taskListToNode(taskList);
+		List<TemplateNodeDTO> nodeList = taskListToTemplateNode(taskList);
+		nodeList.forEach(node -> {
+			if (node.getData() != null && node.getData().getDeptList() != null) {
+				System.out.println(node.getData().getDeptList().toString());
+			} else {
+				System.out.println("부서 리스트가 비어있거나 존재하지 않습니다.");
+			}
+		});
+
 		// 엣지 리스트 정보 가져오기
 		List<EdgeDTO> edgeList = taskQueryService.getEdgeList(taskList);
 
@@ -128,7 +151,15 @@ public class TemplateCommandFacadeService {
 		saveTemplateDepts(templateId, deptIds);
 
 		//3. S3 업로드
-		uploadAndSaveAttachment(templateId, json, requestDTO.getUpdatedBy());
+		String fileName = templateId + ".json";
+		String folder = "template-json";
+
+		// s3 업로드
+		String fileUrl = uploadToS3OrThrow(json, folder, fileName);
+		String size = String.valueOf(json.getBytes(StandardCharsets.UTF_8).length);
+
+		attachmentCommandService.updateAttachmentForTemplate(
+				FileTargetType.TEMPLATE, templateId, fileName, fileUrl, size, requestDTO.getUpdatedBy());
 	}
 
 	// 템플릿 삭제
@@ -143,7 +174,7 @@ public class TemplateCommandFacadeService {
 	}
 
 	// 참여 부서 추출
-	private Set<Long> extractUniqueDeptIds(List<NodeDTO> nodeList) {
+	private Set<Long> extractUniqueDeptIds(List<TemplateNodeDTO> nodeList) {
 		return nodeList.stream()
 			.flatMap(node ->
 				Optional.ofNullable(node.getData().getDeptList())
@@ -162,8 +193,8 @@ public class TemplateCommandFacadeService {
 	}
 
 	// 노드 리스트 & 엣지 리스트 JSON화
-	private String buildTemplateJsonData(List<NodeDTO> nodeList, List<EdgeDTO> edgeList) {
-		TemplateDataDTO data = TemplateDataDTO.builder()
+	private String buildTemplateJsonData(List<TemplateNodeDTO> nodeList, List<EdgeDTO> edgeList) {
+		BasicTemplateDataDTO data = BasicTemplateDataDTO.builder()
 			.nodeList(nodeList)
 			.edgeList(edgeList)
 			.build();
@@ -202,7 +233,7 @@ public class TemplateCommandFacadeService {
 
 
 	// JSON 직렬화
-	private String serializeJsonOrThrow(TemplateDataDTO requestDTO) {
+	private String serializeJsonOrThrow(BasicTemplateDataDTO requestDTO) {
 		try {
 			return objectMapper.writeValueAsString(Map.of(
 				"nodeList", requestDTO.getNodeList(),
@@ -215,7 +246,7 @@ public class TemplateCommandFacadeService {
 	}
 
 	// 태스크 리스트 -> 노드 리스트 변환
-	private List<NodeDTO> taskListToNode(List<ResponseTaskDTO> taskList) {
+	private List<TemplateNodeDTO> taskListToTemplateNode(List<ResponseTaskDTO> taskList) {
 		return taskList.stream()
 			.map(task -> {
 
@@ -223,13 +254,12 @@ public class TemplateCommandFacadeService {
 					.label(task.getLabel())
 					.description(task.getDescription())
 					.slackTime(task.getSlackTime())
-					.startBaseLine(String.valueOf(task.getStartBaseLine()))
-					.endBaseLine(String.valueOf(task.getEndBaseLine()))
+					.duration((int) (ChronoUnit.DAYS.between(task.getStartBaseLine(), task.getEndBaseLine()) + 1))
 					.deptList(task.getDepts())
 					.build();
 
 				// Node의 ID는 문자열이어야 함 TODO. 프로젝트 템플릿화 태스크 아이디는 다르게 할 지 ?
-				return NodeDTO.builder()
+				return TemplateNodeDTO.builder()
 					.id(String.valueOf(task.getId()))
 					.type("custom")
 					.data(data)

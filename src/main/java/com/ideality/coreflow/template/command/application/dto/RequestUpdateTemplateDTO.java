@@ -6,6 +6,7 @@ import java.util.List;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 
+import com.ideality.coreflow.template.query.dto.TemplateNodeDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,7 +29,7 @@ public class RequestUpdateTemplateDTO {
 	private Long updatedBy;			// 수정자
 
 	// 수정 템플릿 데이터
-	private List<NodeDTO> nodeList;
+	private List<TemplateNodeDTO> nodeList;
 	private List<EdgeDTO> edgeList;
 
 }

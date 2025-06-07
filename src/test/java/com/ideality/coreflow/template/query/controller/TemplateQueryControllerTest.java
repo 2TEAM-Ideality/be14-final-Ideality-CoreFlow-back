@@ -15,8 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ideality.coreflow.template.query.dto.ResponseTemplateDetailDTO;
+import com.ideality.coreflow.template.query.dto.TemplateDetailDTO;
 import com.ideality.coreflow.template.query.dto.ResponseTemplateListDTO;
 import com.ideality.coreflow.template.query.dto.TemplateInfoDTO;
 import com.ideality.coreflow.template.query.service.TemplateQueryFacadeService;
@@ -68,7 +67,7 @@ class TemplateQueryControllerTest {
 			"edges", List.of(Map.of("source", "1", "target", "2"))
 		);
 
-		ResponseTemplateDetailDTO detailDTO = ResponseTemplateDetailDTO.builder()
+		TemplateDetailDTO detailDTO = TemplateDetailDTO.builder()
 			.templateInfo(infoDTO)
 			.templateData(dataMap)
 			.build();

@@ -22,7 +22,7 @@ import com.ideality.coreflow.template.command.application.service.TemplateComman
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.PositionDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
-import com.ideality.coreflow.template.query.dto.TemplateNodeDataDTO;
+import com.ideality.coreflow.template.query.dto.NodeDataDTO;
 
 @WebMvcTest(controllers = TemplateCommandController.class)
 class TemplateCommandControllerTest {
@@ -56,7 +56,7 @@ class TemplateCommandControllerTest {
 					"1",
 					"custom",
 					new PositionDTO(0, 0),
-					new TemplateNodeDataDTO(
+					new NodeDataDTO(
 						"label",
 						"도식화",
 						List.of("기획팀", "디자인팀"),
@@ -99,7 +99,7 @@ class TemplateCommandControllerTest {
 					"1",
 					"custom",
 					new PositionDTO(0, 0),
-					new TemplateNodeDataDTO(
+					new NodeDataDTO(
 						"label",
 						"도식화",
 						List.of("기획팀", "디자인팀"),

@@ -11,8 +11,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RequestProjectTemplateDTO {
-
+public class RequestTemplateByProjectDTO {
+	// 프로젝트 기반 템플릿 생성 요청
 	private Long projectId;
 	private Long createdBy;
 	private String name;

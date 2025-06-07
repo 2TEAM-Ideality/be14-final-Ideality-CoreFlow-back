@@ -46,7 +46,7 @@ public class AttachmentCommandService {
 
 	// OK. TargetType 받아서 업데이트하는 방법 <모든 파일 타입 공통으로 적용 가능>
 	@Transactional
-	public void updateAttachmentForTemplate(FileTargetType fileType, Long targetId, String fileName, String fileUrl, String size) {
+	public void updateAttachmentForTemplate(FileTargetType fileType, Long targetId, String fileName, String fileUrl, String size, Long updatedBy) {
 		// 타겟 아이디, 타겟 타입을 조합해서 기존 첨부파일 찾기
 		Attachment originAttachment = attachmentRepository.findByTargetIdAndTargetType(targetId, fileType)
 			.orElseThrow(() -> new BaseException(ErrorCode.ATTCHMENT_NOT_FOUND));
@@ -55,7 +55,8 @@ public class AttachmentCommandService {
 		originAttachment.updateInfo(
 			fileName,
 			fileUrl,
-			size
+			size,
+			updatedBy
 		);
 	}
 

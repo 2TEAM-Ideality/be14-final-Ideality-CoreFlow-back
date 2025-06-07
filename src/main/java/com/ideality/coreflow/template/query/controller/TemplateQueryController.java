@@ -12,10 +12,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.common.response.APIResponse;
-import com.ideality.coreflow.template.query.dto.ResponseTemplateDetailDTO;
+import com.ideality.coreflow.template.query.dto.TemplateDetailDTO;
 import com.ideality.coreflow.template.query.dto.TemplateInfoDTO;
 import com.ideality.coreflow.template.query.service.TemplateQueryFacadeService;
-import com.ideality.coreflow.template.query.service.TemplateQueryService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,10 +35,10 @@ public class TemplateQueryController {
 
 	// TODO. 템플릿 상세 조회
 	@GetMapping("/{templateId}")
-	public ResponseEntity<APIResponse<ResponseTemplateDetailDTO>> getTemplateDetail(
+	public ResponseEntity<APIResponse<TemplateDetailDTO>> getTemplateDetail(
 		@PathVariable("templateId") Long templateId
 	){
-		ResponseTemplateDetailDTO template = null;
+		TemplateDetailDTO template = null;
 		try {
 			template = templateQueryFacadeService.getTemplateDetail(templateId);
 		} catch (JsonProcessingException e) {
