@@ -1,7 +1,6 @@
 package com.ideality.coreflow.project.command.application.service;
 
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
-import com.ideality.coreflow.template.query.dto.NodeDTO;
 
 import java.util.List;
 
@@ -17,5 +16,7 @@ public interface TaskService {
     void validateSource(List<Long> source);
 
     void validateTarget(List<Long> target);
+
+    void validateTask(Long taskId);
 
 }

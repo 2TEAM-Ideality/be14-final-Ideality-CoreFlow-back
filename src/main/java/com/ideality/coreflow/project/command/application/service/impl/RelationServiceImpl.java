@@ -20,6 +20,20 @@ public class RelationServiceImpl implements RelationService {
     private final RelationRepository relationRepository;
     private final TaskRepository taskRepository;
 
+    @Override
+    @Transactional
+    public void createRelation(Long fromId, Long toId){
+        System.out.println("✅RelationServiceImpl");
+        System.out.println("fromId = " + fromId);
+        System.out.println("toId = " + toId);
+        Work fromWork = taskRepository.getReferenceById(fromId);
+        Work toWork = taskRepository.getReferenceById(toId);
+        Relation relation = Relation.builder()
+                .prevWork(fromWork)
+                .nextWork(toWork)
+                .build();
+        relationRepository.save(relation);
+    }
 
     @Override
     @Transactional

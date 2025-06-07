@@ -22,4 +22,6 @@ public interface WorkMapper {
     List<ParticipantDTO> findParticipantsByWorkId(Long participantId);
 
 	List<DeptWorkDTO> findWorkListByDeptId(Long deptId);
+
+    List<String> selectDetailListByTarget(Long projectId, Long taskId, String detailTarget);
 }
