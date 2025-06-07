@@ -2,18 +2,20 @@ package com.ideality.coreflow.project.command.domain.aggregate;
 
 
 import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static com.ideality.coreflow.common.exception.ErrorCode.INVALID_STATUS_TRANSITION;
+import lombok.*;
+
 
 @Entity
 @Table(name = "work")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 @Builder
 public class Work {
 	@Id
@@ -53,6 +55,7 @@ public class Work {
 	@Builder.Default
 	private Double passedRate = 0.0;
 
+
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private Status status;
@@ -69,10 +72,28 @@ public class Work {
 
 	public void startTask() {
 		if (this.status == Status.PROGRESS) {
-			throw new BaseException(INVALID_STATUS_TRANSITION);
+			throw new BaseException(ErrorCode.INVALID_STATUS_PROGRESS);
 		}
 
 		this.status = Status.PROGRESS;
+		this.startReal = LocalDate.now();
 	}
+
+	public void endTask() {
+		if (this.status == Status.COMPLETED || this.status == Status.PENDING) {
+			throw new BaseException(ErrorCode.INVALID_STATUS_COMPLETED);
+		}
+
+		this.status = Status.COMPLETED;
+		this.endReal = LocalDate.now();
+	}
+
+	public void softDeleteTask() {
+		if (this.status == Status.DELETED) {
+			throw new BaseException(ErrorCode.INVALID_STATUS_DELETED);
+		}
+		this.status = Status.DELETED;
+	}
+
 }
 

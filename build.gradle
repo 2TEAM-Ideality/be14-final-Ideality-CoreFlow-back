@@ -80,11 +80,11 @@ dependencies {
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'org.mockito:mockito-junit-jupiter'
 
-    // PDF 생성을 위한 iText 7 모듈
-    implementation platform('com.itextpdf:itext7-bom:8.0.2')
-    implementation 'com.itextpdf:kernel'
-    implementation 'com.itextpdf:layout'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
+    // openhtmltopdf
+    implementation 'com.openhtmltopdf:openhtmltopdf-pdfbox:1.0.10'
+    implementation 'com.openhtmltopdf:openhtmltopdf-slf4j:1.0.10'
 }
 
 tasks.named('test') {
