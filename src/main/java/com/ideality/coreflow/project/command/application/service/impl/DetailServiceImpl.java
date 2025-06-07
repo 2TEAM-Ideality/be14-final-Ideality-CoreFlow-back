@@ -144,7 +144,7 @@ public class DetailServiceImpl implements DetailService {
     @Override
     public void startDetail(Long workId) {
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new RuntimeException("Work not found with id " + workId));
+                .orElseThrow(() -> new BaseException(ErrorCode.DETAIL_NOT_FOUND));
 
         work.startTask();  // Work 엔티티에서 처리
         workRepository.save(work);  // 업데이트된 Work 저장
@@ -155,10 +155,10 @@ public class DetailServiceImpl implements DetailService {
     @Override
     public void completeDetail(Long workId) {
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new RuntimeException("Work not found with id " + workId));
+                .orElseThrow(() ->  new BaseException(ErrorCode.DETAIL_NOT_FOUND));
 
         if (work.getProgressRate() < 100) {
-            throw new RuntimeException("Progress must be 100% to complete the task.");
+            throw new BaseException(ErrorCode.INVALID_STATUS_PROGRESS);
         }
 
         work.endTask();  // Work 엔티티에서 처리
@@ -170,7 +170,7 @@ public class DetailServiceImpl implements DetailService {
     @Override
     public void deleteDetail(Long workId) {
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new RuntimeException("Work not found with id " + workId));
+                .orElseThrow(() -> new BaseException(ErrorCode.DETAIL_NOT_FOUND));
 
         work.softDeleteTask();  // Work 엔티티에서 처리
         workRepository.save(work);  // 업데이트된 Work 저장
