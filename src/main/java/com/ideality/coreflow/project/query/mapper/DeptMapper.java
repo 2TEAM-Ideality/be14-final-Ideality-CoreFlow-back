@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.query.mapper;
 
+import com.ideality.coreflow.project.query.dto.DepartmentDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -11,9 +12,7 @@ public interface DeptMapper {
 
     Optional<String> findDeptCodeByName(String deptName);
 
-    // 모든 부서명 조회 (XML 쿼리와 연결)
-    List<String> findAllDeptNames();
+    List<DepartmentDTO> findAllDeptNames();
 
-
-	Optional<Long> findDeptIdByName(String deptName);
+    Optional<Long> findDeptIdByName(String deptName);
 }
