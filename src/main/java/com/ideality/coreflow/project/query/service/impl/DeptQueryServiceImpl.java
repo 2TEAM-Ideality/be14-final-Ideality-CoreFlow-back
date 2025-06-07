@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.query.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.project.query.dto.DepartmentDTO;
 import com.ideality.coreflow.project.query.mapper.DeptMapper;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,6 @@ public class DeptQueryServiceImpl implements DeptQueryService {
 
     private final DeptMapper deptMapper;
 
-
     @Override
     public String findNameById(Long id) {
         return deptMapper.findNameById(id)
@@ -30,15 +30,20 @@ public class DeptQueryServiceImpl implements DeptQueryService {
                 .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
     }
 
-    // 부서명만 조회하는 메서드 추가
     @Override
-    public List<String> findAllDeptNames() {
-        List<String> deptNames = deptMapper.findAllDeptNames();
-        if (deptNames.isEmpty()) {
+    public List<DepartmentDTO> findAllDeptNames() {
+        // MyBatis에서 부서명과 부서 ID를 조회한 후, 반환
+        List<DepartmentDTO> deptList = deptMapper.findAllDeptNames();
+
+        // 부서 목록이 비어있다면 예외 처리
+        if (deptList.isEmpty()) {
             throw new BaseException(DEPARTMENT_NOT_FOUND);
         }
-        return deptNames;
+
+        // 부서 목록 반환
+        return deptList;
     }
+
 
     @Override
     public Long findDeptIdByName(String deptName) {
@@ -47,3 +52,4 @@ public class DeptQueryServiceImpl implements DeptQueryService {
     }
 
 }
+

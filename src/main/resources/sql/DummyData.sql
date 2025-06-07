@@ -151,6 +151,16 @@ VALUES
 )
 ;
 
+INSERT INTO role
+(name, type)
+VALUES
+    (
+        'ASSIGNEE', 'PROJECT'
+    ),
+    (
+        'PARTICIPANT', 'PROJECT'
+    );
+
 INSERT INTO project
 (
     name,
