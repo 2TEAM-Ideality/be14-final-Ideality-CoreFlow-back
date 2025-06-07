@@ -63,7 +63,10 @@ public class CalendarCommandFacadeService {
 		}
 
 		calendarCommandService.deletePersonalSchedule(scheduleId);
-		repeatRuleCommandService.deleteRepeatRule(scheduleId);
+		Boolean isRepeatSchedule = calendarCommandService.isRepeatSchedule(scheduleId);
+		if(isRepeatSchedule){
+			repeatRuleCommandService.deleteRepeatRule(scheduleId);
+		}
 
 	}
 }

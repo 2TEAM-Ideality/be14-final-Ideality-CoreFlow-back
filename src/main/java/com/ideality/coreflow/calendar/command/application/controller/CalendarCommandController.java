@@ -33,7 +33,7 @@ public class CalendarCommandController {
 	}
 
 	// 개인 일정 수정
-	@PatchMapping("/edit")
+	@PatchMapping("/update")
 	public ResponseEntity<APIResponse<Map<String, Long>>> editPersonalSchedule(@RequestBody UpdateScheduleDTO request) {
 		log.info("개인 일정 수정 요청");
 		Long updatedScheduleId = calendarCommandFacadeService.updatePersonalSchedule(request);

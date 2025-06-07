@@ -32,6 +32,7 @@ public class Schedule {
     @Column(name = "is_repeat", nullable = false)
     private Boolean isRepeat = false;
 
+    @Builder.Default
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 

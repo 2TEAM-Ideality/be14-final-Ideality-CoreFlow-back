@@ -52,4 +52,10 @@ public class CalendarCommandService {
 		originSchedule.deleteSchedule();
 
 	}
+
+	public Boolean isRepeatSchedule(Long scheduleId) {
+		Schedule targetSchedule = scheduleRepository.findById(scheduleId)
+				.orElseThrow(() -> new BaseException(ErrorCode.SCHEDULE_NOT_FOUND));
+		return targetSchedule.getIsRepeat();
+	}
 }
