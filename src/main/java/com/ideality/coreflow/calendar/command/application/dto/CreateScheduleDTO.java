@@ -10,7 +10,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class RequestScheduleDTO {
+public class CreateScheduleDTO {
+	// 개인 일정 생성
 	private Long createdBy;
 
 	private String name;
@@ -23,5 +24,5 @@ public class RequestScheduleDTO {
 	private Boolean isRepeat;
 	private FrequencyInfo frequencyInfo;
 
-	private List<LocalDateTime> reminder;
+	private List<LocalDateTime> reminder;  // 리마인더
 }

@@ -208,6 +208,7 @@ CREATE TABLE schedule (
     user_id BIGINT NOT NULL,
     dept_id BIGINT,
     is_repeat BOOLEAN NOT NULL DEFAULT FALSE,
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     event_type VARCHAR(255) NOT NULL DEFAULT 'PERSONAL',
     CONSTRAINT FOREIGN KEY (user_id) REFERENCES user(id),
     CONSTRAINT FOREIGN KEY (dept_id) REFERENCES dept(id),
@@ -218,7 +219,7 @@ CREATE TABLE schedule (
 CREATE TABLE repeat_rule (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     schedule_id BIGINT NOT NULL,
-    frequency VARCHAR(255) NOT NULL,
+    frequency VARCHAR(10) NOT NULL,
     repeat_interval INT NOT NULL DEFAULT 1,
     end_date DATE,
     by_day VARCHAR(255),
