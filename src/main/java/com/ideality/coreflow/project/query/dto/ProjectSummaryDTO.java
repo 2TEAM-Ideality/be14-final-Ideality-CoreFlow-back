@@ -11,7 +11,7 @@ public class ProjectSummaryDTO {
     private Status status;
     private String startDate;
     private String endDate;
-    private DirectorSummaryDTO director;
+    private UserInfoDTO director;
     private Double progressRate;
     private Double passedRate;
     private Integer delayDays;
