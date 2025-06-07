@@ -39,10 +39,33 @@ public class WorkServieImpl implements WorkService {
         workDetail.setPrevWorkIds();
         workDetail.setNextWorkIds();
 
+
         // 참여자 정보 매핑
         List<ParticipantDTO> participants = workMapper.findParticipantsByWorkId(workId);
 
-        workDetail.setParticipants(participants != null ? participants : new ArrayList<ParticipantDTO>());  // 빈 리스트 처리
+        // 참여자 리스트에서 assignee와 participant로 나누기
+        List<ParticipantDTO> assignees = new ArrayList<>();
+        List<ParticipantDTO> participantList = new ArrayList<>();
+
+        for (ParticipantDTO participant : participants) {
+            if (participant.getRoleId() == 6) {
+                assignees.add(participant); // roleId가 6이면 assignee로 추가
+            } else if (participant.getRoleId() == 7) {
+                participantList.add(participant); // roleId가 7이면 participant로 추가
+            }
+        }
+
+        // 작업 상세에 assignee, participant 정보 설정
+        workDetail.setAssignees(assignees); // assignee 리스트 설정
+        workDetail.setParticipants(participantList); // participant 리스트 설정
+
+        // prevWorkIds에 해당하는 work의 name을 가져오기
+        List<String> prevWorkNames = workMapper.findWorkNamesByIds(workDetail.getPrevWorkIds());
+        workDetail.setPrevWorkNames(prevWorkNames); // workDetail에 prevWorkNames 설정
+
+        // nextWorkIds에 해당하는 work의 name을 가져오기
+        List<String> nextWorkNames = workMapper.findWorkNamesByIds(workDetail.getNextWorkIds());
+        workDetail.setNextWorkNames(nextWorkNames); // workDetail에 nextWorkNames 설정
 
         return workDetail;
     }

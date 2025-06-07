@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.query.controller;
 
 import com.ideality.coreflow.common.response.APIResponse;
+import com.ideality.coreflow.project.query.dto.DepartmentDTO;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,8 +21,12 @@ public class DeptController {
 
     // 부서명 목록 조회
     @GetMapping("/all")
-    public APIResponse<List<String>> getAllDeptNames() {  // 반환 타입을 APIResponse로 변경
-        List<String> deptNames = deptQueryService.findAllDeptNames();
-        return APIResponse.success(deptNames,"부서목록 조회 완료");  // 성공 응답 생성
+    public APIResponse<List<DepartmentDTO>> getAllDeptNames() {
+        // 부서명과 부서 ID를 포함한 DTO 리스트를 가져옴
+        List<DepartmentDTO> deptList = deptQueryService.findAllDeptNames();
+
+        // 성공 응답을 생성하여 반환
+        return APIResponse.success(deptList, "부서목록 조회 완료");
     }
+
 }
