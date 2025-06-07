@@ -12,7 +12,7 @@
         <result property="progressRate" column="progress_rate"/>
         <result property="passedRate" column="passed_rate"/>
         <result property="delayDays" column="delay_days"/>
-        <association property="director" javaType="com.ideality.coreflow.project.query.dto.DirectorSummaryDTO">
+        <association property="director" javaType="com.ideality.coreflow.project.query.dto.UserInfoDTO">
             <result property="name" column="director_name"/>
             <result property="deptName" column="dept_name"/>
             <result property="jobRoleName" column="job_role_name"/>
