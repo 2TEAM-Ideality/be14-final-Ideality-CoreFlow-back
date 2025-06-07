@@ -5,4 +5,6 @@ import java.util.List;
 
 public interface ProjectQueryService {
     List<ProjectSummaryDTO> selectProjectSummaries(Long userId);
+
+    ProjectSummaryDTO selectProjectSummary(Long projectId);
 }
