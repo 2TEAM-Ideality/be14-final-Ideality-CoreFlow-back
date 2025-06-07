@@ -79,6 +79,12 @@ dependencies {
     // ✅ Mockito (이미 spring-boot-starter-test에 포함되지만 명시적 관리 가능)
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'org.mockito:mockito-junit-jupiter'
+
+    // PDF 생성을 위한 iText 7 모듈
+    implementation platform('com.itextpdf:itext7-bom:8.0.2')
+    implementation 'com.itextpdf:kernel'
+    implementation 'com.itextpdf:layout'
+
 }
 
 tasks.named('test') {
