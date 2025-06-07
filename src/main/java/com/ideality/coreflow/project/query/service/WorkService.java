@@ -18,4 +18,6 @@ public interface WorkService {
     WorkDetailDTO getWorkDetailById(Long workId);
 
     List<DeptWorkDTO> selectWorksByDeptId(Long deptId);
+
+    List<String> getDetailList(Long projectId, Long taskId, String detailTarget);
 }

@@ -77,4 +77,9 @@ public class WorkServieImpl implements WorkService {
         // 부서별 세부일정 목록 조회
 		return workMapper.findWorkListByDeptId(deptId);
     }
+
+    @Override
+    public List<String> getDetailList(Long projectId, Long taskId, String detailTarget) {
+        return workMapper.selectDetailListByTarget(projectId, taskId, detailTarget);
+    }
 }
