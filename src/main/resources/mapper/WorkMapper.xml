@@ -119,4 +119,15 @@
             AND w.parent_task_id IS NOT NULL
             AND wd.is_deleted = FALSE
     </select>
+
+    <select id="selectDetailListByTarget" parameterType="map" resultType="string">
+        SELECT name
+          FROM work
+        WHERE project_id = #{projectId}
+          AND parent_task_id = #{taskId}
+          AND status != 'DELETED'
+        <if test="detailTarget != null and detailTarget != ''">
+            AND name LIKE CONCAT('%', #{detailTarget}, '%')
+        </if>
+    </select>
 </mapper>
