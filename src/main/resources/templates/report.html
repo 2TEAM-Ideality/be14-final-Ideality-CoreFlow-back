@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        body { font-family: "Noto Sans KR", sans-serif; }
+        h1 { font-size: 24px; }
+        .info { margin: 10px 0; }
+    </style>
+</head>
+<body>
+<h1>프로젝트 리포트</h1>
+<div class="info"><strong>프로젝트명:</strong> <span th:text="${name}"></span></div>
+<div class="info"><strong>담당자:</strong> <span th:text="${manager}"></span></div>
+<div class="info"><strong>기간:</strong> <span th:text="${period}"></span></div>
+<div class="info"><strong>진행률:</strong> <span th:text="${progress}"></span></div>
+</body>
+</html>
