@@ -85,6 +85,7 @@ public class Work {
 		}
 
 		this.status = Status.COMPLETED;
+		this.endReal = LocalDate.now();
 	}
 
 	public void softDeleteTask() {
@@ -93,5 +94,6 @@ public class Work {
 		}
 		this.status = Status.DELETED;
 	}
+
 }
 

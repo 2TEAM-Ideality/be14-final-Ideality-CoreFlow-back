@@ -262,4 +262,19 @@ public class ProjectFacadeService {
         return detailService.updateDetail(detailId, requestDetailDTO);
     }
 
+    // 1. 시작 버튼 (Status: PROGRESS, startReal: 현재 날짜)
+    public void startDetail(Long workId) {
+        detailService.startDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
+    }
+
+    // 2. 완료 버튼 (Status: COMPLETED, endReal: 현재 날짜, progressRate가 100일 경우)
+    public void completeDetail(Long workId) {
+        detailService.completeDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
+    }
+
+    // 3. 삭제 버튼 (Status: DELETED)
+    public void deleteDetail(Long workId) {
+        detailService.deleteDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
+    }
+
 }

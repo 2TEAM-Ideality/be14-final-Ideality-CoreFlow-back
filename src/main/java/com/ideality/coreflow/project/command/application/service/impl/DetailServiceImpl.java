@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -136,6 +137,45 @@ public class DetailServiceImpl implements DetailService {
 
         return detailId;
     }
+
+
+    // 1. 시작 버튼 (Status: PROGRESS, startReal: 현재 날짜)
+    @Transactional
+    @Override
+    public void startDetail(Long workId) {
+        Work work = workRepository.findById(workId)
+                .orElseThrow(() -> new RuntimeException("Work not found with id " + workId));
+
+        work.startTask();  // Work 엔티티에서 처리
+        workRepository.save(work);  // 업데이트된 Work 저장
+    }
+
+    // 2. 완료 버튼 (Status: COMPLETED, endReal: 현재 날짜, progressRate가 100일 경우)
+    @Transactional
+    @Override
+    public void completeDetail(Long workId) {
+        Work work = workRepository.findById(workId)
+                .orElseThrow(() -> new RuntimeException("Work not found with id " + workId));
+
+        if (work.getProgressRate() < 100) {
+            throw new RuntimeException("Progress must be 100% to complete the task.");
+        }
+
+        work.endTask();  // Work 엔티티에서 처리
+        workRepository.save(work);  // 업데이트된 Work 저장
+    }
+
+    // 3. 삭제 버튼 (Status: DELETED)
+    @Transactional
+    @Override
+    public void deleteDetail(Long workId) {
+        Work work = workRepository.findById(workId)
+                .orElseThrow(() -> new RuntimeException("Work not found with id " + workId));
+
+        work.softDeleteTask();  // Work 엔티티에서 처리
+        workRepository.save(work);  // 업데이트된 Work 저장
+    }
+
 
 
 

@@ -45,5 +45,32 @@ public class DetailController {
     }
 
 
+    // 1. 시작 버튼 (Status: PROGRESS, startReal: 현재 날짜)
+    @PatchMapping("/{workId}/start")
+    public ResponseEntity<APIResponse<String>> startTask(@PathVariable Long workId) {
+        projectFacadeService.startDetail(workId);
+        return ResponseEntity.ok(
+                APIResponse.success("Detail started successfully", "세부일정이 시작되었습니다.")
+        );
+    }
+
+    // 2. 완료 버튼 (Status: COMPLETED, endReal: 현재 날짜, progressRate가 100일 경우)
+    @PatchMapping("/{workId}/complete")
+    public ResponseEntity<APIResponse<String>> completeTask(@PathVariable Long workId) {
+        projectFacadeService.completeDetail(workId);
+        return ResponseEntity.ok(
+                APIResponse.success("Detail completed successfully", "세부일정이 완료되었습니다.")
+        );
+    }
+
+    // 3. 삭제 버튼 (Status: DELETED)
+    @PatchMapping("/{workId}/delete")
+    public ResponseEntity<APIResponse<String>> deleteTask(@PathVariable Long workId) {
+        projectFacadeService.deleteDetail(workId);
+        return ResponseEntity.ok(
+                APIResponse.success("Detail deleted successfully", "세부일정이 삭제되었습니다.")
+        );
+    }
+
 
 }
