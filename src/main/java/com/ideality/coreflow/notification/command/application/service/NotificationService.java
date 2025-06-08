@@ -51,7 +51,7 @@ public class NotificationService {
 
 
 
-    // 가장 최근 알림 가져오기 (예시로)
+    // 가장 최근 알림 가져오기 (예시로)- 사용자별 필터링 안되어있음 ㅜ
     public List<Notification> getLatestNotification() {
         return notificationRepository.findAll(); // 예시로 모든 알림을 가져옴
     }
