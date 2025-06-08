@@ -9,4 +9,6 @@ public interface ProjectService {
     Project createProject(ProjectCreateRequest request);
 
     boolean isCompleted(Long projectId);
+
+    void completeProject(Project project);
 }

@@ -6,9 +6,11 @@ import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
+import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
 import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
+import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -40,6 +43,25 @@ public class ProjectFacadeService {
     private final DeptQueryService deptQueryService;
     private final UserQueryService userQueryService;
     private final ParticipantQueryService participantQueryService;
+    private final ProjectRepository projectRepository;
+    private final TaskQueryService taskQueryService;
+
+    @Transactional
+    public void completeProject(Long projectId) throws NotFoundException {
+        // 1. 프로젝트 조회
+        Project project = projectRepository.findById(projectId)
+                                            .orElseThrow(()->new NotFoundException("프로젝트가 존재하지 않습니다"));
+
+        // 2. 모든 태스크 완료 여부 확인
+        boolean isAllTaskCompleted = taskQueryService.isAllTaskCompleted(projectId);
+        if(!isAllTaskCompleted) {
+            throw new IllegalStateException("모든 태스크가 완료되지 않았습니다");
+        }
+
+        // 3. 상태 변경
+        projectService.completeProject(project);
+
+    }
 
     @Transactional
     public Project createProject(ProjectCreateRequest request) {
