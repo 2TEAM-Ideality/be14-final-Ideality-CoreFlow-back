@@ -11,4 +11,4 @@ CREATE TABLE erp_master (
 );
 
 INSERT INTO erp_master (company_code, company_name, company_schema)
-VALUES (aaa, A사, company_schema);
+VALUES ('aaa', 'A사', 'company_a');
