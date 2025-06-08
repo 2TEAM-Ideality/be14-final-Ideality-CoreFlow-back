@@ -12,4 +12,6 @@ public interface ProjectMapper {
     List<ProjectSummaryDTO> selectParticipatingProjects(Long userId);
     ProjectDetailResponseDTO getProjectDetail(Long projectId);
     List<UserInfoDTO> getProjectLeaders(Long projectId);
+
+    ProjectSummaryDTO selectProjectSummary(Long projectId);
 }

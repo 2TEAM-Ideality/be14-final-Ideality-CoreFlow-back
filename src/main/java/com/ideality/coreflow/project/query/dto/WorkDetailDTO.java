@@ -31,8 +31,29 @@ public class WorkDetailDTO {
     private String nextWorkIdsString;  // 후행 일정 String
 
     private List<Long> prevWorkIds;  // 선행 일정 ID 리스트
-    private List<Long> nextWorkIds;  // 후행 일정 ID 리스트
-    private List<ParticipantDTO> participants;  // 참여자 목록
+    private List<String> prevWorkNames;
+    private List<Long> nextWorkIds;
+    private List<String> nextWorkNames;   // 후행 일정 ID 리스트
+    private List<ParticipantDTO> assignees; // assignee 리스트
+    private List<ParticipantDTO> participants; // participant 리스트
+
+    // setters and getters for assignees and participants
+    public void setAssignees(List<ParticipantDTO> assignees) {
+        this.assignees = assignees;
+    }
+
+    public void setParticipants(List<ParticipantDTO> participants) {
+        this.participants = participants;
+    }
+
+    // setters and getters for prevWorkNames, nextWorkNames
+    public void setPrevWorkNames(List<String> prevWorkNames) {
+        this.prevWorkNames = prevWorkNames;
+    }
+
+    public void setNextWorkNames(List<String> nextWorkNames) {
+        this.nextWorkNames = nextWorkNames;
+    }
 
     // prevWorkIdsString을 List<Long>으로 변환
     public void setPrevWorkIds() {
@@ -56,8 +77,4 @@ public class WorkDetailDTO {
         }
     }
 
-    // setParticipants 메서드 추가: 참여자 정보 처리
-    public void setParticipants(List<ParticipantDTO> participants) {
-        this.participants = participants != null ? participants : new ArrayList<>();
-    }
 }
