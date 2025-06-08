@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.command.application.service.impl;
 
+import com.ideality.coreflow.notification.command.application.service.NotificationService;
 import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.ParticipantService;
 import com.ideality.coreflow.project.command.domain.aggregate.Participant;
@@ -12,11 +13,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+import static com.ideality.coreflow.notification.command.domain.aggregate.TargetType.PROJECT;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class ParticipantServiceImpl implements ParticipantService {
     private final ParticipantRepository participantRepository;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -30,6 +34,14 @@ public class ParticipantServiceImpl implements ParticipantService {
                     .build();
 
             participantRepository.save(participant);
+
+
+            // 팀장이 초대되면 알림을 보내는 로직 추가
+            if (taskParticipant.getRoleId() == 2L) { //roleId가 2L이면 팀장
+                String content = "프로젝트에 팀장으로 초대되었습니다.";
+                notificationService.sendNotification(taskParticipant.getUserId(), content, taskParticipant.getTaskId(), PROJECT);
+            }
+
         }
     }
 
