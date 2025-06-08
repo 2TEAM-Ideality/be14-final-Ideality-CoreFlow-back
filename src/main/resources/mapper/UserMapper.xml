@@ -4,17 +4,54 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ideality.coreflow.user.query.mapper.UserMapper">
 
+    <!-- 유저별 역할 -->
+    <resultMap id="userOfRoleResultMap" type="com.ideality.coreflow.user.query.dto.UserOfRoleDTO">
+        <id property="id" column="ID"/>
+        <result property="roleId" column="ROLE_ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="roleName" column="ROLE_NAME"/>
+        <result property="roleType" column="TYPE"/>
+    </resultMap>
+
+    <select id="selectUserOfGeneralRole" parameterType="_long" resultMap="userOfRoleResultMap">
+        SELECT
+               ur.role_id AS ROLE_ID,
+               ur.user_id AS USER_ID,
+               r.name AS ROLE_NAME,
+               r.type AS TYPE
+          FROM USER u
+          LEFT JOIN USER_OF_ROLE ur ON u.id = ur.user_id
+          LEFT JOIN ROLE r ON ur.role_id = r.id
+         WHERE u.id = #{userId}
+           AND r.type = 'GENERAL'
+    </select>
+
+    <select id="countByHireMonthAndDeptName" resultType="long">
+        SELECT COUNT(*)
+          FROM USER
+         WHERE DATE_FORMAT(HIRE_DATE, '%y') = #{year}
+           AND DEPT_NAME = #{deptName}
+    </select>
+
+    <select id="countByJobRoleName" resultType="long">
+        SELECT COUNT(*)
+          FROM USER
+         WHERE JOB_ROLE_NAME = #{roleName}
+    </select>
+
     <resultMap id="userMentionMap" type="com.ideality.coreflow.user.query.dto.UserMentionDTO">
         <result property="name" column="name"/>
         <result property="jobRank" column="job_rank_name"/>
         <result property="deptName" column="dept_name"/>
     </resultMap>
+
     <select id="selectAllUserByDeptName" resultType="_long">
         SELECT
                id
           FROM user
          WHERE dept_name = #{deptName}
     </select>
+
     <select id="selectLeadersByDeptName" resultType="_long">
         SELECT
                a.id

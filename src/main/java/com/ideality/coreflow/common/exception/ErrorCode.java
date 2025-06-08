@@ -6,6 +6,24 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
 
+    // 이미 등록된 이메일
+    EMAIL_ALREADY_EXISTS("EMAIL_ALREADY_EXISTS", "이미 등록된 이메일입니다.", HttpStatus.BAD_REQUEST),
+
+    // 퇴사한 직원의 계정 로그인 실패
+    RESIGNED_USER("RESIGNED_USER", "퇴사한 직원입니다. 로그인 요청이 실패하였습니다.", HttpStatus.BAD_REQUEST),
+
+    // 로그인 요청 시 바디 읽기 실패
+    INVALID_LOGIN_REQUEST("INVALID_LOGIN_REQUEST", "로그인 요청이 실패하였습니다.", HttpStatus.BAD_REQUEST),
+
+    // 비밀번호가 틀림
+    INVALID_PASSWORD("INVALID_PASSWORD", "비밀번호가 틀립니다.", HttpStatus.NOT_FOUND),
+
+    // 유효하지 않은 토큰
+    INVALID_TOKEN("INVALID_TOKEN", "유효하지 않은 토큰입니다.", HttpStatus.UNAUTHORIZED),
+
+    // 해당 정보 없음
+    NOT_FOUND("NOT_FOUND", "해당 정보가 없습니다.", HttpStatus.NOT_FOUND), // 404
+
     // ✅ 인증(Authentication) 관련
     UNAUTHORIZED("UNAUTHORIZED", "인증이 필요합니다.", HttpStatus.UNAUTHORIZED),          // 401
 
@@ -61,8 +79,24 @@ public enum ErrorCode {
     INVALID_STATUS_COMPLETED("INVALID_STATUS_COMPLETED", "이미 완료 처리된 작업입니다.", HttpStatus.CONFLICT),
     INVALID_STATUS_DELETED("INVALID_STATUS_DELETED", "이미 삭제된 작업입니다.", HttpStatus.CONFLICT),
 
+    // 잘못된 json 요청 양식
+    INVALID_JSON_FORMAT("INVALID_JSON_FORMAT", "잘못된 json 양식", HttpStatus.BAD_REQUEST),
+
+    // 잘못된 tenant 설정
+    INVALID_TENANT("INVALID_TENANT", "Tenant 설정 오류", HttpStatus.BAD_REQUEST),
+
+    // 잘못된 유저 정보
+    INVALID_USER_INFO("INVALID_USER_INFO", "유저 이름 또는 이메일이 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+
+    // 잘못 입력한 인증 코드
+    INVALID_VERIFICATION_CODE("INVALID_VERIFICATION_CODE", "인증 시간이 만료되었거나 코드가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+
     INVALID_SOURCE_LIST("INVALID_SOURCE_LIST", "source는 null이거나 비어 있을 수 없습니다.", HttpStatus.BAD_REQUEST),
     INVALID_TARGET_LIST("INVALID_TARGET_LIST", "target은 비어 있을 수 없습니다.", HttpStatus.BAD_REQUEST),
+
+    // 이미 처리된 결재 혹은 결재자가 아님
+    ACCESS_DENIED_APPROVAL("ACCESS_DENIED_APPROVAL", "결재자가 아니거나 이미 처리된 결재입니다.", HttpStatus.BAD_REQUEST),
+
     TASK_PROGRESS_NOT_COMPLETED("TASK_PROGRESS_NOT_COMPLETED","진행률이 100%여야 작업을 완료할 수 있습니다.", HttpStatus.BAD_REQUEST),
 	SCHEDULE_NOT_REPEATABLE("SCHEDULE_NOT_REPEATABLE", "반복규칙을 만들 수 없는 일정입니다.", HttpStatus.CONFLICT),
 

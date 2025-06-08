@@ -15,7 +15,7 @@ import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
-import com.ideality.coreflow.template.query.dto.TemplateNodeDataDTO;
+import com.ideality.coreflow.template.query.dto.NodeDataDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -101,7 +101,7 @@ public class ProjectFacadeService {
     }
 
     private Long createTaskWithDepts(Long projectId, NodeDTO node) {
-        TemplateNodeDataDTO data = node.getData();
+        NodeDataDTO data = node.getData();
 
         RequestTaskDTO taskDTO = RequestTaskDTO.builder()
                 .label(data.getLabel())
