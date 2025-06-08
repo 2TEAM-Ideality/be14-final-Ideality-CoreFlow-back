@@ -263,6 +263,7 @@ CREATE TABLE approval (
     created_at DATETIME NOT NULL,
     approved_at DATETIME,
     work_id BIGINT,
+    reject_reason TEXT,
     CONSTRAINT FOREIGN KEY (user_id) REFERENCES user(id),
     CONSTRAINT FOREIGN KEY (work_id) REFERENCES work(id) ,
     CHECK (type IN ('GENERAL', 'DELIVERABLE','DELAY')),
