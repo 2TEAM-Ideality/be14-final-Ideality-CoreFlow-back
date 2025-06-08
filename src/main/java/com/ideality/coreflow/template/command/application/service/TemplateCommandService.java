@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.template.command.application.dto.RequestCreateTemplateDTO;
-import com.ideality.coreflow.template.command.application.dto.RequestProjectTemplateDTO;
+import com.ideality.coreflow.template.command.application.dto.RequestTemplateByProjectDTO;
 import com.ideality.coreflow.template.command.domain.aggregate.Template;
 import com.ideality.coreflow.template.command.domain.aggregate.TemplateDept;
 import com.ideality.coreflow.template.command.domain.repository.TemplateDeptRepository;
@@ -24,6 +24,7 @@ public class TemplateCommandService {
 	private final TemplateRepository templateRepository;
 	private final TemplateDeptRepository templateDeptRepository;
 
+	// 템플릿 정보 생성
 	@Transactional
 	public Template createTemplate(RequestCreateTemplateDTO requestDTO) {
 
@@ -41,8 +42,10 @@ public class TemplateCommandService {
 
 		return newTemplate;
 	}
+
+	// 프로젝트 기반 템플릿 정보 생성
 	@Transactional
-	public Template createTemplateByProject(RequestProjectTemplateDTO requestDTO, int taskCount, int durtaion) {
+	public Template createTemplateByProject(RequestTemplateByProjectDTO requestDTO, int taskCount, int durtaion) {
 		Template newTemplate = Template.builder()
 			.name(requestDTO.getName())
 			.description(requestDTO.getDescription())
@@ -56,7 +59,7 @@ public class TemplateCommandService {
 		return newTemplate;
 	}
 
-	// 수정
+	// 템플릿 정보 수정
 	@Transactional
 	public void updateTemplateInfo(Long templateId, String name, String description, int duration, int taskCount, Long updatedBy) {
 		Template originTemplate = templateRepository.findById(templateId).
