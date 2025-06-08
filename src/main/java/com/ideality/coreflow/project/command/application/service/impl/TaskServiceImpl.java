@@ -6,6 +6,8 @@ import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.command.domain.repository.TaskRepository;
+import com.ideality.coreflow.template.query.dto.NodeDTO;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,8 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.ideality.coreflow.common.exception.ErrorCode.INVALID_SOURCE_LIST;
-import static com.ideality.coreflow.common.exception.ErrorCode.TASK_NOT_FOUND;
+import static com.ideality.coreflow.common.exception.ErrorCode.*;
 
 @Service
 @Slf4j
@@ -59,6 +60,10 @@ public class TaskServiceImpl implements TaskService {
         Work updatedTask = taskRepository.findById(taskId)
                 .orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
 
+        if (updatedTask.getProgressRate() != 100) {
+            throw new BaseException(TASK_PROGRESS_NOT_COMPLETED);
+        }
+
         updatedTask.endTask();
         return updatedTask.getId();
     }
@@ -100,6 +105,13 @@ public class TaskServiceImpl implements TaskService {
             if (!taskRepository.existsById(targetId)) {
                 throw new BaseException(TASK_NOT_FOUND);
             }
+        }
+    }
+
+    @Override
+    public void validateTask(Long taskId) {
+        if (!taskRepository.existsById(taskId)) {
+            throw new BaseException(TASK_NOT_FOUND);
         }
     }
 }

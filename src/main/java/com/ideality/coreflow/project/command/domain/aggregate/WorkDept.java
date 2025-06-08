@@ -6,6 +6,7 @@ import lombok.*;
 @Entity
 @Table(name = "work_dept")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

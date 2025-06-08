@@ -25,7 +25,7 @@ public class TaskController {
         );
     }
 
-    @PutMapping("/progress/{taskId}")
+    @PatchMapping("/progress/{taskId}")
     public ResponseEntity<APIResponse<Map<String, Long>>> updateTaskByProgress(
             @PathVariable Long taskId) {
         Long updatedTaskId = projectFacadeService.updateStatusProgress(taskId);
@@ -35,7 +35,7 @@ public class TaskController {
         );
     }
 
-    @PutMapping("/complete/{taskId}")
+    @PatchMapping("/complete/{taskId}")
     public ResponseEntity<APIResponse<Map<String, Long>>> updateTaskByComplete(
             @PathVariable Long taskId) {
         Long updatedTaskId = projectFacadeService.updateStatusComplete(taskId);
@@ -45,7 +45,7 @@ public class TaskController {
         );
     }
 
-    @PutMapping("/delete/{taskId}")
+    @PatchMapping("/delete/{taskId}")
     public ResponseEntity<APIResponse<Map<String, Long>>> softDeleteTask(
             @PathVariable Long taskId
     ) {

@@ -2,10 +2,8 @@ package com.ideality.coreflow.attachment.command.application.service;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-
 import com.ideality.coreflow.attachment.command.application.dto.AttachmentPreviewDTO;
 import com.ideality.coreflow.attachment.command.application.dto.RegistAttachmentDTO;
-import org.hibernate.tool.schema.TargetType;
 import org.springframework.stereotype.Service;
 
 import com.ideality.coreflow.attachment.command.domain.aggregate.Attachment;
@@ -46,7 +44,7 @@ public class AttachmentCommandService {
 
 	// OK. TargetType 받아서 업데이트하는 방법 <모든 파일 타입 공통으로 적용 가능>
 	@Transactional
-	public void updateAttachmentForTemplate(FileTargetType fileType, Long targetId, String fileName, String fileUrl, String size) {
+	public void updateAttachmentForTemplate(FileTargetType fileType, Long targetId, String fileName, String fileUrl, String size, Long updatedBy) {
 		// 타겟 아이디, 타겟 타입을 조합해서 기존 첨부파일 찾기
 		Attachment originAttachment = attachmentRepository.findByTargetIdAndTargetType(targetId, fileType)
 			.orElseThrow(() -> new BaseException(ErrorCode.ATTCHMENT_NOT_FOUND));
@@ -55,7 +53,8 @@ public class AttachmentCommandService {
 		originAttachment.updateInfo(
 			fileName,
 			fileUrl,
-			size
+			size,
+			updatedBy
 		);
 	}
 
@@ -87,5 +86,26 @@ public class AttachmentCommandService {
 	public AttachmentPreviewDTO getOriginName(long approvalId, FileTargetType fileTargetType) {
 		Attachment attachment = attachmentRepository.findByTargetIdAndTargetType(approvalId, fileTargetType).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
 		return AttachmentPreviewDTO.builder().originName(attachment.getOriginName()).url(attachment.getUrl()).build();
+
+	public Boolean findAttachmentByTargetId(Long templateId) {
+		return attachmentRepository.existsAttachmentByTargetId(templateId);
+	}
+
+	@Transactional
+	public void createAttachmentForComment(CreateAttachmentDTO attachmentFile, Long taskId, Long userId) {
+		Attachment newComment = Attachment.builder()
+						.originName(attachmentFile.getOriginalName())
+						.storedName(attachmentFile.getStoredName())
+						.url(attachmentFile.getUrl())
+						.fileType(attachmentFile.getFileType())
+						.size(attachmentFile.getSize())
+						.uploadAt(LocalDateTime.now())
+						.targetType(FileTargetType.COMMENT)
+						.targetId(taskId)
+						.uploaderId(userId)
+						.isDeleted(false)
+						.build();
+
+		attachmentRepository.save(newComment);
 	}
 }

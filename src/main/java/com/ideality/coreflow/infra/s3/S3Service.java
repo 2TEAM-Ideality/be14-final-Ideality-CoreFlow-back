@@ -1,4 +1,4 @@
-package com.ideality.coreflow.infra.service;
+package com.ideality.coreflow.infra.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -24,7 +24,8 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
-    public String uploadFile(MultipartFile file, String folder) {
+    /* 설명. 프로필 이미지 만들기 */
+    public String uploadImage(MultipartFile file, String folder) {
         /* 설명. uuid로 파일명을 충돌나지 않게 수정 */
         String fileName = generateFileName(file);           // uuid.jpg
         String key = generateKey(fileName, folder);          // profile-image/uuid.jpg
@@ -92,8 +93,12 @@ public class S3Service {
         return url.substring(url.indexOf(".com/") + 5);
     }
 
-    public String uploadFileWithFileName(MultipartFile file, String fileName, String folder) {
-        String key = generateKey(fileName, folder);          // profile-image/uuid.jpg
+    /* 설명. 결재 서류 + 댓글 파일용 업로더 */
+    public UploadFileResult uploadFile(MultipartFile file, String folder) {
+        /* 설명. uuid로 파일명을 충돌나지 않게 수정 */
+        String originName = file.getOriginalFilename();
+        String storedName = generateFileName(file);           // uuid.jpg
+        String key = generateKey(storedName, folder);          // profile-image/uuid.jpg
         try {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(file.getContentType());
@@ -102,8 +107,15 @@ public class S3Service {
             amazonS3Client.putObject(
                     new PutObjectRequest(bucketName, key, file.getInputStream(), metadata)
             );
+            String url = amazonS3Client.getUrl(bucketName, key).toString();
 
-            return amazonS3Client.getUrl(bucketName, key).toString();  // ✅ key로 URL 구성
+            return new UploadFileResult(
+                    originName,
+                    storedName,
+                    url,
+                    file.getContentType(),
+                    file.getSize() + ""
+            );
         } catch (IOException e) {
             throw new RuntimeException("파일 업로드 실패", e);
         }

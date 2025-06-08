@@ -1,21 +1,32 @@
 package com.ideality.coreflow.project.command.application.service.facade;
 
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
+import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
+import com.ideality.coreflow.project.command.domain.aggregate.Work;
+import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
+import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
+import com.ideality.coreflow.template.query.dto.EdgeDTO;
+import com.ideality.coreflow.template.query.dto.NodeDTO;
+import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
+import com.ideality.coreflow.template.query.dto.NodeDataDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -33,77 +44,112 @@ public class ProjectFacadeService {
     private final DeptQueryService deptQueryService;
     private final UserQueryService userQueryService;
     private final ParticipantQueryService participantQueryService;
+    private final DetailService detailService;
+    private final WorkRepository workRepository;
 
+    @Transactional
     public Project createProject(ProjectCreateRequest request) {
-        // 프로젝트 생성
-        Project project=projectService.createProject(request);
-        // 디렉터 DTO 생성
-        // region
-        List<ParticipantDTO> director=new ArrayList<>();
-        ParticipantDTO participant=ParticipantDTO.builder()
-                .taskId(project.getId())
-                .userId(request.getDirectorId())
+        Project project = registerProject(request);
+        registerProjectDirector(project.getId(), request.getDirectorId());
+        List<ParticipantDTO> leaders = registerProjectLeaders(project.getId(), request.getLeaderIds());
+        if (request.getTemplateData() != null){
+            applyTemplate(project.getId(), request.getTemplateData(), leaders);
+        }
+        return project;
+    }
+
+    private void applyTemplate(Long projectId, TemplateDataDTO templateData, List<ParticipantDTO> projectLeaders) {
+        Map<String, Long> nodeIdToTaskId = new HashMap<>();
+
+        for(NodeDTO node:templateData.getNodeList()){
+            Long taskId = createTaskWithDepts(projectId, node);
+            nodeIdToTaskId.put(node.getId(), taskId);
+            assignTaskLeaders(taskId, node.getData().getDeptList(), projectLeaders);
+        }
+
+        for (EdgeDTO edge : templateData.getEdgeList()) {
+            Long sourceId = nodeIdToTaskId.get(edge.getSource());
+            Long targetId = nodeIdToTaskId.get(edge.getTarget());
+            relationService.createRelation(sourceId, targetId);
+        }
+    }
+
+    private void assignTaskLeaders(Long taskId, List<TaskDeptDTO> taskDeptList, List<ParticipantDTO> projectLeaders) {
+        List<Long> taskDeptIds = taskDeptList.stream()
+                .map(TaskDeptDTO::getId)
+                .toList();
+
+        List<ParticipantDTO> matchedLeaders = new ArrayList<>();
+
+        for(ParticipantDTO leader:projectLeaders){
+            String deptName = userQueryService.getDeptNameByUserId(leader.getUserId());
+            Long deptId = deptQueryService.findDeptIdByName(deptName);
+            if (taskDeptIds.contains(deptId)) {
+                matchedLeaders.add(
+                        ParticipantDTO.builder()
+                                .taskId(taskId)
+                                .userId(leader.getUserId())
+                                .targetType(TargetType.TASK)
+                                .roleId(2L)
+                                .build()
+                );
+            }
+        }
+        if (!matchedLeaders.isEmpty()) {
+            participantService.createParticipants(matchedLeaders);
+        }
+    }
+
+    private Long createTaskWithDepts(Long projectId, NodeDTO node) {
+        NodeDataDTO data = node.getData();
+
+        RequestTaskDTO taskDTO = RequestTaskDTO.builder()
+                .label(data.getLabel())
+                .description(data.getDescription())
+                .startBaseLine(LocalDate.parse(data.getStartBaseLine()))
+                .endBaseLine(LocalDate.parse(data.getEndBaseLine()))
+                .projectId(projectId)
+                .build();
+
+        Long taskId = taskService.createTask(taskDTO);
+
+        List<Long> deptIds = data.getDeptList().stream()
+                .map(TaskDeptDTO::getId)
+                .toList();
+
+        for(Long deptId:deptIds){
+            workDeptService.createWorkDept(taskId, deptId);
+        }
+        return taskId;
+    }
+
+    private List<ParticipantDTO> registerProjectLeaders(Long projectId, List<Long> leaderIds) {
+        if(leaderIds == null || leaderIds.isEmpty()) return List.of();
+
+        List<ParticipantDTO> leaders = leaderIds.stream()
+                .map(userId -> ParticipantDTO.builder()
+                        .taskId(projectId)
+                        .userId(userId)
+                        .targetType(TargetType.PROJECT)
+                        .roleId(2L)
+                        .build()
+                ).toList();
+        participantService.createParticipants(leaders);
+        return leaders;
+    }
+
+    private void registerProjectDirector(Long projectId, Long directorId) {
+        ParticipantDTO participant = ParticipantDTO.builder()
+                .taskId(projectId)
+                .userId(directorId)
                 .targetType(TargetType.PROJECT)
                 .roleId(1L)
                 .build();
-        director.add(participant);
-        // endregion
-        // 디렉터 저장
-        participantService.createParticipants(director);
-        // 리더 정보 생성
-        // region
-        List<ParticipantDTO> leaders=new ArrayList<>();
-        if(request.getLeaderIds()!=null) {
-            for(Long leaderId:request.getLeaderIds()) {
-                participant=ParticipantDTO.builder()
-                        .taskId(project.getId())
-                        .userId(request.getDirectorId())
-                        .targetType(TargetType.PROJECT)
-                        .roleId(2L)
-                        .build();
-                leaders.add(participant);
-            }
-        }
-        // endregion
-        // 리더 정보 저장
-        participantService.createParticipants(leaders);
-        // 태스크
-        // region
+        participantService.createParticipants(List.of(participant));
+    }
 
-//        if(request.getTemplateData()!=null) {
-//            Map<String, Long> taskMap=new HashMap<>();
-//            for(NodeDTO node : request.getTemplateData().getNodeList()){
-//                String nodeId=node.getId();
-//                List<Long> sourceIds=new ArrayList<>();
-//                List<Long> targetIds=new ArrayList<>();
-//                for(EdgeDTO edge:request.getTemplateData().getEdgeList()){
-//                    if(nodeId.equals(edge.getSource())){
-//                        targetIds.add(Long.parseLong(edge.getTarget()));
-//                    } else if (nodeId.equals(edge.getTarget())) {
-//                        sourceIds.add(Long.parseLong(edge.getSource()));
-//                    }
-//                }
-//                if (sourceIds.isEmpty()) {
-//                    sourceIds.add(0L);
-//                }
-//                TemplateNodeDataDTO data=node.getData();
-//                RequestTaskDTO requestTaskDTO=RequestTaskDTO.builder()
-//                        .label(data.getLabel())
-//                        .description(data.getDescription())
-//                        .startBaseLine(LocalDate.parse(data.getStartBaseLine()))
-//                        .endBaseLine(LocalDate.parse(data.getEndBaseLine()))
-//                        .projectId(project.getId())
-//                        .deptList(data.getDeptList().stream()
-//                                .map(Long::valueOf)
-//                                .toList())
-//                        .source(sourceIds)
-//                        .target(targetIds)
-//                        .build();
-//
-//            }
-//        }
-        // endregion
-        return project;
+    private Project registerProject(ProjectCreateRequest request) {
+        return projectService.createProject(request);
     }
 
     @Transactional
@@ -124,7 +170,7 @@ public class ProjectFacadeService {
         Long directorId = participantQueryService.selectDirectorByProjectId(requestTaskDTO.getProjectId());
 
         Map<String, List<Long>> deptUsersMaps = deptNames.stream()
-                .collect(Collectors.toMap(name -> name, userQueryService::selectAllUserByDeptName));
+                .collect(Collectors.toMap(name -> name, userQueryService::selectMentionUserByDeptName));
 
         log.info("조회부터 완료");
 
@@ -132,7 +178,7 @@ public class ProjectFacadeService {
         Long taskId = taskService.createTask(requestTaskDTO);
         taskService.validateSource(requestTaskDTO.getSource());
         if (requestTaskDTO.getTarget() == null || requestTaskDTO.getTarget().isEmpty()) {
-            // target이 없으면 target=null로 관계 생성
+            // target이 없으면
             relationService.appendRelation(requestTaskDTO.getSource(), taskId);
         } else {
             taskService.validateTarget(requestTaskDTO.getTarget());
@@ -176,6 +222,7 @@ public class ProjectFacadeService {
         return updateTaskId;
     }
 
+
     @Transactional
     public Long updateStatusComplete(Long taskId) {
         Long updateTaskId = taskService.updateStatusComplete(taskId);
@@ -186,4 +233,88 @@ public class ProjectFacadeService {
         Long deleteTaskId = taskService.softDeleteTask(taskId);
         return deleteTaskId;
     }
+
+
+    @Transactional
+    public Long createDetail(RequestDetailDTO requestDetailDTO) {
+        Long detailId = detailService.createDetail(requestDetailDTO);
+        log.info("세부 일정 생성");
+
+        //1. source와 target 모두 null일 경우, 관계 설정을 생략
+        if ((requestDetailDTO.getSource() == null || requestDetailDTO.getSource().isEmpty()) &&
+                (requestDetailDTO.getTarget() == null || requestDetailDTO.getTarget().isEmpty())) {
+            log.info("source와 target 모두 null이므로 관계 설정을 생략합니다.");
+        } else {
+
+            if (requestDetailDTO.getSource() == null || requestDetailDTO.getSource().isEmpty()) {
+                //2. source가 없고, target만 있을 때 관계 설정
+                if (requestDetailDTO.getTarget() != null && !requestDetailDTO.getTarget().isEmpty()) {
+                    relationService.appendTargetRelation(requestDetailDTO.getTarget(), detailId); // target에 대한 관계 설정
+                }
+            } else {
+                if (requestDetailDTO.getTarget() == null || requestDetailDTO.getTarget().isEmpty()) {
+                    // 3.source는 있고 target이 없을 때
+                    relationService.appendRelation(requestDetailDTO.getSource(), detailId);
+                } else {
+                    //4.source와 target 둘 다 있을 때
+
+                    relationService.appendMiddleRelation(requestDetailDTO.getSource(), requestDetailDTO.getTarget(), detailId);
+                }
+            }
+            log.info("세부 일정 관계 설정");
+        }
+
+        Long deptId = requestDetailDTO.getDeptId();
+        workDeptService.createWorkDept(detailId, deptId);
+        log.info("참여 부서 설정 완료");
+
+        //DTO로 담당자 정보 받아오기
+        ParticipantDTO AssigneeDTO = ParticipantDTO.builder()
+                .targetType(TargetType.DETAILED)
+                .taskId(detailId)
+                .userId(requestDetailDTO.getAssigneeId())
+                .roleId(6L)
+                .build();
+        participantService.createAssignee(AssigneeDTO);
+        log.info("책임자 설정 완료");
+
+        // 여러 명의 참여자 ID 처리
+        for (Long participantId : requestDetailDTO.getParticipantIds()) {
+            // 담당자 DTO 생성
+            ParticipantDTO participants = ParticipantDTO.builder()
+                    .targetType(TargetType.DETAILED)
+                    .taskId(detailId)  // 해당 세부일정의 ID
+                    .userId(participantId)  // 참여자 ID
+                    .roleId(7L)  // 참여자임을 의미
+                    .build();
+
+            // 서비스 메서드에 DTO 전달
+            participantService.createAssignee(participants);
+            log.info("참여자 설정 완료: {}", participantId);
+        }
+
+        return detailId;
+    }
+
+    @Transactional
+    public Long updateDetail(Long detailId, RequestDetailDTO requestDetailDTO) {
+        // DetailService에서 세부 일정 수정 로직 호출
+        return detailService.updateDetail(detailId, requestDetailDTO);
+    }
+
+    // 1. 시작 버튼 (Status: PROGRESS, startReal: 현재 날짜)
+    public void startDetail(Long workId) {
+        detailService.startDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
+    }
+
+    // 2. 완료 버튼 (Status: COMPLETED, endReal: 현재 날짜, progressRate가 100일 경우)
+    public void completeDetail(Long workId) {
+        detailService.completeDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
+    }
+
+    // 3. 삭제 버튼 (Status: DELETED)
+    public void deleteDetail(Long workId) {
+        detailService.deleteDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
+    }
+
 }

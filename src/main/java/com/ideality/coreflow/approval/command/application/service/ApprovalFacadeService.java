@@ -10,15 +10,14 @@ import com.ideality.coreflow.attachment.command.application.service.AttachmentCo
 import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
-import com.ideality.coreflow.infra.service.S3Service;
+import com.ideality.coreflow.infra.s3.S3Service;
+import com.ideality.coreflow.infra.s3.UploadFileResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -122,21 +121,16 @@ public class ApprovalFacadeService {
 
     @Transactional
     public void uploadApprovalAttachment(long approvalId, MultipartFile file, long uploaderId) {
-        String fileName = s3Service.generateFileName(file);
-        log.info("파일 저장 명 {}", fileName);
         String folder = "approval-docs";
 
-        String url = s3Service.uploadFileWithFileName(file, fileName, folder);
-        log.info("파일 업로드 완료 {}", url);
-
-        String size = file.getSize() + " bytes";
+        UploadFileResult fileResult = s3Service.uploadFile(file, folder);
 
         RegistAttachmentDTO approvalAttachment = RegistAttachmentDTO.builder()
-                .originName(file.getOriginalFilename())
-                .storedName(fileName)
-                .url(url)
+                .originName(fileResult.getOriginalName())
+                .storedName(fileResult.getStoredName())
+                .url(fileResult.getUrl())
                 .fileType(file.getContentType())
-                .size(size)
+                .size(fileResult.getSize())
                 .targetId(approvalId)
                 .uploaderId(uploaderId)
                 .targetType(FileTargetType.APPROVAL)

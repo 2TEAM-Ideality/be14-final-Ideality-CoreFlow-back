@@ -16,4 +16,7 @@ public interface TaskService {
     void validateSource(List<Long> source);
 
     void validateTarget(List<Long> target);
+
+    void validateTask(Long taskId);
+
 }

@@ -111,6 +111,7 @@ CREATE TABLE template (
     CONSTRAINT FOREIGN KEY (updated_by) REFERENCES user(id)
 );
 
+-- 템플릿별 참여 부서
 CREATE TABLE template_dept(
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     template_id BIGINT NOT NULL,
@@ -303,7 +304,7 @@ CREATE TABLE attachment (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     origin_name VARCHAR(255) NOT NULL,
     stored_name VARCHAR(255) NOT NULL,
-    url VARCHAR(255) NOT NULL,
+    url TEXT NOT NULL,
     file_type VARCHAR(255) NOT NULL,
     size VARCHAR(255) NOT NULL,
     upload_at DATETIME NOT NULL,

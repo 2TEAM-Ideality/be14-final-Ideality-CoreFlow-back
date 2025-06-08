@@ -1,4 +1,4 @@
-package com.ideality.coreflow.infra.service;
+package com.ideality.coreflow.infra.s3;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ public class S3ServiceTests {
 
     @DisplayName("프로필 사진 업로드 테스트")
     @Test
-    public void successUploadProfile() throws IOException {
+    public void successUploadImage() throws IOException {
         // given
         String folder = "profile-image";
         String filename = "test-image.jpg";
@@ -37,7 +37,7 @@ public class S3ServiceTests {
         );
 
         // when
-        String uploadedUrl = s3Service.uploadFile(multipartFile, folder);
+        String uploadedUrl = s3Service.uploadImage(multipartFile, folder);
 
         // then
         System.out.println("✅ 업로드 성공: " + uploadedUrl);

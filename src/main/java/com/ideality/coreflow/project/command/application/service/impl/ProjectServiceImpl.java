@@ -44,4 +44,12 @@ public class ProjectServiceImpl implements ProjectService {
         projectRepository.save(project);
         return project;
     }
+
+    @Override
+    public boolean isCompleted(Long projectId) {
+        Project project = projectRepository.findById(projectId).
+            orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+
+		return project.getStatus().equals(Status.COMPLETED);
+    }
 }
