@@ -1,12 +1,14 @@
 package com.ideality.coreflow.project.query.controller;
 
 import com.ideality.coreflow.common.response.APIResponse;
+import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
 import com.ideality.coreflow.project.query.dto.ProjectSummaryDTO;
 import com.ideality.coreflow.project.query.service.ProjectQueryService;
 import com.ideality.coreflow.project.query.service.facade.ProjectQueryFacadeService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,5 +25,11 @@ public class ProjectQueryController {
         List<ProjectSummaryDTO> projects = projectQueryFacadeService.selectProjectSummaries(userId);
         int count=projects.size();
         return APIResponse.success(projects, "참여중인 프로젝트 목록 조회 완료 ("+count+"개)");
+    }
+
+    @GetMapping("/{projectId}")
+    public APIResponse<ProjectDetailResponseDTO> getProject(@PathVariable Long projectId) {
+        ProjectDetailResponseDTO project = projectQueryFacadeService.getProjectDetail(projectId);
+        return APIResponse.success(project, projectId+"번 프로젝트: "+project.getName()+" 조회 완료");
     }
 }

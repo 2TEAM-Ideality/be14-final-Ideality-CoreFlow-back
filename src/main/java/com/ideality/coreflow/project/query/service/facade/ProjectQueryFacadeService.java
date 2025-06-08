@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.query.service.facade;
 
 import com.ideality.coreflow.project.query.dto.DeptWorkDTO;
+import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
 import com.ideality.coreflow.project.query.dto.ProjectSummaryDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskInfoDTO;
@@ -30,6 +31,10 @@ public class ProjectQueryFacadeService {
     private final WorkService workService;
     private final WorkDeptQueryService workDeptQueryService;
     private final ProjectQueryService projectQueryService;
+
+    public ProjectDetailResponseDTO getProjectDetail(Long projectId) {
+        return projectQueryService.getProjectDetail(projectId);
+    }
 
     public List<ProjectSummaryDTO> selectProjectSummaries(Long userId) {
         return projectQueryService.selectProjectSummaries(userId);

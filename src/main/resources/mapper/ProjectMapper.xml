@@ -12,7 +12,7 @@
         <result property="progressRate" column="progress_rate"/>
         <result property="passedRate" column="passed_rate"/>
         <result property="delayDays" column="delay_days"/>
-        <association property="director" javaType="com.ideality.coreflow.project.query.dto.DirectorSummaryDTO">
+        <association property="director" javaType="com.ideality.coreflow.project.query.dto.UserInfoDTO">
             <result property="name" column="director_name"/>
             <result property="deptName" column="dept_name"/>
             <result property="jobRoleName" column="job_role_name"/>
@@ -50,5 +50,108 @@
                              AND pt.role_id       = 1
           JOIN user director  ON director.id      = pt.user_id
 <!--         WHERE p.status IN ('PENDING', 'PROGRESS', 'COMPLETED')-->
+    </select>
+
+    <resultMap id="ProjectDetailResultMap" type="com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="createdDate" column="created_at"/>
+        <result property="startBase" column="start_base"/>
+        <result property="endBase" column="end_base"/>
+        <result property="startExpect" column="start_expect"/>
+        <result property="endExpect" column="end_expect"/>
+        <result property="startReal" column="start_real"/>
+        <result property="endReal" column="end_real"/>
+        <result property="progressRate" column="progress_rate"/>
+        <result property="passedRate" column="passed_rate"/>
+        <result property="delayDays" column="delay_days"/>
+        <result property="status" column="status"/>
+
+        <association property="director" javaType="com.ideality.coreflow.project.query.dto.UserInfoDTO">
+            <result property="userId" column="director_id"/>
+            <result property="name" column="director_name"/>
+            <result property="profileImage" column="director_profile_image"/>
+            <result property="deptName" column="director_dept_name"/>
+            <result property="jobRoleName" column="director_job_role_name"/>
+        </association>
+    </resultMap>
+
+    <select id="getProjectDetail" parameterType="long" resultMap="ProjectDetailResultMap">
+        SELECT
+               p.id AS id
+             , p.name AS name
+             , p.description   AS description
+             , p.created_at    AS created_at
+             , p.start_base    AS start_base
+             , p.end_base      AS end_base
+             , p.start_expect  AS start_expect
+             , p.end_expect    AS end_expect
+             , p.start_real    AS start_real
+             , p.end_real      AS end_real
+             , p.progress_rate AS progress_rate
+             , p.passed_rate   AS passed_rate
+             , p.delay_days    AS delay_days
+             , p.status        AS status
+             , pd.user_id      AS director_id
+             , d.name          AS director_name
+             , d.profile_image AS director_profile_image
+             , d.dept_name     AS director_dept_name
+             , d.job_role_name AS director_job_role_name
+          FROM project            p
+          JOIN participant        pd
+            ON pd.target_id     = p.id
+           AND pd.target_type   = 'PROJECT'
+           AND pd.role_id       = 1
+          JOIN user d
+            ON d.id             = pd.user_id
+         WHERE p.id             = #{projectId}
+    </select>
+
+    <select id="getProjectLeaders" parameterType="long" resultType="com.ideality.coreflow.project.query.dto.UserInfoDTO">
+        SELECT
+               u.id            AS userId
+             , u.name          AS name
+             , u.dept_name     AS deptName
+             , u.job_role_name AS jobRoleName
+             , u.profile_image AS profileImage
+          FROM participant        p
+          JOIN user               u
+            ON u.id             = p.user_id
+         WHERE p.target_type    = 'PROJECT'
+           AND p.target_id      = #{projectId}
+           AND p.role_id        = 2
+    </select>
+
+    <select id="selectProjectSummary" parameterType="long" resultMap="ProjectSummaryMap">
+        SELECT
+            p.id AS project_id
+            , p.name AS project_name
+            , p.status
+            , CASE
+            WHEN p.status = 'PENDING' THEN p.start_expect
+            WHEN p.status = 'PROGRESS' THEN p.start_base
+            WHEN p.status = 'COMPLETED' THEN p.start_base
+            END AS start_date
+            , CASE
+            WHEN p.status = 'PENDING' THEN p.end_expect
+            WHEN p.status = 'PROGRESS' THEN p.end_expect
+            WHEN p.status = 'COMPLETED' THEN p.end_base
+            END AS end_date
+            , director.name AS director_name
+            , director.dept_name AS dept_name
+            , director.job_role_name AS job_role_name
+            , director.profile_image AS profile_image
+            , p.progress_rate
+            , p.passed_rate
+            , p.delay_days
+        FROM project p
+            JOIN participant me ON me.target_id     = p.id
+            AND me.target_type   = 'PROJECT'
+            AND me.user_id       = #{userId}
+            JOIN participant pt ON pt.target_id     = p.id
+            AND pt.target_type   = 'PROJECT'
+            AND pt.role_id       = 1
+            JOIN user director  ON director.id      = pt.user_id
     </select>
 </mapper>

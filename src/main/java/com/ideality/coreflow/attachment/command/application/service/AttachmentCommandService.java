@@ -2,10 +2,9 @@ package com.ideality.coreflow.attachment.command.application.service;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.UUID;
-import java.util.Optional;
-
+import com.ideality.coreflow.attachment.command.application.dto.AttachmentPreviewDTO;
 import com.ideality.coreflow.attachment.command.application.dto.CreateAttachmentDTO;
+import com.ideality.coreflow.attachment.command.application.dto.RegistAttachmentDTO;
 import org.springframework.stereotype.Service;
 
 import com.ideality.coreflow.attachment.command.domain.aggregate.Attachment;
@@ -46,7 +45,7 @@ public class AttachmentCommandService {
 
 	// OK. TargetType 받아서 업데이트하는 방법 <모든 파일 타입 공통으로 적용 가능>
 	@Transactional
-	public void updateAttachmentForTemplate(FileTargetType fileType, Long targetId, String fileName, String fileUrl, String size) {
+	public void updateAttachmentForTemplate(FileTargetType fileType, Long targetId, String fileName, String fileUrl, String size, Long updatedBy) {
 		// 타겟 아이디, 타겟 타입을 조합해서 기존 첨부파일 찾기
 		Attachment originAttachment = attachmentRepository.findByTargetIdAndTargetType(targetId, fileType)
 			.orElseThrow(() -> new BaseException(ErrorCode.ATTCHMENT_NOT_FOUND));
@@ -55,7 +54,8 @@ public class AttachmentCommandService {
 		originAttachment.updateInfo(
 			fileName,
 			fileUrl,
-			size
+			size,
+			updatedBy
 		);
 	}
 
@@ -66,6 +66,27 @@ public class AttachmentCommandService {
 
 		originAttachment.delete();
 
+	}
+
+	public void registAttachment(RegistAttachmentDTO approvalAttachment) {
+		Attachment attachment = Attachment.builder()
+				.originName(approvalAttachment.getOriginName())
+				.storedName(approvalAttachment.getStoredName())
+				.url(approvalAttachment.getUrl())
+				.fileType(approvalAttachment.getFileType())
+				.size(approvalAttachment.getSize())
+				.uploadAt(LocalDateTime.now())
+				.targetType(approvalAttachment.getTargetType())
+				.targetId(approvalAttachment.getTargetId())
+				.uploaderId(approvalAttachment.getUploaderId())
+				.isDeleted(false)
+				.build();
+		attachmentRepository.save(attachment);
+	}
+
+	public AttachmentPreviewDTO getOriginName(long approvalId, FileTargetType fileTargetType) {
+		Attachment attachment = attachmentRepository.findByTargetIdAndTargetType(approvalId, fileTargetType).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
+		return AttachmentPreviewDTO.builder().originName(attachment.getOriginName()).url(attachment.getUrl()).build();
 	}
 
 	public Boolean findAttachmentByTargetId(Long templateId) {
