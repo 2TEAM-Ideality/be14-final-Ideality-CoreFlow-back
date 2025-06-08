@@ -6,6 +6,7 @@ import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.email.command.application.service.EmailSendService;
 import com.ideality.coreflow.email.command.domail.aggregate.EmailType;
+import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.user.command.application.dto.LoginDTO;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.application.service.RoleService;
@@ -35,6 +36,7 @@ public class AuthFacadeService {
     private final EmailSendService emailSendService;
     private final RoleService roleService;
     private final UserOfRoleService userOfRoleService;
+    private final DeptQueryService deptQueryService;
 
     // 로그인
     @Transactional
@@ -146,7 +148,7 @@ public class AuthFacadeService {
         long sequence = userQueryService.countByJobRoleName(request.getRoleName()) + 1;
 
         // 부서 id 조회
-        long deptId = 0;
+        long deptId = deptQueryService.findDeptIdByName("협력업체");
 
         // -----------------------
         // 파트너 넘버 생성
