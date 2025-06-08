@@ -133,4 +133,23 @@ public class UserServiceImpl implements UserService {
             user.updateOrg(type, newName);
         }
     }
+
+    @Override
+    public UserInfoDTO findUserById(long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
+        return UserInfoDTO.builder()
+                .id(user.getId())
+                .employeeNum(user.getEmployeeNum())
+                .name(user.getName())
+                .email(user.getEmail())
+                .birth(user.getBirth())
+                .hireDate(user.getHireDate())
+                .isResign(user.getIsResign())
+                .resignDate(user.getResignDate())
+                .profileImage(user.getProfileImage())
+                .deptName(user.getDeptName())
+                .jobRankName(user.getJobRankName())
+                .jobRoleName(user.getJobRoleName())
+                .build();
+    }
 }
