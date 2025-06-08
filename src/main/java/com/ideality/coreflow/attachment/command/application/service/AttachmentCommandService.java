@@ -3,6 +3,7 @@ package com.ideality.coreflow.attachment.command.application.service;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import com.ideality.coreflow.attachment.command.application.dto.AttachmentPreviewDTO;
+import com.ideality.coreflow.attachment.command.application.dto.CreateAttachmentDTO;
 import com.ideality.coreflow.attachment.command.application.dto.RegistAttachmentDTO;
 import org.springframework.stereotype.Service;
 
@@ -86,6 +87,7 @@ public class AttachmentCommandService {
 	public AttachmentPreviewDTO getOriginName(long approvalId, FileTargetType fileTargetType) {
 		Attachment attachment = attachmentRepository.findByTargetIdAndTargetType(approvalId, fileTargetType).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
 		return AttachmentPreviewDTO.builder().originName(attachment.getOriginName()).url(attachment.getUrl()).build();
+	}
 
 	public Boolean findAttachmentByTargetId(Long templateId) {
 		return attachmentRepository.existsAttachmentByTargetId(templateId);

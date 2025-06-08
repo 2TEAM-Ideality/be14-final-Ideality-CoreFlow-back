@@ -1,10 +1,7 @@
 package com.ideality.coreflow.user.query.service;
 
-<<<<<<< HEAD
 import com.ideality.coreflow.user.query.dto.DeptNameAndYearDTO;
-=======
 import com.ideality.coreflow.user.query.dto.UserNameIdDto;
->>>>>>> develop
 
 import java.util.List;
 

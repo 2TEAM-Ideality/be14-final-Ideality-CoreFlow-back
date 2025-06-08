@@ -1,14 +1,14 @@
 package com.ideality.coreflow.project.query.dto;
 
 
-import com.ideality.coreflow.approval.domain.aggregate.Status;
+import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalStatus;
 import lombok.Getter;
 
 @Getter
 public class ProjectSummaryDTO {
     private Long id;
     private String name;
-    private Status status;
+    private ApprovalStatus status;
     private String startDate;
     private String endDate;
     private DirectorSummaryDTO director;
