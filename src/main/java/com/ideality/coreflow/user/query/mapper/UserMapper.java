@@ -28,4 +28,6 @@ public interface UserMapper {
     List<UserMentionDTO> selectMentionUserByDeptName(String deptName, Long projectId);
 
     List<UserMentionDTO> selectMentionUserByKeyword(String keyword, Long projectId);
+
+    List<Long> selectUserListByMention(List<String> deptName, List<String> jobRank, List<String> name);
 }

@@ -5,4 +5,6 @@ import java.util.Map;
 
 public interface NotificationRecipientsService {
     void createRecipients(Map<Long, List<Long>> notificationIdToUserIds);
+
+    void createRecipientsByMention(List<Long> userIdByMention, Long notificationId);
 }

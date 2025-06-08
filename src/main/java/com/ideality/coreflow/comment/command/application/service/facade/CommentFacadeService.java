@@ -12,6 +12,7 @@ import com.ideality.coreflow.notification.command.application.service.Notificati
 import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import com.ideality.coreflow.project.query.service.WorkService;
+import com.ideality.coreflow.user.query.service.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ public class CommentFacadeService {
     private final WorkService workService;
     private final TaskService taskService;
     private final S3Service s3Service;
+    private final UserQueryService userQueryService;
 
     @Transactional
     public Long createComment(RequestCommentDTO commentDTO, Long taskId) {
@@ -44,7 +46,16 @@ public class CommentFacadeService {
         Long commentId = commentService.createComment(commentDTO, taskId);
 
         if (commentDTO.getMentions() != null) {
+            // 팀명만 태그했을 때
+            // 전체 이름으로 태그했을 때 -> 파싱할 필요 없이 마이바티스 동적 쿼리로 사용
+            // 어차피 회원 테이블에는 반정규화로 인해 부서명이 들어가있음
 
+            List<Long> userIdByMention = userQueryService.selectIdByMentionList(commentDTO.getMentions());
+            log.info("사용자 조회 완료");
+            Long notificationId = notificationService.createMentionNotification(taskId);
+            log.info("알림 생성 완료");
+            notificationRecipientsService.createRecipientsByMention(userIdByMention, notificationId);
+            log.info("알림 전달할 사람에게 전달 완료");
         }
 
         if (commentDTO.getDetails() != null) {

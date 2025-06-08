@@ -34,4 +34,20 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.save(notification);
         return notification.getId();
     }
+
+    @Override
+    @Transactional
+    public Long createMentionNotification(Long taskId) {
+        Notification notification = Notification.builder()
+                .targetType(String.valueOf(Notification.TargetType.WORK))
+                .targetId(taskId)
+                .content("댓글에 태그되었습니다.")
+                .status(String.valueOf(Notification.Status.SENT))
+                .dispatchAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        notificationRepository.save(notification);
+        return notification.getId();
+    }
 }

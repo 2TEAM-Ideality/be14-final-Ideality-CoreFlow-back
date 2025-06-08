@@ -46,4 +46,22 @@ public class NotificationRecipientsServiceImpl implements NotificationRecipients
             }
         }
     }
+
+    @Override
+    @Transactional
+    public void createRecipientsByMention(List<Long> userIdByMention, Long notificationId) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new BaseException(ErrorCode.NOTIFICATION_NOT_FOUND));
+
+        for (Long userId : userIdByMention) {
+            log.info("Creating recipient {} for notification {}", userId, notificationId);
+
+            NotificationRecipient notificationRecipient = NotificationRecipient.builder()
+                    .notification(notification)
+                    .userId(userId)
+                    .build();
+
+            notificationRecipientsRepository.save(notificationRecipient);
+        }
+    }
 }

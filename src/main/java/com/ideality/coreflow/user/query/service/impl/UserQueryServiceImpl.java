@@ -84,4 +84,27 @@ public class UserQueryServiceImpl implements UserQueryService {
 
         return result;
     }
+
+    @Override
+    public List<Long> selectIdByMentionList(List<String> mentions) {
+
+        List<String> deptName = new ArrayList<>();
+        List<String> jobRank = new ArrayList<>();
+        List<String> name = new ArrayList<>();
+        for (String mention : mentions) {
+            String[] parse = mention.split("_");
+
+            if (parse.length == 1) deptName.add(parse[0]);
+            if (parse.length == 2) {
+                deptName.add(parse[0]);
+                jobRank.add(parse[1]);
+            }
+            if (parse.length == 3) {
+                deptName.add(parse[0]);
+                jobRank.add(parse[1]);
+                name.add(parse[2]);
+            }
+        }
+        return userMapper.selectUserListByMention(deptName, jobRank, name);
+    }
 }

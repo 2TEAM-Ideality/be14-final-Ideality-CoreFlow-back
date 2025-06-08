@@ -4,4 +4,6 @@ import java.util.List;
 
 public interface NotificationService {
     Long createDetailNotification(Long detailId);
+
+    Long createMentionNotification(Long taskId);
 }
