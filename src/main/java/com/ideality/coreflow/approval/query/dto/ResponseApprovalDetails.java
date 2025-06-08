@@ -7,9 +7,9 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@Getter
 @Builder
-public class ApprovalDetailsDTO {
+@Getter
+public class ResponseApprovalDetails {
     long id;
     String requesterName;
     String title;
@@ -26,4 +26,7 @@ public class ApprovalDetailsDTO {
     Integer delayDays;
     String actionDetail;
     String delayReason;
+
+    String attachmentUrl;
+    String originName;
 }
