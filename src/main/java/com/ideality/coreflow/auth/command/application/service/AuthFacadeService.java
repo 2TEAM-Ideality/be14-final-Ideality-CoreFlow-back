@@ -40,7 +40,7 @@ public class AuthFacadeService {
 
     // 로그인
     @Transactional
-    public ResponseToken login(RequestLogin requestLogin) {
+    public ResponseLogin login(RequestLogin requestLogin) {
 
         log.info("request identifier: {}", requestLogin.getIdentifier());
 
@@ -53,7 +53,25 @@ public class AuthFacadeService {
         List<String> userOfRoles = userQueryService.findGeneralRolesByUserId(loginInfo.getId());
         log.info("해당 유저 역할 정보 조회: {}", userOfRoles);
 
-        return authService.login(loginInfo, requestLogin.getPassword(), userOfRoles);
+        ResponseToken responseToken = authService.login(loginInfo, requestLogin.getPassword(), userOfRoles);
+
+        return ResponseLogin.builder()
+                .id(loginInfo.getId())
+                .employeeNum(loginInfo.getEmployeeNum())
+                .name(loginInfo.getName())
+                .email(loginInfo.getEmail())
+                .birth(loginInfo.getBirth())
+                .hireDate(loginInfo.getHireDate())
+                .profileImage(loginInfo.getProfileImage())
+                .deptName(loginInfo.getDeptName())
+                .jobRankName(loginInfo.getJobRankName())
+                .jobRoleName(loginInfo.getJobRoleName())
+                .accessToken(responseToken.getAccessToken())
+                .refreshToken(responseToken.getRefreshToken())
+                .schemaName(responseToken.getSchemaName())
+                .roles(userOfRoles)
+                .isTemp(responseToken.isTemp())
+                .build();
     }
 
     // 회원가입

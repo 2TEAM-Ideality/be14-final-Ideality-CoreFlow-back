@@ -31,7 +31,6 @@ public class UserServiceImpl implements UserService {
         log.info("tenant: {}", TenantContext.getTenant());
         TenantContext.setTenant(TenantContext.getTenant());
 
-        LoginDTO result = new LoginDTO();
         User user;
 
         if (loginType == LoginType.EMPLOYEE_NUM) {
@@ -45,11 +44,20 @@ public class UserServiceImpl implements UserService {
         if (user.getIsResign()) {
             throw new BaseException(ErrorCode.RESIGNED_USER);
         }
-        result.setId(user.getId());
-        result.setEmployeeNum(user.getEmployeeNum());
-        result.setPassword(user.getPassword());
 
-        return result;
+        return LoginDTO.builder()
+                .id(user.getId())
+                .employeeNum(user.getEmployeeNum())
+                .password(user.getPassword())
+                .name(user.getName())
+                .email(user.getEmail())
+                .birth(user.getBirth())
+                .hireDate(user.getHireDate())
+                .profileImage(user.getProfileImage())
+                .deptName(user.getDeptName())
+                .jobRankName(user.getJobRankName())
+                .jobRoleName(user.getJobRoleName())
+                .build();
     }
 
     @Override

@@ -1,18 +1,16 @@
-package com.ideality.coreflow.user.command.application.dto;
+package com.ideality.coreflow.auth.command.application.dto;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.ToString;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
-@ToString
 @Builder
-public class LoginDTO {
+public class ResponseLogin {
     Long id;
     String employeeNum;
-    String password;
     String name;
     String email;
     LocalDate birth;
@@ -21,4 +19,10 @@ public class LoginDTO {
     String deptName;
     String jobRankName;
     String jobRoleName;
+
+    String accessToken;
+    String refreshToken;
+    String schemaName;
+    List<String> roles;
+    boolean isTemp;
 }
