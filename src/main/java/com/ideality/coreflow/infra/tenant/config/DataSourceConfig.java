@@ -24,10 +24,13 @@ public class DataSourceConfig {
 
     @Bean
     @Primary
-    public DataSource DataSource() {
-        TenantRoutingDataSource routingDataSource = new TenantRoutingDataSource();
+    public DataSource DataSource(TenantDataSourceProvider tenantDataSourceProvider) {
+        TenantRoutingDataSource routingDataSource = new TenantRoutingDataSource(tenantDataSourceProvider);
+
         routingDataSource.setDefaultTargetDataSource(masterDataSource());
+
         routingDataSource.setTargetDataSources(new HashMap<>()); // 빈으로 등록 후 런타임에 동적 구성 가능
+
         return routingDataSource;
     }
 
@@ -43,23 +46,30 @@ public class DataSourceConfig {
         return new HikariDataSource(config);
     }
 
-
-
     @Bean
     public JdbcTemplate masterJdbcTemplate() {
         return new JdbcTemplate(masterDataSource());
     }
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
+    public JdbcTemplate tenantJdbcTemplate(DataSource routingDataSource) {
+        return new JdbcTemplate(routingDataSource);
+    }
+
+    @Bean
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource routingDataSource) {
         var vendorAdapter = new HibernateJpaVendorAdapter();
         var factory = new LocalContainerEntityManagerFactoryBean();
-        factory.setDataSource(dataSource);
-        factory.setPackagesToScan("com.ideality.coreflow.common.tenant",
+        factory.setDataSource(routingDataSource);
+        factory.setPackagesToScan(
+            "com.ideality.coreflow.tenant.command.domain.aggregate",
+            "com.ideality.coreflow.user.command.domain.aggregate",
             "com.ideality.coreflow.template.command.domain.aggregate",
             "com.ideality.coreflow.attachment.command.domain.aggregate",
             "com.ideality.coreflow.project.command.domain.aggregate",
             "com.ideality.coreflow.holiday.command.domain.aggregate",
+            "com.ideality.coreflow.org.command.domain.aggregate",
+            "com.ideality.coreflow.approval.command.domain.aggregate",
             "com.ideality.coreflow.comment.command.domain.aggregate",
             "com.ideality.coreflow.holiday.command.domain.aggregate",
             "com.ideality.coreflow.calendar.command.domain.aggregate"
