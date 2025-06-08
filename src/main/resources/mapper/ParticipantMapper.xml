@@ -10,4 +10,11 @@
            AND target_type = 'PROJECT'
            AND role_id = 1
     </select>
+
+    <select id="selectParticipantsList" resultType="long">
+        SELECT user_id
+          FROM participant
+         WHERE target_id = #{detailParticipantId}
+           AND target_type = 'DETAILED'
+    </select>
 </mapper>

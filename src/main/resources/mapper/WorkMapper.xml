@@ -139,4 +139,14 @@
             AND name LIKE CONCAT('%', #{detailTarget}, '%')
         </if>
     </select>
+
+    <select id="selectWorkIdByName" resultType="long">
+        SELECT id
+          FROM work
+         WHERE name IN
+        <foreach collection="list" item="name" open="(" separator="," close=")">
+            #{name}
+        </foreach>
+        AND parent_task_id IS NOT NULL
+    </select>
 </mapper>

@@ -66,7 +66,8 @@ public enum ErrorCode {
     TASK_PROGRESS_NOT_COMPLETED("TASK_PROGRESS_NOT_COMPLETED","진행률이 100%여야 작업을 완료할 수 있습니다.", HttpStatus.BAD_REQUEST),
 	SCHEDULE_NOT_REPEATABLE("SCHEDULE_NOT_REPEATABLE", "반복규칙을 만들 수 없는 일정입니다.", HttpStatus.CONFLICT),
 
-    SCHEDULE_NOT_FOUND("SCHEDULE_NOT_FOUND", "존재하지 않는 일정입니다.", HttpStatus.NOT_FOUND);
+    SCHEDULE_NOT_FOUND("SCHEDULE_NOT_FOUND", "존재하지 않는 일정입니다.", HttpStatus.NOT_FOUND),
+    NOTIFICATION_NOT_FOUND("NOTIFICATION_NOT_FOUND", "존재하지 않는 알림입니다.", HttpStatus.NOT_FOUND),;
 
     private final String code;
     private final String message;

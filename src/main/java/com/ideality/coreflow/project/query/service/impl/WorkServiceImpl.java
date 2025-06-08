@@ -14,7 +14,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class WorkServieImpl implements WorkService {
+public class WorkServiceImpl implements WorkService {
 
     private final WorkMapper workMapper;
 
@@ -81,5 +81,10 @@ public class WorkServieImpl implements WorkService {
     @Override
     public List<String> getDetailList(Long projectId, Long taskId, String detailTarget) {
         return workMapper.selectDetailListByTarget(projectId, taskId, detailTarget);
+    }
+
+    @Override
+    public List<Long> selectWorkIdByName(List<String> details) {
+        return workMapper.selectWorkIdByName(details);
     }
 }

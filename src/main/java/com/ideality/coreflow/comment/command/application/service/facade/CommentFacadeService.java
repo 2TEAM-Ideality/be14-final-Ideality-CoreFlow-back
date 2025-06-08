@@ -6,20 +6,32 @@ import com.ideality.coreflow.comment.command.application.dto.RequestCommentDTO;
 import com.ideality.coreflow.comment.command.application.service.CommentService;
 import com.ideality.coreflow.infra.s3.S3Service;
 import com.ideality.coreflow.infra.s3.UploadFileResult;
-import com.ideality.coreflow.project.command.application.service.ParticipantService;
+import com.ideality.coreflow.mention.service.MentionService;
+import com.ideality.coreflow.notification.command.application.service.NotificationRecipientsService;
+import com.ideality.coreflow.notification.command.application.service.NotificationService;
 import com.ideality.coreflow.project.command.application.service.TaskService;
+import com.ideality.coreflow.project.query.service.ParticipantQueryService;
+import com.ideality.coreflow.project.query.service.WorkService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class CommentFacadeService {
     private final CommentService commentService;
-    private final ParticipantService participantService;
+    private final ParticipantQueryService participantQueryService;
     private final AttachmentCommandService attachmentCommandService;
+    private final MentionService mentionService;
+    private final NotificationService notificationService;
+    private final NotificationRecipientsService notificationRecipientsService;
+    private final WorkService workService;
     private final TaskService taskService;
     private final S3Service s3Service;
 
@@ -30,6 +42,37 @@ public class CommentFacadeService {
         taskService.validateTask(taskId);
 
         Long commentId = commentService.createComment(commentDTO, taskId);
+
+        if (commentDTO.getMentions() != null) {
+
+        }
+
+        if (commentDTO.getDetails() != null) {
+            log.info(commentDTO.getDetails().toString());
+
+            List<Long> detailIdList = workService.selectWorkIdByName(commentDTO.getDetails());
+            log.info("detailId: {}", detailIdList);
+
+            // 최종 목적에 맞는 구조: 알림 ID → 수신자 ID 리스트
+            Map<Long, List<Long>> notificationIdToUserIds = new HashMap<>();
+
+            for (Long detailId : detailIdList) {
+                log.info("loop 반복");
+                // 알림 생성
+                Long notificationId = notificationService.createDetailNotification(detailId);
+
+                // detailId에 참여 중인 유저 목록 조회
+                List<Long> participantIds = participantQueryService.selectParticipantsList(detailId);
+                log.info("detailId={}, participants={}", detailId, participantIds);
+
+                // 알림 ID와 해당 수신자 리스트를 매핑
+                notificationIdToUserIds.put(notificationId, participantIds);
+            }
+
+            // 알림 수신자 등록
+            notificationRecipientsService.createRecipients(notificationIdToUserIds);
+        }
+
 
         /* 설명. 첨부 파일이 있을 때만 로직을 수행하게끔 흐름 조정 */
         if (commentDTO.getAttachmentFile() != null) {
