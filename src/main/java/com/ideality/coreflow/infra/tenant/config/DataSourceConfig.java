@@ -69,7 +69,8 @@ public class DataSourceConfig {
             "com.ideality.coreflow.project.command.domain.aggregate",
             "com.ideality.coreflow.holiday.command.domain.aggregate",
             "com.ideality.coreflow.org.command.domain.aggregate",
-            "com.ideality.coreflow.approval.command.domain.aggregate"
+            "com.ideality.coreflow.approval.command.domain.aggregate",
+                "com.ideality.coreflow.common.config"
         );
         factory.setJpaVendorAdapter(vendorAdapter);
         factory.setJpaPropertyMap(jpaProperties.getProperties());

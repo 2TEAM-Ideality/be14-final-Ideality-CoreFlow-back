@@ -43,7 +43,7 @@ public class S3Service {
         }
     }
 
-    private String generateFileName(MultipartFile file) {
+    public String generateFileName(MultipartFile file) {
         return UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
     }
 
@@ -92,4 +92,20 @@ public class S3Service {
         return url.substring(url.indexOf(".com/") + 5);
     }
 
+    public String uploadFileWithFileName(MultipartFile file, String fileName, String folder) {
+        String key = generateKey(fileName, folder);          // profile-image/uuid.jpg
+        try {
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType(file.getContentType());
+            metadata.setContentLength(file.getSize());
+
+            amazonS3Client.putObject(
+                    new PutObjectRequest(bucketName, key, file.getInputStream(), metadata)
+            );
+
+            return amazonS3Client.getUrl(bucketName, key).toString();  // ✅ key로 URL 구성
+        } catch (IOException e) {
+            throw new RuntimeException("파일 업로드 실패", e);
+        }
+    }
 }

@@ -1,11 +1,14 @@
 package com.ideality.coreflow.approval.command.application.dto;
 
 import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalType;
-import lombok.Getter;
+import lombok.*;
 
 import java.util.List;
 
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class RequestApproval {
 
     String title;
@@ -20,6 +23,4 @@ public class RequestApproval {
     Integer delayDays;
     Long delayReasonId;
     String actionDetail;
-
-    // 첨부파일 정보
 }

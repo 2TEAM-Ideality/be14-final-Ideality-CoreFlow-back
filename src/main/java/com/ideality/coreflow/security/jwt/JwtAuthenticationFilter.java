@@ -54,6 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+        log.info("Request 콘텐트타입: " + request.getContentType());
         String uri = request.getRequestURI();
         String method = request.getMethod();
 
@@ -68,6 +69,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                          HttpServletResponse response,
                                          FilterChain filterChain)
             throws ServletException, IOException {
+        log.info("Request 콘텐트타입: " + request.getContentType());
         try {
             String bearerToken = request.getHeader("Authorization");
 

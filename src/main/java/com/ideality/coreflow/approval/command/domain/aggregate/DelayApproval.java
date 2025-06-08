@@ -27,5 +27,5 @@ public class DelayApproval {
     private Long delayReasonId;
 
     @Column(name = "approval_id")
-    private Long ApprovalId;
+    private Long approvalId;
 }

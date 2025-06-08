@@ -3,6 +3,7 @@ package com.ideality.coreflow.attachment.command.application.service;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
+import com.ideality.coreflow.attachment.command.application.dto.RegistAttachmentDTO;
 import org.hibernate.tool.schema.TargetType;
 import org.springframework.stereotype.Service;
 
@@ -64,5 +65,21 @@ public class AttachmentCommandService {
 
 		originAttachment.delete();
 
+	}
+
+	public void registAttachment(RegistAttachmentDTO approvalAttachment) {
+		Attachment attachment = Attachment.builder()
+				.originName(approvalAttachment.getOriginName())
+				.storedName(approvalAttachment.getStoredName())
+				.url(approvalAttachment.getUrl())
+				.fileType(approvalAttachment.getFileType())
+				.size(approvalAttachment.getSize())
+				.uploadAt(LocalDateTime.now())
+				.targetType(approvalAttachment.getTargetType())
+				.targetId(approvalAttachment.getTargetId())
+				.uploaderId(approvalAttachment.getUploaderId())
+				.isDeleted(false)
+				.build();
+		attachmentRepository.save(attachment);
 	}
 }

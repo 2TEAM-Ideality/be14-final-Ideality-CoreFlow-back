@@ -1,5 +1,6 @@
 package com.ideality.coreflow.approval.command.application.service.impl;
 
+import com.ideality.coreflow.approval.command.application.dto.CreateApprovalParticipantDTO;
 import com.ideality.coreflow.approval.command.application.service.ApprovalParticipantService;
 import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalParticipant;
 import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalRole;
@@ -29,5 +30,31 @@ public class ApprovalParticipantServiceImpl implements ApprovalParticipantServic
                 .build();
 
         approvalParticipantRepository.save(approvalParticipant);
+    }
+
+    @Override
+    public void registApprovalParticipant(CreateApprovalParticipantDTO approvalParticipant) {
+
+        long approvalId = approvalParticipant.getApprovalId();
+
+        // 결재자 등록
+        ApprovalParticipant approver = ApprovalParticipant.builder()
+                .approvalId(approvalId)
+                .userId(approvalParticipant.getApproverId())
+                .role(ApprovalRole.APPROVER)
+                .createdAt(LocalDateTime.now())
+                .build();
+        approvalParticipantRepository.save(approver);
+
+        // 참조자 등록
+        for (long viewerId : approvalParticipant.getViewerIds()) {
+            ApprovalParticipant viewer = ApprovalParticipant.builder()
+                    .approvalId(approvalId)
+                    .userId(viewerId)
+                    .role(ApprovalRole.VIEWER)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            approvalParticipantRepository.save(viewer);
+        }
     }
 }
