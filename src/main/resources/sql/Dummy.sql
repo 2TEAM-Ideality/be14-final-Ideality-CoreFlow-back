@@ -12,10 +12,10 @@ VALUES ("팀원"),
        ("본부장");
 
 INSERT INTO dept (name, dept_code)
-VALUES ("기획", "PM"),
-       ("디자인", "DES"),
-       ("소싱", "MD"),
-       ("생산", "MFG");
+VALUES ("기획팀", "PM"),
+       ("디자인팀", "DES"),
+       ("소싱팀", "MD"),
+       ("생산팀", "MFG");
 
 INSERT INTO user
 (employee_num,
@@ -36,7 +36,7 @@ VALUES
         'haojang@naver.com',
         '2001-01-01',
         CURRENT_DATE,
-        '기획',
+        '기획팀',
         '과장',
         '팀장'
     ),
@@ -47,7 +47,7 @@ VALUES
         'xinyu@naver.com',
         '2003-01-01',
         CURRENT_DATE,
-        '기획',
+        '기획팀',
         '사원',
         '팀원'
     ),
@@ -58,7 +58,7 @@ VALUES
         'hanbin@naver.com',
         '2001-02-02',
         CURRENT_DATE,
-        '디자인',
+        '디자인팀',
         '과장',
         '팀장'
     ),
@@ -69,7 +69,7 @@ VALUES
         'hailey@naver.com',
         '2002-06-02',
         CURRENT_DATE,
-        '디자인',
+        '디자인팀',
         '사원',
         '팀원'
     ),
@@ -80,7 +80,7 @@ VALUES
         'ryuryu@naver.com',
         '1987-03-03',
         CURRENT_DATE,
-        '소싱',
+        '소싱팀',
         '부장',
         '팀장'
     ),
@@ -91,7 +91,7 @@ VALUES
         'minsu@naver.com',
         '1997-04-04',
         CURRENT_DATE,
-        '소싱',
+        '소싱팀',
         '대리',
         '팀원'
     ),
@@ -102,7 +102,7 @@ VALUES
         'hancoal@naver.com',
         '1999-05-05',
         CURRENT_DATE,
-        '생산',
+        '생산팀',
         '과장',
         '팀장'
     ),
@@ -113,7 +113,7 @@ VALUES
         'doyoungkim@naver.com',
         '2000-03-03',
         CURRENT_DATE,
-        '생산',
+        '생산팀',
         '사원',
         '팀원'
     ),
@@ -124,7 +124,7 @@ VALUES
         'hyoju@naver.com',
         '2000-03-09',
         CURRENT_DATE,
-        '기획',
+        '기획팀',
         '차장',
         '본부장'
     );
@@ -175,6 +175,32 @@ VALUES
         CURRENT_DATE,
         '2025-12-28'
     );
+
+-- 완료된 프로젝트
+INSERT INTO project (
+    id,
+    name,
+    description,
+    created_at,
+    start_base,
+    end_base,
+    start_expect,
+    end_expect,
+    passed_rate,
+    progress_rate,
+    delay_days,
+    status,
+    template_id
+) VALUES
+-- 프로젝트 5
+(5, '신제품 출시 프로젝트', '신제품 A의 시장 출시를 위한 프로젝트입니다.', '2025-06-07 11:35:00', '2025-05-01', '2025-07-01', '2025-05-01', '2025-07-01', 100, 100, 0, 'COMPLETED', 2),
+
+-- 프로젝트 6
+(6, '내부 시스템 리뉴얼', '사내 시스템 UI/UX 리뉴얼 및 기능 개선', '2025-06-07 11:36:00', '2025-04-15', '2025-06-30', '2025-04-15', '2025-06-30', 100, 100, 0, 'COMPLETED', 1),
+
+-- 프로젝트 7
+(7, '파트너십 협업 개발', 'B사와의 협업을 통한 기능 공동 개발', '2025-06-07 11:37:00', '2025-03-10', '2025-05-31', '2025-03-10', '2025-05-31', 100, 100, 0, 'COMPLETED', NULL);
+
 
 INSERT INTO user_of_role
 (

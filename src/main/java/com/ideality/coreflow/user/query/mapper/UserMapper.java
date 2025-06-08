@@ -1,5 +1,6 @@
 package com.ideality.coreflow.user.query.mapper;
 
+import com.ideality.coreflow.user.query.dto.UserMentionDTO;
 import com.ideality.coreflow.user.query.dto.UserNameIdDto;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -17,4 +18,14 @@ public interface UserMapper {
     String selectDeptNameByUserId(Long userId);
 
     Boolean selectUserById(Long userId);
+
+    List<UserMentionDTO> selectMentionUserByProjectId(Long projectId);
+
+    List<UserMentionDTO> selectMentionUserByDeptAndJob(String deptName, String jobRank, Long projectId);
+
+    List<UserMentionDTO> selectMentionUserByMentionInfo(String deptName, String jobRank, String name, Long projectId);
+
+    List<UserMentionDTO> selectMentionUserByDeptName(String deptName, Long projectId);
+
+    List<UserMentionDTO> selectMentionUserByKeyword(String keyword, Long projectId);
 }
