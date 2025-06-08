@@ -6,6 +6,8 @@ import com.ideality.coreflow.notification.command.domain.aggregate.Status;
 import com.ideality.coreflow.notification.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.notification.command.domain.repository.NotificationRecipientRepository;
 import com.ideality.coreflow.notification.command.domain.repository.NotificationRepository;
+import com.ideality.coreflow.notification.query.mapper.NotificationMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -51,8 +53,5 @@ public class NotificationService {
 
 
 
-    // 가장 최근 알림 가져오기 (예시로)- 사용자별 필터링 안되어있음 ㅜ
-    public List<Notification> getLatestNotification() {
-        return notificationRepository.findAll(); // 예시로 모든 알림을 가져옴
-    }
+
 }

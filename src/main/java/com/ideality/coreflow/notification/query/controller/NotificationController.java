@@ -1,9 +1,7 @@
-package com.ideality.coreflow.notification.query.application.controller;
-import com.ideality.coreflow.notification.command.application.service.NotificationService;
+package com.ideality.coreflow.notification.query.controller;
+import com.ideality.coreflow.notification.query.service.NotificationQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -14,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class NotificationController {
 
-    private final NotificationService notificationService;
+    private final NotificationQueryService notificationQueryService;
 
     @GetMapping("/api/notifications/stream")
     public SseEmitter streamNotifications() {
@@ -26,7 +24,7 @@ public class NotificationController {
                 // 여기에 알림 전송 로직을 추가
                 while (true) {
                     // 알림 전송 (새로운 알림을 5초마다 전송)
-                    notificationService.getLatestNotification()
+                    notificationQueryService.getMyNotifications()
                             .forEach(notification -> {
                                 try {
                                     // 클라이언트에게 알림을 전송
@@ -48,6 +46,7 @@ public class NotificationController {
         return emitter;
     }
 
+    // 이건.. 리마인더 이럴 때 써야하나?
 //    @PostMapping("/send")
 //    public void sendNotification(@RequestParam Long userId,
 //                                 @RequestParam String content,

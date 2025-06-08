@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ideality.coreflow.notification.query.mapper.NotificationMapper">
+    <!-- 사용자별 알림 조회 쿼리 -->
+    <select id="getMyNotifications" resultType="com.ideality.coreflow.notification.command.domain.aggregate.Notification">
+        SELECT n.*
+        FROM notification n
+        JOIN notification_recipient nr ON n.id = nr.notification_id  <!-- notification_id는 Notification 테이블의 id를 참조 -->
+        WHERE nr.user_id = #{userId}  <!-- 현재 로그인한 사용자의 알림만 가져옴 -->
+        ORDER BY n.created_at DESC
+        LIMIT 10  <!-- 최근 10개의 알림만 가져옴 -->
+    </select>
+
+</mapper>
