@@ -4,4 +4,6 @@ import com.ideality.coreflow.comment.command.application.dto.RequestCommentDTO;
 
 public interface CommentService {
     Long createComment(RequestCommentDTO commentDTO, Long taskId);
+
+    Long updateByDelete(Long taskId, Long userId);
 }

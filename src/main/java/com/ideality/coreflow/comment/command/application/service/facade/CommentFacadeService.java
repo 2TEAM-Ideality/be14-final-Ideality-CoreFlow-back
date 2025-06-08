@@ -97,4 +97,12 @@ public class CommentFacadeService {
         }
         return commentId;
     }
+
+    @Transactional
+    public Long deleteComment(Long taskId, Long userId) {
+        taskService.validateTask(taskId);
+
+        Long commentId = commentService.updateByDelete(taskId, userId);
+        return commentId;
+    }
 }

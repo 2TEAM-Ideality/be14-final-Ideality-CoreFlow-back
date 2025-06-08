@@ -26,4 +26,13 @@ public class CommentController {
         return ResponseEntity.ok(APIResponse.success(Map.of("commentId", commentId),
                 "댓글 작성이 완료되었습니다."));
     }
+
+    @PatchMapping(value = "/delete/{taskId}")
+    public ResponseEntity<APIResponse<Map<String, Long>>> deleteCommentBySoft
+            (@PathVariable Long taskId) {
+        Long userId = 1L;
+        Long commentId = commentFacadeService.deleteComment(taskId, userId);
+        return ResponseEntity.ok(APIResponse.success(Map.of("commentId", commentId),
+                "댓글이 삭제되었습니다."));
+    }
 }

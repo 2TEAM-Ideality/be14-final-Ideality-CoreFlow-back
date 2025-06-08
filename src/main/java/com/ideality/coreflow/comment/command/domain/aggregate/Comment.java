@@ -6,7 +6,6 @@ import lombok.*;
 @Entity
 @Table(name = "comment")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -40,4 +39,9 @@ Comment {
 
     @Column(name = "parent_comment_id")
     private Long parentCommentId;
+
+
+    public void updateDeleted() {
+        this.isDeleted = true;
+    }
 }

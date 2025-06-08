@@ -42,4 +42,13 @@ public class CommentServiceImpl implements CommentService {
         commentRepository.save(newComment);
         return newComment.getId();
     }
+
+    @Override
+    @Transactional
+    public Long updateByDelete(Long taskId, Long userId) {
+        Comment comment = commentRepository.findByUserIdAndWorkId(userId, taskId);
+        comment.updateDeleted();
+        commentRepository.save(comment);
+        return comment.getId();
+    }
 }
