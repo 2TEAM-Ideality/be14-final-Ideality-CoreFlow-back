@@ -8,9 +8,8 @@ import lombok.*;
 @Setter
 @ToString
 @EqualsAndHashCode
-public class ResponseCommentDTO {
+public class ResponseCommentForModifyDTO {
     private Long commentId;
-    private Long parentCommentId;
-    private String commentWriter;
     private String content;
+    private Boolean isNotice;
 }

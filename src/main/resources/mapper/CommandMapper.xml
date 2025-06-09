@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ideality.coreflow.comment.query.mapper.CommandMapper">
+<mapper namespace="com.ideality.coreflow.comment.query.mapper.CommentMapper">
 
     <!-- 파일 정보 조회 (일단 냅두기) -->
     <resultMap id="CommentResultMap" type="com.ideality.coreflow.comment.query.dto.SelectCommentDTO" >
@@ -12,6 +12,12 @@
         <result property="deptName" column="dept_name"/>
         <result property="jobRankName" column="job_rank_name"/>
         <result property="content" column="content"/>
+    </resultMap>
+
+    <resultMap id="CommentModifyResultMap" type="com.ideality.coreflow.comment.query.dto.ResponseCommentForModifyDTO" >
+        <id property="commentId" column="id" />
+        <result property="content" column="content"/>
+        <result property="isNotice" column="is_notice"/>
     </resultMap>
 
     <select id="selectComments" parameterType="map" resultMap="CommentResultMap">
@@ -25,6 +31,16 @@
           FROM comment a
           JOIN user b ON a.user_id = b.id
          WHERE a.work_id = #{taskId}
+    </select>
+
+    <select id="selectCommentByModify" parameterType="map" resultMap="CommentModifyResultMap">
+        SELECT
+               id
+             , content
+             , is_notice
+          FROM comment a
+         WHERE id = #{commentId}
+           AND user_id = #{userId}
     </select>
 
 </mapper>
