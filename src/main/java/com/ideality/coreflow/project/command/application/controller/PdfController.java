@@ -3,12 +3,17 @@ package com.ideality.coreflow.project.command.application.controller;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
+import org.knowm.xchart.BitmapEncoder;
+import org.knowm.xchart.PieChart;
+import org.knowm.xchart.PieChartBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 import java.io.File;
 import java.io.OutputStream;
@@ -17,6 +22,8 @@ import java.nio.file.Files;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.imageio.ImageIO;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
@@ -489,6 +496,57 @@ public class PdfController {
             context.setVariable("total", total);
 
             // 지연 분석 챕터
+            String pieChartBase64 = buildPieChartBase64();
+            context.setVariable("pieChartBase64", pieChartBase64);
+
+            // 지연 사유서 내역
+            List<Map<String, String>> delayReportList = List.of(
+                Map.of(
+                    "taskName", "패턴 생성",
+                    "createdAt", "2025-03-08",
+                    "approver", "홍길동 기획팀 팀장",
+                    "fileUrl", "https://your-s3-bucket.s3.ap-northeast-2.amazonaws.com/delay_report_1.pdf"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "createdAt", "2025-03-08",
+                    "approver", "홍길동 기획팀 팀장",
+                    "fileUrl", "https://your-s3-bucket.s3.ap-northeast-2.amazonaws.com/delay_report_2.pdf"
+                )
+            );
+            context.setVariable("delayReportList", delayReportList);
+
+            // 페이지당 15개씩 분할
+            List<List<Map<String, String>>> pagedDelayReportList = new ArrayList<>();
+            for (int i = 0; i < delayReportList.size(); i += 15) {
+                pagedDelayReportList.add(delayReportList.subList(i, Math.min(i + 15, delayReportList.size())));
+            }
+
+            context.setVariable("pagedDelayReportList", pagedDelayReportList);
+            // byte[] previewIcon = Files.readAllBytes(new File("src/main/resources/static/preview.png").toPath());
+            // context.setVariable("previewIconBase64", Base64.getEncoder().encodeToString(previewIcon));
+
+
+            // 성과 지표 챕터
+            List<Map<String, String>> outputList = List.of(
+                Map.of("task", "자켓 봉제, 프린트", "filename", "제품기획서.pdf", "uploader", "기획팀 김하늘", "uploadDate", "2025-05-01", "fileUrl", "https://github.com/2TEAM-Ideality/be14-final-Ideality-CoreFlow-back"),
+                Map.of("task", "자켓 봉제, 프린트", "filename", "원단스펙시트.xlsx", "uploader", "소재팀 이지수", "uploadDate", "2025-05-02", "fileUrl", "https://github.com/2TEAM-Ideality/be14-final-Ideality-CoreFlow-back"),
+                Map.of("task", "자켓 봉제, 프린트", "filename", "부자재내역서.xlsx", "uploader", "소재팀 정인수", "uploadDate", "2025-05-02", "fileUrl", "https://github.com/2TEAM-Ideality/be14-final-Ideality-CoreFlow-back"),
+                Map.of("task", "자켓 봉제, 프린트", "filename", "디자인도면.ai", "uploader", "디자인팀 박소영", "uploadDate", "2025-05-03", "fileUrl", "https://github.com/2TEAM-Ideality/be14-final-Ideality-CoreFlow-back"),
+                Map.of("task", "자켓 봉제, 프린트", "filename", "작업지시서.docx", "uploader", "생산팀 최유진", "uploadDate", "2025-05-04", "fileUrl", "https://github.com/2TEAM-Ideality/be14-final-Ideality-CoreFlow-back"),
+                Map.of("task", "자켓 봉제, 프린트", "filename", "샘플검수결과서.xlsx", "uploader", "영업팀 한지훈", "uploadDate", "2025-05-05", "fileUrl", "https://github.com/2TEAM-Ideality/be14-final-Ideality-CoreFlow-back"),
+                Map.of("task", "자켓 봉제, 프린트", "filename", "패턴파일.dxf", "uploader", "품질팀 오세진", "uploadDate", "2025-05-06", "fileUrl", "https://github.com/2TEAM-Ideality/be14-final-Ideality-CoreFlow-back"),
+                Map.of("task", "자켓 봉제, 프린트", "filename", "패턴테크 강민재", "uploader", "패턴팀 강민재", "uploadDate", "2025-05-07", "fileUrl", "https://github.com/2TEAM-Ideality/be14-final-Ideality-CoreFlow-back")
+            );
+
+            List<List<Map<String, String>>> pagedOutputList = new ArrayList<>();
+            for (int i = 0; i < outputList.size(); i += 10) {
+                pagedOutputList.add(outputList.subList(i, Math.min(i + 10, outputList.size())));
+            }
+
+            context.setVariable("pagedOutputList", pagedOutputList);
+
+
 
 
             // 각 페이지 템플릿 렌더링
@@ -524,6 +582,25 @@ public class PdfController {
         }
     }
 
+
+    // xchart 테스트용
+    private String buildPieChartBase64() throws Exception {
+        PieChart chart = new PieChartBuilder()
+            .width(400)
+            .height(300)
+            .title("지연 현황 분석")
+            .build();
+
+        chart.addSeries("정상", 10);
+        chart.addSeries("지연", 5);
+        chart.addSeries("완료", 15);
+
+        BufferedImage image = BitmapEncoder.getBufferedImage(chart);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", baos);
+
+        return Base64.getEncoder().encodeToString(baos.toByteArray());
+    }
 
 
 
