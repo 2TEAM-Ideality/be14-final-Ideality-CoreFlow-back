@@ -24,4 +24,6 @@ public interface UserService {
     long findUserIdByEmail(String email);
 
     void updateUserOrg(OrgType type, String prevJobRankName, String newJobRankName);
+
+    UserInfoDTO findUserById(long userId);
 }
