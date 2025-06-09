@@ -3,6 +3,7 @@ package com.ideality.coreflow.comment.command.application.service.facade;
 import com.ideality.coreflow.attachment.command.application.service.AttachmentCommandService;
 import com.ideality.coreflow.attachment.command.application.dto.CreateAttachmentDTO;
 import com.ideality.coreflow.comment.command.application.dto.RequestCommentDTO;
+import com.ideality.coreflow.comment.command.application.dto.RequestModifyCommentDTO;
 import com.ideality.coreflow.comment.command.application.service.CommentService;
 import com.ideality.coreflow.infra.s3.S3Service;
 import com.ideality.coreflow.infra.s3.UploadFileResult;
@@ -38,12 +39,12 @@ public class CommentFacadeService {
     private final UserQueryService userQueryService;
 
     @Transactional
-    public Long createComment(RequestCommentDTO commentDTO, Long taskId) {
+    public Long createComment(RequestCommentDTO commentDTO, Long taskId, Long userId) {
 
         /* 설명. 댓글 작성 순서 -> 댓글 작성, 첨부 파일 업로드, 알림에 추가 */
         taskService.validateTask(taskId);
 
-        Long commentId = commentService.createComment(commentDTO, taskId);
+        Long commentId = commentService.createComment(commentDTO, taskId, userId);
 
         if (commentDTO.getMentions() != null) {
             // 팀명만 태그했을 때
@@ -93,16 +94,20 @@ public class CommentFacadeService {
             CreateAttachmentDTO attachmentDTO = new CreateAttachmentDTO(uploadResult);
             attachmentCommandService.createAttachmentForComment(attachmentDTO,
                     taskId,
-                    commentDTO.getUserId());
+                    userId);
         }
         return commentId;
     }
 
     @Transactional
-    public Long deleteComment(Long taskId, Long userId) {
-        taskService.validateTask(taskId);
+    public Long deleteComment(Long userId, Long commentId) {;
 
-        Long commentId = commentService.updateByDelete(taskId, userId);
-        return commentId;
+        Long returnCommentId = commentService.updateByDelete(userId, commentId);
+        return returnCommentId;
+    }
+
+    @Transactional
+    public Long modifyComment(RequestModifyCommentDTO reqModify, Long userId, Long commentId) {
+        return commentService.updateComment(reqModify, userId, commentId);
     }
 }

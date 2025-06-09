@@ -44,4 +44,17 @@ Comment {
     public void updateDeleted() {
         this.isDeleted = true;
     }
+
+    public void updateComment(String content, Boolean isNotice) {
+
+        if (content == null) {
+            return;
+        }
+        this.content = content;
+        this.isNotice = isNotice;
+
+        if (isNotice) {
+            this.type = CommentType.NOTICE;
+        }
+    }
 }
