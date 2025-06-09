@@ -7,7 +7,6 @@ import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.email.command.application.service.EmailSendService;
 import com.ideality.coreflow.email.command.domail.aggregate.EmailType;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
-import com.ideality.coreflow.user.command.application.dto.LoginDTO;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.application.service.RoleService;
 import com.ideality.coreflow.user.command.application.service.UserOfRoleService;
@@ -40,14 +39,14 @@ public class AuthFacadeService {
 
     // 로그인
     @Transactional
-    public ResponseLogin login(RequestLogin requestLogin) {
+    public ResponseTokenAndUserInfo login(RequestLogin requestLogin) {
 
         log.info("request identifier: {}", requestLogin.getIdentifier());
 
         LoginType loginType = LoginType.fromIdentifier(requestLogin.getIdentifier());
         log.info("loginType: {}", loginType);
 
-        LoginDTO loginInfo = userService.findLoginInfoByIdentifier(requestLogin.getIdentifier(), loginType);
+        UserInfoDTO loginInfo = userService.findLoginInfoByIdentifier(requestLogin.getIdentifier(), loginType);
         log.info("로그인 유저 정보 조회: {}", loginInfo);
 
         List<String> userOfRoles = userQueryService.findGeneralRolesByUserId(loginInfo.getId());
@@ -55,13 +54,15 @@ public class AuthFacadeService {
 
         ResponseToken responseToken = authService.login(loginInfo, requestLogin.getPassword(), userOfRoles);
 
-        return ResponseLogin.builder()
+        return ResponseTokenAndUserInfo.builder()
                 .id(loginInfo.getId())
                 .employeeNum(loginInfo.getEmployeeNum())
                 .name(loginInfo.getName())
                 .email(loginInfo.getEmail())
                 .birth(loginInfo.getBirth())
                 .hireDate(loginInfo.getHireDate())
+                .isResign(loginInfo.getIsResign())
+                .resignDate(loginInfo.getResignDate())
                 .profileImage(loginInfo.getProfileImage())
                 .deptName(loginInfo.getDeptName())
                 .jobRankName(loginInfo.getJobRankName())
@@ -140,17 +141,36 @@ public class AuthFacadeService {
     }
 
     @Transactional
-    public ResponseToken reissueAccessToken(String refreshToken, Long userId) {
+    public ResponseTokenAndUserInfo reissueAccessToken(String refreshToken, Long userId) {
         // 토큰 유효성 검증
         authService.validateRefreshToken(refreshToken, userId);
 
-        String employeeNum = userService.findEmployeeNumById(userId);
-        log.info("employeeNum 조회: {}", employeeNum);
+        UserInfoDTO userInfo = userService.findUserById(userId);
 
         List<String> userOfRoles = userQueryService.findGeneralRolesByUserId(userId);
         log.info("해당 유저 역할 정보 조회: {}", userOfRoles);
 
-        return authService.reissuAccessToken(userId, employeeNum, userOfRoles);
+        ResponseToken token = authService.reissuAccessToken(userId, userInfo.getEmployeeNum(), userOfRoles);
+
+        return ResponseTokenAndUserInfo.builder()
+                .id(userInfo.getId())
+                .employeeNum(userInfo.getEmployeeNum())
+                .name(userInfo.getName())
+                .email(userInfo.getEmail())
+                .birth(userInfo.getBirth())
+                .hireDate(userInfo.getHireDate())
+                .isResign(userInfo.getIsResign())
+                .resignDate(userInfo.getResignDate())
+                .profileImage(userInfo.getProfileImage())
+                .deptName(userInfo.getDeptName())
+                .jobRankName(userInfo.getJobRankName())
+                .jobRoleName(userInfo.getJobRoleName())
+                .accessToken(token.getAccessToken())
+                .refreshToken(refreshToken)
+                .schemaName(token.getSchemaName())
+                .roles(userOfRoles)
+                .isTemp(token.isTemp())
+                .build();
     }
 
     @Transactional

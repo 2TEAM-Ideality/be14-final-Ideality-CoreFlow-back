@@ -4,7 +4,6 @@ import com.ideality.coreflow.auth.command.domain.aggregate.LoginType;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
-import com.ideality.coreflow.user.command.application.dto.LoginDTO;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.application.service.UserService;
 import com.ideality.coreflow.user.command.domain.aggregate.OrgType;
@@ -24,7 +23,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public LoginDTO findLoginInfoByIdentifier(String identifier, LoginType loginType) {
+    public UserInfoDTO findLoginInfoByIdentifier(String identifier, LoginType loginType) {
 
         log.info("Transactional Propagation.REQUIRES_NEW");
         log.info("userService에요");
@@ -45,7 +44,7 @@ public class UserServiceImpl implements UserService {
             throw new BaseException(ErrorCode.RESIGNED_USER);
         }
 
-        return LoginDTO.builder()
+        return UserInfoDTO.builder()
                 .id(user.getId())
                 .employeeNum(user.getEmployeeNum())
                 .password(user.getPassword())
@@ -53,6 +52,8 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .birth(user.getBirth())
                 .hireDate(user.getHireDate())
+                .isResign(user.getIsResign())
+                .resignDate(user.getResignDate())
                 .profileImage(user.getProfileImage())
                 .deptName(user.getDeptName())
                 .jobRankName(user.getJobRankName())
@@ -145,6 +146,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserInfoDTO findUserById(long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
+        log.info("isResign={}", user.getIsResign());
         return UserInfoDTO.builder()
                 .id(user.getId())
                 .employeeNum(user.getEmployeeNum())

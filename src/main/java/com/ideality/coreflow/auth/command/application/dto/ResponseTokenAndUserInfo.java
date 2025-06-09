@@ -8,13 +8,15 @@ import java.util.List;
 
 @Getter
 @Builder
-public class ResponseLogin {
+public class ResponseTokenAndUserInfo {
     Long id;
     String employeeNum;
     String name;
     String email;
     LocalDate birth;
     LocalDate hireDate;
+    Boolean isResign;
+    LocalDate resignDate;
     String profileImage;
     String deptName;
     String jobRankName;
