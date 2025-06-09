@@ -15,6 +15,7 @@ import com.ideality.coreflow.calendar.query.dto.ScheduleDetailDTO;
 import com.ideality.coreflow.calendar.query.dto.TodayScheduleDTO;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class CalendarQueryFacadeService {
 
 	private final CalendarQueryService calendarService;
 	private final UserQueryService userQueryService;
+	private final HolidayQueryService holidayQueryService;
 
 	// 개인 일정 상세 정보 조회
 	public ScheduleDetailDTO getPersonalDetail(Long userId, Long scheduleId) {
@@ -131,6 +133,7 @@ public class CalendarQueryFacadeService {
 							current = current.plusDays(rule.getRepeatInterval());
 							continue;
 						}
+						current = moveIfHoliday(current);
 						result.add(toResponse(originSchedule, current, duration));
 					}
 					current = current.plusDays(rule.getRepeatInterval());
@@ -151,13 +154,11 @@ public class CalendarQueryFacadeService {
 
 				while (!firstRepeatDate.atTime(time).isAfter(repeatUntil)) {
 					for (DayOfWeek day : dayList) {
-						LocalDate weekStartDate = firstRepeatDate;
-						LocalDate targetDate = weekStartDate.with(TemporalAdjusters.nextOrSame(day));
+						LocalDate targetDate = firstRepeatDate.with(TemporalAdjusters.nextOrSame(day));
 						LocalDateTime targetDateTime = targetDate.atTime(time);
-
 						if (isSameDate(targetDateTime, originalStart)) continue;
 						if (shouldSkip(targetDateTime, originalStart, repeatUntil, startOfMonth, endOfMonth)) continue;
-
+						targetDateTime = moveIfHoliday(targetDateTime);
 						result.add(toResponse(originSchedule, targetDateTime, duration));
 					}
 					firstRepeatDate = firstRepeatDate.plusWeeks(rule.getRepeatInterval());
@@ -197,9 +198,9 @@ public class CalendarQueryFacadeService {
 							current = current.plusMonths(rule.getRepeatInterval());
 							continue;
 						}
+						target = moveIfHoliday(target);
 						result.add(toResponse(originSchedule, target, duration));
 					}
-
 					current = current.plusMonths(rule.getRepeatInterval());
 				}
 			}
@@ -208,6 +209,16 @@ public class CalendarQueryFacadeService {
 
 		return result;
 	}
+
+	// 휴일이면 하루 뒤로 반복 일정 생성해서 전달
+	private LocalDateTime moveIfHoliday(LocalDateTime dateTime) {
+		while (holidayQueryService.isHoliday(dateTime.toLocalDate())) {
+			log.info("dateTime: {} 은 휴일입니다.", dateTime);
+			dateTime = dateTime.plusDays(1);
+		}
+		return dateTime;
+	}
+
 
 	private LocalDateTime getNthWeekdayOfMonth(int year, int month, DayOfWeek dayOfWeek, int nth, LocalTime time) {
 		LocalDate firstDay = LocalDate.of(year, month, 1);
