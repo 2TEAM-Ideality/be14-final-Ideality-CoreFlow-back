@@ -8,7 +8,6 @@ import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
-import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
 import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
@@ -29,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -53,12 +51,20 @@ public class ProjectFacadeService {
     private final TaskQueryService taskQueryService;
 
     @Transactional
-    public Long completeProject(Long projectId) throws NotFoundException {
+    public Long completeProject(Long projectId, Long userId) throws NotFoundException, IllegalAccessException {
         // 1. 프로젝트 조회
         Project project = projectRepository.findById(projectId)
                                             .orElseThrow(()->new NotFoundException("프로젝트가 존재하지 않습니다"));
+        log.info("프로젝트 조회 성공");
 
-        // 2. 모든 태스크 완료 여부 확인
+        // 2. 해당 유저가 이 프로젝트의 디렉터가 맞는지 조회
+        boolean isDirector = participantQueryService.isProjectDirector(projectId, userId);
+        if (!isDirector) {
+            throw new IllegalAccessException("이 프로젝트의 디렉터가 아닙니다");
+        }
+        log.info("디렉터 여부 조회 성공");
+
+        // 3. 모든 태스크 완료 여부 확인
         boolean isAllTaskCompleted = taskQueryService.isAllTaskCompleted(projectId);
         if(!isAllTaskCompleted) {
             throw new IllegalStateException("모든 태스크가 완료되지 않았습니다");
