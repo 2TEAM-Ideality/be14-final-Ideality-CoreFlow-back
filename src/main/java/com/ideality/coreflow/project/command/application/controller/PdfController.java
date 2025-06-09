@@ -500,6 +500,10 @@ public class PdfController {
             String pieChartBase64 = buildPieChartBase64();
             context.setVariable("pieChartBase64", pieChartBase64);
 
+            // 지연 사유 분석
+            String delayReasonChart = buildDelayReason();
+            context.setVariable("delayReasonChart", delayReasonChart);
+
             // 지연 사유서 내역
             List<Map<String, String>> delayReportList = List.of(
                 Map.of(
@@ -585,6 +589,7 @@ public class PdfController {
 
 
     // xchart 테스트용
+    // 지연 태스크 분석
     private String buildPieChartBase64() throws Exception {
         PieChart chart = new PieChartBuilder()
             .width(400)
@@ -614,11 +619,56 @@ public class PdfController {
         chart.getStyler().setAnnotationTextFont(customFont);
 
         // ✅ 데이터 추가
-        chart.addSeries("정상", 10);
-        chart.addSeries("지연", 5);
-        chart.addSeries("완료", 15);
-        chart.addSeries("테스트", 12);
-        chart.addSeries("색깔", 11);
+        chart.addSeries("정상 (10건)", 10);
+        chart.addSeries("지연 (5건)", 5);
+        chart.addSeries("완료 (15건)", 15);
+        chart.addSeries("테스트 (12건)", 12);
+        chart.addSeries("색깔 (11건)", 11);
+
+
+        // ✅ 이미지로 변환
+        BufferedImage image = BitmapEncoder.getBufferedImage(chart);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", baos);
+
+        return Base64.getEncoder().encodeToString(baos.toByteArray());
+    }
+
+
+    private String buildDelayReason() throws Exception {
+        PieChart chart = new PieChartBuilder()
+            .width(400)
+            .height(300)
+            // .title("지연 사유 분석")
+            .build();
+
+        // ✅ 배경색 커스터마이징
+        chart.getStyler().setChartBackgroundColor(Color.WHITE);
+        chart.getStyler().setPlotBackgroundColor(Color.WHITE);
+        chart.getStyler().setPlotBorderVisible(false);
+
+        // ✅ 색상 설정
+        Color[] sliceColors = new Color[] {
+            new Color(252, 179, 112),    // 정상
+            new Color(251, 234, 117),    // 지연
+            new Color(157, 229, 179),    // 완료
+            new Color(116, 222, 239),
+            new Color(228, 134, 250)
+        };
+        chart.getStyler().setSeriesColors(sliceColors);
+        // ✅ 사용자 글꼴 적용
+        Font customFont = Font.createFont(Font.TRUETYPE_FONT, new File("src/main/resources/fonts/NotoSansKR-Regular.ttf"))
+            .deriveFont(Font.PLAIN, 12f);
+        chart.getStyler().setChartTitleFont(customFont);
+        chart.getStyler().setLegendFont(customFont);
+        chart.getStyler().setAnnotationTextFont(customFont);
+
+        // ✅ 데이터 추가
+        chart.addSeries("자재 문제 (2건)", 2);
+        chart.addSeries("인력 문제 (5건)", 5);
+        chart.addSeries("기계 고장 (1건)", 1);
+        chart.addSeries("품질 이슈 재작업 (5건)", 5);
+        chart.addSeries("외주 업체 문제 (2건)", 2);
 
 
         // ✅ 이미지로 변환
