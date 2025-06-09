@@ -1,27 +1,5 @@
 USE company_a;
 
-INSERT INTO job_rank (name)
-VALUES ("사원"),
-       ("대리"),
-       ("과장"),
-       ("차장"),
-       ("부장"),
-       ("협력업체");
-
-INSERT INTO job_role (name)
-VALUES ("팀원"),
-       ("파트장"),
-       ("본부장"),
-       ("협력업체");
-
-
-INSERT INTO dept (name, dept_code)
-VALUES ("기획팀", "PM"),
-       ("디자인팀", "DES"),
-       ("소싱팀", "MD"),
-       ("생산팀", "MFG"),
-       ("협력업체", "PART");
-
 INSERT INTO user
 (employee_num,
  password,
@@ -166,15 +144,6 @@ VALUES
 )
 ;
 
-INSERT INTO role
-(name, type)
-VALUES
-    (
-        'ASSIGNEE', 'PROJECT'
-    ),
-    (
-        'PARTICIPANT', 'PROJECT'
-    );
 
 INSERT INTO project
 (
@@ -274,3 +243,25 @@ VALUES
         1,
         7
     );
+
+INSERT INTO job_rank (name)
+VALUES ("사원"),
+       ("대리"),
+       ("과장"),
+       ("차장"),
+       ("부장"),
+       ("협력업체");
+
+INSERT INTO job_role (name)
+VALUES ("팀원"),
+       ("파트장"),
+       ("본부장"),
+       ("협력업체");
+
+
+INSERT INTO dept (name, dept_code)
+VALUES ("기획팀", "PM"),
+       ("디자인팀", "DES"),
+       ("소싱팀", "MD"),
+       ("생산팀", "MFG"),
+       ("협력업체", "PART");

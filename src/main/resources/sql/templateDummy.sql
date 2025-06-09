@@ -1,3 +1,5 @@
+USE company_a;
+
 INSERT INTO template
     (name, description, created_at, updated_at, duration, task_count, created_by, updated_by, is_deleted)
 VALUES

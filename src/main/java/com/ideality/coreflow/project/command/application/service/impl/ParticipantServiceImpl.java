@@ -87,6 +87,7 @@ public class ParticipantServiceImpl implements ParticipantService {
         }
     }
 
+
     @Transactional
     @Override
     public void updateParticipants(Long taskId, List<Long> participantIds) {

@@ -8,7 +8,7 @@
     <select id="getMyNotifications" resultType="com.ideality.coreflow.notification.command.domain.aggregate.Notification">
         SELECT n.*
         FROM notification n
-        JOIN notification_recipient nr ON n.id = nr.notification_id  <!-- notification_id는 Notification 테이블의 id를 참조 -->
+        JOIN notification_recipients nr ON n.id = nr.notification_id  <!-- notification_id는 Notification 테이블의 id를 참조 -->
         WHERE nr.user_id = #{userId}  <!-- 현재 로그인한 사용자의 알림만 가져옴 -->
         ORDER BY n.created_at DESC
         LIMIT 10  <!-- 최근 10개의 알림만 가져옴 -->

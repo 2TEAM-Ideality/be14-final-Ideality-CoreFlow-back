@@ -15,10 +15,7 @@ public class NotificationQueryService {
     private final NotificationMapper notificationMapper;
 
 
-    public List<Notification> getMyNotifications() {
-
-        // SecurityContext에서 userId를 추출
-        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+    public List<Notification> getMyNotifications(Long userId) {
 
         return notificationMapper.getMyNotifications(userId);
     }

@@ -32,7 +32,7 @@ public class NotificationService {
                 .targetType(targetType)  // 동적으로 전달받은 targetType 사용
                 .targetId(targetId)      // 사건이나 프로젝트 ID를 targetId로 설정
                 .content(content)        // 알림 내용
-                .status(Status.PENDING)       // 알림 상태 기본값
+                .status(Status.SENT)       // 알림 상태 기본값
                 .dispatchAt(LocalDateTime.now())  // 바로 보내기 위해 현재 시간으로 설정
                 .createdAt(LocalDateTime.now())   // 생성 시간
                 .isAutoDelete(false)     // 자동 삭제 여부
