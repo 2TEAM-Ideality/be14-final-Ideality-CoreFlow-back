@@ -23,4 +23,6 @@ public interface CalendarMapper {
 	FrequencyInfo selectRepeatRule(Long scheduleId);
 
 	List<ResponseScheduleDTO> selectScheduleByMonth(Map<String, Object> param);
+
+	List<ScheduleDetailDTO> selectRepeatingSchedules(Map<String, Object> param);
 }
