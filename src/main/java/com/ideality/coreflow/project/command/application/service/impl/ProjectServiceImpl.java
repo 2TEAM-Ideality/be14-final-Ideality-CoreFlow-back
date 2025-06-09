@@ -56,43 +56,11 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Long completeProject(Project project) {
-        project.setStatus(Status.COMPLETED);
-        project.setEndReal(LocalDate.now());
-        projectRepository.save(project);
-        return project.getId();
-    }
-
-    @Override
-    public Project findById(Long projectId) throws NotFoundException {
-        return projectRepository.findById(projectId)
-                                            .orElseThrow(()->new NotFoundException("프로젝트가 존재하지 않습니다"));
-    }
-
-    @Override
-    public Long updateProjectPending(Project project) {
-        project.setStatus(Status.PENDING);
-        projectRepository.save(project);
-        return project.getId();
-    }
-
-    @Override
-    public Long updateProjectProgress(Project project) {
-        project.setStatus(Status.PROGRESS);
-        projectRepository.save(project);
-        return project.getId();
-    }
-
-    @Override
-    public Long updateProjectCancelled(Project project) {
-        project.setStatus(Status.CANCELLED);
-        projectRepository.save(project);
-        return project.getId();
-    }
-
-    @Override
-    public Long updateProjectDeleted(Project project) {
-        project.setStatus(Status.DELETED);
+    public Long updateProjectStatus(Project project, Status status) {
+        project.setStatus(status);
+        if(status.equals(Status.COMPLETED)) {
+            project.setEndReal(LocalDate.now());
+        }
         projectRepository.save(project);
         return project.getId();
     }

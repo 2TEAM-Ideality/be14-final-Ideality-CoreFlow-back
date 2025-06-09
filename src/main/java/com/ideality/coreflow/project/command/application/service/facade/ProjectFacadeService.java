@@ -62,7 +62,7 @@ public class ProjectFacadeService {
         }
         log.info("디렉터 여부 조회 성공");
 
-        return projectService.updateProjectCancelled(project);
+        return projectService.updateProjectStatus(project, Status.CANCELLED);
     }
 
     public Long updateProjectDeleted(Long projectId, Long userId) throws NotFoundException, IllegalAccessException {
@@ -77,7 +77,7 @@ public class ProjectFacadeService {
         }
         log.info("디렉터 여부 조회 성공");
 
-        return projectService.updateProjectDeleted(project);
+        return projectService.updateProjectStatus(project, Status.DELETED);
     }
 
     @Transactional
@@ -93,7 +93,7 @@ public class ProjectFacadeService {
         }
         log.info("디렉터 여부 조회 성공");
 
-        return projectService.updateProjectProgress(project);
+        return projectService.updateProjectStatus(project, Status.PROGRESS);
     }
 
     @Transactional
@@ -111,13 +111,13 @@ public class ProjectFacadeService {
         }
         log.info("디렉터 여부 조회 성공");
 
-        return projectService.updateProjectPending(project);
+        return projectService.updateProjectStatus(project, Status.PENDING);
     }
 
     @Transactional
     public Long updateProjectComplete(Long projectId, Long userId) throws NotFoundException, IllegalAccessException {
-        // 1. 프로젝트 조회
         Project project = projectService.findById(projectId);
+
         if(!(project.getStatus()== Status.PROGRESS)){
             throw new IllegalStateException("진행중인 프로젝트가 아닙니다");
         }
@@ -129,15 +129,12 @@ public class ProjectFacadeService {
         }
         log.info("디렉터 여부 조회 성공");
 
-        // 3. 모든 태스크 완료 여부 확인
-        boolean isAllTaskCompleted = taskQueryService.isAllTaskCompleted(projectId);
-        if(!isAllTaskCompleted) {
+        if(!taskQueryService.isAllTaskCompleted(projectId)) {
             throw new IllegalStateException("모든 태스크가 완료되지 않았습니다");
         }
         log.info("모든 태스크 완료 여부 확인");
 
-        // 4. 상태 변경
-        return projectService.completeProject(project);
+        return projectService.updateProjectStatus(project, Status.COMPLETED);
     }
 
     @Transactional
