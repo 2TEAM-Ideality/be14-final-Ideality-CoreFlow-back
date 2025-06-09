@@ -1,24 +1,24 @@
 package com.ideality.coreflow.project.command.application.controller;
 
-import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.util.Base64;
 import java.io.File;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
+import java.util.ArrayList;
 import java.nio.file.Files;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
-
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,9 +31,6 @@ public class PdfController {
     @GetMapping("/report/test")
     public void downloadReport(HttpServletResponse response) throws Exception {
 
-
-
-
         try {
             // 데이터 준비
             Context context = new Context();
@@ -43,10 +40,456 @@ public class PdfController {
             context.setVariable("period", "2025-03-01 ~ 2025-03-31");
             context.setVariable("progress", "98%");
 
+            Map<String, Object> designTeam = new LinkedHashMap<>();
+            designTeam.put("name", "디자인 팀");
+            designTeam.put("count", 3);
+            designTeam.put("manager", "홍길동 디자인팀 과장");
+            designTeam.put("members", List.of("홍길동 디자인팀 과장", "홍길동 디자인팀 과장", "홍길동 디자인팀 과장"));
+
+            Map<String, Object> planningTeam = new LinkedHashMap<>();
+            planningTeam.put("name", "기획팀");
+            planningTeam.put("count", 2);
+            planningTeam.put("manager", "홍길동 디자인팀 과장");
+            planningTeam.put("members", List.of("홍길동 디자인팀 과장", "홍길동 디자인팀 과장"));
+
+            Map<String, Object> productionTeam = new LinkedHashMap<>();
+            productionTeam.put("name", "생산팀");
+            productionTeam.put("count", 5);
+            productionTeam.put("manager", "홍길동 디자인팀 과장");
+            productionTeam.put("members", List.of("홍길동 디자인팀 과장", "홍길동 디자인팀 과장", "홍길동 디자인팀 과장", "홍길동 디자인팀 과장", "홍길동 디자인팀 과장"));
+
+            List<Map<String, Object>> teamList = List.of(designTeam, planningTeam, productionTeam);
+
+            context.setVariable("teamList", teamList);
+
+
             // 이미지 파일을 Base64로 인코딩하여 context에 추가
             byte[] imageBytes = Files.readAllBytes(new File("src/main/resources/static/ReportLogo.png").toPath());
-            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
-            context.setVariable("logoBase64", base64Image);
+            String coverLogo = Base64.getEncoder().encodeToString(imageBytes);
+            context.setVariable("coverLogo", coverLogo);
+
+            // ContentLogo
+            byte[] contentLogoBytes = Files.readAllBytes(new File("src/main/resources/static/ContentLogoFull.png").toPath());
+            String contentLogo = Base64.getEncoder().encodeToString(contentLogoBytes);
+            context.setVariable("contentLogo", contentLogo);
+
+            // ------------------- 02. 작업 공정 ----------------------------
+            // 작업 공정 목록
+
+
+            List<Map<String, Object>> taskList = List.of(
+                Map.of(
+                    "taskName", "패턴 생성",
+                    "progress", 95,
+                    "baseStart", "2025-03-05",
+                    "baseEnd", "2025-03-08",
+                    "realStart", "2025-03-05",
+                    "realEnd", "2025-03-09",
+                    "delay", 1,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "샘플 제작",
+                    "progress", 100,
+                    "baseStart", "2025-03-09",
+                    "baseEnd", "2025-03-12",
+                    "realStart", "2025-03-09",
+                    "realEnd", "2025-03-12",
+                    "delay", 0,
+                    "status", "정상"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                )
+                ,Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                ),
+                Map.of(
+                    "taskName", "피팅 테스트",
+                    "progress", 98,
+                    "baseStart", "2025-03-13",
+                    "baseEnd", "2025-03-15",
+                    "realStart", "2025-03-13",
+                    "realEnd", "2025-03-17",
+                    "delay", 2,
+                    "status", "지연"
+                )
+            );
+            context.setVariable("taskList", taskList);
+            List<List<Map<String, Object>>> pagedTaskList = new ArrayList<>();
+            for (int i = 0; i < taskList.size(); i += 15) {
+                pagedTaskList.add(taskList.subList(i, Math.min(i + 15, taskList.size())));
+            }
+            context.setVariable("pagedTaskList", pagedTaskList);
+
+            // 총계 데이터
+            Map<String, Object> total = Map.of(
+                "progress", 98,
+                "baseStart", "2025-03-01",
+                "baseEnd", "2025-03-21",
+                "realStart", "2025-03-01",
+                "realEnd", "2025-03-31",
+                "delay", 10,
+                "status", "지연"
+            );
+            context.setVariable("total", total);
+
+            // 지연 분석 챕터
+
 
             // 각 페이지 템플릿 렌더링
             String reportHtml = templateEngine.process("report", context);
@@ -80,6 +523,10 @@ public class PdfController {
             e.printStackTrace();
         }
     }
+
+
+
+
 
 
 }
