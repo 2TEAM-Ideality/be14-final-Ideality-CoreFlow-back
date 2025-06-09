@@ -6,12 +6,14 @@ import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
+import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
-import com.ideality.coreflow.project.command.domain.aggregate.Work;
+import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
 import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
 import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
+import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
@@ -22,11 +24,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -46,6 +48,34 @@ public class ProjectFacadeService {
     private final ParticipantQueryService participantQueryService;
     private final DetailService detailService;
     private final WorkRepository workRepository;
+    private final ProjectRepository projectRepository;
+    private final TaskQueryService taskQueryService;
+
+    @Transactional
+    public Long updateProjectComplete(Long projectId, Long userId) throws NotFoundException, IllegalAccessException {
+        // 1. 프로젝트 조회
+        Project project = projectService.findById(projectId);
+        if(!(project.getStatus()== Status.PROGRESS)){
+            throw new IllegalStateException("진행중인 프로젝트가 아닙니다");
+        }
+        log.info("프로젝트 조회 성공");
+
+        // 2. 해당 유저가 이 프로젝트의 디렉터가 맞는지 조회
+        if (!participantQueryService.isProjectDirector(projectId, userId)) {
+            throw new IllegalAccessException("이 프로젝트의 디렉터가 아닙니다");
+        }
+        log.info("디렉터 여부 조회 성공");
+
+        // 3. 모든 태스크 완료 여부 확인
+        boolean isAllTaskCompleted = taskQueryService.isAllTaskCompleted(projectId);
+        if(!isAllTaskCompleted) {
+            throw new IllegalStateException("모든 태스크가 완료되지 않았습니다");
+        }
+        log.info("모든 태스크 완료 여부 확인");
+
+        // 4. 상태 변경
+        return projectService.completeProject(project);
+    }
 
     @Transactional
     public Project createProject(ProjectCreateRequest request) {
@@ -221,7 +251,6 @@ public class ProjectFacadeService {
         Long updateTaskId = taskService.updateStatusProgress(taskId);
         return updateTaskId;
     }
-
 
     @Transactional
     public Long updateStatusComplete(Long taskId) {

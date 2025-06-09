@@ -6,9 +6,11 @@ import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 import static com.ideality.coreflow.common.exception.ErrorCode.PROJECT_NOT_FOUND;
 
@@ -51,5 +53,19 @@ public class ProjectServiceImpl implements ProjectService {
             orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
 
 		return project.getStatus().equals(Status.COMPLETED);
+    }
+
+    @Override
+    public Long completeProject(Project project) {
+        project.setStatus(Status.COMPLETED);
+        project.setEndReal(LocalDate.now());
+        projectRepository.save(project);
+        return project.getId();
+    }
+
+    @Override
+    public Project findById(Long projectId) throws NotFoundException {
+        return projectRepository.findById(projectId)
+                                            .orElseThrow(()->new NotFoundException("프로젝트가 존재하지 않습니다"));
     }
 }

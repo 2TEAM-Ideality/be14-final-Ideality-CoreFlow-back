@@ -14,4 +14,6 @@ public interface TaskMapper {
     List<ResponseTaskDTO> selectTasks(Long projectId);
 
     Long selectProjectIdByTaskId(Long taskId);
+
+    int countIncompleteTasks(Long projectId);
 }

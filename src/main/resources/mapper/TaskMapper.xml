@@ -62,4 +62,12 @@
           FROM work
          WHERE id = #{taskId}
     </select>
+
+    <select id="countIncompleteTasks" parameterType="long" resultType="int">
+        SELECT
+               COUNT(*)
+          FROM work
+         WHERE project_id = #{projectId}
+           AND status IN ('PENDING', 'PROGRESS')
+    </select>
 </mapper>
