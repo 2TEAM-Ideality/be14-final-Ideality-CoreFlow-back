@@ -12,4 +12,5 @@ public class ResponseCommentForModifyDTO {
     private Long commentId;
     private String content;
     private Boolean isNotice;
+    private Long userId;
 }

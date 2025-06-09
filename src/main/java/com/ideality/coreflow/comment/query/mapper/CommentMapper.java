@@ -8,7 +8,7 @@ import java.util.List;
 
 @Mapper
 public interface CommentMapper {
-    List<SelectCommentDTO> selectComments(String taskId);
+    List<SelectCommentDTO> selectComments(Long taskId);
 
-    ResponseCommentForModifyDTO selectCommentByModify(Long commentId, Long userId);
+    ResponseCommentForModifyDTO selectCommentByModify(Long commentId);
 }

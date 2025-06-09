@@ -61,6 +61,7 @@
                project_id
           FROM work
          WHERE id = #{taskId}
+           AND parent_task_id IS NULL
     </select>
 
     <select id="countIncompleteTasks" parameterType="long" resultType="int">
@@ -70,4 +71,5 @@
          WHERE project_id = #{projectId}
            AND status IN ('PENDING', 'PROGRESS')
     </select>
+
 </mapper>

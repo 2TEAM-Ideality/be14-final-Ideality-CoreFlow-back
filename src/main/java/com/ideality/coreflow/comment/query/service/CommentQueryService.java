@@ -6,7 +6,7 @@ import com.ideality.coreflow.comment.query.dto.ResponseCommentsDTO;
 import java.util.List;
 
 public interface CommentQueryService {
-    List<ResponseCommentsDTO> selectComments(String taskId);
+    List<ResponseCommentsDTO> selectComments(Long taskId);
 
     ResponseCommentForModifyDTO selectComment(Long commentId, Long userId);
 }

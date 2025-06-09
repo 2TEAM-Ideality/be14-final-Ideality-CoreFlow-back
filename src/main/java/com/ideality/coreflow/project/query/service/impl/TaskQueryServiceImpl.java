@@ -1,5 +1,7 @@
 package com.ideality.coreflow.project.query.service.impl;
 
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.project.command.domain.repository.TaskRepository;
 import com.ideality.coreflow.project.query.dto.RelationDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
@@ -67,5 +69,15 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     @Override
     public boolean isAllTaskCompleted(Long projectId) {
         return taskMapper.countIncompleteTasks(projectId)==0;
+    }
+
+    @Override
+    public Long selectProjectIdByTaskId(Long taskId) {
+        Long projectId = taskMapper.selectProjectIdByTaskId(taskId);
+
+        if (projectId == null) {
+            throw new BaseException(ErrorCode.TASK_NOT_FOUND);
+        }
+        return projectId;
     }
 }

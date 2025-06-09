@@ -18,6 +18,7 @@
         <id property="commentId" column="id" />
         <result property="content" column="content"/>
         <result property="isNotice" column="is_notice"/>
+        <result property="userId" column="user_id"/>
     </resultMap>
 
     <select id="selectComments" parameterType="map" resultMap="CommentResultMap">
@@ -39,9 +40,9 @@
                id
              , content
              , is_notice
-          FROM comment a
+             , user_id
+          FROM comment
          WHERE id = #{commentId}
-           AND user_id = #{userId}
            AND is_deleted = false
     </select>
 

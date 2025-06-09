@@ -5,6 +5,8 @@ import com.ideality.coreflow.comment.query.dto.ResponseCommentsDTO;
 import com.ideality.coreflow.comment.query.dto.SelectCommentDTO;
 import com.ideality.coreflow.comment.query.mapper.CommentMapper;
 import com.ideality.coreflow.comment.query.service.CommentQueryService;
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,7 +21,7 @@ public class CommentQueryServiceImpl implements CommentQueryService {
     private final CommentMapper commentMapper;
 
     @Override
-    public List<ResponseCommentsDTO> selectComments(String taskId) {
+    public List<ResponseCommentsDTO> selectComments(Long taskId) {
         List<SelectCommentDTO> selectCommentList = commentMapper.selectComments(taskId);
         List<ResponseCommentsDTO> res = new ArrayList<>();
         for (SelectCommentDTO selectCommentDTO : selectCommentList) {
@@ -37,6 +39,16 @@ public class CommentQueryServiceImpl implements CommentQueryService {
 
     @Override
     public ResponseCommentForModifyDTO selectComment(Long commentId, Long userId) {
-        return commentMapper.selectCommentByModify(commentId, userId);
+        ResponseCommentForModifyDTO dto = commentMapper.selectCommentByModify(commentId);
+
+        if (dto == null) {
+            throw new BaseException(ErrorCode.COMMENT_NOT_FOUND);
+        }
+
+        if (!dto.getUserId().equals(userId)) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
+
+        return dto;
     }
 }

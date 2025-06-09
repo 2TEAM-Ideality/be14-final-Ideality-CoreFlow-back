@@ -16,4 +16,6 @@ public interface TaskQueryService {
 
     Long getProjectId(Long taskId);
     boolean isAllTaskCompleted(Long projectId);
+
+    Long selectProjectIdByTaskId(Long taskId);
 }
