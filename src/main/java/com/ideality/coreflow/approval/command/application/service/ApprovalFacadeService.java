@@ -12,6 +12,8 @@ import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.s3.S3Service;
 import com.ideality.coreflow.infra.s3.UploadFileResult;
+import com.ideality.coreflow.notification.command.application.service.NotificationService;
+import com.ideality.coreflow.notification.command.domain.aggregate.TargetType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class ApprovalFacadeService {
     private final ApprovalParticipantService approvalParticipantService;
     private final DelayApprovalService delayApprovalService;
     private final AttachmentCommandService attachmentCommandService;
+    private final NotificationService notificationService;
     private final S3Service s3Service;
 
     @Transactional
@@ -47,6 +50,15 @@ public class ApprovalFacadeService {
             // 결재 승인
             approvalService.updateStatus(approval, ApprovalStatus.APPROVED);
             log.info("결재 승인");
+
+            // 결재 승인 후 알림 전송
+            String notificationContent = "결재가 승인되었습니다. 승인된 결재 제목: " + approval.getTitle();
+            notificationService.sendNotification(
+                    approval.getUserId(),    // 결재 요청자 ID
+                    notificationContent,     // 알림 내용
+                    approval.getId(),        // 대상 ID (결재 ID)
+                    TargetType.APPROVAL      // 대상 타입 (결재)
+            );
 
             // 추가적인 열람자 설정
             for (long viewerId : request.getViewerIds()) {
@@ -92,6 +104,16 @@ public class ApprovalFacadeService {
 
         long approvalId = approvalService.registApproval(approval);
         log.info("결재 정보 등록: {}", approvalId);
+
+        // 결재 요청을 받은 사람(결재자)에게 알림 전송
+        String notificationContent = "새로운 결재 요청이 도착했습니다. 결재 제목: " + request.getTitle();
+        notificationService.sendNotification(
+                request.getApproverId(),    // 결재자 ID
+                notificationContent,        // 알림 내용
+                approvalId,                 // 대상 ID (결재 ID)
+                TargetType.APPROVAL         // 대상 타입 (결재)
+        );
+        log.info("결재 요청자에게 알림 전송");
 
         // 참여자 등록
         CreateApprovalParticipantDTO approvalParticipant = CreateApprovalParticipantDTO.builder()
