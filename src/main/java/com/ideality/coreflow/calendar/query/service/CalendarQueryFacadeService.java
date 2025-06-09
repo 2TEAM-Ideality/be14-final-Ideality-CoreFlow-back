@@ -170,32 +170,51 @@ public class CalendarQueryFacadeService {
 				log.info("MONTHLY 반복 만들기");
 
 				Integer byMonthDay = rule.getByMonthDay();
-
-				if (byMonthDay == null) return result;
+				Integer bySetPos = rule.getBySetPos();
+				String byDay = rule.getByDay();
 
 				LocalDateTime current = startOfMonth.withDayOfMonth(1);
-
 				while (!current.isAfter(endOfMonth) && !current.isAfter(repeatUntil)) {
-					int day = Math.min(byMonthDay, current.toLocalDate().lengthOfMonth());
-					LocalDateTime monthly = current.withDayOfMonth(day)
+					LocalDateTime target;
+
+					if (bySetPos != null && byDay != null) {
+						// 매달 n번째 요일 (예: 셋째 주 목요일)
+						DayOfWeek dayOfWeek = convertToDayOfWeek(byDay);
+						target = getNthWeekdayOfMonth(current.getYear(), current.getMonthValue(), dayOfWeek, bySetPos, originalStart.toLocalTime());
+					} else if (byMonthDay != null) {
+						// 매달 n일 (예: 15일)
+						int day = Math.min(byMonthDay, current.toLocalDate().lengthOfMonth());
+						target = current.withDayOfMonth(day)
 							.withHour(originalStart.getHour())
 							.withMinute(originalStart.getMinute());
+					} else {
+						// 아무 규칙도 없다면 종료
+						break;
+					}
 
-					if (!monthly.isBefore(startOfMonth) && !monthly.isAfter(endOfMonth) && !monthly.isAfter(repeatUntil)) {
-						// 중복 방지: originalStart와 날짜가 같으면 제외
-						if (isSameDate(monthly, originalStart)) {
+					if (!target.isBefore(startOfMonth) && !target.isAfter(endOfMonth) && !target.isAfter(repeatUntil)) {
+						if (isSameDate(target, originalStart)) {
 							current = current.plusMonths(rule.getRepeatInterval());
 							continue;
 						}
-						result.add(toResponse(originSchedule, monthly, duration));
+						result.add(toResponse(originSchedule, target, duration));
 					}
+
 					current = current.plusMonths(rule.getRepeatInterval());
 				}
 			}
 		}
 
+
 		return result;
 	}
+
+	private LocalDateTime getNthWeekdayOfMonth(int year, int month, DayOfWeek dayOfWeek, int nth, LocalTime time) {
+		LocalDate firstDay = LocalDate.of(year, month, 1);
+		LocalDate resultDate = firstDay.with(TemporalAdjusters.dayOfWeekInMonth(nth, dayOfWeek));
+		return resultDate.atTime(time);
+	}
+
 
 	// toResponse(repeat, 반복일시, duration) : 기존 일정의 내용을 그대로 유지하되, 새로운 일시로 Response DTO 생성
 	private ResponseScheduleDTO toResponse(ScheduleDetailDTO originSchedule, LocalDateTime start, Duration duration) {
