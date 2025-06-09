@@ -118,4 +118,9 @@ public class UserQueryServiceImpl implements UserQueryService {
         }
         return userMapper.selectUserListByMention(mentionConditionDTOS);
     }
+
+    @Override
+    public String getUserId(Long userId) {
+        return userMapper.selectUserNameById(userId);
+    }
 }

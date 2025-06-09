@@ -80,4 +80,9 @@ public class TaskQueryServiceImpl implements TaskQueryService {
         }
         return projectId;
     }
+
+    @Override
+    public String getTaskName(Long taskId) {
+        return taskMapper.selectTaskNameByTaskId(taskId);
+    }
 }

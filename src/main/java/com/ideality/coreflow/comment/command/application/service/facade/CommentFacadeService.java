@@ -48,12 +48,7 @@ public class CommentFacadeService {
     public Long createComment(RequestCommentDTO commentDTO, Long taskId, Long userId) {
 
         /* 설명. 댓글 작성 순서 -> 댓글 작성, 첨부 파일 업로드, 알림에 추가 */
-        taskService.validateTask(taskId);
-
-        Long commentId = commentService.createComment(commentDTO, taskId, userId);
         Long projectId = taskQueryService.getProjectId(taskId);
-
-        log.info("comment created with id: " + commentId);
         log.info("project created with id: " + projectId);
 
         if (projectId == null) {
@@ -66,6 +61,12 @@ public class CommentFacadeService {
             throw new BaseException(COMMENT_ACCESS_DENIED);
         }
 
+        Long commentId = commentService.createComment(commentDTO, taskId, userId);
+        log.info("comment created with id: " + commentId);
+
+        // 공통 데이터 조회
+        String writerName = userQueryService.getUserId(userId);
+        String taskTitle = taskQueryService.getTaskName(taskId);
 
         if (commentDTO.getMentions() != null) {
             // 팀명만 태그했을 때
@@ -75,7 +76,8 @@ public class CommentFacadeService {
             List<Long> userIdByMention = userQueryService.selectIdByMentionList(commentDTO.getMentions());
             log.info("mentions created with id: " + userIdByMention);
             log.info("사용자 조회 완료");
-            Long notificationId = notificationService.createMentionNotification(taskId);
+            String content = String.format("%s TASK에서 '%s'님이 회원님을 언급하였습니다.", taskTitle, writerName);
+            Long notificationId = notificationService.createMentionNotification(taskId, content);
             log.info("알림 생성 완료");
             notificationRecipientsService.createRecipientsByMention(userIdByMention, notificationId);
             log.info("알림 전달할 사람에게 전달 완료");
@@ -89,11 +91,11 @@ public class CommentFacadeService {
 
             // 최종 목적에 맞는 구조: 알림 ID → 수신자 ID 리스트
             Map<Long, List<Long>> notificationIdToUserIds = new HashMap<>();
-
+            String content = String.format("%s TASK에서 '%s'님이 회원님을 언급하였습니다.", taskTitle, writerName);
             for (Long detailId : detailIdList) {
                 log.info("loop 반복");
                 // 알림 생성
-                Long notificationId = notificationService.createDetailNotification(detailId);
+                Long notificationId = notificationService.createDetailNotification(detailId, content);
 
                 // detailId에 참여 중인 유저 목록 조회
                 List<Long> participantIds = participantQueryService.selectParticipantsList(detailId);

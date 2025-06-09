@@ -16,4 +16,6 @@ public interface TaskMapper {
     Long selectProjectIdByTaskId(Long taskId);
 
     int countIncompleteTasks(Long projectId);
+
+    String selectTaskNameByTaskId(Long taskId);
 }

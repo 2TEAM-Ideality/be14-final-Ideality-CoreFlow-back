@@ -18,4 +18,6 @@ public interface TaskQueryService {
     boolean isAllTaskCompleted(Long projectId);
 
     Long selectProjectIdByTaskId(Long taskId);
+
+    String getTaskName(Long taskId);
 }

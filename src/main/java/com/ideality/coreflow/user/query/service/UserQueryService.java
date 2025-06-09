@@ -26,4 +26,6 @@ public interface UserQueryService {
     List<String> selectMentionUserByMentionInfo(List<String> mentionParse, Long projectId);
 
     List<Long> selectIdByMentionList(List<String> mentions);
+
+    String getUserId(Long userId);
 }

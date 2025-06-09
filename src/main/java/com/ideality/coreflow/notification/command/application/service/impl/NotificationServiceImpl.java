@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @Slf4j
@@ -21,11 +19,11 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional
-    public Long createDetailNotification(Long detailId) {
+    public Long createDetailNotification(Long detailId, String content) {
         Notification notification = Notification.builder()
                 .targetType(String.valueOf(Notification.TargetType.WORK))
                 .targetId(detailId)
-                .content("세부 일정에 태그 하였습니다.")
+                .content(content)
                 .status(String.valueOf(Notification.Status.SENT))
                 .dispatchAt(LocalDateTime.now())
                 .createdAt(LocalDateTime.now())
@@ -37,11 +35,11 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional
-    public Long createMentionNotification(Long taskId) {
+    public Long createMentionNotification(Long taskId, String content) {
         Notification notification = Notification.builder()
                 .targetType(String.valueOf(Notification.TargetType.WORK))
                 .targetId(taskId)
-                .content("댓글에 태그되었습니다.")
+                .content(content)
                 .status(String.valueOf(Notification.Status.SENT))
                 .dispatchAt(LocalDateTime.now())
                 .createdAt(LocalDateTime.now())

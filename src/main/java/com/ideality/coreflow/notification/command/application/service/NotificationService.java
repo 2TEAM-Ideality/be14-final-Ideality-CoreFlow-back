@@ -1,9 +1,7 @@
 package com.ideality.coreflow.notification.command.application.service;
 
-import java.util.List;
-
 public interface NotificationService {
-    Long createDetailNotification(Long detailId);
+    Long createDetailNotification(Long detailId, String content);
 
-    Long createMentionNotification(Long taskId);
+    Long createMentionNotification(Long taskId, String content);
 }

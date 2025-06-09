@@ -62,6 +62,7 @@
           FROM work
          WHERE id = #{taskId}
            AND parent_task_id IS NULL
+           AND status != 'DELETED'
     </select>
 
     <select id="countIncompleteTasks" parameterType="long" resultType="int">
@@ -72,4 +73,11 @@
            AND status IN ('PENDING', 'PROGRESS')
     </select>
 
+    <select id="selectTaskNameByTaskId" resultType="string">
+        SELECT
+               name
+          FROM work
+         WHERE id = #{taskId}
+           AND status != 'DELETED'
+    </select>
 </mapper>
