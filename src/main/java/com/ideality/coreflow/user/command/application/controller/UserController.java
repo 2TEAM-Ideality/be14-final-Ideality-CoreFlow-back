@@ -9,10 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -31,5 +28,18 @@ public class UserController {
         userFacadeService.modifyUserProfileImg(userInfoDTO);
 
         return ResponseEntity.ok(APIResponse.success(null, "프로필 사진 변경 완료"));
+    }
+
+    // 현재 로그인한 유저의 회원 정보
+    @GetMapping("/info")
+    public ResponseEntity<APIResponse<?>> findUserInfo() {
+
+        return ResponseEntity.ok(APIResponse.success(userFacadeService.findUserInfo(Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName())), "현재 회원 정보 조회"));
+    }
+
+    // 회원 id로 유저 정보 조회
+    @GetMapping("/info/{userId}")
+    public ResponseEntity<APIResponse<?>> findUserInfoByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(APIResponse.success(userFacadeService.findUserInfo(userId), "유저 정보 조회"));
     }
 }
