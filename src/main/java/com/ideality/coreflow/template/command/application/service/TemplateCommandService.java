@@ -63,10 +63,6 @@ public class TemplateCommandService {
 	// 템플릿 정보 수정
 	@Transactional
 	public void updateTemplateInfo(Long templateId, String name, String description, int duration, int taskCount, Long updatedBy) {
-		if (templateRepository.existsByNameAndIdNot(name, templateId)) {
-			throw new BaseException(ErrorCode.DUPLICATED_TEMPLATE_NAME);
-		}
-
 		Template originTemplate = templateRepository.findById(templateId).
 				orElseThrow(() -> new BaseException(ErrorCode.TEMPLATE_NOT_FOUND));
 

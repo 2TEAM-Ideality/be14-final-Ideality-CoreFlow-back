@@ -36,7 +36,7 @@ public enum ErrorCode {
     // ✅ 서버 오류
     INTERNAL_SERVER_ERROR("INTERNAL_SERVER_ERROR", "서버 내부 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR), // 500
 
-    // ✅ 템플릿 없는 정보
+    // ✅ 템플릿 관련
     TEMPLATE_NOT_FOUND("TEMPLATE_NOT_FOUND", "존재하지 않는 템플릿입니다.", HttpStatus.NOT_FOUND),   // 400
 
     // ✅ DB 관련
