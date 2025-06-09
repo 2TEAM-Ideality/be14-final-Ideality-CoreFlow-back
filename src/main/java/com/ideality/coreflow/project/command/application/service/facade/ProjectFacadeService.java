@@ -1,15 +1,12 @@
 package com.ideality.coreflow.project.command.application.service.facade;
 
-import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
-import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
-import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
-import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.project.command.application.dto.*;
 import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
-import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
-import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
 import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
@@ -18,6 +15,9 @@ import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
 import com.ideality.coreflow.template.query.dto.NodeDataDTO;
+import com.ideality.coreflow.user.command.application.service.RoleService;
+import com.ideality.coreflow.user.command.application.service.UserOfRoleService;
+import com.ideality.coreflow.user.command.application.service.UserService;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -43,6 +43,9 @@ public class ProjectFacadeService {
     private final RelationService relationService;
     private final WorkDeptService workDeptService;
     private final ParticipantService participantService;
+    private final RoleService roleService;
+    private final UserOfRoleService userOfRoleService;
+    private final UserService userService;
 
     private final DeptQueryService deptQueryService;
     private final UserQueryService userQueryService;
@@ -349,4 +352,18 @@ public class ProjectFacadeService {
         detailService.deleteDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
     }
 
+    public Long createParticipantsLeader(Long userId, Long projectId, List<RequestTeamLeaderDTO> reqLeaderDTO) {
+        boolean isDirector = participantQueryService.isProjectDirector(projectId, userId);
+        if (!isDirector) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
+
+        List<Long> leaderUserIds = reqLeaderDTO.stream()
+                .map(RequestTeamLeaderDTO::getUserId)
+                .collect(Collectors.toList());
+        Long roleId = roleService.findRoleByName("TEAM_LEADER");
+        userOfRoleService.createTeamLeader(roleId , leaderUserIds);
+
+        return null;
+    }
 }

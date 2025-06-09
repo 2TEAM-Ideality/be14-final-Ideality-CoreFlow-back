@@ -1,10 +1,13 @@
 package com.ideality.coreflow.project.command.application.controller;
 
+import com.ideality.coreflow.common.response.APIResponse;
+import com.ideality.coreflow.project.command.application.dto.RequestTeamLeaderDTO;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
@@ -58,4 +61,13 @@ public class ProjectController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/{projectId}/participants/team-leader")
+    public ResponseEntity<APIResponse<Map<String, Long>>>
+    createTeamLeader(@PathVariable Long projectId,
+                     @RequestBody List<RequestTeamLeaderDTO> reqLeaderDTO) {
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+
+        Long participantLeaderId = projectFacadeService.createParticipantsLeader(userId, projectId, reqLeaderDTO);
+        return null;
+    }
 }

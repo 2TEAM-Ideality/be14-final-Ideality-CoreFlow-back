@@ -3,8 +3,11 @@ package com.ideality.coreflow.user.command.application.service.impl;
 import com.ideality.coreflow.user.command.application.service.UserOfRoleService;
 import com.ideality.coreflow.user.command.domain.aggregate.UserOfRole;
 import com.ideality.coreflow.user.command.domain.repository.UserOfRoleRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +28,19 @@ public class UserOfRoleServiceImpl implements UserOfRoleService {
         } else {
             // 이미 권한이 부여되어 있다면 삭제, 없으면 그대로
             userOfRoleRepository.deleteByUserIdAndRoleId(userId, roleId);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void createTeamLeader(Long roleId, List<Long> leaderUserIds) {
+        for (Long userId : leaderUserIds) {
+            UserOfRole newRole = UserOfRole.builder()
+                    .userId(userId)
+                    .roleId(roleId)
+                    .build();
+
+            userOfRoleRepository.save(newRole);
         }
     }
 }
