@@ -55,4 +55,11 @@
            AND a.parent_task_id IS NULL
            AND a.status != 'DELETED'
     </select>
+
+    <select id="selectProjectIdByTaskId" resultType="long">
+        SELECT
+               project_id
+          FROM work
+         WHERE id = #{taskId}
+    </select>
 </mapper>

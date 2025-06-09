@@ -5,6 +5,7 @@ import com.ideality.coreflow.attachment.command.application.dto.CreateAttachment
 import com.ideality.coreflow.comment.command.application.dto.RequestCommentDTO;
 import com.ideality.coreflow.comment.command.application.dto.RequestModifyCommentDTO;
 import com.ideality.coreflow.comment.command.application.service.CommentService;
+import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.infra.s3.S3Service;
 import com.ideality.coreflow.infra.s3.UploadFileResult;
 import com.ideality.coreflow.mention.service.MentionService;
@@ -12,6 +13,7 @@ import com.ideality.coreflow.notification.command.application.service.Notificati
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
 import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
+import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.project.query.service.WorkService;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.ideality.coreflow.common.exception.ErrorCode.COMMENT_ACCESS_DENIED;
+import static com.ideality.coreflow.common.exception.ErrorCode.TASK_NOT_FOUND;
 
 @Service
 @Slf4j
@@ -35,6 +40,7 @@ public class CommentFacadeService {
     private final NotificationRecipientsService notificationRecipientsService;
     private final WorkService workService;
     private final TaskService taskService;
+    private final TaskQueryService taskQueryService;
     private final S3Service s3Service;
     private final UserQueryService userQueryService;
 
@@ -45,6 +51,21 @@ public class CommentFacadeService {
         taskService.validateTask(taskId);
 
         Long commentId = commentService.createComment(commentDTO, taskId, userId);
+        Long projectId = taskQueryService.getProjectId(taskId);
+
+        log.info("comment created with id: " + commentId);
+        log.info("project created with id: " + projectId);
+
+        if (projectId == null) {
+            throw new BaseException(TASK_NOT_FOUND);
+        }
+
+        boolean isParticipant = participantQueryService.isParticipant(userId, projectId);
+
+        if (!isParticipant) {
+            throw new BaseException(COMMENT_ACCESS_DENIED);
+        }
+
 
         if (commentDTO.getMentions() != null) {
             // 팀명만 태그했을 때

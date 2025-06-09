@@ -23,4 +23,9 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
     public List<Long> selectParticipantsList(Long detailParticipantId) {
         return participantMapper.selectParticipantsList(detailParticipantId);
     }
+
+    @Override
+    public boolean isParticipant(Long userId, Long projectId) {
+        return participantMapper.isParticipantUser(userId, projectId);
+    }
 }

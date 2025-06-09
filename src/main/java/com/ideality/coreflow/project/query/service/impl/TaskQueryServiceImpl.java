@@ -56,4 +56,9 @@ public class TaskQueryServiceImpl implements TaskQueryService {
                 .build())
             .toList();
     }
+
+    @Override
+    public Long getProjectId(Long taskId) {
+        return taskMapper.selectProjectIdByTaskId(taskId);
+    }
 }

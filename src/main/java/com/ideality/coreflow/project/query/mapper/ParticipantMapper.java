@@ -9,4 +9,6 @@ public interface ParticipantMapper {
     Long selectDirectorByProjectId(Long projectId);
 
     List<Long> selectParticipantsList(Long detailParticipantId);
+
+    boolean isParticipantUser(Long userId, Long projectId);
 }

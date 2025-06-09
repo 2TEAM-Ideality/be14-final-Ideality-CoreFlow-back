@@ -6,4 +6,6 @@ public interface ParticipantQueryService {
     Long selectDirectorByProjectId(Long projectId);
 
     List<Long> selectParticipantsList(Long detailParticipantId);
+
+    boolean isParticipant(Long userId, Long projectId);
 }
