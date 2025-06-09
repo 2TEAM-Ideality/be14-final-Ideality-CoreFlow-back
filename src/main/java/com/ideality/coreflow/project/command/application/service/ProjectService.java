@@ -18,4 +18,6 @@ public interface ProjectService {
     Long updateProjectPending(Project project);
 
     Long updateProjectProgress(Project project);
+
+    Long updateProjectDeleted(Project project);
 }

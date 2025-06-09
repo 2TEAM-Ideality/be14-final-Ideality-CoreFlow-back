@@ -82,4 +82,11 @@ public class ProjectServiceImpl implements ProjectService {
         projectRepository.save(project);
         return project.getId();
     }
+
+    @Override
+    public Long updateProjectDeleted(Project project) {
+        project.setStatus(Status.DELETED);
+        projectRepository.save(project);
+        return project.getId();
+    }
 }

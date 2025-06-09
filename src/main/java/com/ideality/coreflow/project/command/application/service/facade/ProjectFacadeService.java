@@ -52,6 +52,21 @@ public class ProjectFacadeService {
     private final ProjectRepository projectRepository;
     private final TaskQueryService taskQueryService;
 
+    public Long updateProjectDeleted(Long projectId, Long userId) throws NotFoundException, IllegalAccessException {
+        Project project = projectService.findById(projectId);
+        if(project.getStatus().equals(Status.DELETED)) {
+            throw new IllegalStateException("이미 삭제된 프로젝트입니다");
+        }
+        log.info("프로젝트 조회 성공");
+
+        if (!participantQueryService.isProjectDirector(projectId, userId)) {
+            throw new IllegalAccessException("이 프로젝트의 디렉터가 아닙니다");
+        }
+        log.info("디렉터 여부 조회 성공");
+
+        return projectService.updateProjectDeleted(project);
+    }
+
     @Transactional
     public Long updateProjectProgress(Long projectId, Long userId) throws NotFoundException, IllegalAccessException {
         Project project = projectService.findById(projectId);
