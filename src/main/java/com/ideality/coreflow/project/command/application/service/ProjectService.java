@@ -10,5 +10,5 @@ public interface ProjectService {
 
     boolean isCompleted(Long projectId);
 
-    void completeProject(Project project);
+    Long completeProject(Project project);
 }

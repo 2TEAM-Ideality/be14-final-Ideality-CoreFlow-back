@@ -55,8 +55,10 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void completeProject(Project project) {
+    public Long completeProject(Project project) {
         project.setStatus(Status.COMPLETED);
         project.setEndReal(LocalDate.now());
+        projectRepository.save(project);
+        return project.getId();
     }
 }

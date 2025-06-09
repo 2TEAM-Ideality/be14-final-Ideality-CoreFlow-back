@@ -53,7 +53,7 @@ public class ProjectFacadeService {
     private final TaskQueryService taskQueryService;
 
     @Transactional
-    public void completeProject(Long projectId) throws NotFoundException {
+    public Long completeProject(Long projectId) throws NotFoundException {
         // 1. 프로젝트 조회
         Project project = projectRepository.findById(projectId)
                                             .orElseThrow(()->new NotFoundException("프로젝트가 존재하지 않습니다"));
@@ -65,8 +65,9 @@ public class ProjectFacadeService {
         }
 
         // 3. 상태 변경
-        projectService.completeProject(project);
+        Long updatedProjectId = projectService.completeProject(project);
 
+        return updatedProjectId;
     }
 
     @Transactional
@@ -243,7 +244,6 @@ public class ProjectFacadeService {
         Long updateTaskId = taskService.updateStatusProgress(taskId);
         return updateTaskId;
     }
-
 
     @Transactional
     public Long updateStatusComplete(Long taskId) {

@@ -59,7 +59,7 @@
     <select id="countIncompleteTasks" parameterType="long" resultType="int">
         SELECT
                COUNT(*)
-          FROM task
+          FROM work
          WHERE project_id = #{projectId}
            AND status IN ('PENDING', 'PROGRESS')
     </select>
