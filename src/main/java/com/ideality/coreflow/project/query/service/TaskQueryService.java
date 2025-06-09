@@ -14,4 +14,5 @@ public interface TaskQueryService {
 
     List<EdgeDTO> getEdgeList(List<ResponseTaskDTO> taskList);
 
+    boolean isAllTaskCompleted(Long projectId);
 }
