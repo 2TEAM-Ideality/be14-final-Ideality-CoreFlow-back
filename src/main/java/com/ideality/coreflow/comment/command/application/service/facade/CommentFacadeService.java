@@ -71,8 +71,9 @@ public class CommentFacadeService {
             // 팀명만 태그했을 때
             // 전체 이름으로 태그했을 때 -> 파싱할 필요 없이 마이바티스 동적 쿼리로 사용
             // 어차피 회원 테이블에는 반정규화로 인해 부서명이 들어가있음
-
+            log.info("mentions 목록입니다." + commentDTO.getMentions());
             List<Long> userIdByMention = userQueryService.selectIdByMentionList(commentDTO.getMentions());
+            log.info("mentions created with id: " + userIdByMention);
             log.info("사용자 조회 완료");
             Long notificationId = notificationService.createMentionNotification(taskId);
             log.info("알림 생성 완료");

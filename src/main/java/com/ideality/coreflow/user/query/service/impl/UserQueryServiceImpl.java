@@ -2,10 +2,7 @@ package com.ideality.coreflow.user.query.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
-import com.ideality.coreflow.user.query.dto.DeptNameAndYearDTO;
-import com.ideality.coreflow.user.query.dto.UserOfRoleDTO;
-import com.ideality.coreflow.user.query.dto.UserMentionDTO;
-import com.ideality.coreflow.user.query.dto.UserNameIdDto;
+import com.ideality.coreflow.user.query.dto.*;
 import com.ideality.coreflow.user.query.mapper.UserMapper;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import lombok.RequiredArgsConstructor;
@@ -110,23 +107,15 @@ public class UserQueryServiceImpl implements UserQueryService {
     @Override
     public List<Long> selectIdByMentionList(List<String> mentions) {
 
-        List<String> deptName = new ArrayList<>();
-        List<String> jobRank = new ArrayList<>();
-        List<String> name = new ArrayList<>();
+        List<MentionConditionDTO> mentionConditionDTOS = new ArrayList<>();
         for (String mention : mentions) {
             String[] parse = mention.split("_");
+            String dept = parse[0];
+            String rank = parse.length > 1 ? parse[1] : "";
+            String user = parse.length > 2 ? parse[2] : "";
 
-            if (parse.length == 1) deptName.add(parse[0]);
-            if (parse.length == 2) {
-                deptName.add(parse[0]);
-                jobRank.add(parse[1]);
-            }
-            if (parse.length == 3) {
-                deptName.add(parse[0]);
-                jobRank.add(parse[1]);
-                name.add(parse[2]);
-            }
+            mentionConditionDTOS.add(new MentionConditionDTO(dept, rank, user));
         }
-        return userMapper.selectUserListByMention(deptName, jobRank, name);
+        return userMapper.selectUserListByMention(mentionConditionDTOS);
     }
 }
