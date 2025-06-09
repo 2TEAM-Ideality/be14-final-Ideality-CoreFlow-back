@@ -1,5 +1,6 @@
 package com.ideality.coreflow.calendar.command.application.dto;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import com.ideality.coreflow.calendar.command.domain.aggregate.Frequency;
@@ -18,9 +19,9 @@ public class FrequencyInfo {
 	Frequency frequencyType;
 	Integer repeatInterval;
 
-	Date endDate;
+	LocalDateTime endDate;
+
 	String byDay;
-	Integer byMonth;
-	Integer byYear;
+	Integer byMonthDay;
 	Integer bySetPos;
 }

@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.query.service.impl;
 
+import com.ideality.coreflow.project.command.domain.repository.TaskRepository;
 import com.ideality.coreflow.project.query.dto.RelationDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskInfoDTO;
@@ -21,6 +22,7 @@ import java.util.List;
 public class TaskQueryServiceImpl implements TaskQueryService {
     private final TaskMapper taskMapper;
     private final RelationMapper relationMapper;
+    private final TaskRepository taskRepository;
 
     @Override
     public ResponseTaskInfoDTO selectTaskInfo(Long taskId) {
@@ -55,5 +57,10 @@ public class TaskQueryServiceImpl implements TaskQueryService {
                 .type("default")
                 .build())
             .toList();
+    }
+
+    @Override
+    public boolean isAllTaskCompleted(Long projectId) {
+        return taskMapper.countIncompleteTasks(projectId)==0;
     }
 }

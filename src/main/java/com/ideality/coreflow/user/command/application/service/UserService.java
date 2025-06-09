@@ -1,13 +1,12 @@
 package com.ideality.coreflow.user.command.application.service;
 
 import com.ideality.coreflow.auth.command.domain.aggregate.LoginType;
-import com.ideality.coreflow.user.command.application.dto.LoginDTO;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.domain.aggregate.OrgType;
 
 public interface UserService {
 
-    LoginDTO findLoginInfoByIdentifier(String identifier, LoginType loginType);
+    UserInfoDTO findLoginInfoByIdentifier(String identifier, LoginType loginType);
 
     Boolean isExistEmail(String email);
 
@@ -24,4 +23,6 @@ public interface UserService {
     long findUserIdByEmail(String email);
 
     void updateUserOrg(OrgType type, String prevJobRankName, String newJobRankName);
+
+    UserInfoDTO findUserById(long userId);
 }

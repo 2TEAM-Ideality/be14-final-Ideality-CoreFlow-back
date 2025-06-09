@@ -4,20 +4,19 @@ import java.time.LocalDateTime;
 
 import com.ideality.coreflow.calendar.command.application.dto.FrequencyInfo;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ResponseScheduleDTO {
 	private Long id;
-	private String scheduleName;
+	private String name;
 	private String content;
 	private LocalDateTime startAt;
 	private LocalDateTime endAt;
 	private Boolean isRepeat;
+	private Long originalScheduleId;
 }

@@ -16,4 +16,9 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
     public Long selectDirectorByProjectId(Long projectId) {
         return participantMapper.selectDirectorByProjectId(projectId);
     }
+
+    @Override
+    public boolean isProjectDirector(Long projectId, Long userId) {
+        return participantMapper.isProjectDirector(projectId, userId);
+    }
 }

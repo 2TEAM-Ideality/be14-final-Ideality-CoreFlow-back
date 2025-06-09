@@ -15,7 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ScheduleDetailDTO {
 	private Long id;
-	private String scheduleName;
+	private String name;
 	private String content;
 	private LocalDateTime startAt;
 	private LocalDateTime endAt;
