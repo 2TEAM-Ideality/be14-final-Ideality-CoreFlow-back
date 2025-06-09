@@ -5,6 +5,7 @@ import com.ideality.coreflow.notification.query.service.NotificationQueryService
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ public class NotificationController {
     // SLF4J 로거 선언
     private static final Logger logger = LoggerFactory.getLogger(NotificationController.class);
 
+    @PreAuthorize("isAuthenticated()")  // 인증된 사용자만 접근 가능
     @GetMapping("/api/notifications/stream")
     public SseEmitter streamNotifications() {
         SseEmitter emitter = new SseEmitter();

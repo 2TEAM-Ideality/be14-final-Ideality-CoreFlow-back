@@ -154,4 +154,11 @@
             AND pt.role_id       = 1
             JOIN user director  ON director.id      = pt.user_id
     </select>
+
+    <select id="findProjectNameByProjectId" resultType="String">
+        SELECT NAME
+        FROM PROJECT
+        WHERE id = #{projectId}
+    </select>
+
 </mapper>

@@ -6,6 +6,10 @@ import com.ideality.coreflow.project.command.application.service.ParticipantServ
 import com.ideality.coreflow.project.command.domain.aggregate.Participant;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.command.domain.repository.ParticipantRepository;
+import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
+import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
+import com.ideality.coreflow.project.query.mapper.ProjectMapper;
+import com.ideality.coreflow.project.query.mapper.WorkMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,6 +18,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.ideality.coreflow.notification.command.domain.aggregate.TargetType.PROJECT;
+import static com.ideality.coreflow.notification.command.domain.aggregate.TargetType.WORK;
+
 
 @Service
 @Slf4j
@@ -21,6 +27,8 @@ import static com.ideality.coreflow.notification.command.domain.aggregate.Target
 public class ParticipantServiceImpl implements ParticipantService {
     private final ParticipantRepository participantRepository;
     private final NotificationService notificationService;
+    private final WorkMapper workMapper;
+    private final ProjectMapper projectMapper;
 
     @Override
     @Transactional
@@ -35,13 +43,23 @@ public class ParticipantServiceImpl implements ParticipantService {
 
             participantRepository.save(participant);
 
+            // taskParticipant.getTargetType()에 따라 알림 내용 설정
+            if (taskParticipant.getRoleId() == 2L) { // roleId가 2L이면 팀장
+                String content = "";
 
-            // 팀장이 초대되면 알림을 보내는 로직 추가
-            if (taskParticipant.getRoleId() == 2L) { //roleId가 2L이면 팀장
-                String content = "프로젝트에 팀장으로 초대되었습니다.";
-                notificationService.sendNotification(taskParticipant.getUserId(), content, taskParticipant.getTaskId(), PROJECT);
+                if (taskParticipant.getTargetType() == TargetType.TASK) { // TARGET TYPE이 TASK일 때
+                    // WORK 테이블에서 태스크 이름 조회
+                    String taskName = workMapper.findTaskNameByTaskId(taskParticipant.getTaskId());
+                    content = "태스크 [" + taskName + "]에 팀장으로 초대되었습니다.";
+                    // 알림 전송
+                    notificationService.sendNotification(taskParticipant.getUserId(), content, taskParticipant.getTaskId(), WORK);
+                } else if (taskParticipant.getTargetType() == TargetType.PROJECT) { // TARGET TYPE이 PROJECT일 때
+                    // PROJECT 테이블에서 프로젝트 이름 조회
+                    String projectName = projectMapper.findProjectNameByProjectId(taskParticipant.getTaskId());
+                    content = "프로젝트 [" + projectName + "]에 팀장으로 초대되었습니다.";
+                    notificationService.sendNotification(taskParticipant.getUserId(), content, taskParticipant.getTaskId(), PROJECT);
+                }
             }
-
         }
     }
 

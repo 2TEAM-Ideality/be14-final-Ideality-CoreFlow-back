@@ -14,4 +14,5 @@ public interface ProjectMapper {
     List<UserInfoDTO> getProjectLeaders(Long projectId);
 
     ProjectSummaryDTO selectProjectSummary(Long projectId);
+    String findProjectNameByProjectId(Long projectId);
 }
