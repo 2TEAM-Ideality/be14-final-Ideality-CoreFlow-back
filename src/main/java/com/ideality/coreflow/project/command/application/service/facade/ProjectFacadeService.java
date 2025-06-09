@@ -21,6 +21,7 @@ import com.ideality.coreflow.template.query.dto.NodeDataDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +51,23 @@ public class ProjectFacadeService {
     private final WorkRepository workRepository;
     private final ProjectRepository projectRepository;
     private final TaskQueryService taskQueryService;
+
+    public Long updateProjectPending(Long projectId, Long userId) throws NotFoundException, IllegalAccessException {
+        // 1. 프로젝트 조회
+        Project project = projectService.findById(projectId);
+        if(!EnumSet.of(Status.DELETED, Status.CANCELLED).contains(project.getStatus())) {
+            throw new IllegalStateException(project.getStatus()+" 상태의 프로젝트는 PENDING 상태로 수정할 수 없습니다");
+        }
+        log.info("프로젝트 조회 성공");
+
+        // 2. 해당 유저가 이 프로젝트의 디렉터가 맞는지 조회
+        if (!participantQueryService.isProjectDirector(projectId, userId)) {
+            throw new IllegalAccessException("이 프로젝트의 디렉터가 아닙니다");
+        }
+        log.info("디렉터 여부 조회 성공");
+
+        return projectService.updateProjectPending(project);
+    }
 
     @Transactional
     public Long updateProjectComplete(Long projectId, Long userId) throws NotFoundException, IllegalAccessException {

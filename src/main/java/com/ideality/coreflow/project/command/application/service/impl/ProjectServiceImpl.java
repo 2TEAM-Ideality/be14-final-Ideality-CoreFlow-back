@@ -68,4 +68,11 @@ public class ProjectServiceImpl implements ProjectService {
         return projectRepository.findById(projectId)
                                             .orElseThrow(()->new NotFoundException("프로젝트가 존재하지 않습니다"));
     }
+
+    @Override
+    public Long updateProjectPending(Project project) {
+        project.setStatus(Status.PENDING);
+        projectRepository.save(project);
+        return project.getId();
+    }
 }
