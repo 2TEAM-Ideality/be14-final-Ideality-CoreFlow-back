@@ -6,6 +6,7 @@ import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
+import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
 import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
@@ -51,9 +52,12 @@ public class ProjectFacadeService {
     private final TaskQueryService taskQueryService;
 
     @Transactional
-    public Long completeProject(Long projectId, Long userId) throws NotFoundException, IllegalAccessException {
+    public Long updateProjectComplete(Long projectId, Long userId) throws NotFoundException, IllegalAccessException {
         // 1. 프로젝트 조회
         Project project = projectService.findById(projectId);
+        if(!(project.getStatus()== Status.PROGRESS)){
+            throw new IllegalStateException("진행중인 프로젝트가 아닙니다");
+        }
         log.info("프로젝트 조회 성공");
 
         // 2. 해당 유저가 이 프로젝트의 디렉터가 맞는지 조회

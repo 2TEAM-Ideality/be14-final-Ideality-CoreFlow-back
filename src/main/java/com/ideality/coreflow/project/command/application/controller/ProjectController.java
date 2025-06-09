@@ -39,7 +39,7 @@ public class ProjectController {
     public ResponseEntity<Map<String, Object>> complteProject(@PathVariable Long projectId)
             throws NotFoundException, IllegalAccessException {
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
-        Long completedProjectId = projectFacadeService.completeProject(projectId, userId);
+        Long completedProjectId = projectFacadeService.updateProjectComplete(projectId, userId);
         Map<String, Object> response = new HashMap<>();
         response.put("status", "success");
         response.put("message", completedProjectId+"번 프로젝트 완료됨");
