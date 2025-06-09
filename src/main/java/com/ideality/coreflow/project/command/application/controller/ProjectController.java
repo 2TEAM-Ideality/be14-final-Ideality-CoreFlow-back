@@ -3,6 +3,7 @@ package com.ideality.coreflow.project.command.application.controller;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
+import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.ibatis.javassist.NotFoundException;
@@ -35,15 +36,26 @@ public class ProjectController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/complete/{projectId}")
-    public ResponseEntity<Map<String, Object>> complteProject(@PathVariable Long projectId)
+    @PatchMapping("/{projectId}/status/{status}")
+    public ResponseEntity<Map<String, Object>> updateProjectStatus(@PathVariable Long projectId,
+                                                                   @PathVariable String status)
             throws NotFoundException, IllegalAccessException {
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
-        Long completedProjectId = projectFacadeService.updateProjectComplete(projectId, userId);
+
+        Status targetStatus;
+        try {
+            targetStatus = Status.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("잘못된 상태값입니다: " + status);
+        }
+
+        Long updatedProjectId = projectFacadeService.updateProjectStatus(projectId, userId, targetStatus);
+
         Map<String, Object> response = new HashMap<>();
         response.put("status", "success");
-        response.put("message", completedProjectId+"번 프로젝트 완료됨");
-        response.put("data", completedProjectId);
+        response.put("message", updatedProjectId + "번 프로젝트 상태가 '" + targetStatus + "'로 변경되었습니다");
+        response.put("data", updatedProjectId);
         return ResponseEntity.ok(response);
     }
+
 }

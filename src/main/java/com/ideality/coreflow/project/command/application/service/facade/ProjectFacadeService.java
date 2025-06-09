@@ -21,6 +21,7 @@ import com.ideality.coreflow.template.query.dto.NodeDataDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,34 +48,36 @@ public class ProjectFacadeService {
     private final UserQueryService userQueryService;
     private final ParticipantQueryService participantQueryService;
     private final DetailService detailService;
-    private final WorkRepository workRepository;
-    private final ProjectRepository projectRepository;
     private final TaskQueryService taskQueryService;
 
     @Transactional
-    public Long updateProjectComplete(Long projectId, Long userId) throws NotFoundException, IllegalAccessException {
-        // 1. 프로젝트 조회
+    public Long updateProjectStatus(Long projectId, Long userId, Status targetStatus)
+            throws NotFoundException, IllegalAccessException {
         Project project = projectService.findById(projectId);
-        if(!(project.getStatus()== Status.PROGRESS)){
-            throw new IllegalStateException("진행중인 프로젝트가 아닙니다");
-        }
-        log.info("프로젝트 조회 성공");
 
-        // 2. 해당 유저가 이 프로젝트의 디렉터가 맞는지 조회
-        if (!participantQueryService.isProjectDirector(projectId, userId)) {
+        if(project.getStatus()==targetStatus){
+            throw new IllegalStateException("이미 '" + targetStatus + "' 상태입니다.");
+        }
+
+        if(!participantQueryService.isProjectDirector(projectId, userId)){
             throw new IllegalAccessException("이 프로젝트의 디렉터가 아닙니다");
         }
-        log.info("디렉터 여부 조회 성공");
 
-        // 3. 모든 태스크 완료 여부 확인
-        boolean isAllTaskCompleted = taskQueryService.isAllTaskCompleted(projectId);
-        if(!isAllTaskCompleted) {
-            throw new IllegalStateException("모든 태스크가 완료되지 않았습니다");
+        if (targetStatus == Status.COMPLETED) {
+            if (project.getStatus() != Status.PROGRESS) {
+                throw new IllegalStateException("진행중(PROGRESS) 상태의 프로젝트만 완료(COMPLETED)로 전환할 수 있습니다");
+            }
+            if (!taskQueryService.isAllTaskCompleted(projectId)) {
+                throw new IllegalStateException("모든 태스크가 완료되지 않았습니다");
+            }
         }
-        log.info("모든 태스크 완료 여부 확인");
 
-        // 4. 상태 변경
-        return projectService.completeProject(project);
+        if (targetStatus == Status.PENDING &&
+                !EnumSet.of(Status.DELETED, Status.CANCELLED).contains(project.getStatus())) {
+            throw new IllegalStateException(project.getStatus()+" 상태에서는 PENDING으로 전환할 수 없습니다");
+        }
+
+        return projectService.updateProjectStatus(project, targetStatus);
     }
 
     @Transactional
