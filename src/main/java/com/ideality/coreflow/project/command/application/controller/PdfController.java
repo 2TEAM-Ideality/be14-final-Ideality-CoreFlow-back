@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
@@ -591,16 +592,44 @@ public class PdfController {
             .title("지연 현황 분석")
             .build();
 
+        // ✅ 배경색 커스터마이징
+        chart.getStyler().setChartBackgroundColor(Color.WHITE);
+        chart.getStyler().setPlotBackgroundColor(Color.WHITE);
+        chart.getStyler().setPlotBorderVisible(false);
+
+        // ✅ 색상 설정
+        Color[] sliceColors = new Color[] {
+            new Color(252, 179, 112),    // 정상
+            new Color(251, 234, 117),    // 지연
+            new Color(157, 229, 179),    // 완료
+            new Color(116, 222, 239),
+            new Color(228, 134, 250)
+        };
+        chart.getStyler().setSeriesColors(sliceColors);
+        // ✅ 사용자 글꼴 적용
+        Font customFont = Font.createFont(Font.TRUETYPE_FONT, new File("src/main/resources/fonts/NotoSansKR-Regular.ttf"))
+            .deriveFont(Font.PLAIN, 12f);
+        chart.getStyler().setChartTitleFont(customFont);
+        chart.getStyler().setLegendFont(customFont);
+        chart.getStyler().setAnnotationTextFont(customFont);
+
+        // ✅ 데이터 추가
         chart.addSeries("정상", 10);
         chart.addSeries("지연", 5);
         chart.addSeries("완료", 15);
+        chart.addSeries("테스트", 12);
+        chart.addSeries("색깔", 11);
 
+
+        // ✅ 이미지로 변환
         BufferedImage image = BitmapEncoder.getBufferedImage(chart);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, "png", baos);
 
         return Base64.getEncoder().encodeToString(baos.toByteArray());
     }
+
+
 
 
 
