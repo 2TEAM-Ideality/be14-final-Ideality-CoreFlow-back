@@ -91,7 +91,7 @@ public class CommentFacadeService {
 
             // 최종 목적에 맞는 구조: 알림 ID → 수신자 ID 리스트
             Map<Long, List<Long>> notificationIdToUserIds = new HashMap<>();
-            String content = String.format("%s TASK에서 '%s'님이 회원님을 언급하였습니다.", taskTitle, writerName);
+            String content = String.format("%s TASK에서 %s님이 회원님을 언급하였습니다.", taskTitle, writerName);
             for (Long detailId : detailIdList) {
                 log.info("loop 반복");
                 // 알림 생성
