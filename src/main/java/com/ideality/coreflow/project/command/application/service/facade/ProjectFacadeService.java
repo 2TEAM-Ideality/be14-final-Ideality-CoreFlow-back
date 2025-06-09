@@ -48,9 +48,22 @@ public class ProjectFacadeService {
     private final UserQueryService userQueryService;
     private final ParticipantQueryService participantQueryService;
     private final DetailService detailService;
-    private final WorkRepository workRepository;
-    private final ProjectRepository projectRepository;
     private final TaskQueryService taskQueryService;
+
+    public Long updateProjectCancelled(Long projectId, Long userId) throws NotFoundException, IllegalAccessException {
+        Project project = projectService.findById(projectId);
+        if(project.getStatus().equals(Status.CANCELLED)) {
+            throw new IllegalStateException("이미 취소된 프로젝트입니다");
+        }
+        log.info("프로젝트 조회 성공");
+
+        if (!participantQueryService.isProjectDirector(projectId, userId)) {
+            throw new IllegalAccessException("이 프로젝트의 디렉터가 아닙니다");
+        }
+        log.info("디렉터 여부 조회 성공");
+
+        return projectService.updateProjectCancelled(project);
+    }
 
     public Long updateProjectDeleted(Long projectId, Long userId) throws NotFoundException, IllegalAccessException {
         Project project = projectService.findById(projectId);

@@ -82,4 +82,16 @@ public class ProjectController {
         response.put("data", pendingProjectId);
         return ResponseEntity.ok(response);
     }
+
+    @PatchMapping("/{projectId}/cancelled")
+    public ResponseEntity<Map<String, Object>> updateProjectCancelled(@PathVariable Long projectId)
+            throws NotFoundException, IllegalAccessException {
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        Long pendingProjectId = projectFacadeService.updateProjectCancelled(projectId, userId);
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message", pendingProjectId + "번 프로젝트 '취소됨' 으로 상태 수정 완료");
+        response.put("data", pendingProjectId);
+        return ResponseEntity.ok(response);
+    }
 }

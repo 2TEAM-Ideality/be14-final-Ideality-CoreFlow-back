@@ -84,6 +84,13 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    public Long updateProjectCancelled(Project project) {
+        project.setStatus(Status.CANCELLED);
+        projectRepository.save(project);
+        return project.getId();
+    }
+
+    @Override
     public Long updateProjectDeleted(Project project) {
         project.setStatus(Status.DELETED);
         projectRepository.save(project);
