@@ -10,7 +10,6 @@ import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.security.jwt.JwtProvider;
 import com.ideality.coreflow.security.jwt.JwtUtil;
-import com.ideality.coreflow.user.command.application.dto.LoginDTO;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +34,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtil jwtUtil;
 
     @Override
-    public ResponseToken login(LoginDTO userInfo, String password, List<String> userOfRoles) {
+    public ResponseToken login(UserInfoDTO userInfo, String password, List<String> userOfRoles) {
 
         log.info("로그인 로직 시작");
 

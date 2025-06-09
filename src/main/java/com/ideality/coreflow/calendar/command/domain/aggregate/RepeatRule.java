@@ -1,9 +1,11 @@
 package com.ideality.coreflow.calendar.command.domain.aggregate;
 
+import com.ideality.coreflow.calendar.command.application.dto.FrequencyInfo;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "repeat_rule")
@@ -30,7 +32,7 @@ public class RepeatRule {
     private Integer repeatInterval = 1;
 
     @Column(name = "end_date")
-    private LocalDate endDate;
+    private LocalDateTime endDate;
 
     @Column(name = "by_day")
     private String byDay;
@@ -40,4 +42,14 @@ public class RepeatRule {
 
     @Column(name = "by_set_pos")
     private Integer bySetPos;
+
+    public void updateRepeatRule(FrequencyInfo requestDTO) {
+        this.scheduleId = requestDTO.getScheduleId();
+        this.repeatInterval = requestDTO.getRepeatInterval();
+        this.frequency = requestDTO.getFrequencyType();
+        this.endDate = requestDTO.getEndDate();
+        this.byDay = requestDTO.getByDay();
+        this.byMonthDay = requestDTO.getByMonthDay();
+        this.bySetPos = requestDTO.getBySetPos();
+    }
 }
