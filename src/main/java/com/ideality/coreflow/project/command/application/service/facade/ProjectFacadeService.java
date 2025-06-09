@@ -53,13 +53,11 @@ public class ProjectFacadeService {
     @Transactional
     public Long completeProject(Long projectId, Long userId) throws NotFoundException, IllegalAccessException {
         // 1. 프로젝트 조회
-        Project project = projectRepository.findById(projectId)
-                                            .orElseThrow(()->new NotFoundException("프로젝트가 존재하지 않습니다"));
+        Project project = projectService.findById(projectId);
         log.info("프로젝트 조회 성공");
 
         // 2. 해당 유저가 이 프로젝트의 디렉터가 맞는지 조회
-        boolean isDirector = participantQueryService.isProjectDirector(projectId, userId);
-        if (!isDirector) {
+        if (!participantQueryService.isProjectDirector(projectId, userId)) {
             throw new IllegalAccessException("이 프로젝트의 디렉터가 아닙니다");
         }
         log.info("디렉터 여부 조회 성공");
@@ -69,11 +67,10 @@ public class ProjectFacadeService {
         if(!isAllTaskCompleted) {
             throw new IllegalStateException("모든 태스크가 완료되지 않았습니다");
         }
+        log.info("모든 태스크 완료 여부 확인");
 
-        // 3. 상태 변경
-        Long updatedProjectId = projectService.completeProject(project);
-
-        return updatedProjectId;
+        // 4. 상태 변경
+        return projectService.completeProject(project);
     }
 
     @Transactional

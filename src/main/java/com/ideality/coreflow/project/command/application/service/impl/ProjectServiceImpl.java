@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 import static com.ideality.coreflow.common.exception.ErrorCode.PROJECT_NOT_FOUND;
 
@@ -60,5 +61,11 @@ public class ProjectServiceImpl implements ProjectService {
         project.setEndReal(LocalDate.now());
         projectRepository.save(project);
         return project.getId();
+    }
+
+    @Override
+    public Project findById(Long projectId) throws NotFoundException {
+        return projectRepository.findById(projectId)
+                                            .orElseThrow(()->new NotFoundException("프로젝트가 존재하지 않습니다"));
     }
 }
