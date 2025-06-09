@@ -9,3 +9,6 @@ CREATE TABLE erp_master (
     company_name VARCHAR(100) NOT NULL,         -- 회사 명
     company_schema VARCHAR(100) NOT NULL        -- 매핑된 스키마명
 );
+
+INSERT INTO erp_master (company_code, company_name, company_schema)
+VALUES ('aaa', 'A사', 'company_a');

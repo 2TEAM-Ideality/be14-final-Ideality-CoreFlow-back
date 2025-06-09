@@ -67,7 +67,7 @@
         <result property="passedRate" column="passed_rate"/>
         <result property="delayDays" column="delay_days"/>
         <result property="status" column="status"/>
-        
+
         <association property="director" javaType="com.ideality.coreflow.project.query.dto.UserInfoDTO">
             <result property="userId" column="director_id"/>
             <result property="name" column="director_name"/>
@@ -121,5 +121,37 @@
          WHERE p.target_type    = 'PROJECT'
            AND p.target_id      = #{projectId}
            AND p.role_id        = 2
+    </select>
+
+    <select id="selectProjectSummary" parameterType="long" resultMap="ProjectSummaryMap">
+        SELECT
+            p.id AS project_id
+            , p.name AS project_name
+            , p.status
+            , CASE
+            WHEN p.status = 'PENDING' THEN p.start_expect
+            WHEN p.status = 'PROGRESS' THEN p.start_base
+            WHEN p.status = 'COMPLETED' THEN p.start_base
+            END AS start_date
+            , CASE
+            WHEN p.status = 'PENDING' THEN p.end_expect
+            WHEN p.status = 'PROGRESS' THEN p.end_expect
+            WHEN p.status = 'COMPLETED' THEN p.end_base
+            END AS end_date
+            , director.name AS director_name
+            , director.dept_name AS dept_name
+            , director.job_role_name AS job_role_name
+            , director.profile_image AS profile_image
+            , p.progress_rate
+            , p.passed_rate
+            , p.delay_days
+        FROM project p
+            JOIN participant me ON me.target_id     = p.id
+            AND me.target_type   = 'PROJECT'
+            AND me.user_id       = #{userId}
+            JOIN participant pt ON pt.target_id     = p.id
+            AND pt.target_type   = 'PROJECT'
+            AND pt.role_id       = 1
+            JOIN user director  ON director.id      = pt.user_id
     </select>
 </mapper>

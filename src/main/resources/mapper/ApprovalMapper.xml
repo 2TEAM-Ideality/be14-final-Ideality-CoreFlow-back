@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ideality.coreflow.approval.query.mapper.ApprovalMapper">
+
+    <resultMap id="ApprovalPreviewResultMap" type="com.ideality.coreflow.approval.query.dto.ResponsePreviewApproval">
+        <id property="id" column="ID" />
+        <result property="requesterName" column="REQUESTER_NAME" />
+        <result property="approverName" column="APPROVER_NAME" />
+        <result property="title" column="TITLE" />
+        <result property="approvedAt" column="APPROVED_AT" />
+    </resultMap>
+
+    <resultMap id="ApprovalParticipantResultMap" type="com.ideality.coreflow.approval.query.dto.ApprovalParticipantDTO">
+        <id property="id" column="ID" />
+        <result property="participantId" column="PARTICIPANT_ID" />
+        <result property="participantName" column="PARTICIPANT_NAME" />
+        <result property="participantRole" column="PARTICIPANT_ROLE" />
+    </resultMap>
+
+    <resultMap id="ApprovalDetailsResultMap" type="com.ideality.coreflow.approval.query.dto.ApprovalDetailsDTO">
+        <id property="id" column="ID" />
+        <result property="requesterName" column="REQUESTER_NAME" />
+        <result property="title" column="TITLE" />
+        <result property="type" column="TYPE" />
+        <result property="status" column="STATUS" />
+        <result property="content" column="CONTENT" />
+        <result property="createdAt" column="CREATED_AT" />
+        <result property="approvedAt" column="APPROVED_AT" />
+        <result property="taskId" column="TASK_ID" />
+        <result property="taskName" column="TASK_NAME" />
+        <result property="projectName" column="PROJECT_NAME" />
+        <result property="delayDays" column="DELAY_DAYS" />
+        <result property="actionDetail" column="ACTION_DETAIL" />
+        <result property="delayReason" column="DELAY_REASON" />
+    </resultMap>
+
+    <!-- 결재 id로 결재 상세 내역 조회 -->
+    <select id="selectApprovalDetailsById" parameterType="long" resultMap="ApprovalDetailsResultMap">
+        SELECT
+               a.id AS ID
+             , u.name AS REQUESTER_NAME
+             , a.title AS TITLE
+             , a.type AS TYPE
+             , a.status AS STATUS
+             , a.content AS CONTENT
+             , a.created_at AS CREATED_AT
+             , a.approved_at AS APPROVED_AT
+             , w.id AS TASK_ID
+             , w.name AS TASK_NAME
+             , p.name AS PROJECT_NAME
+             , da.delay_days AS DELAY_DAYS
+             , da.action_detail AS ACTION_DETAIL
+             , dr.reason AS DELAY_REASON
+          FROM approval a
+          LEFT JOIN user u ON a.user_id = u.id
+          LEFT JOIN work w ON a.work_id = w.id
+          LEFT JOIN project p ON w.project_id = p.id
+          LEFT JOIN delay_approval da ON da.approval_id = a.id
+          LEFT JOIN delay_reason dr ON da.delay_reason_id = dr.id
+         WHERE a.id = #{approvalId}
+    </select>
+
+    <!-- 결재 id로 참여자 조회 -->
+    <select id="selectApprovalParticipantById" parameterType="long" resultMap="ApprovalParticipantResultMap">
+        SELECT
+               ap.approval_id AS ID
+             , ap.user_id AS PARTICIPANT_ID
+             , u.name AS PARTICIPANT_NAME
+             , ap.role AS PARTICIPANT_ROLE
+          FROM approval_participant ap
+          LEFT JOIN user u ON ap.user_id = u.id
+         WHERE ap.approval_id = #{approvalId}
+    </select>
+
+    <!-- 결재 id로 결재자 id 찾기 -->
+    <select id="selectApprovedApprovalById" parameterType="long" resultType="long">
+        SELECT
+               ap.user_id
+          FROM approval_participant ap
+          LEFT JOIN approval a ON a.id = ap.approval_id
+         WHERE a.id=#{approvalId} AND ap.role = 'APPROVER'
+    </select>
+
+    <!-- 수신 내역 조회 -->
+    <select id="selectMyApprovalReceive" parameterType="long" resultMap="ApprovalPreviewResultMap">
+        SELECT
+               a.id AS ID
+             , u1.name AS REQUESTER_NAME
+             , u2.name AS APPROVER_NAME
+             , a.title AS TITLE
+             , a.approved_at AS APPROVED_AT
+          FROM approval a
+          LEFT JOIN user u1 ON a.user_id = u1.id
+          LEFT JOIN approval_participant ap ON a.id = ap.approval_id
+          LEFT JOIN user u2 ON ap.user_id = u2.id
+         WHERE ap.user_id = #{userId} AND ap.role = 'APPROVER'
+    </select>
+
+    <!-- 발신 내역 조회 -->
+    <select id="selectMyApprovalSent" parameterType="long" resultMap="ApprovalPreviewResultMap">
+        SELECT
+               a.id AS ID
+             , u1.name AS REQUESTER_NAME
+             , u2.name AS APPROVER_NAME
+             , a.title AS TITLE
+             , a.approved_at AS APPROVED_AT
+          FROM approval a
+          LEFT JOIN user u1 ON a.user_id = u1.id
+          LEFT JOIN approval_participant ap ON ap.approval_id = a.id
+          LEFT JOIN user u2 ON ap.user_id = u2.id
+         WHERE a.user_id = #{userId} AND ap.role = 'APPROVER'
+    </select>
+
+    <select id="selectApprovalByTaskId" parameterType="long" resultMap="ApprovalPreviewResultMap">
+        SELECT
+               a.id AS ID
+             , u.name AS REQUESTER_NAME
+             , a.title AS TITLE
+             , a.approved_at AS APPROVED_AT
+          FROM approval a
+          LEFT JOIN user u ON a.user_id = u.id
+         WHERE a.work_id = #{taskId}
+           AND a.status = 'APPROVED'
+    </select>
+</mapper>

@@ -3,11 +3,12 @@
 <mapper namespace="com.ideality.coreflow.project.query.mapper.WorkMapper">
 
     <!-- parent_task_id가 동일한 세부일정 이름 목록 조회 -->
-    <select id="findSubTaskNamesByParentTaskId" resultType="string">
-        SELECT name
+    <select id="findSubTaskNamesByParentTaskId" resultType="map">
+        SELECT id, name
         FROM work
         WHERE parent_task_id = #{parentTaskId}
     </select>
+
 
     <!-- 동일한 태스크의 세부일정 상세목록 조회 -->
     <select id="findSubTaskDetailsByParentTaskId" resultType="com.ideality.coreflow.project.query.dto.DetailDTO">
@@ -73,6 +74,15 @@
         AND p.target_type = 'DETAILED'
     </select>
 
+    <select id="findWorkNamesByIds" resultType="java.lang.String">
+        SELECT w.name
+        FROM work w
+        WHERE w.id IN
+        <foreach item="item" index="index" collection="workIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
     <!-- 부서별 세부일정 조회 -->
     <resultMap id="deptWorkMap" type="com.ideality.coreflow.project.query.dto.DeptWorkDTO">
         <id property="id" column="work_id"/>
@@ -86,7 +96,6 @@
         <result property="deptId" column="dept_id"/>
         <result property="deptName" column="dept_name"/>
         <result property="projectId" column="project_id"/>
-
         <collection property="participants" ofType="com.ideality.coreflow.project.query.dto.ParticipantDTO">
             <result property="userId" column="user_id"/>
             <result property="roleId" column="role_id"/>

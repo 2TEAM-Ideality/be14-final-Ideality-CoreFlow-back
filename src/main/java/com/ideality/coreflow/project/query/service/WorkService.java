@@ -8,9 +8,11 @@ import com.ideality.coreflow.project.query.dto.WorkDetailDTO;
 import java.util.List;
 
 public interface WorkService {
-    // parent_task_id가 동일한 세부일정 이름 목록을 반환
+
+    //세부일정 이름 목록을 반환
     List<String> getSubTaskNamesByParentTaskId(Long parentTaskId);
 
+    //세부일정 이름 목록을 반환
     List<DetailDTO> getSubTaskDetailsByParentTaskId(Long parentTaskId);
 
     WorkDetailDTO getWorkDetailById(Long workId);
