@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.command.application.controller;
 
+import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -49,7 +51,13 @@ public class ProjectController {
 
 
     // TODO. 프로젝트 리포트 생성
-//    @PostMapping("/report/download")
+   @PostMapping("/report/download/{projectId}")
+    public ResponseEntity<APIResponse<?>> downloadReport(HttpServletResponse response, @PathVariable Long projectId) {
+        projectFacadeService.downloadReport(projectId);
+
+        return ResponseEntity.ok(
+            APIResponse.success(null, "pdf 다운로드가 성공적으로 마무리되었습니다. "));
+   }
 
 
 }

@@ -1,5 +1,7 @@
 package com.ideality.coreflow.project.command.application.service.facade;
 
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
@@ -10,9 +12,11 @@ import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
 import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
+import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
 import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
+import com.ideality.coreflow.project.query.service.ProjectQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
@@ -38,17 +42,18 @@ import java.util.stream.Collectors;
 public class ProjectFacadeService {
 
     private final ProjectService projectService;
+    private final ProjectQueryService projectQueryService;
     private final TaskService taskService;
     private final RelationService relationService;
     private final WorkDeptService workDeptService;
     private final ParticipantService participantService;
 
+    private final PdfService pdfService;
+
     private final DeptQueryService deptQueryService;
     private final UserQueryService userQueryService;
     private final ParticipantQueryService participantQueryService;
     private final DetailService detailService;
-    private final WorkRepository workRepository;
-    private final ProjectRepository projectRepository;
     private final TaskQueryService taskQueryService;
 
     @Transactional
@@ -346,4 +351,19 @@ public class ProjectFacadeService {
         detailService.deleteDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
     }
 
+
+    // 프로젝트 분석 리포트 다운로드
+    @Transactional
+    public void downloadReport(Long projectId) {
+        if(!projectService.isCompleted(projectId)) {
+            throw new BaseException(ErrorCode.PROJECT_NOT_COMPLETED);
+        }
+
+        ProjectDetailResponseDTO projectDetail = projectQueryService.getProjectDetail(projectId);
+        List<ParticipantDTO> participantList = participantQueryService.getParticipantList(projectId);
+
+        // pdfService.createReportPdf(projectDetail, participantList, )
+
+
+    }
 }

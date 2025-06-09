@@ -42,7 +42,7 @@ public class PdfController {
             // 데이터 준비
             Context context = new Context();
             context.setVariable("name", "25ss 퍼셀 자켓");
-            context.setVariable("manager", "홍길동 기획팀 팀장");
+            context.setVariable("director", "홍길동 기획팀 팀장");
             context.setVariable("createdAt", "2025-06-09");
             context.setVariable("period", "2025-03-01 ~ 2025-03-31");
             context.setVariable("progress", "98%");
