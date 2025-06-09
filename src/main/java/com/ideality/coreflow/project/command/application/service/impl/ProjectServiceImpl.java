@@ -75,4 +75,11 @@ public class ProjectServiceImpl implements ProjectService {
         projectRepository.save(project);
         return project.getId();
     }
+
+    @Override
+    public Long updateProjectProgress(Project project) {
+        project.setStatus(Status.PROGRESS);
+        projectRepository.save(project);
+        return project.getId();
+    }
 }

@@ -58,4 +58,16 @@ public class ProjectController {
         response.put("data", pendingProjectId);
         return ResponseEntity.ok(response);
     }
+
+    @PatchMapping("/{projectId}/progress")
+    public ResponseEntity<Map<String, Object>> updateProjectProgress(@PathVariable Long projectId)
+            throws NotFoundException, IllegalAccessException {
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        Long pendingProjectId = projectFacadeService.updateProjectProgress(projectId, userId);
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message", pendingProjectId + "번 프로젝트 '진행중' 으로 상태 수정 완료");
+        response.put("data", pendingProjectId);
+        return ResponseEntity.ok(response);
+    }
 }

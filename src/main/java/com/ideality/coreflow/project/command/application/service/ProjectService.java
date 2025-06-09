@@ -16,4 +16,6 @@ public interface ProjectService {
     Project findById(Long projectId) throws NotFoundException;
 
     Long updateProjectPending(Project project);
+
+    Long updateProjectProgress(Project project);
 }
