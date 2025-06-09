@@ -50,91 +50,34 @@ public class ProjectFacadeService {
     private final DetailService detailService;
     private final TaskQueryService taskQueryService;
 
-    public Long updateProjectCancelled(Long projectId, Long userId) throws NotFoundException, IllegalAccessException {
-        Project project = projectService.findById(projectId);
-        if(project.getStatus().equals(Status.CANCELLED)) {
-            throw new IllegalStateException("이미 취소된 프로젝트입니다");
-        }
-        log.info("프로젝트 조회 성공");
-
-        if (!participantQueryService.isProjectDirector(projectId, userId)) {
-            throw new IllegalAccessException("이 프로젝트의 디렉터가 아닙니다");
-        }
-        log.info("디렉터 여부 조회 성공");
-
-        return projectService.updateProjectStatus(project, Status.CANCELLED);
-    }
-
-    public Long updateProjectDeleted(Long projectId, Long userId) throws NotFoundException, IllegalAccessException {
-        Project project = projectService.findById(projectId);
-        if(project.getStatus().equals(Status.DELETED)) {
-            throw new IllegalStateException("이미 삭제된 프로젝트입니다");
-        }
-        log.info("프로젝트 조회 성공");
-
-        if (!participantQueryService.isProjectDirector(projectId, userId)) {
-            throw new IllegalAccessException("이 프로젝트의 디렉터가 아닙니다");
-        }
-        log.info("디렉터 여부 조회 성공");
-
-        return projectService.updateProjectStatus(project, Status.DELETED);
-    }
-
     @Transactional
-    public Long updateProjectProgress(Long projectId, Long userId) throws NotFoundException, IllegalAccessException {
-        Project project = projectService.findById(projectId);
-        if(project.getStatus().equals(Status.PROGRESS)){
-            throw new IllegalStateException("이미 진행중인 프로젝트입니다");
-        }
-        log.info("프로젝트 조회 성공");
-
-        if (!participantQueryService.isProjectDirector(projectId, userId)) {
-            throw new IllegalAccessException("이 프로젝트의 디렉터가 아닙니다");
-        }
-        log.info("디렉터 여부 조회 성공");
-
-        return projectService.updateProjectStatus(project, Status.PROGRESS);
-    }
-
-    @Transactional
-    public Long updateProjectPending(Long projectId, Long userId) throws NotFoundException, IllegalAccessException {
-        // 1. 프로젝트 조회
-        Project project = projectService.findById(projectId);
-        if(!EnumSet.of(Status.DELETED, Status.CANCELLED).contains(project.getStatus())) {
-            throw new IllegalStateException(project.getStatus()+" 상태의 프로젝트는 PENDING 상태로 수정할 수 없습니다");
-        }
-        log.info("프로젝트 조회 성공");
-
-        // 2. 해당 유저가 이 프로젝트의 디렉터가 맞는지 조회
-        if (!participantQueryService.isProjectDirector(projectId, userId)) {
-            throw new IllegalAccessException("이 프로젝트의 디렉터가 아닙니다");
-        }
-        log.info("디렉터 여부 조회 성공");
-
-        return projectService.updateProjectStatus(project, Status.PENDING);
-    }
-
-    @Transactional
-    public Long updateProjectComplete(Long projectId, Long userId) throws NotFoundException, IllegalAccessException {
+    public Long updateProjectStatus(Long projectId, Long userId, Status targetStatus)
+            throws NotFoundException, IllegalAccessException {
         Project project = projectService.findById(projectId);
 
-        if(!(project.getStatus()== Status.PROGRESS)){
-            throw new IllegalStateException("진행중인 프로젝트가 아닙니다");
+        if(project.getStatus()==targetStatus){
+            throw new IllegalStateException("이미 '" + targetStatus + "' 상태입니다.");
         }
-        log.info("프로젝트 조회 성공");
 
-        // 2. 해당 유저가 이 프로젝트의 디렉터가 맞는지 조회
-        if (!participantQueryService.isProjectDirector(projectId, userId)) {
+        if(!participantQueryService.isProjectDirector(projectId, userId)){
             throw new IllegalAccessException("이 프로젝트의 디렉터가 아닙니다");
         }
-        log.info("디렉터 여부 조회 성공");
 
-        if(!taskQueryService.isAllTaskCompleted(projectId)) {
-            throw new IllegalStateException("모든 태스크가 완료되지 않았습니다");
+        if (targetStatus == Status.COMPLETED) {
+            if (project.getStatus() != Status.PROGRESS) {
+                throw new IllegalStateException("진행중(PROGRESS) 상태의 프로젝트만 완료(COMPLETED)로 전환할 수 있습니다");
+            }
+            if (!taskQueryService.isAllTaskCompleted(projectId)) {
+                throw new IllegalStateException("모든 태스크가 완료되지 않았습니다");
+            }
         }
-        log.info("모든 태스크 완료 여부 확인");
 
-        return projectService.updateProjectStatus(project, Status.COMPLETED);
+        if (targetStatus == Status.PENDING &&
+                !EnumSet.of(Status.DELETED, Status.CANCELLED).contains(project.getStatus())) {
+            throw new IllegalStateException(project.getStatus()+" 상태에서는 PENDING으로 전환할 수 없습니다");
+        }
+
+        return projectService.updateProjectStatus(project, targetStatus);
     }
 
     @Transactional
