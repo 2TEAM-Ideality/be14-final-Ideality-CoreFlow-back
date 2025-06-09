@@ -1,11 +1,18 @@
 package com.ideality.coreflow.project.query.mapper;
 
+import com.ideality.coreflow.project.query.dto.DepartmentDTO;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 import java.util.Optional;
 
 @Mapper
 public interface DeptMapper {
-    Optional<Long> findIdByDeptName(String deptName);
+    Optional<String> findNameById(Long id);
 
     Optional<String> findDeptCodeByName(String deptName);
+
+    List<DepartmentDTO> findAllDeptNames();
+
+    Optional<Long> findDeptIdByName(String deptName);
 }

@@ -1,0 +1,27 @@
+<!-- report-summary.html -->
+<p class="section-title">프로젝트 요약</p>
+
+<table class="info-table">
+    <tr>
+        <th>프로젝트명</th>
+        <td th:text="${name}">프로젝트명</td>
+    </tr>
+    <tr>
+        <th>총괄 책임자</th>
+        <td th:text="${manager}">홍길동</td>
+    </tr>
+    <tr>
+        <th>작성일자</th>
+        <td th:text="${createdAt}">2025-06-09</td>
+    </tr>
+    <tr>
+        <th>진행 기간</th>
+        <td th:text="${period}">2025-03-01 ~ 2025-03-31</td>
+    </tr>
+    <tr>
+        <th>진행률</th>
+        <td th:text="${progress}">98%</td>
+    </tr>
+</table>
+
+<div class="page-break"></div>

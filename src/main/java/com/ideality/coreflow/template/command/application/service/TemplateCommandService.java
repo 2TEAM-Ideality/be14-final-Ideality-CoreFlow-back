@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.template.command.application.dto.RequestCreateTemplateDTO;
+import com.ideality.coreflow.template.command.application.dto.RequestTemplateByProjectDTO;
 import com.ideality.coreflow.template.command.domain.aggregate.Template;
 import com.ideality.coreflow.template.command.domain.aggregate.TemplateDept;
 import com.ideality.coreflow.template.command.domain.repository.TemplateDeptRepository;
@@ -23,12 +24,10 @@ public class TemplateCommandService {
 	private final TemplateRepository templateRepository;
 	private final TemplateDeptRepository templateDeptRepository;
 
+	// 템플릿 정보 생성
 	@Transactional
 	public Template createTemplate(RequestCreateTemplateDTO requestDTO) {
 		// 템플릿 이름 중복 시 예외 처리
-		if (templateRepository.existsByName(requestDTO.getName())) {
-			throw new BaseException(ErrorCode.DUPLICATED_TEMPLATE_NAME);
-		}
 
 		// 1. 템플릿 DB 저장
 		Template newTemplate = Template.builder()
@@ -45,7 +44,23 @@ public class TemplateCommandService {
 		return newTemplate;
 	}
 
-	// 수정
+	// 프로젝트 기반 템플릿 정보 생성
+	@Transactional
+	public Template createTemplateByProject(RequestTemplateByProjectDTO requestDTO, int taskCount, int durtaion) {
+		Template newTemplate = Template.builder()
+			.name(requestDTO.getName())
+			.description(requestDTO.getDescription())
+			.createdAt(LocalDateTime.now())
+			.createdBy(requestDTO.getCreatedBy())
+			.duration(durtaion)
+			.taskCount(taskCount)
+			.build();
+		templateRepository.save(newTemplate);
+
+		return newTemplate;
+	}
+
+	// 템플릿 정보 수정
 	@Transactional
 	public void updateTemplateInfo(Long templateId, String name, String description, int duration, int taskCount, Long updatedBy) {
 		if (templateRepository.existsByNameAndIdNot(name, templateId)) {
@@ -67,11 +82,10 @@ public class TemplateCommandService {
 
 	}
 
-	// TEMPLATE_DEPT 테이블 저장 설명. TemplateDeptService 로 따로 분리해야 할 지 ?
 	@Transactional
+	// TEMPLATE_DEPT 테이블 저장 설명. TemplateDeptService 로 따로 분리해야 할 지 ?
 	public void saveTemplateDept(Long templateId, Long deptId) {
 		log.info("Saving template dept {}", deptId);
-
 		TemplateDept dept = TemplateDept.builder()
 			.deptId(deptId)
 			.templateId(templateId)
@@ -83,4 +97,6 @@ public class TemplateCommandService {
 	public void deleteAllTemplateDepts(Long templateId) {
 		templateDeptRepository.deleteByTemplateId(templateId);
 	}
+
+
 }

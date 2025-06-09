@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.ideality.coreflow.project.query.mapper.HolidayQueryMapper">
+<mapper namespace="com.ideality.coreflow.holiday.query.mapper.HolidayQueryMapper">
     <select id="existsByDate" resultType="boolean">
         SELECT EXISTS(
             SELECT 1
@@ -12,20 +12,20 @@
         )
     </select>
 
-    <select id="findAllHolidays" resultType="com.ideality.coreflow.project.query.dto.HolidayQueryDto">
+    <select id="findAllHolidays" resultType="com.ideality.coreflow.holiday.query.dto.HolidayQueryDto">
         SELECT date, name, type
         FROM holiday
         ORDER BY date ASC
     </select>
 
-    <select id="findByYear" resultType="com.ideality.coreflow.project.query.dto.HolidayQueryDto">
+    <select id="findByYear" resultType="com.ideality.coreflow.holiday.query.dto.HolidayQueryDto">
         SELECT date, name, type
         FROM holiday
         WHERE YEAR(date) = #{year}
         ORDER BY date ASC
     </select>
 
-    <select id="findByMonth" resultType="com.ideality.coreflow.project.query.dto.HolidayQueryDto">
+    <select id="findByMonth" resultType="com.ideality.coreflow.holiday.query.dto.HolidayQueryDto">
         SELECT date, name, type
         FROM holiday
         WHERE YEAR(date) = #{year}
@@ -33,7 +33,7 @@
         ORDER By date asc
     </select>
 
-    <select id="findBetweenDates" resultType="com.ideality.coreflow.project.query.dto.HolidayQueryDto">
+    <select id="findBetweenDates" resultType="com.ideality.coreflow.holiday.query.dto.HolidayQueryDto">
         SELECT date, name, type
         FROM holiday
         WHERE date BETWEEN #{start} AND #{end}

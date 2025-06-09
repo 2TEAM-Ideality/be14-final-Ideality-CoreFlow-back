@@ -6,6 +6,7 @@ import java.util.List;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 
+import com.ideality.coreflow.template.query.dto.TemplateNodeDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,16 +21,15 @@ import lombok.Setter;
 public class RequestUpdateTemplateDTO {
 
 	// 템플릿 수정 요청
-	private String name;
-	private String description;
+	private String name;			// 템플릿 이름 
+	private String description;		// 설명
+	
+	private int duration; 			// 총 소요일
+	private int taskCount; 			// 전체 태스크 개수
+	private Long updatedBy;			// 수정자
 
-	private int duration; 		// 총 소요일
-	private int taskCount; 	// 전체 태스크 개수
-
-	private LocalDateTime updatedAt;
-	private Long updatedBy;
-
-	private List<NodeDTO> nodeList;
+	// 수정 템플릿 데이터
+	private List<TemplateNodeDTO> nodeList;
 	private List<EdgeDTO> edgeList;
 
 }

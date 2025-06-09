@@ -1,8 +1,5 @@
 package com.ideality.coreflow.comment.command.domain.aggregate;
 
-import com.ideality.coreflow.project.command.domain.aggregate.Work;
-import com.ideality.coreflow.user.command.domain.aggregate.User;
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +10,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Comment {
+public class
+Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +21,11 @@ public class Comment {
     private String content;
 
     @Column(name = "is_deleted", nullable = false)
+    @Builder.Default
     private boolean isDeleted = false;
 
     @Column(name = "is_notice", nullable = false)
+    @Builder.Default
     private boolean isNotice = false;
 
     @Column(nullable = false)

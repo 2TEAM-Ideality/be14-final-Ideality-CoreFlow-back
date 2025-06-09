@@ -37,6 +37,10 @@ dependencies {
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    // spring security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.security:spring-security-test'
+
     // s3 버킷 연결을 위한 설정
     implementation platform('com.amazonaws:aws-java-sdk-bom:1.12.261')
     implementation 'com.amazonaws:aws-java-sdk-s3'
@@ -66,11 +70,6 @@ dependencies {
     // redis 도입
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-<<<<<<< HEAD
-    //pdf
-    implementation 'com.itextpdf:itextpdf:5.5.13.3'
-
-=======
     // ✅ Spring Boot 테스트 기본 제공 (JUnit 5 + Mockito 등 포함)
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
@@ -84,7 +83,13 @@ dependencies {
     // ✅ Mockito (이미 spring-boot-starter-test에 포함되지만 명시적 관리 가능)
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'org.mockito:mockito-junit-jupiter'
->>>>>>> 0421f8b955d590ed18ee45ac4ef731aebe79c90f
+
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    // openhtmltopdf
+    implementation 'com.openhtmltopdf:openhtmltopdf-pdfbox:1.0.10'
+    implementation 'com.openhtmltopdf:openhtmltopdf-slf4j:1.0.10'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 }
 
 tasks.named('test') {

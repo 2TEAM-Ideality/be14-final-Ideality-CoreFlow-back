@@ -6,6 +6,24 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
 
+    // 이미 등록된 이메일
+    EMAIL_ALREADY_EXISTS("EMAIL_ALREADY_EXISTS", "이미 등록된 이메일입니다.", HttpStatus.BAD_REQUEST),
+
+    // 퇴사한 직원의 계정 로그인 실패
+    RESIGNED_USER("RESIGNED_USER", "퇴사한 직원입니다. 로그인 요청이 실패하였습니다.", HttpStatus.BAD_REQUEST),
+
+    // 로그인 요청 시 바디 읽기 실패
+    INVALID_LOGIN_REQUEST("INVALID_LOGIN_REQUEST", "로그인 요청이 실패하였습니다.", HttpStatus.BAD_REQUEST),
+
+    // 비밀번호가 틀림
+    INVALID_PASSWORD("INVALID_PASSWORD", "비밀번호가 틀립니다.", HttpStatus.NOT_FOUND),
+
+    // 유효하지 않은 토큰
+    INVALID_TOKEN("INVALID_TOKEN", "유효하지 않은 토큰입니다.", HttpStatus.UNAUTHORIZED),
+
+    // 해당 정보 없음
+    NOT_FOUND("NOT_FOUND", "해당 정보가 없습니다.", HttpStatus.NOT_FOUND), // 404
+
     // ✅ 인증(Authentication) 관련
     UNAUTHORIZED("UNAUTHORIZED", "인증이 필요합니다.", HttpStatus.UNAUTHORIZED),          // 401
 
@@ -30,19 +48,61 @@ public enum ErrorCode {
     // ✅ JSON 직렬화 실패
     JSON_SERIALIZATION_ERROR("JSON_SERIALIZATION_ERROR", "JSON 변환에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
+    // 없는 유저
+    USER_NOT_FOUND("USER_NOT_FOUND", "유저를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+
+    // ✅ 선행 작업과 후행 작업 실패
+    PREDECESSOR_NOT_FOUND("PREDECESSOR_NOT_FOUND", "선행 작업이 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
+    SUCCESSOR_NOT_FOUND("SUCCESSOR_NOT_FOUND", "후행 작업이 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
+    PREDECESSOR_AND_SUCCESSOR_REQUIRED("PREDECESSOR_AND_SUCCESSOR_REQUIRED", "선행 작업과 후행 작업이 모두 필요합니다.", HttpStatus.BAD_REQUEST),
+
+    // ✅ 없는 부서
+    DEPT_NOT_FOUND("DEPT_NOT_FOUND", "부서를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+
+    // ✅ 추가된 에러 코드: 선행 작업을 찾을 수 없는 경우
+    PARENT_TASK_NOT_FOUND("PARENT_TASK_NOT_FOUND", "선행 작업을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+
     RESOURCE_NOT_FOUND("DATABASE_RESOURCE_NOT_FOUND", "요청한 리소스를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     // ✅ 첨부파일 없는 정보
-    ATTCHMENT_NOT_FOUND("ATTACHMENT_NOT_FOUND", "해당 첨부파일이 존재하지 않습니다." , HttpStatus.NOT_FOUND),
+    ATTCHMENT_NOT_FOUND("ATTACHMENT_NOT_FOUND", "해당 타겟에 대한 첨부파일이 존재하지 않습니다." , HttpStatus.NOT_FOUND),
+    DUPLICATED_TARGET_ID("DUPLICATED_TARGET_ID", "해당 타겟에 대한 첨부파일이 이미 존재합니다.", HttpStatus.CONFLICT),
 
-<<<<<<< HEAD
-    DUPLICATED_TEMPLATE_NAME("DUPLICATED_TEMPLATE_NAME", "템플릿 이름이 중복되었습니다.", HttpStatus.CONFLICT);
-=======
     PROJECT_NOT_FOUND("PROJECT_NOT_FOUND", "존재하지 않는 프로젝트입니다.", HttpStatus.NOT_FOUND),
     TASK_NOT_FOUND("TASK_NOT_FOUND", "존재하는 않는 테스크입니다.", HttpStatus.NOT_FOUND),
     DEPARTMENT_NOT_FOUND("DEPARTMENT_NOT_FOUND", "존재하지 않는 부서입니다.", HttpStatus.NOT_FOUND),
-    PARTICIPANT_NOT_FOUND("PARTICIPANT_NOT_FOUND", "참여자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
+    PARTICIPANT_NOT_FOUND("PARTICIPANT_NOT_FOUND", "참여자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    PROJECT_NOT_COMPLETED("PROJECT_NOT_COMPLETED", "완료되지 않은 프로젝트입니다.", HttpStatus.CONFLICT ),
+    COMMENT_NOT_FOUND("COMMENT_NOT_FOUND", "존재하지 않는 댓글입니다.", HttpStatus.NOT_FOUND),
+    DETAIL_NOT_FOUND("DETAIL_NOT_FOUND", "존재하지 않는 세부일정입니다.", HttpStatus.NOT_FOUND),
+    // ✅ 상태 전이 오류
+    INVALID_STATUS_PROGRESS("INVALID_STATUS_PROGRESS", "이미 시작된 작업입니다./ progress가 100퍼센트 미만입니다.", HttpStatus.CONFLICT),
+    INVALID_STATUS_COMPLETED("INVALID_STATUS_COMPLETED", "이미 완료 처리된 작업입니다.", HttpStatus.CONFLICT),
+    INVALID_STATUS_DELETED("INVALID_STATUS_DELETED", "이미 삭제된 작업입니다.", HttpStatus.CONFLICT),
+
+    // 잘못된 json 요청 양식
+    INVALID_JSON_FORMAT("INVALID_JSON_FORMAT", "잘못된 json 양식", HttpStatus.BAD_REQUEST),
+
+    // 잘못된 tenant 설정
+    INVALID_TENANT("INVALID_TENANT", "Tenant 설정 오류", HttpStatus.BAD_REQUEST),
+
+    // 잘못된 유저 정보
+    INVALID_USER_INFO("INVALID_USER_INFO", "유저 이름 또는 이메일이 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+
+    // 잘못 입력한 인증 코드
+    INVALID_VERIFICATION_CODE("INVALID_VERIFICATION_CODE", "인증 시간이 만료되었거나 코드가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+
+    INVALID_SOURCE_LIST("INVALID_SOURCE_LIST", "source는 null이거나 비어 있을 수 없습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_TARGET_LIST("INVALID_TARGET_LIST", "target은 비어 있을 수 없습니다.", HttpStatus.BAD_REQUEST),
+
+    // 이미 처리된 결재 혹은 결재자가 아님
+    ACCESS_DENIED_APPROVAL("ACCESS_DENIED_APPROVAL", "결재자가 아니거나 이미 처리된 결재입니다.", HttpStatus.BAD_REQUEST),
+
+    TASK_PROGRESS_NOT_COMPLETED("TASK_PROGRESS_NOT_COMPLETED","진행률이 100%여야 작업을 완료할 수 있습니다.", HttpStatus.BAD_REQUEST),
+    SCHEDULE_NOT_REPEATABLE("SCHEDULE_NOT_REPEATABLE", "반복규칙을 만들 수 없는 일정입니다.", HttpStatus.CONFLICT),
+
+    SCHEDULE_NOT_FOUND("SCHEDULE_NOT_FOUND", "존재하지 않는 일정입니다.", HttpStatus.NOT_FOUND)
     ;
->>>>>>> 0421f8b955d590ed18ee45ac4ef731aebe79c90f
+
 
     private final String code;
     private final String message;

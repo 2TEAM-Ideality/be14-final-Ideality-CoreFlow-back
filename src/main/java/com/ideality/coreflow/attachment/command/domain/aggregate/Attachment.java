@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -19,6 +20,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
 public class Attachment {
 
 	@Id
@@ -62,10 +64,11 @@ public class Attachment {
 	private LocalDateTime deletedAt;
 
 	// 첨부파일 정보 수정
-	public void updateInfo(String fileName, String fileUrl, String size) {
+	public void updateInfo(String fileName, String fileUrl, String size, Long uploaderId) {
 		this.storedName = fileName;
 		this.url = fileUrl;
 		this.size = size;
+		this.uploaderId = uploaderId;
 		this.uploadAt = LocalDateTime.now();
 		// TODO. 업로드 수정도 필요
 	}

@@ -1,21 +1,26 @@
+USE company_a;
+
 INSERT INTO job_rank (name)
 VALUES ("사원"),
        ("대리"),
        ("과장"),
        ("차장"),
-       ("부장");
+       ("부장"),
+       ("협력업체");
 
 INSERT INTO job_role (name)
 VALUES ("팀원"),
        ("파트장"),
-       ("본부장");
+       ("본부장"),
+       ("협력업체");
 
 
 INSERT INTO dept (name, dept_code)
-VALUES ("기획", "PM"),
-       ("디자인", "DES"),
-       ("소싱", "MD"),
-       ("생산", "MFG");
+VALUES ("기획팀", "PM"),
+       ("디자인팀", "DES"),
+       ("소싱팀", "MD"),
+       ("생산팀", "MFG"),
+       ("협력업체", "PART");
 
 INSERT INTO user
 (employee_num,
@@ -31,23 +36,23 @@ INSERT INTO user
 VALUES
 (
     'abcd',
-    '1234',
+    '$2a$12$dD0aS4kIMvZnWIWxVXr.3us3W97791wgVLi2gyY4kuCU6/KQMHrcG',
     '장하오',
     'haojang@naver.com',
     '2001-01-01',
     CURRENT_DATE,
-    '기획',
+    '기획팀',
     '과장',
     '파트장'
 ),
 (
     'abce',
-    '1234',
+    '$2a$12$dD0aS4kIMvZnWIWxVXr.3us3W97791wgVLi2gyY4kuCU6/KQMHrcG',
     '김신위',
     'xinyu@naver.com',
     '2003-01-01',
     CURRENT_DATE,
-    '기획',
+    '기획팀',
     '사원',
     '팀원'
 ),
@@ -58,7 +63,7 @@ VALUES
     'hanbin@naver.com',
     '2001-02-02',
     CURRENT_DATE,
-    '디자인',
+    '디자인팀',
     '과장',
     '파트장'
 ),
@@ -69,7 +74,7 @@ VALUES
     'hailey@naver.com',
     '2002-06-02',
     CURRENT_DATE,
-    '디자인',
+    '디자인팀',
     '사원',
     '팀원'
 ),
@@ -80,7 +85,7 @@ VALUES
     'ryuryu@naver.com',
     '1987-03-03',
     CURRENT_DATE,
-    '소싱',
+    '소싱팀',
     '부장',
     '파트장'
 ),
@@ -91,7 +96,7 @@ VALUES
     'minsu@naver.com',
     '1997-04-04',
     CURRENT_DATE,
-    '소싱',
+    '소싱팀',
     '대리',
     '팀원'
 ),
@@ -102,7 +107,7 @@ VALUES
     'hancoal@naver.com',
     '1999-05-05',
     CURRENT_DATE,
-    '생산',
+    '생산팀',
     '과장',
     '파트장'
 ),
@@ -113,7 +118,7 @@ VALUES
     'doyoungkim@naver.com',
     '2000-03-03',
     CURRENT_DATE,
-    '생산',
+    '생산팀',
     '사원',
     '팀원'
 ),
@@ -124,7 +129,7 @@ VALUES
     'hyoju@naver.com',
     '2000-03-09',
     CURRENT_DATE,
-    '기획',
+    '기획팀',
     '차장',
     '본부장'
 );
@@ -146,8 +151,21 @@ VALUES
 ),
 (
     'VIEWER', 'PROJECT'
+),
+(
+    'ASSIGNEE', 'PROJECT'
+),
+(
+    'PARTICIPANT', 'PROJECT'
+),
+(
+    'CREATOR', 'GENERAL'
+),
+(
+    'PARTNER', 'GENERAL'
 )
 ;
+
 
 INSERT INTO project
 (
