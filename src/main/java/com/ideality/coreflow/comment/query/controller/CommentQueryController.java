@@ -21,7 +21,7 @@ public class CommentQueryController {
 
     @GetMapping("/{taskId}")
     public ResponseEntity<APIResponse<List<ResponseCommentDTO>>> getComment(@PathVariable String taskId) {
-        List<ResponseCommentDTO> resCommennt = commentQueryService.selectComments(taskId);
-        return ResponseEntity.ok(APIResponse.success(resCommennt, "댓글 조회에 성공하였습니다."));
+        List<ResponseCommentDTO> resComment = commentQueryService.selectComments(taskId);
+        return ResponseEntity.ok(APIResponse.success(resComment, "댓글 조회에 성공하였습니다."));
     }
 }
