@@ -1,6 +1,7 @@
 package com.ideality.coreflow.comment.command.application.service.impl;
 
 import com.ideality.coreflow.comment.command.application.dto.RequestCommentDTO;
+import com.ideality.coreflow.comment.command.application.dto.RequestModifyCommentDTO;
 import com.ideality.coreflow.comment.command.application.service.CommentService;
 import com.ideality.coreflow.comment.command.domain.aggregate.Comment;
 import com.ideality.coreflow.comment.command.domain.aggregate.CommentType;
@@ -11,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import static com.ideality.coreflow.common.exception.ErrorCode.COMMENT_NOT_FOUND;
+import static com.ideality.coreflow.common.exception.ErrorCode.*;
 
 @Service
 @Slf4j
@@ -21,7 +22,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public Long createComment(RequestCommentDTO commentDTO, Long taskId) {
+    public Long createComment(RequestCommentDTO commentDTO, Long taskId, Long userId) {
 
         /* 설명. 잘못된 대댓글 접근에 대한 예외처리 */
         if (commentDTO.getParentCommentId() != null
@@ -35,11 +36,45 @@ public class CommentServiceImpl implements CommentService {
                         .isDeleted(false)
                         .isNotice(commentDTO.getIsNotice())
                         .type(commentDTO.getIsNotice() ? CommentType.NOTICE: CommentType.COMMENT)
-                        .userId(commentDTO.getUserId())
+                        .userId(userId)
                         .workId(taskId)
                         .parentCommentId(commentDTO.getParentCommentId())
                         .build();
         commentRepository.save(newComment);
         return newComment.getId();
+    }
+
+    @Override
+    @Transactional
+    public Long updateByDelete(Long userId, Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new BaseException(COMMENT_NOT_FOUND));
+
+        if (!comment.getUserId().equals(userId)) {
+            throw new BaseException(COMMENT_ACCESS_DENIED);
+        }
+
+        comment.updateDeleted();
+        commentRepository.save(comment);
+        return comment.getId();
+    }
+
+    @Override
+    @Transactional
+    public Long updateComment(RequestModifyCommentDTO reqModify, Long userId, Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new BaseException(COMMENT_NOT_FOUND));
+
+        if (!comment.getUserId().equals(userId)) {
+            throw new BaseException(COMMENT_ACCESS_DENIED);
+        }
+
+        if(comment.isDeleted()) {
+            throw new BaseException(COMMENT_ALREADY_DELETED);
+        }
+
+        comment.updateComment(reqModify.getContent(), reqModify.getIsNotice());
+        commentRepository.save(comment);
+        return comment.getId();
     }
 }

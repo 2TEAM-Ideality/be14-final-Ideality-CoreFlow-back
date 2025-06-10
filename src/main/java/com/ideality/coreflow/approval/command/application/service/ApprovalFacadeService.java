@@ -116,26 +116,26 @@ public class ApprovalFacadeService {
             log.info("지연 정보 등록 완료");
         }
 
-        return approvalId;
-    }
-
-    @Transactional
-    public void uploadApprovalAttachment(long approvalId, MultipartFile file, long uploaderId) {
+        // 첨부파일 업로드
         String folder = "approval-docs";
 
-        UploadFileResult fileResult = s3Service.uploadFile(file, folder);
+        for (MultipartFile file : request.getAttachmentFile()) {
+            UploadFileResult fileResult = s3Service.uploadFile(file, folder);
 
-        RegistAttachmentDTO approvalAttachment = RegistAttachmentDTO.builder()
-                .originName(fileResult.getOriginalName())
-                .storedName(fileResult.getStoredName())
-                .url(fileResult.getUrl())
-                .fileType(file.getContentType())
-                .size(fileResult.getSize())
-                .targetId(approvalId)
-                .uploaderId(uploaderId)
-                .targetType(FileTargetType.APPROVAL)
-                .build();
+            RegistAttachmentDTO approvalAttachment = RegistAttachmentDTO.builder()
+                    .originName(fileResult.getOriginalName())
+                    .storedName(fileResult.getStoredName())
+                    .url(fileResult.getUrl())
+                    .fileType(fileResult.getFileType())
+                    .size(fileResult.getSize())
+                    .targetId(approvalId)
+                    .uploaderId(requesterId)
+                    .targetType(FileTargetType.APPROVAL)
+                    .build();
 
-        attachmentCommandService.registAttachment(approvalAttachment);
+            attachmentCommandService.registAttachment(approvalAttachment);
+        }
+
+        return approvalId;
     }
 }

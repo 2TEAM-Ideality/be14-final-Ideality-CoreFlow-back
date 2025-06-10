@@ -2,8 +2,8 @@ package com.ideality.coreflow.project.query.controller;
 
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
+import com.ideality.coreflow.project.query.dto.PipelineResponseDTO;
 import com.ideality.coreflow.project.query.dto.ProjectSummaryDTO;
-import com.ideality.coreflow.project.query.service.ProjectQueryService;
 import com.ideality.coreflow.project.query.service.facade.ProjectQueryFacadeService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -31,5 +31,11 @@ public class ProjectQueryController {
     public APIResponse<ProjectDetailResponseDTO> getProject(@PathVariable Long projectId) {
         ProjectDetailResponseDTO project = projectQueryFacadeService.getProjectDetail(projectId);
         return APIResponse.success(project, projectId+"번 프로젝트: "+project.getName()+" 조회 완료");
+    }
+
+    @GetMapping("/{projectId}/pipeline")
+    public APIResponse<PipelineResponseDTO> getPipeline(@PathVariable Long projectId) {
+        PipelineResponseDTO project = projectQueryFacadeService.getPipeline(projectId);
+        return APIResponse.success(project, project.getName() + " 파이프라인 조회 성공");
     }
 }

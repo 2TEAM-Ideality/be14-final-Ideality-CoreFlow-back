@@ -38,22 +38,11 @@ public class ApprovalController {
     }
 
     // 결재 요청
-    @PostMapping("/request")
-    public ResponseEntity<APIResponse<?>> requestApproval(@RequestBody RequestApproval request) {
+    @PostMapping(value="/request", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<APIResponse<?>> requestApproval(@ModelAttribute RequestApproval request) {
         // request: 결재 정보
         long requesterId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
 
         return ResponseEntity.ok(APIResponse.success(approvalFacadeService.requestApproval(request, requesterId), "결재 요청 완료"));
-    }
-
-    // 첨부파일 업로드
-    @PostMapping(value = "/request/{approvalId}/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<APIResponse<?>> approvalAttachmentUpload(@PathVariable long approvalId, @RequestParam("file") MultipartFile file ) {
-
-        long uploaderId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
-
-        approvalFacadeService.uploadApprovalAttachment(approvalId, file, uploaderId);
-
-        return ResponseEntity.ok(APIResponse.success(null, "첨부파일 등록 완료"));
     }
 }

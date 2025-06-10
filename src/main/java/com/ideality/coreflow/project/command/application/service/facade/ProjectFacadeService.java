@@ -8,7 +8,7 @@ import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
-import com.ideality.coreflow.project.query.service.DeptQueryService;
+import com.ideality.coreflow.org.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;

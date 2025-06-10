@@ -28,6 +28,16 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
     }
 
     @Override
+    public List<Long> selectParticipantsList(Long detailParticipantId) {
+        return participantMapper.selectParticipantsList(detailParticipantId);
+    }
+
+    @Override
+    public boolean isParticipant(Long userId, Long projectId) {
+        return participantMapper.isParticipantUser(userId, projectId);
+    }
+
+    @Override
     public void findTeamLedaer(Long projectId, List<RequestTeamLeaderDTO> reqLeaderDTO) {
         for (RequestTeamLeaderDTO leaderDTO : reqLeaderDTO) {
             boolean isLeaderAlreadyExists = participantMapper.isTeamLeader
