@@ -1,8 +1,8 @@
-package com.ideality.coreflow.project.query.controller;
+package com.ideality.coreflow.org.query.controller;
 
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.project.query.dto.DepartmentDTO;
-import com.ideality.coreflow.project.query.service.DeptQueryService;
+import com.ideality.coreflow.org.query.service.DeptQueryService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

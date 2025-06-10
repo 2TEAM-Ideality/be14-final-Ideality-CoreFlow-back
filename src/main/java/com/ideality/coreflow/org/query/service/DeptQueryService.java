@@ -1,4 +1,4 @@
-package com.ideality.coreflow.project.query.service;
+package com.ideality.coreflow.org.query.service;
 
 import com.ideality.coreflow.project.query.dto.DepartmentDTO;
 
