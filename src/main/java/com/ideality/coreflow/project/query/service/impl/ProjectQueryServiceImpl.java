@@ -53,6 +53,7 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
     public PipelineResponseDTO getPipeline(Long projectId) {
         PipelineResponseDTO baseProject = projectMapper.findProjectById(projectId);
         List<NodeDTO> works = projectMapper.findWorksByProjectId(projectId);
+        System.out.println(works.toString());
         List<EdgeDTO> edges = projectMapper.findRelationsByProjectId(projectId);
         List<NodeDTO> nodesWithDepts = works.stream()
                 .map(node -> {

@@ -205,7 +205,7 @@
              , status
           FROM work
          WHERE project_id = #{projectId}
-           AND parent_task_id IS NOT NULL
+           AND parent_task_id IS NULL
     </select>
 
     <select id="findRelationsByProjectId" resultType="com.ideality.coreflow.template.query.dto.EdgeDTO">

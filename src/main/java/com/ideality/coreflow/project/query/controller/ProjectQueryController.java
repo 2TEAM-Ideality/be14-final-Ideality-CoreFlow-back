@@ -33,7 +33,7 @@ public class ProjectQueryController {
         return APIResponse.success(project, projectId+"번 프로젝트: "+project.getName()+" 조회 완료");
     }
 
-    @GetMapping("pipeline/{projectId}")
+    @GetMapping("/{projectId}/pipeline")
     public APIResponse<PipelineResponseDTO> getPipeline(@PathVariable Long projectId) {
         PipelineResponseDTO project = projectQueryFacadeService.getPipeline(projectId);
         return APIResponse.success(project, project.getName() + " 파이프라인 조회 성공");
