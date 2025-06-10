@@ -43,8 +43,6 @@ public class ProjectFacadeService {
     private final RelationService relationService;
     private final WorkDeptService workDeptService;
     private final ParticipantService participantService;
-    private final RoleService roleService;
-    private final UserOfRoleService userOfRoleService;
     private final UserService userService;
 
     private final DeptQueryService deptQueryService;
@@ -352,7 +350,8 @@ public class ProjectFacadeService {
         detailService.deleteDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
     }
 
-    public Long createParticipantsLeader(Long userId, Long projectId, List<RequestTeamLeaderDTO> reqLeaderDTO) {
+    @Transactional
+    public void createParticipantsLeader(Long userId, Long projectId, List<RequestTeamLeaderDTO> reqLeaderDTO) {
         boolean isDirector = participantQueryService.isProjectDirector(projectId, userId);
         if (!isDirector) {
             throw new BaseException(ErrorCode.ACCESS_DENIED);
@@ -361,9 +360,21 @@ public class ProjectFacadeService {
         List<Long> leaderUserIds = reqLeaderDTO.stream()
                 .map(RequestTeamLeaderDTO::getUserId)
                 .collect(Collectors.toList());
-        Long roleId = roleService.findRoleByName("TEAM_LEADER");
-        userOfRoleService.createTeamLeader(roleId , leaderUserIds);
+        // 2가지 예외 처리 회원 id 값들이 제대로 된 회원 값이냐
+        // request 된 값으로 된 팀장이 이미 존재하거나 -> 팀장은 1
 
-        return null;
+        userService.existsUserId(leaderUserIds);
+        participantQueryService.findTeamLedaer(projectId, reqLeaderDTO);
+
+        // 리더 삽입 -> 기존 로직 활용
+        List<ParticipantDTO> leaders = leaderUserIds.stream()
+                .map(leaderId -> ParticipantDTO.builder()
+                        .taskId(projectId)
+                        .userId(leaderId)
+                        .targetType(TargetType.PROJECT)
+                        .roleId(2L)
+                        .build()
+                ).toList();
+        participantService.createParticipants(leaders);
     }
 }

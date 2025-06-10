@@ -102,6 +102,7 @@ public enum ErrorCode {
 
     SCHEDULE_NOT_FOUND("SCHEDULE_NOT_FOUND", "존재하지 않는 일정입니다.", HttpStatus.NOT_FOUND),
     REPEATRULE_NOT_FOUND("REPEATRULE_NOT_FOUND", "존재하지 않는 반복규칙입니다.", HttpStatus.NOT_FOUND ),
+    TEAM_LEADER_ALREADY_EXISTS("TEAM_LEADER_ALREADY_EXISTS", "이미 팀장으로 존재하는 회원입니다.", HttpStatus.CONFLICT)
     ;
 
     private final String code;

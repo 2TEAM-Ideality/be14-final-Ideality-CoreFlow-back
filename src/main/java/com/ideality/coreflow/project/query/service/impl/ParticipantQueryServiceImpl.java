@@ -1,10 +1,15 @@
 package com.ideality.coreflow.project.query.service.impl;
 
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.project.command.application.dto.RequestTeamLeaderDTO;
 import com.ideality.coreflow.project.query.mapper.ParticipantMapper;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -20,5 +25,17 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
     @Override
     public boolean isProjectDirector(Long projectId, Long userId) {
         return participantMapper.isProjectDirector(projectId, userId);
+    }
+
+    @Override
+    public void findTeamLedaer(Long projectId, List<RequestTeamLeaderDTO> reqLeaderDTO) {
+        for (RequestTeamLeaderDTO leaderDTO : reqLeaderDTO) {
+            boolean isLeaderAlreadyExists = participantMapper.isTeamLeader
+                            (projectId, leaderDTO.getUserId(), leaderDTO.getDeptName(), leaderDTO.getJobRank());
+
+            if (isLeaderAlreadyExists) {
+                throw new BaseException(ErrorCode.TEAM_LEADER_ALREADY_EXISTS);
+            }
+        }
     }
 }

@@ -7,4 +7,6 @@ public interface ParticipantMapper {
     Long selectDirectorByProjectId(Long projectId);
 
     boolean isProjectDirector(Long projectId, Long userId);
+
+    boolean isTeamLeader(Long projectId, Long userId, String deptName, String jobRank);
 }

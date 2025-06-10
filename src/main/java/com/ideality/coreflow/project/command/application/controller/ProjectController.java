@@ -67,7 +67,7 @@ public class ProjectController {
                      @RequestBody List<RequestTeamLeaderDTO> reqLeaderDTO) {
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
 
-        Long participantLeaderId = projectFacadeService.createParticipantsLeader(userId, projectId, reqLeaderDTO);
+        projectFacadeService.createParticipantsLeader(userId, projectId, reqLeaderDTO);
         return null;
     }
 }

@@ -30,17 +30,4 @@ public class UserOfRoleServiceImpl implements UserOfRoleService {
             userOfRoleRepository.deleteByUserIdAndRoleId(userId, roleId);
         }
     }
-
-    @Override
-    @Transactional
-    public void createTeamLeader(Long roleId, List<Long> leaderUserIds) {
-        for (Long userId : leaderUserIds) {
-            UserOfRole newRole = UserOfRole.builder()
-                    .userId(userId)
-                    .roleId(roleId)
-                    .build();
-
-            userOfRoleRepository.save(newRole);
-        }
-    }
 }

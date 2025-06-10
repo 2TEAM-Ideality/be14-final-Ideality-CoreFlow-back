@@ -4,6 +4,8 @@ import com.ideality.coreflow.auth.command.domain.aggregate.LoginType;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.domain.aggregate.OrgType;
 
+import java.util.List;
+
 public interface UserService {
 
     UserInfoDTO findLoginInfoByIdentifier(String identifier, LoginType loginType);
@@ -25,4 +27,6 @@ public interface UserService {
     void updateUserOrg(OrgType type, String prevJobRankName, String newJobRankName);
 
     UserInfoDTO findUserById(long userId);
+
+    void existsUserId(List<Long> leaderUserIds);
 }
