@@ -31,4 +31,6 @@ public interface ProjectMapper {
     List<DeptDTO> findDeptsByWorkId(@Param("workId") Long workId);
 
     List<WorkDeptDTO> findDeptsByWorkIds(@Param("workIds") List<Long> workIds);
+
+    String selectProjectNameByProjectId(Long projectId);
 }

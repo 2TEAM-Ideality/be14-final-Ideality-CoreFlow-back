@@ -2,6 +2,9 @@ package com.ideality.coreflow.project.command.application.service.facade;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.notification.command.application.service.NotificationRecipientsService;
+import com.ideality.coreflow.notification.command.application.service.NotificationService;
+import com.ideality.coreflow.notification.command.domain.repository.NotificationRepository;
 import com.ideality.coreflow.project.command.application.dto.*;
 import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
@@ -10,6 +13,7 @@ import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
 import com.ideality.coreflow.org.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
+import com.ideality.coreflow.project.query.service.ProjectQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
@@ -44,12 +48,15 @@ public class ProjectFacadeService {
     private final WorkDeptService workDeptService;
     private final ParticipantService participantService;
     private final UserService userService;
+    private final NotificationService notificationService;
+    private final NotificationRecipientsService notificationRecipientsService;
 
     private final DeptQueryService deptQueryService;
     private final UserQueryService userQueryService;
     private final ParticipantQueryService participantQueryService;
     private final DetailService detailService;
     private final TaskQueryService taskQueryService;
+    private final ProjectQueryService projectQueryService;
 
     @Transactional
     public Long updateProjectStatus(Long projectId, Long userId, Status targetStatus)
@@ -376,5 +383,13 @@ public class ProjectFacadeService {
                         .build()
                 ).toList();
         participantService.createParticipants(leaders);
+
+        // 초대 됐다는 알림 작성
+        String writerName = userQueryService.getUserId(userId);
+        String projectName = projectQueryService.getProjectName(projectId);
+        String content = String.format("%s 님이 회원님을 %s에 초대하였습니다.", writerName, projectName);
+        Long notificationId = notificationService.createInviteProject(projectId, content);
+        notificationRecipientsService.createRecipients(leaderUserIds, notificationId);
+
     }
 }

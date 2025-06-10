@@ -62,12 +62,12 @@ public class ProjectController {
     }
 
     @PostMapping("/{projectId}/participants/team-leader")
-    public ResponseEntity<APIResponse<Map<String, Long>>>
+    public ResponseEntity<APIResponse<?>>
     createTeamLeader(@PathVariable Long projectId,
                      @RequestBody List<RequestTeamLeaderDTO> reqLeaderDTO) {
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
 
         projectFacadeService.createParticipantsLeader(userId, projectId, reqLeaderDTO);
-        return null;
+        return ResponseEntity.ok(APIResponse.success(null, "팀 리더 초대에 성공하였습니다."));
     }
 }

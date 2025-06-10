@@ -48,4 +48,20 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.save(notification);
         return notification.getId();
     }
+
+    @Override
+    @Transactional
+    public Long createInviteProject(Long projectId, String content) {
+        Notification notification = Notification.builder()
+                .targetType(String.valueOf(Notification.TargetType.PROJECT))
+                .targetId(projectId)
+                .content(content)
+                .status(String.valueOf(Notification.Status.SENT))
+                .dispatchAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        notificationRepository.save(notification);
+        return notification.getId();
+    }
 }

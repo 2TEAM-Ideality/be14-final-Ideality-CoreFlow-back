@@ -4,4 +4,6 @@ public interface NotificationService {
     Long createDetailNotification(Long detailId, String content);
 
     Long createMentionNotification(Long taskId, String content);
+
+    Long createInviteProject(Long projectId, String content);
 }
