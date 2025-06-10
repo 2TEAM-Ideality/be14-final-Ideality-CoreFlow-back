@@ -2,6 +2,7 @@ package com.ideality.coreflow.infra.tenant.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
+import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
+@Component
 public class TenantRoutingDataSource extends AbstractRoutingDataSource {
 
     private final Map<Object, Object> dataSources = new ConcurrentHashMap<>();
@@ -57,5 +59,10 @@ public class TenantRoutingDataSource extends AbstractRoutingDataSource {
             }
             return dataSource;
         }
+    }
+
+    public DataSource getCurrentDataSource() {
+        // 내부 메서드인 determineTargetDataSource() 호출해서 반환
+        return (DataSource) determineTargetDataSource();
     }
 }
