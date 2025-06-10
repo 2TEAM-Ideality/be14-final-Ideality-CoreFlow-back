@@ -11,7 +11,7 @@ public interface ParticipantQueryService {
 
     boolean isProjectDirector(Long projectId, Long userId);
 
-	List<ParticipantDTO> getParticipantList(Long projectId);
+	List<ParticipantDTO> getProjectParticipantList(Long projectId);
 
     List<Long> selectParticipantsList(Long detailParticipantId);
 

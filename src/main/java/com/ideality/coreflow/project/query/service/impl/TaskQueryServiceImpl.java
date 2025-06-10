@@ -3,6 +3,7 @@ package com.ideality.coreflow.project.query.service.impl;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.project.command.domain.repository.TaskRepository;
+import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
 import com.ideality.coreflow.project.query.dto.RelationDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskInfoDTO;
@@ -24,7 +25,6 @@ import java.util.List;
 public class TaskQueryServiceImpl implements TaskQueryService {
     private final TaskMapper taskMapper;
     private final RelationMapper relationMapper;
-    private final TaskRepository taskRepository;
 
     @Override
     public ResponseTaskInfoDTO selectTaskInfo(Long taskId) {
@@ -37,6 +37,12 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     @Override
     public List<ResponseTaskDTO> selectTasks(Long projectId) {
         return taskMapper.selectTasks(projectId);
+    }
+
+    // 완료된 프로젝트를 위한 태스크 정보 가져오기
+    @Override
+    public List<CompletedTaskDTO> selectCompletedTasks(Long projectId) {
+        return taskMapper.selectCompletedTasks(projectId);
     }
 
     @Override

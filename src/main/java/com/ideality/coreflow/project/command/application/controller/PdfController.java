@@ -477,6 +477,7 @@ public class PdfController {
                     "status", "지연"
                 )
             );
+
             context.setVariable("taskList", taskList);
             List<List<Map<String, Object>>> pagedTaskList = new ArrayList<>();
             for (int i = 0; i < taskList.size(); i += 15) {
@@ -552,32 +553,50 @@ public class PdfController {
             context.setVariable("pagedOutputList", pagedOutputList);
 
 
-
-
-            // 각 페이지 템플릿 렌더링
+            // 설명. 각 페이지 템플릿 렌더링
             String reportHtml = templateEngine.process("report", context);
             reportHtml = reportHtml.replace("&nbsp;", "&#160;"); // 안전 처리
 
+            response.setContentType("application/pdf");   // Content-Type: MIME 타입 설정 (`application/pdf`) -> 브라우저에게 이건 PDF 콘텐츠니까 알맞게 처리해달라고 MIME 타입을 알려주는 것.
+            response.setHeader("Content-Disposition","attachment; filename=report.pdf");
+            // Content-Disposition 헤더 설정:
+            // 'attachment' → 브라우저가 콘텐츠를 다운로드로 처리하게 함
+            // 'filename=report.pdf' → 다운로드할 때 저장될 기본 파일명 지정
 
-            // 응답 헤더 설정
-            response.setContentType("application/pdf");
-            response.setHeader("Content-Disposition", "attachment; filename=report.pdf");
-
+            // 설명. 응답 객체(HttpServletResponse)에서 출력 스트림을 얻음 => 이 스트림을 통한 내용들은, 브라우저로 바로 전송됨
             try (OutputStream os = response.getOutputStream()) {
-                PdfRendererBuilder builder = new PdfRendererBuilder();
-                builder.useFastMode();
-                builder.useFont(new File("src/main/resources/fonts/NotoSansKR-Regular.ttf"), "Noto Sans KR");
+
+                // 설명. OpenHTMLToPDF의 PdfRendererBuilder를 이용해 HTML을 PDF로 렌더링
+                PdfRendererBuilder builder = new PdfRendererBuilder();   // OpenHTMLToPDF 라이브러리에서 PDF 생성기 인스턴스 생성
+                builder.useFastMode();   // PDF 렌더링 속도를 빠르게 처리하는 모드 활성화
+                builder.useFont(new File("src/main/resources/fonts/NotoSansKR-Regular.ttf"), "Noto Sans KR");  // PDF 내 텍스트 렌더링 시 사용할 폰트를 명시적으로 등록 (한글 깨짐 방지용)
                 builder.withHtmlContent(reportHtml, null);
+                // reportHtml: Thymeleaf로 렌더링된 HTML 문자열 -> 이 HTML을 기반으로 PDF를 만들라는 의미
+
+                // 설명. 그 결과를 HTTP 응답 스트림(OutputStream)으로 직접 보내줌
                 builder.toStream(os);
+                // PDF를 생성한 후 결과물을 어디로 쓸지 지정하는 부분
+                // 여기서는 HttpServletResponse.getOutputStream() → 즉, 브라우저로 직접 PDF를 보냄
+
                 builder.run();
+                // 위에서 설정한 HTML, 폰트, 스트림 등을 종합적으로 반영해서 PDF 생성 시작
+                // 최종적으로 os에 PDF 데이터가 기록됨 → 사용자 브라우저에서 바로 다운로드됨
             }
-        } catch (Exception e) {
+        } catch (Exception e) {    // 모든 예외 잡기
+
+            // isCommitted() : 응답이 브라우저로 이미 전송되었는지 여부를 판단하는 메서드
+            // false: 아직 응답 본문/헤더가 브라우저에 전송되지 않음 → 수정 가능
+            // true: 이미 응답을 전송 시작함 → 더 이상 상태 코드나 내용을 바꿀 수 없음
             if (!response.isCommitted()) {
+                // 응답 아직 안 보내졌을 때
                 try {
-                    response.reset();
-                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    // 사용자에게 오류 메시지 알릴 수 있다.
+                    // 이전에 설정된 응답 헤더/본문을 모두 초기화 → 새로운 오류 응답을 보낼 수 있게 함
+                    response.reset();  // 초기화
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);  // 서버 오류
                     response.getWriter().write("PDF 생성 실패: " + e.getMessage());
                 } catch (Exception ex) {
+                    // 사용자에게 오류 메시지 못 알리고, 로그만 남긴다.
                     ex.printStackTrace();
                 }
             } else {

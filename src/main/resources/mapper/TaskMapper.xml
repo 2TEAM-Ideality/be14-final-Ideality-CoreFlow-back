@@ -80,4 +80,26 @@
          WHERE id = #{taskId}
            AND status != 'DELETED'
     </select>
+
+
+    <select id="selectCompletedTasks" parameterType="long" resultType="com.ideality.coreflow.project.query.dto.CompletedTaskDTO">
+        SELECT
+              id
+            , name
+            , description
+            , created_at
+            , start_base
+            , end_base
+            , start_expect
+            , end_expect
+            , start_real
+            , end_real
+            , status
+            , progress_rate
+            , passed_rate
+            , delay_days
+         FROM work
+          WHERE project_id = #{projectId}
+        AND status != 'DELETED'
+    </select>
 </mapper>

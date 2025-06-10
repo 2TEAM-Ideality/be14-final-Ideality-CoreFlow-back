@@ -27,4 +27,22 @@
         AND a.target_type = #{targetType}
     </select>
 
+    <select id="selectAttachmentsByProjectId" parameterType="long" resultType="com.ideality.coreflow.attachment.query.dto.ReportAttachmentDTO">
+        SELECT
+            a.id,
+            a.url,
+            a.origin_name AS originName,
+            a.upload_at AS uploadAt,
+            u.name AS uploader,
+            a.file_type AS fileType,
+            a.size,
+            a.target_type AS targetType,
+            a.target_id AS targetId
+         FROM attachment a
+          JOIN user u ON a.uploader_id = u.id
+        WHERE a.target_type = 'PROJECT'
+            AND a.target_id = #{projectId}
+            AND a.is_deleted = FALSE
+    </select>
+
 </mapper>

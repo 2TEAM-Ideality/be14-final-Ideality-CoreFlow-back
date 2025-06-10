@@ -36,5 +36,4 @@ public class DeptWorkDTO {
 	private List<ParticipantDTO> participants;  // 참여자 목록
 
 	private Long projectId;						// 프로젝트 아이디
-
 }

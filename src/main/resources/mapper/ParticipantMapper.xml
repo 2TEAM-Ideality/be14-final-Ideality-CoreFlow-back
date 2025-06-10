@@ -37,4 +37,12 @@
         AND target_type = 'PROJECT'
         )
     </select>
+
+    <!-- 특정 프로젝트에 참여하는 모든 회원 정보 가져오기 -->
+    <select id="selectProjectParticipantList" parameterType="long" resultType="com.ideality.coreflow.project.query.dto.ParticipantDTO">
+        SELECT user_id
+            FROM participant
+        WHERE target_id = #{projectId}
+        AND target_type = 'PROJECT'
+    </select>
 </mapper>

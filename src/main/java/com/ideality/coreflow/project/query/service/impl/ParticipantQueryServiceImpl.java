@@ -37,7 +37,8 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
     }
 
     @Override
-    public List<ParticipantDTO> getParticipantList(Long projectId) {
-        return List.of();
+    public List<ParticipantDTO> getProjectParticipantList(Long projectId) {
+
+        return participantMapper.selectProjectParticipantList(projectId);
     }
 }

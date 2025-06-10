@@ -1,5 +1,7 @@
 package com.ideality.coreflow.project.command.application.service.facade;
 
+import com.ideality.coreflow.attachment.query.dto.ReportAttachmentDTO;
+import com.ideality.coreflow.attachment.query.service.AttachmentQueryService;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
@@ -10,10 +12,10 @@ import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
-import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
-import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
+import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
 import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
 import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
+import com.ideality.coreflow.project.query.dto.report.ReportTaskDTO;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import com.ideality.coreflow.project.query.service.ProjectQueryService;
@@ -27,6 +29,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
+
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.javassist.NotFoundException;
@@ -56,6 +60,7 @@ public class ProjectFacadeService {
     private final ParticipantQueryService participantQueryService;
     private final DetailService detailService;
     private final TaskQueryService taskQueryService;
+    private final AttachmentQueryService attachmentQueryService;
 
     @Transactional
     public Long updateProjectStatus(Long projectId, Long userId, Status targetStatus)
@@ -359,15 +364,29 @@ public class ProjectFacadeService {
 
     // 프로젝트 분석 리포트 다운로드
     @Transactional
-    public void downloadReport(Long projectId) {
+    public void downloadReport(Long projectId, HttpServletResponse response) {
         if(!projectService.isCompleted(projectId)) {
             throw new BaseException(ErrorCode.PROJECT_NOT_COMPLETED);
         }
 
+        // 설명. 데이터 준비
+        // 프로젝트 기본 정보
         ProjectDetailResponseDTO projectDetail = projectQueryService.getProjectDetail(projectId);
-        List<ParticipantDTO> participantList = participantQueryService.getParticipantList(projectId);
+        // List<ParticipantDTO> participantList = participantQueryService.getProjectParticipantList(projectId);
 
-        // pdfService.createReportPdf(projectDetail, participantList, )
+        // 공정 내역 - 태스트 조회
+        List<CompletedTaskDTO> completedTaskList = taskQueryService.selectCompletedTasks(projectId);
+
+        // 지연 사유 내역
+
+
+        // 산출물 목록
+        List<ReportAttachmentDTO> attachmentList = attachmentQueryService.getAttachmentsByProjectId(projectId);
+
+
+        pdfService.createReportPdf(projectDetail, completedTaskList, attachmentList);
+
+
 
 
     }

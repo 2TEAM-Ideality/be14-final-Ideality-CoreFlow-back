@@ -25,7 +25,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 public class ProjectController {
 
-    //    private final ProjectService projectService;
     private final ProjectFacadeService projectFacadeService;
 
     @PostMapping
@@ -62,13 +61,10 @@ public class ProjectController {
 
 
 
-    // TODO. 프로젝트 리포트 생성
-   @PostMapping("/report/download/{projectId}")
-    public ResponseEntity<APIResponse<?>> downloadReport(HttpServletResponse response, @PathVariable Long projectId) {
-        projectFacadeService.downloadReport(projectId);
-
-        return ResponseEntity.ok(
-            APIResponse.success(null, "pdf 다운로드가 성공적으로 마무리되었습니다. "));
+    // TODO. 프로젝트 분석 리포트 생성
+   @PostMapping("/report/{projectId}")
+    public void downloadReport(HttpServletResponse response, @PathVariable Long projectId) {
+        projectFacadeService.downloadReport(projectId, response);
    }
 
 
