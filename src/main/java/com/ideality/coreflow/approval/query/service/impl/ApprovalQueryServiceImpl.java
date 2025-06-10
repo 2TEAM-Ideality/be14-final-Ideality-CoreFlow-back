@@ -1,7 +1,9 @@
 package com.ideality.coreflow.approval.query.service.impl;
 
+import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalType;
 import com.ideality.coreflow.approval.query.dto.ApprovalDetailsDTO;
 import com.ideality.coreflow.approval.query.dto.ApprovalParticipantDTO;
+import com.ideality.coreflow.approval.query.dto.ProjectApprovalDTO;
 import com.ideality.coreflow.approval.query.dto.ResponsePreviewApproval;
 import com.ideality.coreflow.approval.query.mapper.ApprovalMapper;
 import com.ideality.coreflow.approval.query.service.ApprovalQueryService;
@@ -47,5 +49,10 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
     @Override
     public ApprovalDetailsDTO searchApprovalDetailsById(long approvalId) {
         return approvalMapper.selectApprovalDetailsById(approvalId);
+    }
+
+    @Override
+    public List<ProjectApprovalDTO> selectProjectApprovalByProjectId(long projectId, ApprovalType approvalType) {
+        return approvalMapper.selectProjectApprovalByProjectId(projectId, approvalType);
     }
 }
