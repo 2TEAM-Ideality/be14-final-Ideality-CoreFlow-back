@@ -1,8 +1,7 @@
 package com.ideality.coreflow.notification.command.domain.aggregate;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -10,6 +9,9 @@ import java.time.LocalDateTime;
 @Table(name = "notification")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Notification {
 
     @Id
@@ -25,8 +27,9 @@ public class Notification {
     @Column(nullable = true)
     private String content;
 
-    @Column(nullable = false, columnDefinition = "VARCHAR(255) DEFAULT 'PENDING'")
-    private String status;
+    @Builder.Default
+    @Column(nullable = false)
+    private String status = "PENDING";
 
     @Column(name = "dispatch_at", nullable = false)
     private LocalDateTime dispatchAt;
@@ -37,8 +40,9 @@ public class Notification {
     @Column(name = "updated_at", nullable = true)
     private LocalDateTime updatedAt;
 
-    @Column(name = "is_auto_delete", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private Boolean isAutoDelete;
+    @Builder.Default
+    @Column(name = "is_auto_delete", nullable = false)
+    private Boolean isAutoDelete = false;
 
     // 추가된 Validation (Enum 사용)
     @PrePersist
