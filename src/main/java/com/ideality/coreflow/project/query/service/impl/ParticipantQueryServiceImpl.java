@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -23,6 +24,16 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
     @Override
     public boolean isProjectDirector(Long projectId, Long userId) {
         return participantMapper.isProjectDirector(projectId, userId);
+    }
+
+    @Override
+    public List<Long> selectParticipantsList(Long detailParticipantId) {
+        return participantMapper.selectParticipantsList(detailParticipantId);
+    }
+
+    @Override
+    public boolean isParticipant(Long userId, Long projectId) {
+        return participantMapper.isParticipantUser(userId, projectId);
     }
 
     @Override

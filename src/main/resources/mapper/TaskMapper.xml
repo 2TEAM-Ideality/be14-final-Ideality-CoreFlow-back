@@ -56,11 +56,28 @@
            AND a.status != 'DELETED'
     </select>
 
+    <select id="selectProjectIdByTaskId" resultType="long">
+        SELECT
+               project_id
+          FROM work
+         WHERE id = #{taskId}
+           AND parent_task_id IS NULL
+           AND status != 'DELETED'
+    </select>
+
     <select id="countIncompleteTasks" parameterType="long" resultType="int">
         SELECT
                COUNT(*)
           FROM work
          WHERE project_id = #{projectId}
            AND status IN ('PENDING', 'PROGRESS')
+    </select>
+
+    <select id="selectTaskNameByTaskId" resultType="string">
+        SELECT
+               name
+          FROM work
+         WHERE id = #{taskId}
+           AND status != 'DELETED'
     </select>
 </mapper>
