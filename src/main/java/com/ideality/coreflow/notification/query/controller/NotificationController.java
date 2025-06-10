@@ -1,21 +1,29 @@
 package com.ideality.coreflow.notification.query.controller;
 
+import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
+import com.ideality.coreflow.notification.command.application.dto.NotificationDTO;
+import com.ideality.coreflow.notification.command.domain.aggregate.Status;
 import com.ideality.coreflow.notification.query.service.NotificationQueryService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,48 +35,52 @@ public class NotificationController {
     private static final Logger logger = LoggerFactory.getLogger(NotificationController.class);
 
     @PreAuthorize("isAuthenticated()")  // 인증된 사용자만 접근 가능
-    @GetMapping("/api/notifications/stream")
-    public SseEmitter streamNotifications() {
+    @GetMapping(value ="/api/notifications/stream",produces= MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter streamNotifications(@RequestParam("token") String token) {
         SseEmitter emitter = new SseEmitter();
-        // 이미 보낸 알림을 추적하기 위한 Set (중복 알림을 방지)
         Set<Long> sentNotifications = new HashSet<>();
 
-        // 인증 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long userId = Long.parseLong(authentication.getName());
 
         // 비동기 방식으로 알림을 전송
         new Thread(() -> {
             try {
-                // 테넌트 정보를 새로 생성된 스레드에 전파
-                String tenant = TenantContext.getTenant();  // 현재 테넌트 정보 가져오기
-                TenantContext.setTenant("company_a");  // 새 테넌트 설정
+                String tenant = TenantContext.getTenant();
+                TenantContext.setTenant("company_a");
 
-                // 로그 찍어보기
                 logger.info("Authenticated User ID: {}", userId);
                 logger.info("테넌트: " + tenant);
                 logger.info("새 테넌트: " + TenantContext.getTenant());
 
                 while (true) {
                     // 알림을 가져와서 전송
-                    notificationQueryService.getMyNotifications(userId)
-                            .forEach(notification -> {
-                                // 이미 보낸 알림은 제외
-                                if (!sentNotifications.contains(notification.getId())) {
-                                    try {
-                                        // 알림 전송
-                                        emitter.send(SseEmitter.event().data(notification.getContent()));
-                                        // 보낸 알림을 sentNotifications에 추가
-                                        sentNotifications.add(notification.getId());
-                                    } catch (IOException e) {
-                                        emitter.completeWithError(e);  // 오류 발생 시 처리
-                                    }
-                                }
-                            });
+                    List<NotificationData> notifications = notificationQueryService.getMyNotifications(userId)
+                            .stream()
+                            .filter(notification -> !sentNotifications.contains(notification.getId()))
+                            .map(notification -> {
+                                // NotificationData 객체로 알림을 반환
+                                return new NotificationData(notification.getContent(), notification.getDispatchAt(), notification.getStatus(), notification.getId());
+                            })
+                            .collect(Collectors.toList());
 
-                    // 5초마다 알림 확인
+                    // 여러 알림을 하나의 데이터 배열로 묶어서 보내기
+                    if (!notifications.isEmpty()) {
+                        APIResponse<List<NotificationData>> apiResponse = APIResponse.success(notifications, "알림 조회에 성공하셨습니다.");
+                        try {
+                            emitter.send(SseEmitter.event().data(apiResponse));
+                        } catch (IOException e) {
+                            emitter.completeWithError(e);
+                        }
+                    }
+
+                    // 보낸 알림을 sentNotifications에 추가
+                    sentNotifications.addAll(notifications.stream()
+                            .map(NotificationData::getId)  // 알림 객체에서 ID만 추출
+                            .collect(Collectors.toSet()));
+
                     try {
-                        TimeUnit.SECONDS.sleep(5);  // 5초마다 알림 확인
+                        TimeUnit.SECONDS.sleep(5);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                         emitter.completeWithError(e);
@@ -76,11 +88,44 @@ public class NotificationController {
                     }
                 }
             } finally {
-                // 스레드 종료 시 테넌트 정보 초기화
-                TenantContext.clear();  // 스레드 종료 시 테넌트 정보 삭제
+                TenantContext.clear();
             }
         }).start();
 
         return emitter;
+    }
+
+    // 알림 데이터를 담는 DTO 클래스 (NotificationData)
+    public static class NotificationData {
+        private String content;
+        private String date;
+        private String status;
+        private Long id;  // ID 필드 추가
+
+        // 생성자
+        // 생성자: LocalDateTime과 Status를 String으로 변환
+        public NotificationData(String content, LocalDateTime date, Status status, Long id) {
+            this.content = content;
+            this.date = date.toString();  // LocalDateTime을 String으로 변환
+            this.status = status.toString();  // Status를 String으로 변환
+            this.id = id;
+        }
+
+        // getter methods
+        public String getContent() {
+            return content;
+        }
+
+        public String getDate() {
+            return date;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public Long getId() {
+            return id;
+        }
     }
 }

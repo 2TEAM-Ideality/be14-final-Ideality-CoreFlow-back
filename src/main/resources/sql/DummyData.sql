@@ -205,43 +205,6 @@ VALUES
     2
 );
 
-INSERT INTO notification
-(
-    target_type,
-    target_id,
-    content,
-    status,
-    dispatch_at,
-    created_at
-)
-VALUES
-(
-    'PROJECT',
-    1,
-    '정효주 Director가 회원님을 팀장으로 초대하였습니다.',
-    'SENT',
-    CURRENT_TIMESTAMP,
-    CURRENT_TIMESTAMP
-);
-
-INSERT INTO notification_recipients
-(
-    notification_id,
-    user_id
-)
-VALUES
-    (
-        1,
-        3
-    ),
-    (
-        1,
-        5
-    ),
-    (
-        1,
-        7
-    );
 
 INSERT INTO job_rank (name)
 VALUES ("사원"),

@@ -7,6 +7,7 @@ import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalStatus;
 import com.ideality.coreflow.approval.command.domain.repository.ApprovalRepository;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.notification.command.application.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,6 @@ import java.time.LocalDateTime;
 public class ApprovalServiceImpl implements ApprovalService {
 
     private final ApprovalRepository approvalRepository;
-    private final NotificationServiceInterface notificationServiceInterface;
 
     @Override
     public void updateStatus(Approval approval, ApprovalStatus status) {

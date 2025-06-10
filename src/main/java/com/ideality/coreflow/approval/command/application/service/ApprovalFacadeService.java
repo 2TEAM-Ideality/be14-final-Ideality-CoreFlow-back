@@ -52,7 +52,7 @@ public class ApprovalFacadeService {
             log.info("결재 승인");
 
             // 결재 승인 후 알림 전송
-            String notificationContent = "결재가 승인되었습니다. 승인된 결재 제목: " + approval.getTitle();
+            String notificationContent = "결재가 승인되었습니다. [" + approval.getTitle() + "]";
             notificationService.sendNotification(
                     approval.getUserId(),    // 결재 요청자 ID
                     notificationContent,     // 알림 내용
@@ -106,7 +106,7 @@ public class ApprovalFacadeService {
         log.info("결재 정보 등록: {}", approvalId);
 
         // 결재 요청을 받은 사람(결재자)에게 알림 전송
-        String notificationContent = "새로운 결재 요청이 도착했습니다. 결재 제목: " + request.getTitle();
+        String notificationContent = "새로운 결재 요청이 도착했습니다. [" + request.getTitle() + "]";
         notificationService.sendNotification(
                 request.getApproverId(),    // 결재자 ID
                 notificationContent,        // 알림 내용
