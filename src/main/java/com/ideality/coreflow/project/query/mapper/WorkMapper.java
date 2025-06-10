@@ -27,4 +27,5 @@ public interface WorkMapper {
 
     List<String> selectDetailListByTarget(Long projectId, Long taskId, String detailTarget);
 
+    List<Long> selectWorkIdByName(List<String> details);
 }

@@ -4,6 +4,19 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ideality.coreflow.approval.query.mapper.ApprovalMapper">
 
+    <resultMap id="ProjectApprovalResultMap" type="com.ideality.coreflow.approval.query.dto.ProjectApprovalDTO">
+        <id property="id" column="ID" />
+        <result property="taskName" column="TASK_NAME" />
+        <result property="createdDate" column="CREATED_AT" />
+        <result property="approverName" column="APPROVER_NAME" />
+        <result property="approverJobRank" column="APPROVER_JOB_RANK" />
+        <result property="approvalJobRole" column="APPROVER_JOB_ROLE" />
+        <result property="approvalType" column="APPROVAL_TYPE" />
+        <result property="delayReason" column="DELAY_REASON" />
+        <result property="delayDays" column="DELAY_DAYS" />
+        <result property="url" column="URL" />
+    </resultMap>
+
     <resultMap id="ApprovalPreviewResultMap" type="com.ideality.coreflow.approval.query.dto.ResponsePreviewApproval">
         <id property="id" column="ID" />
         <result property="requesterName" column="REQUESTER_NAME" />
@@ -35,6 +48,34 @@
         <result property="actionDetail" column="ACTION_DETAIL" />
         <result property="delayReason" column="DELAY_REASON" />
     </resultMap>
+
+    <!--  프로젝트 id와 타입(산출물 / 지연 사유서)으로 승인된 결재 조회  -->
+    <select id="selectProjectApprovalByProjectId" resultMap="ProjectApprovalResultMap">
+        SELECT
+               a.id AS ID
+             , w.name AS TASK_NAME
+             , a.created_at AS CREATED_AT
+             , u.name AS APPROVER_NAME
+             , u.job_rank_name AS APPROVER_JOB_RANK
+             , u.job_role_name AS APPROVER_JOB_ROLE
+             , a.type AS APPROVAL_TYPE
+             , dr.reason AS DELAY_REASON
+             , da.delay_days AS DELAY_DAYS
+             , at.url AS URL
+          FROM approval a
+          LEFT JOIN approval_participant ap ON ap.approval_id = a.id
+          LEFT JOIN user u ON ap.user_id = u.id
+          LEFT JOIN work w ON a.work_id = w.id
+          LEFT JOIN project p ON w.project_id = p.id
+          LEFT JOIN delay_approval da ON a.id = da.approval_id
+          LEFT JOIN delay_reason dr ON da.delay_reason_id = dr.id
+          LEFT JOIN attachment at ON a.id = at.target_id AND at.target_type = 'APPROVAL'
+         WHERE a.type = #{approvalType}
+           AND a.status = 'APPROVED'
+           AND ap.role = 'APPROVER'
+           AND p.id = #{projectId}
+
+    </select>
 
     <!-- 결재 id로 결재 상세 내역 조회 -->
     <select id="selectApprovalDetailsById" parameterType="long" resultMap="ApprovalDetailsResultMap">
