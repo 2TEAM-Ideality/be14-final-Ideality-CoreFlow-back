@@ -7,6 +7,7 @@ import com.ideality.coreflow.attachment.query.dto.ReportAttachmentDTO;
 import com.ideality.coreflow.attachment.query.service.AttachmentQueryService;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.org.query.service.DeptQueryService;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
@@ -54,6 +55,7 @@ public class ProjectFacadeService {
     private final WorkDeptService workDeptService;
     private final ParticipantService participantService;
 
+    private final DeptQueryService deptQueryService;
     private final PdfService pdfService;
 
     private final UserQueryService userQueryService;
