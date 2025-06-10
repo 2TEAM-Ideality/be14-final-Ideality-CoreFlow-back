@@ -6,7 +6,7 @@ import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.email.command.application.service.EmailSendService;
 import com.ideality.coreflow.email.command.domail.aggregate.EmailType;
-import com.ideality.coreflow.project.query.service.DeptQueryService;
+import com.ideality.coreflow.org.query.service.DeptQueryService;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.application.service.RoleService;
 import com.ideality.coreflow.user.command.application.service.UserOfRoleService;

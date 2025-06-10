@@ -6,7 +6,7 @@ import com.ideality.coreflow.project.query.dto.PipelineResponseDTO;
 import com.ideality.coreflow.project.query.dto.ProjectSummaryDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskInfoDTO;
-import com.ideality.coreflow.project.query.service.DeptQueryService;
+import com.ideality.coreflow.org.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.service.ProjectQueryService;
 import com.ideality.coreflow.project.query.service.RelationQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
