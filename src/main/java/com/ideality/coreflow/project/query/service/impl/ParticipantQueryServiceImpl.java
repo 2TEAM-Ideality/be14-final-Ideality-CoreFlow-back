@@ -41,7 +41,7 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
     public void findTeamLedaer(Long projectId, List<RequestTeamLeaderDTO> reqLeaderDTO) {
         for (RequestTeamLeaderDTO leaderDTO : reqLeaderDTO) {
             boolean isLeaderAlreadyExists = participantMapper.isTeamLeader
-                            (projectId, leaderDTO.getUserId(), leaderDTO.getDeptName(), leaderDTO.getJobRank());
+                            (projectId, leaderDTO.getDeptName());
 
             if (isLeaderAlreadyExists) {
                 throw new BaseException(ErrorCode.TEAM_LEADER_ALREADY_EXISTS);

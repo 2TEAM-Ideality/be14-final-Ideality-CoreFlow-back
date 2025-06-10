@@ -9,7 +9,5 @@ import lombok.*;
 @ToString
 public class RequestTeamLeaderDTO {
     private Long userId;
-    private String name;
     private String deptName;
-    private String jobRank;
 }
