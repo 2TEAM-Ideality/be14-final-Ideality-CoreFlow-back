@@ -6,13 +6,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Setter
 public class ReportAttachmentDTO {
 
+	// 산출물 목록
 	private Long id;
 	private String url;
 	private String originName;
@@ -22,7 +25,7 @@ public class ReportAttachmentDTO {
 
 	private String fileType;
 	private String size;
-	private String targetType;
-	private Long targetId;
+	private String targetType;   // PROJECT
+	private Long targetId;		 // 프로젝트 아이디
 
 }

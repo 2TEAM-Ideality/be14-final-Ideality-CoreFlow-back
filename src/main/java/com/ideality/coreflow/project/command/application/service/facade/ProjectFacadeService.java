@@ -376,14 +376,13 @@ public class ProjectFacadeService {
         // 설명. 데이터 준비
         // 프로젝트 기본 정보
         ProjectDetailResponseDTO projectDetail = projectQueryService.getProjectDetail(projectId);
-        // List<ParticipantDTO> participantList = participantQueryService.getProjectParticipantList(projectId);
+        List<ParticipantDTO> totalParticipantList = participantQueryService.getProjectParticipantList(projectId);
 
         // 공정 내역 - 태스트 조회
         List<CompletedTaskDTO> completedTaskList = taskQueryService.selectCompletedTasks(projectId);
 
-        // 지연 사유 내역
+        // 지연 사유서 내역
         List<ProjectApprovalDTO> delayList = approvalQueryService.selectProjectApprovalByProjectId(projectId, ApprovalType.DELAY);
-
 
         // 산출물 목록
         List<ReportAttachmentDTO> attachmentList = attachmentQueryService.getAttachmentsByProjectId(projectId);

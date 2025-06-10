@@ -38,7 +38,7 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/api/admin/**")).hasAuthority("ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/api/auth/signup")).hasAuthority("ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
-                        .requestMatchers("/api/pdf/**").permitAll()
+                        .requestMatchers("/api/project/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .cors(cors -> cors

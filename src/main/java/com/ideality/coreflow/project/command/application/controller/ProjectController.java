@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,7 +63,7 @@ public class ProjectController {
 
 
     // TODO. 프로젝트 분석 리포트 생성
-   @PostMapping("/report/{projectId}")
+    @GetMapping("/report/{projectId}")
     public void downloadReport(HttpServletResponse response, @PathVariable Long projectId) {
         projectFacadeService.downloadReport(projectId, response);
    }

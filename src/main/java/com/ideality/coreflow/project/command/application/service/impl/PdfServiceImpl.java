@@ -6,6 +6,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -20,12 +22,14 @@ import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.PieChart;
 import org.knowm.xchart.PieChartBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import com.ideality.coreflow.approval.query.dto.ProjectApprovalDTO;
 import com.ideality.coreflow.attachment.query.dto.ReportAttachmentDTO;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.project.command.application.service.PdfService;
 import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
 import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
@@ -44,6 +48,7 @@ public class PdfServiceImpl implements PdfService {
 
 	private final TemplateEngine templateEngine;
 
+	@Transactional
 	@Override
 	public void createReportPdf(
 		HttpServletResponse response,
@@ -55,7 +60,17 @@ public class PdfServiceImpl implements PdfService {
 		// 가져온 정보로 프로젝트 분석 리포트 PDF 만들기
 		log.info("프로젝트 분석 리포트 만들기");
 
+		// 데이터 확인
+		if(delayList.size() == 0){
+			log.info("지연 사유서 내역 없음");
+		}
+		if(attachmentList.size() == 0){
+			log.info("산출물 내역 없음");
+		}
+
 		try{
+			TenantContext.setTenant(TenantContext.getTenant());
+			log.info("tenent: {}", TenantContext.getTenant());
 			// 데이터 준비
 			Context context = new Context();
 			// 설명. 챕터 1 - 프로젝트 개요
@@ -64,7 +79,8 @@ public class PdfServiceImpl implements PdfService {
 			context.setVariable("reportCreatedAt" , LocalDate.now());
 			context.setVariable("projectPeriod", projectDetail.getStartReal() + " ~ " + projectDetail.getEndReal());
 			context.setVariable("projectProgress", projectDetail.getProgressRate());
-
+			context.setVariable("projectDescription", projectDetail.getDescription());
+			context.setVariable("projectDelayDays" , projectDetail.getDelayDays());
 			// 참여 인원
 			context.setVariable("leaderList", projectDetail.getLeaders());
 
@@ -100,9 +116,9 @@ public class PdfServiceImpl implements PdfService {
 			);
 			context.setVariable("total", total);
 
-			// 설명. 챕터 3 - 지연 분석 챕터
+			// 설명. 챕터 3 - 지연 분석 챕터 ---------------------------------------------------------------
 			// 지연 태스크 분석
-			String delayTaskChart = delayTaskChart(delayList);
+			String delayTaskChart = delayTaskChart(completedTaskList);
 			context.setVariable("delayTaskChart", delayTaskChart);
 
 			// 지연 사유 분석
@@ -110,8 +126,6 @@ public class PdfServiceImpl implements PdfService {
 			context.setVariable("delayReasonChart", delayReasonChart);
 
 			// 지연 사유서 내역
-			context.setVariable("delayReportList" , delayList);
-
 			List<List<ProjectApprovalDTO>> pagedDelayReportList = new ArrayList<>();
 			for (int i = 0; i < delayList.size(); i += 15) {
 				pagedDelayReportList.add(delayList.subList(i, Math.min(i + 15, delayList.size())));
@@ -119,21 +133,55 @@ public class PdfServiceImpl implements PdfService {
 
 			context.setVariable("pagedDelayReportList", pagedDelayReportList);
 
-			// 설명. 챕터 4 - 성과 지표
+			// 설명. 챕터 4 - 성과 지표 ---------------------------------------------------------------
+
+			// 산출물 내역
 			List<List<ReportAttachmentDTO>> pagedOutputList = new ArrayList<>();
 			for (int i = 0; i < attachmentList.size(); i += 10) {
 				pagedOutputList.add(attachmentList.subList(i, Math.min(i + 10, attachmentList.size())));
 			}
 			context.setVariable("pagedOutputList", pagedOutputList);
 
+			List<CompletedTaskDTO> delayedTaskList = new ArrayList<>();
+
+			// 총 태스크 수
+			context.setVariable("totalTask", completedTaskList.size());
+			// 납기 대상 작업
+			// 기한 내 완료 작업 수
+			int completedOnTime = 0;
+			int notCompletedOnTime = 0;
+			for(CompletedTaskDTO dto : completedTaskList){
+				if(dto.getDelayDays() == 0){
+					completedOnTime ++;
+				}else{
+					notCompletedOnTime ++ ;
+					delayedTaskList.add(dto);
+				}
+			}
+			context.setVariable("completedOnTime", completedOnTime);		// 기한 내 완료 작업
+			context.setVariable("notCompletedOnTime", notCompletedOnTime);	// 기한 내 미완료 작업
+			int totalCompleted = completedTaskList.size();
+			double OTD = totalCompleted > 0 ? (completedOnTime * 100.0) / totalCompleted : 0.0;
+			context.setVariable("OTD", Math.round(OTD * 100.0) / 100.0 + "%");  	// 납기 준수율
+
+			double meanDelay = completedTaskList.size() > 0
+				? (double) projectDetail.getDelayDays() / completedTaskList.size()
+				: 0.0;
+			context.setVariable("meanDelay", "+ " + Math.round(meanDelay * 100.0) / 100.0 + " 일");	// 평균 지연일
+			context.setVariable("totalDelay", projectDetail.getDelayDays() + " 일");   // 총 지연일
+			context.setVariable("delayedTaskList", delayedTaskList); 			 // 지연 태스크 목록
+
+			// -----------------------------------------------------------------------
+
 			// 설명. 각 페이지 템플릿 렌더링
 			String reportHtml = templateEngine.process("report", context);
 			reportHtml = reportHtml.replace("&nbsp;", "&#160;"); // 안전 처리
 
-			response.setContentType("application/pdf");
-			String fileName = "프로젝트분석보고서_" + projectDetail.getName().replaceAll("[^\\w가-힣]", "_") + ".pdf";
-			response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ";");
+			String rawFileName = "프로젝트분석보고서_" + projectDetail.getName() + ".pdf";
+			String encodedFileName = URLEncoder.encode(rawFileName, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
 
+			response.setHeader("Content-Disposition",
+				"attachment; filename=\"report.pdf\"; filename*=UTF-8''" + encodedFileName);
 
 			try(OutputStream os = response.getOutputStream()){
 				PdfRendererBuilder builder = new PdfRendererBuilder();
@@ -198,6 +246,8 @@ public class PdfServiceImpl implements PdfService {
 		if(delayList == null || delayList.isEmpty()) {
 			chart.addSeries("지연 사유 없음", 1);
 			chart.getStyler().setSeriesColors(new Color[]{new Color(230, 230, 230)});  // 밝은 회색
+			chart.getStyler().setChartBackgroundColor(Color.WHITE);
+			chart.getStyler().setPlotBackgroundColor(Color.WHITE);
 		}else{
 			Map<String, Integer> delayReasonList = new HashMap<>();
 			for (ProjectApprovalDTO dto : delayList) {
@@ -220,29 +270,47 @@ public class PdfServiceImpl implements PdfService {
 
 
 	// 지연 태스크 분석 차트 생성 메서드
-	private String delayTaskChart(List<ProjectApprovalDTO> delayList) throws IOException, FontFormatException {
+	private String delayTaskChart(List<CompletedTaskDTO> completedTaskList) throws IOException, FontFormatException {
 		// 차트 기본 생성
 		PieChart chart = new PieChartBuilder()
 			.width(400)
 			.height(300)
 			.title("지연 태스크 분석")
 			.build();
+		List<CompletedTaskDTO> delayedTaskList = new ArrayList<>();
+		for(CompletedTaskDTO dto : completedTaskList){
+			if(dto.getDelayDays() > 0){
+				delayedTaskList.add(dto);
+			}
+		}
 
-		if(delayList == null || delayList.isEmpty()) {
+
+		if(delayedTaskList == null || delayedTaskList.isEmpty()) {
 			chart.addSeries("지연 태스크 없음", 1);
 			chart.getStyler().setSeriesColors(new Color[]{new Color(230, 230, 230)});  // 밝은 회색
+			chart.getStyler().setChartBackgroundColor(Color.WHITE);
+			chart.getStyler().setPlotBackgroundColor(Color.WHITE);
 		}else{
-			Map<String, Integer> delayTaskList = new HashMap<>();
-			for (ProjectApprovalDTO dto : delayList) {
-				if(!delayTaskList.containsKey(dto.getTaskName())){
-					delayTaskList.put(dto.getTaskName(), 1);
-				}else{
-					Integer value = delayTaskList.get(dto.getTaskName());
-					delayTaskList.put(dto.getTaskName(), value + 1);
+			// delayDays 내림차순 정렬
+			delayedTaskList.sort((a, b) -> Integer.compare(b.getDelayDays(), a.getDelayDays()));
+			Map<String, Integer> nameCountMap = new HashMap<>();
+
+			for (CompletedTaskDTO dto : delayedTaskList) {
+				String taskName = dto.getTaskName();
+				if (taskName == null || taskName.trim().isEmpty()) {
+					taskName = "이름 없음 태스크";
 				}
-			}
-			for(String key : delayTaskList.keySet()){
-				chart.addSeries(key, delayTaskList.get(key));
+
+				// 동일 이름 카운팅 → 중복 방지용 인덱스 추가
+				if (nameCountMap.containsKey(taskName)) {
+					int count = nameCountMap.get(taskName) + 1;
+					nameCountMap.put(taskName, count);
+					taskName += " (" + count + ")";
+				} else {
+					nameCountMap.put(taskName, 1);
+				}
+
+				chart.addSeries(taskName, dto.getDelayDays());
 			}
 			applyDefaultChartStyle(chart);
 		}
