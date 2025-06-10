@@ -4,6 +4,7 @@ import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
 
 import com.ideality.coreflow.notification.command.application.dto.NotificationData;
+import com.ideality.coreflow.notification.command.domain.aggregate.Notification;
 import com.ideality.coreflow.notification.command.domain.aggregate.Status;
 import com.ideality.coreflow.notification.query.service.NotificationQueryService;
 import lombok.RequiredArgsConstructor;
@@ -35,66 +36,73 @@ public class NotificationController {
     // SLF4J 로거 선언
     private static final Logger logger = LoggerFactory.getLogger(NotificationController.class);
 
+    // 알림 조회 API
+    @GetMapping("/api/notifications")
+    public APIResponse<List<NotificationData>> getNotifications() {
+        // SecurityContextHolder에서 인증된 사용자 ID를 가져옵니다.
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+
+        // 사용자 ID를 기준으로 알림 조회
+        List<Notification> notifications = notificationQueryService.getMyNotifications(userId);
+
+        // 알림 데이터를 DTO로 변환
+        List<NotificationData> notificationDataList = notifications.stream()
+                .map(notification -> new NotificationData(notification.getContent(), notification.getDispatchAt(), notification.getStatus(), notification.getId()))
+                .collect(Collectors.toList());
+
+        // 조회된 알림을 반환
+        return APIResponse.success(notificationDataList, "알림 조회 성공");
+    }
+
+
     @PreAuthorize("isAuthenticated()")  // 인증된 사용자만 접근 가능
-    @GetMapping(value ="/api/notifications/stream",produces= MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/api/notifications/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter streamNotifications(@RequestParam("token") String token) {
         SseEmitter emitter = new SseEmitter();
-        Set<Long> sentNotifications = new HashSet<>();
-        logger.info("Received token: {}", token);
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long userId = Long.parseLong(authentication.getName());
 
-        // 비동기 방식으로 알림을 전송
+
+        // 별도의 스레드에서 비동기적으로 실시간 알림을 전송
         new Thread(() -> {
             try {
-                String tenant = TenantContext.getTenant();
-                TenantContext.setTenant("company_a");
+                // 1. 기존 테넌트 정보 가져오기
+                String tenant = TenantContext.getTenant();  // 현재 테넌트 정보를 가져옵니다.
+                // 2. 여기서 새로운 테넌트를 설정
+                TenantContext.setTenant("company_a");  // 예시로 "company_a"로 테넌트 설정
 
-                logger.info("Authenticated User ID: {}", userId);
-                logger.info("테넌트: " + tenant);
-                logger.info("새 테넌트: " + TenantContext.getTenant());
+                // 로그로 테넌트 정보 출력
+                logger.info("Authenticated User ID: {}", SecurityContextHolder.getContext().getAuthentication().getName());
+                logger.info("현재 테넌트: " + tenant);  // 이전 테넌트
+                logger.info("새로 설정된 테넌트: " + TenantContext.getTenant());  // 새 테넌트
+
+                // 사용자 ID 가져오기 (SecurityContext에서)
+                Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
 
                 while (true) {
-                    // 알림을 가져와서 전송
-                    List<NotificationData> notifications = notificationQueryService.getMyNotifications(userId)
-                            .stream()
-                            .filter(notification -> !sentNotifications.contains(notification.getId()))
-                            .map(notification -> {
-                                // NotificationData 객체로 알림을 반환
-                                return new NotificationData(notification.getContent(), notification.getDispatchAt(), notification.getStatus(), notification.getId());
-                            })
-                            .collect(Collectors.toList());
+                    // 새로운 알림 조회 (최신 알림을 확인)
+                    List<Notification> notifications = notificationQueryService.getMyNotifications(userId);
 
-                    // 여러 알림을 하나의 데이터 배열로 묶어서 보내기
+                    // 알림이 있을 경우, 클라이언트로 전송
                     if (!notifications.isEmpty()) {
-                        APIResponse<List<NotificationData>> apiResponse = APIResponse.success(notifications, "알림 조회에 성공하셨습니다.");
-                        try {
-                            emitter.send(SseEmitter.event().data(apiResponse));
-                        } catch (IOException e) {
-                            emitter.completeWithError(e);
-                        }
+                        List<NotificationData> notificationDataList = notifications.stream()
+                                .map(notification -> new NotificationData(notification.getContent(), notification.getDispatchAt(), notification.getStatus(), notification.getId()))
+                                .collect(Collectors.toList());
+
+                        emitter.send(SseEmitter.event().data(notificationDataList));
                     }
 
-                    // 보낸 알림을 sentNotifications에 추가
-                    sentNotifications.addAll(notifications.stream()
-                            .map(NotificationData::getId)  // 알림 객체에서 ID만 추출
-                            .collect(Collectors.toSet()));
-
-                    try {
-                        TimeUnit.SECONDS.sleep(5);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        emitter.completeWithError(e);
-                        break;
-                    }
+                    // 5초마다 알림을 전송
+                    TimeUnit.SECONDS.sleep(5);
                 }
-            } finally {
-                TenantContext.clear();
+            } catch (InterruptedException e) {
+                emitter.completeWithError(e);
+            } catch (Exception e) {
+                emitter.completeWithError(e); // 예외 발생 시 처리
             }
         }).start();
 
         return emitter;
     }
+
 
 }
