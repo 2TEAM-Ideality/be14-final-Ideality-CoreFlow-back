@@ -154,4 +154,82 @@
             AND pt.role_id       = 1
             JOIN user director  ON director.id      = pt.user_id
     </select>
+
+    <resultMap id="projectResponseMap" type="com.ideality.coreflow.project.query.dto.PipelineResponseDTO">
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="startBase" column="start_base"/>
+        <result property="endBase" column="end_base"/>
+        <result property="startExpect" column="start_expect"/>
+        <result property="endExpect" column="end_expect"/>
+        <result property="startReal" column="start_real"/>
+        <result property="endReal" column="end_real"/>
+        <result property="progressRate" column="progress_rate"/>
+        <result property="passedRate" column="passed_rate"/>
+        <result property="delayDays" column="delay_days"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+    <select id="findProjectById" resultMap="projectResponseMap">
+        SELECT
+               name
+             , description
+             , start_base
+             , end_base
+             , start_expect
+             , end_expect
+             , start_real
+             , end_real
+             , progress_rate
+             , passed_rate
+             , delay_days
+             , status
+          FROM project
+         WHERE id = #{projectId}
+    </select>
+
+    <select id="findWorksByProjectId" resultType="com.ideality.coreflow.project.query.dto.NodeDTO">
+        SELECT
+               id
+             , name
+             , description
+             , start_base
+             , end_base
+             , start_expect
+             , end_expect
+             , start_real
+             , end_real
+             , progress_rate
+             , passed_rate
+             , delay_days
+             , status
+          FROM work
+         WHERE project_id = #{projectId}
+           AND parent_task_id IS NOT NULL
+    </select>
+
+    <select id="findRelationsByProjectId" resultType="com.ideality.coreflow.template.query.dto.EdgeDTO">
+        SELECT
+               CONCAT('e-', prev_work_id, '-', next_work_id) AS id
+             , prev_work_id                                  AS source
+             , next_work_id                                  AS target
+          FROM relation
+         WHERE prev_work_id IN (
+        SELECT id
+          FROM work
+         WHERE project_id = #{projectId}
+           AND parent_task_id IS NULL
+        )
+    </select>
+
+    <select id="findDeptsByWorkId" resultType="com.ideality.coreflow.template.query.dto.DeptDTO">
+        SELECT
+               d.id
+             , d.name
+          FROM work_dept wd
+          JOIN dept d
+            ON wd.dept_id = d.id
+         WHERE wd.work_id = #{workId}
+           AND wd.is_deleted != 1
+    </select>
 </mapper>

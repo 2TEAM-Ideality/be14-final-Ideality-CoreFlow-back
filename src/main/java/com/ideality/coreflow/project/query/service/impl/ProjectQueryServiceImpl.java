@@ -1,11 +1,14 @@
 package com.ideality.coreflow.project.query.service.impl;
 
-import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
+import com.ideality.coreflow.project.query.dto.NodeDTO;
 import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
+import com.ideality.coreflow.project.query.dto.PipelineResponseDTO;
 import com.ideality.coreflow.project.query.dto.ProjectSummaryDTO;
 import com.ideality.coreflow.project.query.dto.UserInfoDTO;
 import com.ideality.coreflow.project.query.mapper.ProjectMapper;
 import com.ideality.coreflow.project.query.service.ProjectQueryService;
+import com.ideality.coreflow.template.query.dto.DeptDTO;
+import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -44,6 +47,50 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
                 .leaders(leaders)
                 .build();
         return result;
+    }
+
+    @Override
+    public PipelineResponseDTO getPipeline(Long projectId) {
+        PipelineResponseDTO baseProject = projectMapper.findProjectById(projectId);
+        List<NodeDTO> works = projectMapper.findWorksByProjectId(projectId);
+        List<EdgeDTO> edges = projectMapper.findRelationsByProjectId(projectId);
+        List<NodeDTO> nodesWithDepts = works.stream()
+                .map(node -> {
+                    List<DeptDTO> deptList = projectMapper.findDeptsByWorkId(node.getId());
+                    return NodeDTO.builder()
+                            .id(node.getId())
+                            .name(node.getName())
+                            .description(node.getDescription())
+                            .startBase(node.getStartBase())
+                            .endBase(node.getEndBase())
+                            .startExpect(node.getStartExpect())
+                            .endExpect(node.getEndExpect())
+                            .startReal(node.getStartReal())
+                            .endReal(node.getEndReal())
+                            .progressRate(node.getProgressRate())
+                            .passedRate(node.getPassedRate())
+                            .delayDays(node.getDelayDays())
+                            .status(node.getStatus())
+                            .deptList(deptList)
+                            .build();
+                })
+                .toList();
+        return PipelineResponseDTO.builder()
+                .name(baseProject.getName())
+                .description(baseProject.getDescription())
+                .startBase(baseProject.getStartBase())
+                .endBase(baseProject.getEndBase())
+                .startExpect(baseProject.getStartExpect())
+                .endExpect(baseProject.getEndExpect())
+                .startReal(baseProject.getStartReal())
+                .endReal(baseProject.getEndReal())
+                .progressRate(baseProject.getProgressRate())
+                .passedRate(baseProject.getPassedRate())
+                .delayDays(baseProject.getDelayDays())
+                .status(baseProject.getStatus())
+                .nodeList(nodesWithDepts)
+                .edgeList(edges)
+                .build();
     }
 
     @Override
