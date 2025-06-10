@@ -557,9 +557,9 @@ public class PdfController {
             String reportHtml = templateEngine.process("report", context);
             reportHtml = reportHtml.replace("&nbsp;", "&#160;"); // 안전 처리
 
-            response.setContentType("application/pdf");   // Content-Type: MIME 타입 설정 (`application/pdf`) -> 브라우저에게 이건 PDF 콘텐츠니까 알맞게 처리해달라고 MIME 타입을 알려주는 것.
-            response.setHeader("Content-Disposition","attachment; filename=report.pdf");
-            // Content-Disposition 헤더 설정:
+            // response.setContentType("application/pdf");   // Content-Type: MIME 타입 설정 (`application/pdf`) -> 브라우저에게 이건 PDF 콘텐츠니까 알맞게 처리해달라고 MIME 타입을 알려주는 것.
+            // response.setHeader("Content-Disposition","attachment; filename=report.pdf");
+            // // Content-Disposition 헤더 설정:
             // 'attachment' → 브라우저가 콘텐츠를 다운로드로 처리하게 함
             // 'filename=report.pdf' → 다운로드할 때 저장될 기본 파일명 지정
 

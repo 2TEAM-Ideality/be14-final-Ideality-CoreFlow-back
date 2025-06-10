@@ -1,5 +1,8 @@
 package com.ideality.coreflow.project.command.application.service.facade;
 
+import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalType;
+import com.ideality.coreflow.approval.query.dto.ProjectApprovalDTO;
+import com.ideality.coreflow.approval.query.service.ApprovalQueryService;
 import com.ideality.coreflow.attachment.query.dto.ReportAttachmentDTO;
 import com.ideality.coreflow.attachment.query.service.AttachmentQueryService;
 import com.ideality.coreflow.common.exception.BaseException;
@@ -61,6 +64,7 @@ public class ProjectFacadeService {
     private final DetailService detailService;
     private final TaskQueryService taskQueryService;
     private final AttachmentQueryService attachmentQueryService;
+    private final ApprovalQueryService approvalQueryService;
 
     @Transactional
     public Long updateProjectStatus(Long projectId, Long userId, Status targetStatus)
@@ -378,13 +382,14 @@ public class ProjectFacadeService {
         List<CompletedTaskDTO> completedTaskList = taskQueryService.selectCompletedTasks(projectId);
 
         // 지연 사유 내역
+        List<ProjectApprovalDTO> delayList = approvalQueryService.selectProjectApprovalByProjectId(projectId, ApprovalType.DELAY);
 
 
         // 산출물 목록
         List<ReportAttachmentDTO> attachmentList = attachmentQueryService.getAttachmentsByProjectId(projectId);
 
 
-        pdfService.createReportPdf(projectDetail, completedTaskList, attachmentList);
+        pdfService.createReportPdf(response, projectDetail, completedTaskList, delayList, attachmentList);
 
 
 

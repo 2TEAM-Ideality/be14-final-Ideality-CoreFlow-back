@@ -1,15 +1,37 @@
 package com.ideality.coreflow.project.command.application.service.impl;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.imageio.ImageIO;
+
+import org.knowm.xchart.BitmapEncoder;
+import org.knowm.xchart.PieChart;
+import org.knowm.xchart.PieChartBuilder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
-
+import org.thymeleaf.context.Context;
+import com.ideality.coreflow.approval.query.dto.ProjectApprovalDTO;
 import com.ideality.coreflow.attachment.query.dto.ReportAttachmentDTO;
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.project.command.application.service.PdfService;
 import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
 import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,17 +40,223 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class PdfServiceImpl implements PdfService {
 
+	private static final String FONT_PATH = "src/main/resources/fonts/NotoSansKR-Regular.ttf";
+
 	private final TemplateEngine templateEngine;
 
 	@Override
 	public void createReportPdf(
+		HttpServletResponse response,
 		ProjectDetailResponseDTO projectDetail,
 		List<CompletedTaskDTO> completedTaskList,
-		List<ReportAttachmentDTO> attachmentList) {
-
+		List<ProjectApprovalDTO> delayList,
+		List<ReportAttachmentDTO> attachmentList
+	) {
 		// 가져온 정보로 프로젝트 분석 리포트 PDF 만들기
+		log.info("프로젝트 분석 리포트 만들기");
+
+		try{
+			// 데이터 준비
+			Context context = new Context();
+			// 설명. 챕터 1 - 프로젝트 개요
+			context.setVariable("projectName", projectDetail.getName());
+			context.setVariable("director", projectDetail.getDirector().getName() + " " + projectDetail.getDirector().getDeptName() + " " + projectDetail.getDirector().getJobRoleName());
+			context.setVariable("reportCreatedAt" , LocalDate.now());
+			context.setVariable("projectPeriod", projectDetail.getStartReal() + " ~ " + projectDetail.getEndReal());
+			context.setVariable("projectProgress", projectDetail.getProgressRate());
+
+			// 참여 인원
+			context.setVariable("leaderList", projectDetail.getLeaders());
+
+			// 커버 로고 이미지 파일
+			byte[] coverLogoBytes = Files.readAllBytes(new File("src/main/resources/static/ReportLogo.png").toPath());
+			String coverLogo = Base64.getEncoder().encodeToString(coverLogoBytes);
+			context.setVariable("coverLogo", coverLogo);
+
+			// 컨텐츠 로고 이미지 
+			byte[] contentLogoBytes = Files.readAllBytes(new File("src/main/resources/static/ContentLogoFull.png").toPath());
+			String contentLogo = Base64.getEncoder().encodeToString(contentLogoBytes);
+			context.setVariable("contentLogo", contentLogo);
+
+			// 설명. 챕터 2 - 작업 공정 목록
+			context.setVariable("taskList", completedTaskList);
+			List<List<CompletedTaskDTO>> pagedTaskList = new ArrayList<>();
+
+			for (int i = 0; i < completedTaskList.size(); i += 15) {
+				pagedTaskList.add(completedTaskList.subList(i, Math.min(i + 15, completedTaskList.size())));
+			}
+			context.setVariable("pagedTaskList", pagedTaskList); // 페이지별로 나눈 리스트
+
+			// 총계 데이터
+			String isDelay = projectDetail.getDelayDays() > 0 ?  "지연" : "기한 내 납기 준수";
+			Map<String, Object> total = Map.of(
+				"progress" , projectDetail.getProgressRate(),
+				"baseStart" , projectDetail.getStartBase(),
+				"baseEnd", projectDetail.getEndBase(),
+				"realStart", projectDetail.getStartReal(),
+				"realEnd", projectDetail.getEndReal(),
+				"delay" , projectDetail.getDelayDays(),
+				"status" , isDelay
+			);
+			context.setVariable("total", total);
+
+			// 설명. 챕터 3 - 지연 분석 챕터
+			// 지연 태스크 분석
+			String delayTaskChart = delayTaskChart(delayList);
+			context.setVariable("delayTaskChart", delayTaskChart);
+
+			// 지연 사유 분석
+			String delayReasonChart = delayReasonChart(delayList);
+			context.setVariable("delayReasonChart", delayReasonChart);
+
+			// 지연 사유서 내역
+			context.setVariable("delayReportList" , delayList);
+
+			List<List<ProjectApprovalDTO>> pagedDelayReportList = new ArrayList<>();
+			for (int i = 0; i < delayList.size(); i += 15) {
+				pagedDelayReportList.add(delayList.subList(i, Math.min(i + 15, delayList.size())));
+			}
+
+			context.setVariable("pagedDelayReportList", pagedDelayReportList);
+
+			// 설명. 챕터 4 - 성과 지표
+			List<List<ReportAttachmentDTO>> pagedOutputList = new ArrayList<>();
+			for (int i = 0; i < attachmentList.size(); i += 10) {
+				pagedOutputList.add(attachmentList.subList(i, Math.min(i + 10, attachmentList.size())));
+			}
+			context.setVariable("pagedOutputList", pagedOutputList);
+
+			// 설명. 각 페이지 템플릿 렌더링
+			String reportHtml = templateEngine.process("report", context);
+			reportHtml = reportHtml.replace("&nbsp;", "&#160;"); // 안전 처리
+
+			response.setContentType("application/pdf");
+			String fileName = "프로젝트분석보고서_" + projectDetail.getName().replaceAll("[^\\w가-힣]", "_") + ".pdf";
+			response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ";");
 
 
+			try(OutputStream os = response.getOutputStream()){
+				PdfRendererBuilder builder = new PdfRendererBuilder();
+				builder.useFastMode();
+				builder.useFont(new File(FONT_PATH), "Noto Sans KR");
+				builder.withHtmlContent(reportHtml, null);
+				// 설명. 그 결과를 HTTP 응답 스트림(OutputStream)으로 직접 보내줌
+				builder.toStream(os);
+
+				builder.run();
+			}
+
+		} catch (Exception e) {
+		if (!response.isCommitted()) {
+			try {
+				response.reset();
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				response.getWriter().write("PDF 생성 중 오류가 발생했습니다. 관리자에게 문의하세요.");
+			} catch (IOException ioEx) {
+				log.error("응답 오류 메시지 전송 실패", ioEx);
+			}
+		} else {
+			log.error("PDF 생성 중 예외 발생 (응답 커밋됨): {}", e.getMessage());
+		}
+		log.error("PDF 생성 실패", e);
+		throw new BaseException(ErrorCode.PDF_CREATE_FAILED);
+		}
 
 	}
+
+	public static final Color[] SLICE_COLORS = new Color[] {
+		new Color(252, 179, 112),
+		new Color(251, 234, 117),
+		new Color(157, 229, 179),
+		new Color(116, 222, 239),
+		new Color(228, 134, 250)
+	};
+
+	public static void applyDefaultChartStyle(PieChart chart) throws IOException, FontFormatException {
+		chart.getStyler().setChartBackgroundColor(Color.WHITE);
+		chart.getStyler().setPlotBackgroundColor(Color.WHITE);
+		chart.getStyler().setPlotBorderVisible(false);
+		chart.getStyler().setSeriesColors(SLICE_COLORS);
+
+		Font customFont = Font.createFont(Font.TRUETYPE_FONT, new File(FONT_PATH))
+			.deriveFont(Font.PLAIN, 12f);
+		chart.getStyler().setChartTitleFont(customFont);
+		chart.getStyler().setLegendFont(customFont);
+		chart.getStyler().setAnnotationTextFont(customFont);
+
+	}
+
+	// 지연 사유 분석 차트 생성 메서드
+	private String delayReasonChart(List<ProjectApprovalDTO> delayList) throws IOException, FontFormatException {
+		// 차트 기본 생성
+		PieChart chart = new PieChartBuilder()
+			.width(400)
+			.height(300)
+			.title("지연 사유 분석")
+			.build();
+		
+		if(delayList == null || delayList.isEmpty()) {
+			chart.addSeries("지연 사유 없음", 1);
+			chart.getStyler().setSeriesColors(new Color[]{new Color(230, 230, 230)});  // 밝은 회색
+		}else{
+			Map<String, Integer> delayReasonList = new HashMap<>();
+			for (ProjectApprovalDTO dto : delayList) {
+				if (!delayReasonList.containsKey(dto.getDelayReason())) {
+					delayReasonList.put(dto.getDelayReason(), 1);
+				} else {
+					Integer value = delayReasonList.get(dto.getDelayReason());
+					delayReasonList.put(dto.getDelayReason(), value + 1);
+				}
+			}
+			for (String key : delayReasonList.keySet()) {
+				chart.addSeries(key, delayReasonList.get(key));
+			}
+			applyDefaultChartStyle(chart);
+		}
+
+		// 이미지로 변환
+		return getString(chart);
+	}
+
+
+	// 지연 태스크 분석 차트 생성 메서드
+	private String delayTaskChart(List<ProjectApprovalDTO> delayList) throws IOException, FontFormatException {
+		// 차트 기본 생성
+		PieChart chart = new PieChartBuilder()
+			.width(400)
+			.height(300)
+			.title("지연 태스크 분석")
+			.build();
+
+		if(delayList == null || delayList.isEmpty()) {
+			chart.addSeries("지연 태스크 없음", 1);
+			chart.getStyler().setSeriesColors(new Color[]{new Color(230, 230, 230)});  // 밝은 회색
+		}else{
+			Map<String, Integer> delayTaskList = new HashMap<>();
+			for (ProjectApprovalDTO dto : delayList) {
+				if(!delayTaskList.containsKey(dto.getTaskName())){
+					delayTaskList.put(dto.getTaskName(), 1);
+				}else{
+					Integer value = delayTaskList.get(dto.getTaskName());
+					delayTaskList.put(dto.getTaskName(), value + 1);
+				}
+			}
+			for(String key : delayTaskList.keySet()){
+				chart.addSeries(key, delayTaskList.get(key));
+			}
+			applyDefaultChartStyle(chart);
+		}
+		// 이미지로 변환
+		return getString(chart);
+
+	}
+
+	private static String getString(PieChart chart) throws IOException {
+		BufferedImage image = BitmapEncoder.getBufferedImage(chart);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ImageIO.write(image, "png", baos);
+
+		return Base64.getEncoder().encodeToString(baos.toByteArray());
+	}
+
 }
