@@ -2,6 +2,7 @@ package com.ideality.coreflow.approval.command.application.dto;
 
 import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalType;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,4 +24,6 @@ public class RequestApproval {
     Integer delayDays;
     Long delayReasonId;
     String actionDetail;
+
+    List<MultipartFile> attachmentFile;
 }
