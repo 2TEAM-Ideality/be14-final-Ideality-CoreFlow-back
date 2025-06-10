@@ -1,7 +1,7 @@
 package com.ideality.coreflow.project.command.application.controller;
 
 import com.ideality.coreflow.common.response.APIResponse;
-import com.ideality.coreflow.project.command.application.dto.RequestTeamLeaderDTO;
+import com.ideality.coreflow.project.command.application.dto.RequestInviteUserDTO;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
@@ -64,10 +64,20 @@ public class ProjectController {
     @PostMapping("/{projectId}/participants/team-leader")
     public ResponseEntity<APIResponse<?>>
     createTeamLeader(@PathVariable Long projectId,
-                     @RequestBody List<RequestTeamLeaderDTO> reqLeaderDTO) {
+                     @RequestBody List<RequestInviteUserDTO> reqLeaderDTO) {
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
 
         projectFacadeService.createParticipantsLeader(userId, projectId, reqLeaderDTO);
         return ResponseEntity.ok(APIResponse.success(null, "팀 리더 초대에 성공하였습니다."));
+    }
+
+    @PostMapping("/{projectId}/participants/team-member")
+    public ResponseEntity<APIResponse<?>> createTeamMember
+            (@PathVariable Long projectId,
+             @RequestBody List<RequestInviteUserDTO> reqMemberDTO) {
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+
+        projectFacadeService.createParticipantsTeamLeader(userId, projectId, reqMemberDTO);
+        return ResponseEntity.ok(APIResponse.success(null, "팀원 초대에 성공하였습니다."));
     }
 }

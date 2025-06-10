@@ -7,7 +7,7 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
-public class RequestTeamLeaderDTO {
+public class RequestInviteUserDTO {
     private Long userId;
     private String deptName;
 }

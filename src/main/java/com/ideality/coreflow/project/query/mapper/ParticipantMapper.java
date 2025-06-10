@@ -15,4 +15,8 @@ public interface ParticipantMapper {
     boolean isParticipantUser(Long userId, Long projectId);
 
     boolean isTeamLeader(Long projectId, String deptName);
+
+    boolean isInviteRole(Long projectId, Long userId);
+
+    boolean isAlreadyParticipant(Long projectId, Long userId, String deptName);
 }

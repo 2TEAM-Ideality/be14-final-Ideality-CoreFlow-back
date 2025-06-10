@@ -2,7 +2,7 @@ package com.ideality.coreflow.project.query.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
-import com.ideality.coreflow.project.command.application.dto.RequestTeamLeaderDTO;
+import com.ideality.coreflow.project.command.application.dto.RequestInviteUserDTO;
 import com.ideality.coreflow.project.query.mapper.ParticipantMapper;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import lombok.RequiredArgsConstructor;
@@ -38,13 +38,30 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
     }
 
     @Override
-    public void findTeamLedaer(Long projectId, List<RequestTeamLeaderDTO> reqLeaderDTO) {
-        for (RequestTeamLeaderDTO leaderDTO : reqLeaderDTO) {
+    public void findTeamLedaer(Long projectId, List<RequestInviteUserDTO> reqLeaderDTO) {
+        for (RequestInviteUserDTO leaderDTO : reqLeaderDTO) {
             boolean isLeaderAlreadyExists = participantMapper.isTeamLeader
                             (projectId, leaderDTO.getDeptName());
 
             if (isLeaderAlreadyExists) {
                 throw new BaseException(ErrorCode.TEAM_LEADER_ALREADY_EXISTS);
+            }
+        }
+    }
+
+    @Override
+    public boolean isInviteRole(Long userId, Long projectId) {
+        return participantMapper.isInviteRole(projectId, userId);
+    }
+
+    @Override
+    public void alreadyExistsMember(Long projectId, List<RequestInviteUserDTO> reqMemberDTO) {
+        for (RequestInviteUserDTO userDTO : reqMemberDTO) {
+            boolean isAlreadyParticipantExists =
+                    participantMapper.isAlreadyParticipant(projectId, userDTO.getUserId(), userDTO.getDeptName());
+
+            if (isAlreadyParticipantExists) {
+                throw new BaseException(ErrorCode.TEAM_MEMBER_ALREADY_EXISTS);
             }
         }
     }
