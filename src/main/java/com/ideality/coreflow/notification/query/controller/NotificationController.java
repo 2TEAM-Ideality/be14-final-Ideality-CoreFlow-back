@@ -2,7 +2,8 @@ package com.ideality.coreflow.notification.query.controller;
 
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
-import com.ideality.coreflow.notification.command.application.dto.NotificationDTO;
+
+import com.ideality.coreflow.notification.command.application.dto.NotificationData;
 import com.ideality.coreflow.notification.command.domain.aggregate.Status;
 import com.ideality.coreflow.notification.query.service.NotificationQueryService;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,7 @@ public class NotificationController {
     public SseEmitter streamNotifications(@RequestParam("token") String token) {
         SseEmitter emitter = new SseEmitter();
         Set<Long> sentNotifications = new HashSet<>();
+        logger.info("Received token: {}", token);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long userId = Long.parseLong(authentication.getName());
@@ -95,37 +97,4 @@ public class NotificationController {
         return emitter;
     }
 
-    // 알림 데이터를 담는 DTO 클래스 (NotificationData)
-    public static class NotificationData {
-        private String content;
-        private String date;
-        private String status;
-        private Long id;  // ID 필드 추가
-
-        // 생성자
-        // 생성자: LocalDateTime과 Status를 String으로 변환
-        public NotificationData(String content, LocalDateTime date, Status status, Long id) {
-            this.content = content;
-            this.date = date.toString();  // LocalDateTime을 String으로 변환
-            this.status = status.toString();  // Status를 String으로 변환
-            this.id = id;
-        }
-
-        // getter methods
-        public String getContent() {
-            return content;
-        }
-
-        public String getDate() {
-            return date;
-        }
-
-        public String getStatus() {
-            return status;
-        }
-
-        public Long getId() {
-            return id;
-        }
-    }
 }
