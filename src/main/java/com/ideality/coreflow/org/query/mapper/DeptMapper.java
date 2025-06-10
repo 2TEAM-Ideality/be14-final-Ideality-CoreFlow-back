@@ -1,4 +1,4 @@
-package com.ideality.coreflow.project.query.mapper;
+package com.ideality.coreflow.org.query.mapper;
 
 import com.ideality.coreflow.project.query.dto.DepartmentDTO;
 import org.apache.ibatis.annotations.Mapper;

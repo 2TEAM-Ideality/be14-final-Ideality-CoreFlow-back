@@ -18,8 +18,6 @@ import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
 import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
 import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
-import com.ideality.coreflow.project.query.dto.report.ReportTaskDTO;
-import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import com.ideality.coreflow.project.query.service.ProjectQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
@@ -58,7 +56,6 @@ public class ProjectFacadeService {
 
     private final PdfService pdfService;
 
-    private final DeptQueryService deptQueryService;
     private final UserQueryService userQueryService;
     private final ParticipantQueryService participantQueryService;
     private final DetailService detailService;
