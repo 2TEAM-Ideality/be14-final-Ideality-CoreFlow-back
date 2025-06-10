@@ -132,4 +132,33 @@
         AND b.target_type = 'PROJECT'
         AND CONCAT_WS('_', a.dept_name, a.job_rank_name, a.name) LIKE CONCAT('%', #{keyword}, '%')
     </select>
+
+    <select id="selectUserListByMention" parameterType="list" resultType="long">
+        SELECT a.id
+        FROM user a
+        JOIN participant b ON a.id = b.user_id
+        WHERE b.target_type = 'PROJECT'
+        <if test="list != null and list.size() > 0">
+            AND (
+            <foreach collection="list" item="cond" separator="OR">
+                (
+                a.dept_name LIKE CONCAT('%', #{cond.deptName}, '%')
+                <if test="cond.jobRank != null and cond.jobRank != ''">
+                    AND a.job_rank_name LIKE CONCAT('%', #{cond.jobRank}, '%')
+                </if>
+                <if test="cond.name != null and cond.name != ''">
+                    AND a.name LIKE CONCAT('%', #{cond.name}, '%')
+                </if>
+                )
+            </foreach>
+            )
+        </if>
+    </select>
+
+    <select id="selectUserNameById" resultType="string">
+        SELECT
+               name
+          FROM user
+         WHERE id = #{userId}
+    </select>
 </mapper>

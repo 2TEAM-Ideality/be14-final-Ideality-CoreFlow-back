@@ -146,7 +146,13 @@
             FROM WORK
             WHERE id = #{taskId}
         </select>
-
-
-
+    <select id="selectWorkIdByName" resultType="long">
+        SELECT id
+          FROM work
+         WHERE name IN
+        <foreach collection="list" item="name" open="(" separator="," close=")">
+            #{name}
+        </foreach>
+        AND parent_task_id IS NOT NULL
+    </select>
 </mapper>

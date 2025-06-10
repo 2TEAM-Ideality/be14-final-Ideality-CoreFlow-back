@@ -144,7 +144,6 @@ VALUES
 )
 ;
 
-
 INSERT INTO project
 (
     name,

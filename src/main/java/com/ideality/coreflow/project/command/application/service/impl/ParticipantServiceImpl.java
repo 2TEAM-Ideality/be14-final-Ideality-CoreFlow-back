@@ -6,8 +6,6 @@ import com.ideality.coreflow.project.command.application.service.ParticipantServ
 import com.ideality.coreflow.project.command.domain.aggregate.Participant;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.command.domain.repository.ParticipantRepository;
-import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
-import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
 import com.ideality.coreflow.project.query.mapper.ProjectMapper;
 import com.ideality.coreflow.project.query.mapper.WorkMapper;
 import lombok.RequiredArgsConstructor;

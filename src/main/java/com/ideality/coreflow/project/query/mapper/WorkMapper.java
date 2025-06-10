@@ -29,4 +29,6 @@ public interface WorkMapper {
 
     String findTaskNameByTaskId(Long targetId);
 
+    List<Long> selectWorkIdByName(List<String> details);
+
 }

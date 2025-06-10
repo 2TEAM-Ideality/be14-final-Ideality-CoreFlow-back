@@ -14,5 +14,10 @@ public interface TaskQueryService {
 
     List<EdgeDTO> getEdgeList(List<ResponseTaskDTO> taskList);
 
+    Long getProjectId(Long taskId);
     boolean isAllTaskCompleted(Long projectId);
+
+    Long selectProjectIdByTaskId(Long taskId);
+
+    String getTaskName(Long taskId);
 }
