@@ -232,4 +232,17 @@
          WHERE wd.work_id = #{workId}
            AND wd.is_deleted != 1
     </select>
+
+    <select id="findDeptsByWorkIds" resultType="com.ideality.coreflow.project.query.dto.WorkDeptDTO">
+        SELECT
+               wd.work_id AS taskId
+             , d.id AS deptId
+             , d.name AS deptName
+          FROM work_dept wd
+          JOIN dept d ON wd.dept_id = d.id
+         WHERE wd.work_id IN
+                <foreach collection="workIds" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+    </select>
 </mapper>
