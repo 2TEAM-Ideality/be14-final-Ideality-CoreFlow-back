@@ -1,6 +1,7 @@
 package com.ideality.coreflow.user.query.service;
 
 import com.ideality.coreflow.user.query.dto.DeptNameAndYearDTO;
+import com.ideality.coreflow.user.query.dto.ResponseUser;
 import com.ideality.coreflow.user.query.dto.UserNameIdDto;
 
 import java.util.List;
@@ -28,4 +29,7 @@ public interface UserQueryService {
     List<Long> selectIdByMentionList(List<String> mentions);
 
     String getUserId(Long userId);
+
+    List<ResponseUser> findAllUsers();
+
 }

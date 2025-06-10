@@ -25,4 +25,9 @@ public class UserQueryController {
         return APIResponse.success(users,"@user이름으로 조회 완료");  // 성공 응답 생성
     }
 
+    // 구성원 목록 조회용
+    @GetMapping("/find-all")
+    public APIResponse<?> findAllUsers() {
+        return APIResponse.success(userService.findAllUsers(), "유저 목록 조회");
+    }
 }

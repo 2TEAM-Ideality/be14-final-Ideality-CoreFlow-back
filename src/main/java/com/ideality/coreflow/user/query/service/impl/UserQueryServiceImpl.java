@@ -123,4 +123,9 @@ public class UserQueryServiceImpl implements UserQueryService {
     public String getUserId(Long userId) {
         return userMapper.selectUserNameById(userId);
     }
+
+    @Override
+    public List<ResponseUser> findAllUsers() {
+        return userMapper.selectAllUser();
+    }
 }
