@@ -2,6 +2,7 @@ package com.ideality.coreflow.project.query.service.facade;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.project.command.application.service.ProjectService;
 import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.org.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.service.*;
@@ -23,6 +24,8 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class ProjectQueryFacadeService {
+
+    private final ProjectService projectService;
 
     private final TaskQueryService taskQueryService;
     private final UserQueryService userQueryService;
@@ -74,6 +77,7 @@ public class ProjectQueryFacadeService {
 
 
     public List<ResponseInvitableUserDTO> getInvitableUser(Long projectId, Long userId) {
+        projectService.existsById(projectId);
         boolean isInviteRole = participantQueryService.isInviteRole(userId, projectId);
         if (!isInviteRole) {
             throw new BaseException(ErrorCode.ACCESS_DENIED);
@@ -88,6 +92,7 @@ public class ProjectQueryFacadeService {
                         user.getName(),
                         user.getDeptName(),
                         user.getJobRank(),
+                        user.getProfileImage(),
                         alreadyParticipantUser.contains(user.getId())
                 ))
                 .toList();

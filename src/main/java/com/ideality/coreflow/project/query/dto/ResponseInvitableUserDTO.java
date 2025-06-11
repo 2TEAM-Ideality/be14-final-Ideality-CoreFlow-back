@@ -13,5 +13,6 @@ public class ResponseInvitableUserDTO {
     private String name;
     private String jobRank;
     private String deptName;
+    private String profileImage;
     private boolean isParticipation;
 }

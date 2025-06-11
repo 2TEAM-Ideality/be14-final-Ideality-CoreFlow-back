@@ -17,6 +17,7 @@
         <id property="id" column="id"/>
         <result property="name" column="name"/>
         <result property="deptName" column="dept_name"/>
+        <result property="profileImage" column="profile_image"/>
         <result property="jobRank" column="job_rank_name"/>
     </resultMap>
 
@@ -175,6 +176,7 @@
              , name
              , dept_name
              , job_rank_name
+             , profile_image
           FROM user
     </select>
 </mapper>
