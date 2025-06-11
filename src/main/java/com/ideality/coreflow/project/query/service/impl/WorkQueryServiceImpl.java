@@ -3,6 +3,7 @@ package com.ideality.coreflow.project.query.service.impl;
 import com.ideality.coreflow.project.query.dto.DeptWorkDTO;
 import com.ideality.coreflow.project.query.dto.DetailDTO;
 import com.ideality.coreflow.project.query.dto.ParticipantDTO;
+import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
 import com.ideality.coreflow.project.query.dto.WorkDetailDTO;
 import com.ideality.coreflow.project.query.mapper.WorkMapper;
 import com.ideality.coreflow.project.query.service.WorkQueryService;
@@ -86,5 +87,10 @@ public class WorkQueryServiceImpl implements WorkQueryService {
     @Override
     public List<Long> selectWorkIdByName(List<String> details) {
         return workMapper.selectWorkIdByName(details);
+    }
+
+    @Override
+    public List<TaskProgressDTO> getDetailProgressByTaskId(Long taskId) {
+        return workMapper.selectDetailProgressByTaskId(taskId);
     }
 }

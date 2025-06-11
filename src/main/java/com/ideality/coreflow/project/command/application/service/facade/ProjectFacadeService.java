@@ -16,6 +16,7 @@ import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import com.ideality.coreflow.project.query.service.ProjectQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
+import com.ideality.coreflow.project.query.service.WorkQueryService;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
@@ -52,6 +53,13 @@ public class ProjectFacadeService {
     private final DetailService detailService;
     private final TaskQueryService taskQueryService;
     private final WorkService workService;
+    private final WorkQueryService workQueryService;
+
+    public Double updateProgressRate(Long taskId) {
+        List<TaskProgressDTO> workList = workQueryService.getDetailProgressByTaskId(taskId);
+        System.out.println("workList.size() = " + workList.size());
+        return taskService.updateTaskProgress(taskId, workList);
+    }
 
     @Transactional
     public Double updateProjectProgressRate(Long projectId){

@@ -7,6 +7,7 @@ import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.command.domain.repository.TaskRepository;
+import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 
 import java.time.LocalDate;
@@ -26,6 +27,7 @@ import static com.ideality.coreflow.common.exception.ErrorCode.*;
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
+    private final HolidayQueryService holidayQueryService;
 
     @Override
     @Transactional
@@ -116,5 +118,27 @@ public class TaskServiceImpl implements TaskService {
         if (!taskRepository.existsById(taskId)) {
             throw new BaseException(TASK_NOT_FOUND);
         }
+    }
+
+    @Override
+    public Double updateTaskProgress(Long taskId, List<TaskProgressDTO> workList) {
+        Work task = taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+        Long totalDuration = 0L;
+        Double totalProgress = 0.0;
+        for (TaskProgressDTO work : workList) {
+            log.info(work.toString());
+            Long duration = (ChronoUnit.DAYS.between(work.getStartDate(), work.getEndDate()) + 1
+                    - holidayQueryService.countHolidaysBetween(work.getStartDate(), work.getEndDate()));
+            totalDuration += duration;
+            System.out.println("duration = " + duration);
+
+            Double progress = duration * (work.getProgressRate()/100);
+            System.out.println("progress = " + progress);
+            totalProgress += progress;
+        }
+        System.out.println("Num to Save = " + Math.round(totalProgress/totalDuration*10000)/100.0);
+        task.setProgressRate(Math.round(totalProgress/totalDuration*10000)/100.0);
+        taskRepository.saveAndFlush(task);
+        return task.getProgressRate();
     }
 }

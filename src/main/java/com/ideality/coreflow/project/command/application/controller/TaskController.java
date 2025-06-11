@@ -2,6 +2,7 @@ package com.ideality.coreflow.project.command.application.controller;
 
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
+import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class TaskController {
     private final ProjectFacadeService projectFacadeService;
+    private final TaskService taskService;
 
     @PostMapping("")
     public ResponseEntity<APIResponse<Map<String, Long>>> createTaskWithFacade(
@@ -62,6 +64,15 @@ public class TaskController {
         return ResponseEntity.ok(
                 APIResponse.success(Map.of("passedRate", passedRate),
                         taskId + " 번 태스크의 경과율이 업데이트 되었습니다.")
+        );
+    }
+
+    @PatchMapping("/{taskId}/progress-rate")
+    public ResponseEntity<APIResponse<Map<String,Object>>> updateTaskProgressRate(@PathVariable Long taskId) {
+        Double progressRate = projectFacadeService.updateProgressRate(taskId);
+        return ResponseEntity.ok(
+                APIResponse.success(Map.of("progressRate", progressRate),
+                        taskId + "번 태스크의 진척률이 업데이트 되었습니다.")
         );
     }
 }
