@@ -155,6 +155,12 @@
             JOIN user director  ON director.id      = pt.user_id
     </select>
 
+    <select id="findProjectNameByProjectId" resultType="String">
+        SELECT NAME
+        FROM PROJECT
+        WHERE id = #{projectId}
+    </select>
+
     <resultMap id="projectResponseMap" type="com.ideality.coreflow.project.query.dto.PipelineResponseDTO">
         <result property="name" column="name"/>
         <result property="description" column="description"/>
@@ -245,4 +251,5 @@
                     #{id}
                 </foreach>
     </select>
+
 </mapper>

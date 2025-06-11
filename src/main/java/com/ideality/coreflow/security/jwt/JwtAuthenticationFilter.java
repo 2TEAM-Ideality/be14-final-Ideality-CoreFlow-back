@@ -72,15 +72,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             String bearerToken = request.getHeader("Authorization");
-
+            String token = "";
             // 토큰 존재 여부 확인
-            if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
-                sendErrorResponse(response, "토큰이 존재하지 않거나 형식이 잘못되었습니다.");
-                return;
+            if (bearerToken == null) {
+                token = request.getParameter("token");
+                log.info("파라미터 토큰: {}", token);
+                if(token == null) {
+                    sendErrorResponse(response, "토큰이 존재하지 않습니다.");
+                    return;
+                }
+            } else {
+                if (!bearerToken.startsWith("Bearer ")) {
+                    sendErrorResponse(response, "토큰 형식이 잘못되었습니다.");
+                    return;
+                }
+                token = bearerToken.substring(7);
             }
 
-            String token = bearerToken.substring(7);
-
+            log.info("token {}", token);
             // 토큰 유효성 검증
             if (!jwtUtil.validateAccessToken(token)) {
                 sendErrorResponse(response, "유효하지 않은 토큰입니다.");
