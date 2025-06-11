@@ -69,6 +69,7 @@ public enum ErrorCode {
 
     PROJECT_NOT_FOUND("PROJECT_NOT_FOUND", "존재하지 않는 프로젝트입니다.", HttpStatus.NOT_FOUND),
     TASK_NOT_FOUND("TASK_NOT_FOUND", "존재하는 않는 테스크입니다.", HttpStatus.NOT_FOUND),
+    WORK_NOT_FOUND("WORK_NOT_FOUND", "존재하지 않는 태스크 또는 세부일정입니다.", HttpStatus.NOT_FOUND),
     DEPARTMENT_NOT_FOUND("DEPARTMENT_NOT_FOUND", "존재하지 않는 부서입니다.", HttpStatus.NOT_FOUND),
     PARTICIPANT_NOT_FOUND("PARTICIPANT_NOT_FOUND", "참여자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     PROJECT_NOT_COMPLETED("PROJECT_NOT_COMPLETED", "완료되지 않은 프로젝트입니다.", HttpStatus.CONFLICT ),

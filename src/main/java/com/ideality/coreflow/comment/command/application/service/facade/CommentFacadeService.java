@@ -14,7 +14,7 @@ import com.ideality.coreflow.notification.command.application.service.Notificati
 import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
-import com.ideality.coreflow.project.query.service.WorkService;
+import com.ideality.coreflow.project.query.service.WorkQueryService;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,7 @@ public class CommentFacadeService {
     private final MentionService mentionService;
     private final NotificationService notificationService;
     private final NotificationRecipientsService notificationRecipientsService;
-    private final WorkService workService;
+    private final WorkQueryService workService;
     private final TaskService taskService;
     private final TaskQueryService taskQueryService;
     private final S3Service s3Service;

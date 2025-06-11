@@ -3,8 +3,6 @@ package com.ideality.coreflow.project.command.application.controller;
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -60,7 +58,7 @@ public class TaskController {
 
     @PatchMapping("/{taskId}/passed-rate")
     public ResponseEntity<APIResponse<Map<String, Double>>> updateTaskPassedRate(@PathVariable Long taskId) {
-        Double passedRate = projectFacadeService.updateTaskPassedRate(taskId);
+        Double passedRate = projectFacadeService.updatePassedRate(taskId);
         return ResponseEntity.ok(
                 APIResponse.success(Map.of("passedRate", passedRate),
                         taskId + " 번 태스크의 경과율이 업데이트 되었습니다.")

@@ -3,7 +3,7 @@ package com.ideality.coreflow.mention.service.facade;
 import com.ideality.coreflow.mention.service.MentionService;
 import com.ideality.coreflow.project.command.application.service.ProjectService;
 import com.ideality.coreflow.project.command.application.service.TaskService;
-import com.ideality.coreflow.project.query.service.WorkService;
+import com.ideality.coreflow.project.query.service.WorkQueryService;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ public class MentionFacadeService {
     private final ProjectService projectService;
     private final MentionService mentionService;
     private final UserQueryService userQueryService;
-    private final WorkService detailQueryService;
+    private final WorkQueryService detailQueryService;
     private final TaskService taskService;
 
     public List<String> getMentionList(Long projectId, String mentionTarget) {

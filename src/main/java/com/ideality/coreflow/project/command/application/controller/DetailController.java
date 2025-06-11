@@ -71,7 +71,7 @@ public class DetailController {
 
     @PatchMapping("{workId}/passed-rate")
     public ResponseEntity<APIResponse<Map<String, Object>>> updateDetailPassedRate(@PathVariable Long workId){
-        Double updatedPassedRate = projectFacadeService.updateDetailPassedRate(workId);
+        Double updatedPassedRate = projectFacadeService.updatePassedRate(workId);
         return ResponseEntity.ok(
                 APIResponse.success(Map.of("updatedPassedRate", updatedPassedRate),
                         workId +"번 세부일정의 경과율이 업데이트 되었습니다.")

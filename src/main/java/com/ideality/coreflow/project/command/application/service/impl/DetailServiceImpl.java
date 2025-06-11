@@ -39,29 +39,6 @@ public class DetailServiceImpl implements DetailService {
     private final ParticipantService participantService;
     private final RelationService relationService;
     private final WorkDeptService workDeptService;
-    private final HolidayQueryService holidayQueryService;
-
-
-    @Override
-    public Double updateDetailPassedRate(Long detailId) {
-        Work detailWork = workRepository.findById(detailId).orElseThrow(() -> new BaseException(DETAIL_NOT_FOUND));
-        LocalDate now = LocalDate.now();
-        LocalDate endBase = detailWork.getEndBase();
-        LocalDate startBase = detailWork.getStartBase();
-        LocalDate startReal = detailWork.getStartReal();
-
-        Long totalDuration = ChronoUnit.DAYS.between(startBase, endBase)+1
-                -holidayQueryService.countHolidaysBetween(startBase, endBase);
-        Long passedDates = ChronoUnit.DAYS.between(startReal, now)+1
-                -holidayQueryService.countHolidaysBetween(startReal, now);
-
-        Double passedRate = (double) passedDates / totalDuration * 100;
-        passedRate = passedRate>100?100:Math.round(passedRate*100)/100.0;
-
-        detailWork.setPassedRate(passedRate);
-        workRepository.save(detailWork);
-        return detailWork.getPassedRate();
-    }
 
     @Override
     @Transactional
@@ -199,8 +176,4 @@ public class DetailServiceImpl implements DetailService {
         work.softDeleteTask();  // Work 엔티티에서 처리
         workRepository.save(work);  // 업데이트된 Work 저장
     }
-
-
-
-
 }

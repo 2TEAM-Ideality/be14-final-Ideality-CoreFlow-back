@@ -47,14 +47,11 @@ public class ProjectFacadeService {
     private final ParticipantQueryService participantQueryService;
     private final DetailService detailService;
     private final TaskQueryService taskQueryService;
-
-    public Double updateDetailPassedRate(Long detailId){
-        return detailService.updateDetailPassedRate(detailId);
-    }
+    private final WorkService workService;
 
     @Transactional
-    public Double updateTaskPassedRate(Long taskId){
-        return taskService.updateTaskPassedRate(taskId);
+    public Double updatePassedRate(Long workId){
+        return workService.updatePassedRate(workId);
     }
 
     @Transactional

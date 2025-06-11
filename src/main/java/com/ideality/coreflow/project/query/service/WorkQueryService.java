@@ -7,7 +7,7 @@ import com.ideality.coreflow.project.query.dto.WorkDetailDTO;
 
 import java.util.List;
 
-public interface WorkService {
+public interface WorkQueryService {
 
     //세부일정 이름 목록을 반환
     List<String> getSubTaskNamesByParentTaskId(Long parentTaskId);
