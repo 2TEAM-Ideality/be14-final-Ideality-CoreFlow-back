@@ -31,4 +31,8 @@ public class HolidayQueryService {
     public List<HolidayQueryDto> getHolidaysBetween(LocalDate start, LocalDate end) {
         return holidayQueryMapper.findBetweenDates(start, end);
     }
+
+    public Integer countHolidaysBetween(LocalDate start, LocalDate end) {
+        return holidayQueryMapper.countBetweenDates(start, end);
+    }
 }

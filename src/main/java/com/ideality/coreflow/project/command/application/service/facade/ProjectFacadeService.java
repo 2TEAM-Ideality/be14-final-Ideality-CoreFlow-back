@@ -51,6 +51,12 @@ public class ProjectFacadeService {
     private final TaskQueryService taskQueryService;
 
     @Transactional
+    public Double updateProjectPassedRate(Long projectId){
+        Double updatedPassedRate = projectService.updateProjectPassedRate(projectId);
+        return updatedPassedRate;
+    }
+
+    @Transactional
     public Long updateProjectStatus(Long projectId, Long userId, Status targetStatus)
             throws NotFoundException, IllegalAccessException {
         Project project = projectService.findById(projectId);

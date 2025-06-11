@@ -40,4 +40,9 @@
         ORDER BY date ASC
     </select>
 
+    <select id="countBetweenDates" resultType="int">
+        SELECT COUNT(*)
+          FROM holiday
+         WHERE date BETWEEN #{start} AND #{end}
+    </select>
 </mapper>

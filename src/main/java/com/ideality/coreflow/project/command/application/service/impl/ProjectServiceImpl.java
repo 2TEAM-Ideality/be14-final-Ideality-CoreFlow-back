@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.command.application.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.project.command.application.service.ProjectService;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
@@ -8,6 +9,7 @@ import com.ideality.coreflow.project.command.domain.repository.ProjectRepository
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.javassist.NotFoundException;
@@ -19,6 +21,7 @@ import static com.ideality.coreflow.common.exception.ErrorCode.PROJECT_NOT_FOUND
 @RequiredArgsConstructor
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
+    private final HolidayQueryService holidayQueryService;
 
     @Override
     public void existsById(Long projectId) {
@@ -69,5 +72,24 @@ public class ProjectServiceImpl implements ProjectService {
         }
         projectRepository.save(project);
         return project.getId();
+    }
+
+    @Override
+    public Double updateProjectPassedRate(Long projectId) {
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+        LocalDate endBase = project.getEndBase();
+        LocalDate startBase = project.getStartBase();
+        Long totalDuration = ChronoUnit.DAYS.between(startBase, endBase)+1-holidayQueryService.countHolidaysBetween(startBase, endBase);
+        log.info("totalDuration = " + totalDuration);
+
+        LocalDate now = LocalDate.now();
+        Long passedDates = ChronoUnit.DAYS.between(startBase, now)+1-holidayQueryService.countHolidaysBetween(startBase, now);
+        log.info("passedDates = " + passedDates);
+
+        Double passedRate =(double) passedDates/totalDuration*100;
+        passedRate = passedRate>100?100:Math.round(passedRate*100)/100.0;
+        project.setPassedRate(passedRate);
+        projectRepository.save(project);
+        return passedRate;
     }
 }

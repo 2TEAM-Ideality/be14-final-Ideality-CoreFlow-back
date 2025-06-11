@@ -1,14 +1,18 @@
 package com.ideality.coreflow.project.command.application.controller;
 
+import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,4 +62,12 @@ public class ProjectController {
         return ResponseEntity.ok(response);
     }
 
+    @PatchMapping("/{projectId}/passed-rate")
+    public ResponseEntity<APIResponse<Map<String,Object>>> updateProjectPassedRate(@PathVariable Long projectId){
+        Double updatedPassedRate = projectFacadeService.updateProjectPassedRate(projectId);
+        return ResponseEntity.ok(
+                APIResponse.success(Map.of("updatedPassedRate", updatedPassedRate),
+                        projectId + "번 프로젝트의 진행률이 업데이트 되었습니다")
+        );
+    }
 }
