@@ -10,7 +10,16 @@
         <result property="name" column="name" />
         <result property="deptName" column="dept_name" />
         <result property="profileImage" column="profile_image" />
-        <result property="jobRole" column="job_role_name" />
+        <result property="jobRank" column="job_rank_name" />
+    </resultMap>
+
+    <resultMap id="ParticipantByDeptMap" type="com.ideality.coreflow.project.query.dto.ResponseParticipantDTO">
+        <result property="userId" column="user_id" />
+        <result property="name" column="name" />
+        <result property="deptName" column="dept_name" />
+        <result property="profileImage" column="profile_image" />
+        <result property="jobRank" column="job_rank_name" />
+        <result property="roleId" column="role_id"/>
     </resultMap>
 
     <select id="selectDirectorByProjectId" resultType="_long">
@@ -66,11 +75,26 @@
              , b.name
              , b.dept_name
              , b.profile_image
-             , b.job_role_name
+             , b.job_rank_name
           FROM participant a
           JOIN user b ON a.user_id = b.id
          WHERE a.target_type = 'PROJECT'
            AND a.target_id = #{projectId}
            AND a.role_id = 2
+    </select>
+
+    <select id="selectParticipantByDeptName" resultType="map" resultMap="ParticipantByDeptMap">
+        SELECT
+               a.user_id
+             , b.name
+             , b.dept_name
+             , b.profile_image
+             , b.job_rank_name
+             , a.role_id
+          FROM participant a
+          JOIN user b ON a.user_id = b.id
+         WHERE a.target_type = 'PROJECT'
+           AND a.target_id = #{projectId}
+           AND b.dept_name = #{deptName}
     </select>
 </mapper>

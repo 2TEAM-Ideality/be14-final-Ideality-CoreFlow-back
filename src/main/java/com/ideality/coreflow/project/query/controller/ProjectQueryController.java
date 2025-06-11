@@ -53,4 +53,14 @@ public class ProjectQueryController {
         List<DepartmentLeaderDTO> reqDTO = projectQueryFacadeService.getTeamLeaderByDepartment(projectId, userId);
         return ResponseEntity.ok(APIResponse.success(reqDTO, "부서별 책임자 조회 완료"));
     }
+
+    @GetMapping("/{projectId}/participants/by-department")
+    public ResponseEntity<APIResponse<List<ResponseParticipantDTO>>>
+    getParticipantsByDepartment(@PathVariable Long projectId, @RequestParam String deptName) {
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        List<ResponseParticipantDTO> reqDTO =
+                projectQueryFacadeService.getParticipantByDepartment(projectId, userId, deptName);
+
+        return ResponseEntity.ok(APIResponse.success(reqDTO, "부서 별 참여자 조회 완료"));
+    }
 }

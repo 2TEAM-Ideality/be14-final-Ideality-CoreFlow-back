@@ -8,11 +8,11 @@ import lombok.*;
 @Setter
 @ToString
 @EqualsAndHashCode
-public class DepartmentLeaderDTO {
+public class ResponseParticipantDTO {
     private Long userId;
-    private Long participantId;
+    private String profileImage;
     private String name;
     private String deptName;
-    private String profileImage;
     private String jobRank;
+    private Long roleId;
 }

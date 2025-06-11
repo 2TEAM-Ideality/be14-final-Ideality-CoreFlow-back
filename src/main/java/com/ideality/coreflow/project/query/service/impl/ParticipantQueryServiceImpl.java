@@ -2,6 +2,7 @@ package com.ideality.coreflow.project.query.service.impl;
 
 import com.ideality.coreflow.project.query.dto.DepartmentLeaderDTO;
 import com.ideality.coreflow.project.query.dto.ParticipantDepartmentDTO;
+import com.ideality.coreflow.project.query.dto.ResponseParticipantDTO;
 import com.ideality.coreflow.project.query.mapper.ParticipantMapper;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import lombok.RequiredArgsConstructor;
@@ -44,5 +45,10 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
     @Override
     public List<DepartmentLeaderDTO> selectTeamLeaderByDepartment(Long projectId) {
         return participantMapper.selectTeamLeaderByDepartment(projectId);
+    }
+
+    @Override
+    public List<ResponseParticipantDTO> selectParticipantsByDeptName(Long projectId, String deptName) {
+        return participantMapper.selectParticipantByDeptName(projectId, deptName);
     }
 }
