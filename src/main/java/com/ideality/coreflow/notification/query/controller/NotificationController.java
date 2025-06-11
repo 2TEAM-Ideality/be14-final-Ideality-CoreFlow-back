@@ -67,6 +67,10 @@ public class NotificationController {
         }
 
         SseEmitter emitter = new SseEmitter();
+        
+        // 사용자 ID 가져오기 (SecurityContext에서 새 스레드에선 컨텍스트 공유 안됨)
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+
 
         // 별도의 스레드에서 비동기적으로 실시간 알림을 전송
         new Thread(() -> {
@@ -77,13 +81,10 @@ public class NotificationController {
                 TenantContext.setTenant("company_a");  // 예시로 "company_a"로 테넌트 설정
 
                 // 로그로 테넌트 정보 출력
-                logger.info("Authenticated User ID: {}", SecurityContextHolder.getContext().getAuthentication().getName());
+//                logger.info("Authenticated User ID: {}", SecurityContextHolder.getContext().getAuthentication().getName());
                 logger.info("현재 테넌트: " + tenant);  // 이전 테넌트
                 logger.info("새로 설정된 테넌트: " + TenantContext.getTenant());  // 새 테넌트
-
-                // 사용자 ID 가져오기 (SecurityContext에서)
-                Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
-
+                
                 while (true) {
                     // 새로운 알림 조회 (최신 알림을 확인)
                     List<Notification> notifications = notificationQueryService.getMyNotifications(userId);
