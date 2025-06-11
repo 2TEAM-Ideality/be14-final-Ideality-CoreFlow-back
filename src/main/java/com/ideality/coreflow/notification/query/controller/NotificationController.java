@@ -58,9 +58,15 @@ public class NotificationController {
     @PreAuthorize("isAuthenticated()")  // 인증된 사용자만 접근 가능
     @GetMapping(value = "/api/notifications/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter streamNotifications(@RequestParam("token") String token) {
+        // 로그에 token 값 출력
+        logger.info("Received token: {}", token);
+
+        if (token == null || token.isEmpty()) {
+            logger.error("Token is null or empty!");
+            return new SseEmitter(0L); // 적절한 처리 (토큰이 없으면 401)
+        }
+
         SseEmitter emitter = new SseEmitter();
-
-
 
         // 별도의 스레드에서 비동기적으로 실시간 알림을 전송
         new Thread(() -> {
