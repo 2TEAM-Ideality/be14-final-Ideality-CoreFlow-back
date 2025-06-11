@@ -27,6 +27,7 @@
         AND a.target_type = #{targetType}
     </select>
 
+    <!-- 프로젝트 타입 첨부파일 조회 -->
     <select id="selectAttachmentsByProjectId" parameterType="long" resultType="com.ideality.coreflow.attachment.query.dto.ReportAttachmentDTO">
         SELECT
             a.id,
@@ -44,5 +45,4 @@
             AND a.target_id = #{projectId}
             AND a.is_deleted = FALSE
     </select>
-
 </mapper>

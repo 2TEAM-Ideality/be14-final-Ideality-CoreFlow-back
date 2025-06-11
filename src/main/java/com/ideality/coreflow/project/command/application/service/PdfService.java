@@ -6,7 +6,7 @@ import com.ideality.coreflow.approval.query.dto.ProjectApprovalDTO;
 import com.ideality.coreflow.attachment.query.dto.ReportAttachmentDTO;
 import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
 import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
-import com.ideality.coreflow.project.query.dto.report.ProjectParticipantDTO;
+import com.ideality.coreflow.project.query.dto.ProjectParticipantDTO;
 
 import jakarta.servlet.http.HttpServletResponse;
 

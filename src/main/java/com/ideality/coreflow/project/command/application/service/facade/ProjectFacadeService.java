@@ -19,7 +19,7 @@ import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
 import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
 import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
-import com.ideality.coreflow.project.query.dto.report.ProjectParticipantDTO;
+import com.ideality.coreflow.project.query.dto.ProjectParticipantDTO;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import com.ideality.coreflow.project.query.service.ProjectQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
@@ -388,11 +388,8 @@ public class ProjectFacadeService {
         // 산출물 목록
         List<ReportAttachmentDTO> attachmentList = attachmentQueryService.getAttachmentsByProjectId(projectId);
 
-
+        // PDF 생성
         pdfService.createReportPdf(response, projectDetail, projectParticipantList, completedTaskList, delayList, attachmentList);
-
-
-
 
     }
 }

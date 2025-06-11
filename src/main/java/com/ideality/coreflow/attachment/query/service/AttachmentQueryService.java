@@ -11,6 +11,7 @@ import com.ideality.coreflow.attachment.query.dto.ResponseAttachmentDTO;
 import com.ideality.coreflow.attachment.query.mapper.AttachmentMapper;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

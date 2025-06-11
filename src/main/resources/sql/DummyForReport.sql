@@ -141,3 +141,24 @@ VALUES
 
 INSERT INTO delay_approval (id, delay_days, action_detail, delay_reason_id, approval_id)
 VALUES (3002, 5, '생산팀 인력 충원 후 일정 보완.', 2, 1002);
+
+
+
+-- 산출물 더미 데이터
+INSERT INTO attachment (origin_name, stored_name, url, file_type, size, upload_at, target_type, target_id, uploader_id, is_deleted)
+VALUES
+    ('샘플 가이드.pdf', 'file_1001_01.pdf', '/files/file_1001_01.pdf', 'PDF', '1.2MB', '2025-07-28 09:10:00', 'PROJECT', 2, 1, FALSE),
+    ('디자인 초안.png', 'file_1001_02.png', '/files/file_1001_02.png', 'IMAGE', '870KB', '2025-07-28 09:11:00', 'PROJECT', 2, 1, FALSE),
+    ('공급 계약서.docx', 'file_1001_03.docx', '/files/file_1001_03.docx', 'DOC', '450KB', '2025-07-28 09:12:00', 'PROJECT', 2, 1, FALSE),
+    ('원단 목록.xlsx', 'file_1001_04.xlsx', '/files/file_1001_04.xlsx', 'EXCEL', '320KB', '2025-07-28 09:13:00', 'PROJECT', 2, 1, FALSE),
+    ('생산 일정표.jpg', 'file_1001_05.jpg', '/files/file_1001_05.jpg', 'IMAGE', '640KB', '2025-07-28 09:14:00', 'PROJECT', 2, 1, FALSE),
+    ('제조 리포트.pdf', 'file_1002_01.pdf', '/files/file_1002_01.pdf', 'PDF', '2.0MB', '2025-08-20 10:10:00', 'PROJECT', 2, 1, FALSE),
+    ('인력 계획표.xlsx', 'file_1002_02.xlsx', '/files/file_1002_02.xlsx', 'EXCEL', '560KB', '2025-08-20 10:11:00', 'PROJECT', 2, 1, FALSE),
+    ('교대 근무표.docx', 'file_1002_03.docx', '/files/file_1002_03.docx', 'DOC', '210KB', '2025-08-20 10:12:00', 'PROJECT', 2, 1, FALSE),
+    ('최종 생산 보고서.pdf', 'file_1002_04.pdf', '/files/file_1002_04.pdf', 'PDF', '1.5MB', '2025-08-20 10:13:00', 'PROJECT', 2, 1, FALSE),
+    ('품질 체크리스트.xlsx', 'file_1002_05.xlsx', '/files/file_1002_05.xlsx', 'EXCEL', '310KB', '2025-08-20 10:14:00', 'PROJECT', 2, 1, FALSE),
+    ('검수 사진1.jpg', 'file_1002_06.jpg', '/files/file_1002_06.jpg', 'IMAGE', '850KB', '2025-08-20 10:15:00', 'PROJECT', 2, 1, FALSE),
+    ('검수 사진2.jpg', 'file_1002_07.jpg', '/files/file_1002_07.jpg', 'IMAGE', '900KB', '2025-08-20 10:16:00', 'PROJECT', 2, 1, FALSE),
+    ('공급업체 인보이스.pdf', 'file_1001_06.pdf', '/files/file_1001_06.pdf', 'PDF', '680KB', '2025-07-28 09:15:00', 'PROJECT', 2, 1, FALSE),
+    ('원자재 인증서.png', 'file_1001_07.png', '/files/file_1001_07.png', 'IMAGE', '720KB', '2025-07-28 09:16:00', 'PROJECT', 2, 1, FALSE),
+    ('지연 사유 설명서.docx', 'file_1002_08.docx', '/files/file_1002_08.docx', 'DOC', '500KB', '2025-08-20 10:17:00', 'PROJECT', 2, 1, FALSE);

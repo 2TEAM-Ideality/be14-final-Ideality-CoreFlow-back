@@ -2,10 +2,7 @@ package com.ideality.coreflow.project.query.service;
 
 import java.util.List;
 
-import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
-import com.ideality.coreflow.project.query.dto.report.ProjectParticipantDTO;
-
-import java.util.List;
+import com.ideality.coreflow.project.query.dto.ProjectParticipantDTO;
 
 public interface ParticipantQueryService {
     Long selectDirectorByProjectId(Long projectId);

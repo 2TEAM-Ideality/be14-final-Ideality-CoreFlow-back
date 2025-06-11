@@ -2,8 +2,7 @@ package com.ideality.coreflow.project.query.service.impl;
 
 import java.util.List;
 
-import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
-import com.ideality.coreflow.project.query.dto.report.ProjectParticipantDTO;
+import com.ideality.coreflow.project.query.dto.ProjectParticipantDTO;
 import com.ideality.coreflow.project.query.mapper.ParticipantMapper;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import lombok.RequiredArgsConstructor;

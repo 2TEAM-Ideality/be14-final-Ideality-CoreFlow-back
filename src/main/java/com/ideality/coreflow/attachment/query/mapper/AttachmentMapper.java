@@ -14,4 +14,5 @@ public interface AttachmentMapper {
 	ResponseAttachmentDTO selectUrl(Map<String, Object> paramMap);
 
 	List<ReportAttachmentDTO> selectAttachmentsByProjectId(Long projectId);
+
 }

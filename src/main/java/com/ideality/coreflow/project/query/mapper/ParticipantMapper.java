@@ -4,8 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
-import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
-import com.ideality.coreflow.project.query.dto.report.ProjectParticipantDTO;
+import com.ideality.coreflow.project.query.dto.ProjectParticipantDTO;
 
 @Mapper
 public interface ParticipantMapper {

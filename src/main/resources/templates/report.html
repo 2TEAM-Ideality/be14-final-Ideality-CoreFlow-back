@@ -152,7 +152,7 @@
         .info-table th, .info-table td {
             font-size: 10px;
             border: 1px solid #ccc;
-            padding: 8px 12px;
+            padding: 4px 5px;
             text-align: left;
         }
 
@@ -279,23 +279,20 @@
     <div class="sub-title" style="margin-top: 30px;">
         부서별 참여자
     </div>
-<!--    <table class="info-table">-->
-<!--        <tr th:each="leader : ${leaderList}">-->
-<!--            <th th:text="${leader.deptName + ' : ' + leader.userName + ' ' + leader.jobRankName + ' / ' + leader.jobRoleName}"></th>-->
-<!--        </tr>-->
-<!--    </table>-->
-<!--    <table>-->
-<!--        <tr th:each="entry : ${participantList}">-->
-<!--            <td>-->
-<!--                <strong th:text="${entry.key}"></strong>-->
-<!--            </td>-->
-<!--            <td>-->
-<!--                <ul>-->
-<!--                    <li th:each="person : ${entry.value}" th:text="${person}"></li>-->
-<!--                </ul>-->
-<!--            </td>-->
-<!--        </tr>-->
-<!--    </table>-->
+
+
+    <table class="info-table">
+        <tr th:each="entry : ${participantList}">
+            <td>
+                <strong th:text="${entry.key}"></strong>
+            </td>
+            <td>
+                <ul>
+                    <li th:each="person : ${entry.value}" th:text="${person}"></li>
+                </ul>
+            </td>
+        </tr>
+    </table>
 
 
 </div>
@@ -546,6 +543,7 @@
         <table class="info-table">
             <thead>
             <tr>
+                <th></th>
                 <th>관련 태스크</th>
                 <th>산출물 명</th>
                 <th>등록자</th>
@@ -557,7 +555,8 @@
             <tr th:if="${#lists.isEmpty(outputPage)}">
                 <td colspan="5" style="text-align: center;">산출물 내역이 없습니다.</td>
             </tr>
-            <tr th:each="item : ${outputPage}">
+            <tr th:each="item , idx: ${outputPage}">
+                <td th:text="${idx + 1}"></td>
                 <td>자켓 봉제</td>
                 <td th:text="${item.originName}">제품기획서.pdf</td>
                 <td th:text="${item.uploader}">기획팀 김하늘</td>

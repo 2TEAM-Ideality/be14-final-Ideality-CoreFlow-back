@@ -1,4 +1,4 @@
-package com.ideality.coreflow.project.query.dto.report;
+package com.ideality.coreflow.project.query.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

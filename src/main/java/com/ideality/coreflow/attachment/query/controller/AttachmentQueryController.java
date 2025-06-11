@@ -5,9 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ideality.coreflow.attachment.command.application.dto.AttachmentPreviewDTO;
 import com.ideality.coreflow.attachment.query.dto.ReportAttachmentDTO;
-import com.ideality.coreflow.attachment.query.dto.ResponseAttachmentDTO;
 import com.ideality.coreflow.attachment.query.service.AttachmentQueryService;
 import com.ideality.coreflow.common.response.APIResponse;
 

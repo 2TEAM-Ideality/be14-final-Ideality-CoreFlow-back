@@ -34,7 +34,7 @@ import com.ideality.coreflow.project.command.application.service.PdfService;
 import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
 import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
 import com.ideality.coreflow.project.query.dto.UserInfoDTO;
-import com.ideality.coreflow.project.query.dto.report.ProjectParticipantDTO;
+import com.ideality.coreflow.project.query.dto.ProjectParticipantDTO;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -151,11 +151,11 @@ public class PdfServiceImpl implements PdfService {
 			context.setVariable("pagedDelayReportList", pagedDelayReportList);
 
 			// 설명. 챕터 4 - 성과 지표 ---------------------------------------------------------------
-
+			//
 			// 산출물 내역
 			List<List<ReportAttachmentDTO>> pagedOutputList = new ArrayList<>();
-			for (int i = 0; i < attachmentList.size(); i += 10) {
-				pagedOutputList.add(attachmentList.subList(i, Math.min(i + 10, attachmentList.size())));
+			for (int i = 0; i < attachmentList.size(); i += 12) {
+				pagedOutputList.add(attachmentList.subList(i, Math.min(i + 12, attachmentList.size())));
 			}
 			context.setVariable("pagedOutputList", pagedOutputList);
 
