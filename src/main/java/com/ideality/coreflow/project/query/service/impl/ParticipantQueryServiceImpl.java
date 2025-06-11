@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.query.service.impl;
 
+import com.ideality.coreflow.project.query.dto.ParticipantDepartmentDTO;
 import com.ideality.coreflow.project.query.mapper.ParticipantMapper;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import lombok.RequiredArgsConstructor;
@@ -32,5 +33,10 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
     @Override
     public boolean isParticipant(Long userId, Long projectId) {
         return participantMapper.isParticipantUser(userId, projectId);
+    }
+
+    @Override
+    public List<ParticipantDepartmentDTO> selectParticipantCountByDept(Long projectId) {
+        return participantMapper.selectParticipantCountByDept(projectId);
     }
 }

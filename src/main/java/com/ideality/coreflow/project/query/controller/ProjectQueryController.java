@@ -1,12 +1,15 @@
 package com.ideality.coreflow.project.query.controller;
 
 import com.ideality.coreflow.common.response.APIResponse;
+import com.ideality.coreflow.project.query.dto.ParticipantDepartmentDTO;
 import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
 import com.ideality.coreflow.project.query.dto.PipelineResponseDTO;
 import com.ideality.coreflow.project.query.dto.ProjectSummaryDTO;
 import com.ideality.coreflow.project.query.service.facade.ProjectQueryFacadeService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,5 +40,12 @@ public class ProjectQueryController {
     public APIResponse<PipelineResponseDTO> getPipeline(@PathVariable Long projectId) {
         PipelineResponseDTO project = projectQueryFacadeService.getPipeline(projectId);
         return APIResponse.success(project, project.getName() + " 파이프라인 조회 성공");
+    }
+
+    @GetMapping("/{projectId}/participants/department")
+    public ResponseEntity<APIResponse<List<ParticipantDepartmentDTO>>> getParticipantDepartment(@PathVariable Long projectId) {
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        List<ParticipantDepartmentDTO> reqDTO = projectQueryFacadeService.getParticipantDepartment(projectId, userId);
+        return ResponseEntity.ok(APIResponse.success(reqDTO, "부서 조회 완료"));
     }
 }
