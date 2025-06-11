@@ -57,4 +57,13 @@ public class TaskController {
                         "태스크가 삭제 되었습니다.")
         );
     }
+
+    @PatchMapping("/{taskId}/passed-rate")
+    public ResponseEntity<APIResponse<Map<String, Double>>> updateTaskPassedRate(@PathVariable Long taskId) {
+        Double passedRate = projectFacadeService.updateTaskPassedRate(taskId);
+        return ResponseEntity.ok(
+                APIResponse.success(Map.of("passedRate", passedRate),
+                        taskId + " 번 태스크의 경과율이 업데이트 되었습니다.")
+        );
+    }
 }

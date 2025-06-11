@@ -89,7 +89,7 @@ public class ProjectServiceImpl implements ProjectService {
         Double passedRate =(double) passedDates/totalDuration*100;
         passedRate = passedRate>100?100:Math.round(passedRate*100)/100.0;
         project.setPassedRate(passedRate);
-        projectRepository.save(project);
+        projectRepository.saveAndFlush(project);
         return passedRate;
     }
 }

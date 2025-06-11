@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.command.application.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
@@ -8,6 +9,8 @@ import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.command.domain.repository.TaskRepository;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,7 @@ import static com.ideality.coreflow.common.exception.ErrorCode.*;
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
+    private final HolidayQueryService holidayQueryService;
 
     @Override
     @Transactional
@@ -113,5 +117,26 @@ public class TaskServiceImpl implements TaskService {
         if (!taskRepository.existsById(taskId)) {
             throw new BaseException(TASK_NOT_FOUND);
         }
+    }
+
+    @Override
+    public Double updateTaskPassedRate(Long taskId) {
+        Work work = taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+        LocalDate now = LocalDate.now();
+        LocalDate endBase = work.getEndBase();
+        LocalDate startBase = work.getStartBase();
+        LocalDate startReal = work.getStartReal();
+
+        Long totalDuration = ChronoUnit.DAYS.between(startBase, endBase)+1
+                            -holidayQueryService.countHolidaysBetween(startBase, endBase);
+        Long passedDates = ChronoUnit.DAYS.between(startReal, now)+1
+                            -holidayQueryService.countHolidaysBetween(startReal, now);
+        Double passedRate = (double) passedDates / totalDuration * 100;
+        passedRate = passedRate > 100 ? 100 : passedRate;
+        work.setPassedRate(passedRate);
+        taskRepository.saveAndFlush(work);
+        return work.getPassedRate();
+
+
     }
 }

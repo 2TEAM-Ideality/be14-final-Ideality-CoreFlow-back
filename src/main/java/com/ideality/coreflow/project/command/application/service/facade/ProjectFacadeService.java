@@ -8,8 +8,6 @@ import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
-import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
-import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
 import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
@@ -51,9 +49,13 @@ public class ProjectFacadeService {
     private final TaskQueryService taskQueryService;
 
     @Transactional
+    public Double updateTaskPassedRate(Long taskId){
+        return taskService.updateTaskPassedRate(taskId);
+    }
+
+    @Transactional
     public Double updateProjectPassedRate(Long projectId){
-        Double updatedPassedRate = projectService.updateProjectPassedRate(projectId);
-        return updatedPassedRate;
+        return projectService.updateProjectPassedRate(projectId);
     }
 
     @Transactional

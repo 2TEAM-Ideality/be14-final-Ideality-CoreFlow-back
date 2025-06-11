@@ -19,4 +19,5 @@ public interface TaskService {
 
     void validateTask(Long taskId);
 
+    Double updateTaskPassedRate(Long taskId);
 }
