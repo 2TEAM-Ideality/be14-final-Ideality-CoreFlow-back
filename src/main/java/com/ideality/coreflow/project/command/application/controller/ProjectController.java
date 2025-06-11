@@ -5,6 +5,8 @@ import com.ideality.coreflow.project.command.application.service.facade.ProjectF
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.ibatis.javassist.NotFoundException;
@@ -22,7 +24,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@RequestMapping("/api/project")
+@RequestMapping("/api/projects")
 @RestController
 public class ProjectController {
 
@@ -60,6 +62,23 @@ public class ProjectController {
         return ResponseEntity.ok(response);
     }
 
+    @PatchMapping("/{projectId}/passed-rate")
+    public ResponseEntity<APIResponse<Map<String,Object>>> updateProjectPassedRate(@PathVariable Long projectId){
+        Double updatedPassedRate = projectFacadeService.updateProjectPassedRate(projectId);
+        return ResponseEntity.ok(
+                APIResponse.success(Map.of("updatedPassedRate", updatedPassedRate),
+                        projectId + "번 프로젝트의 경과율이 업데이트 되었습니다")
+        );
+    }
+
+    @PatchMapping("/{projectId}/progress-rate")
+    public ResponseEntity<APIResponse<Map<String,Object>>> updateProjectProgressRate(@PathVariable Long projectId){
+        Double updatedProgressRate = projectFacadeService.updateProjectProgressRate(projectId);
+        return ResponseEntity.ok(
+                APIResponse.success(Map.of("updatedProgressRate", updatedProgressRate),
+                        projectId + "번 프로젝트의 진척률이 업데이트 되었습니다")
+        );
+    }
 
 
     // TODO. 프로젝트 분석 리포트 생성

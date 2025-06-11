@@ -8,6 +8,7 @@ import com.ideality.coreflow.project.query.dto.RelationDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskInfoDTO;
 import com.ideality.coreflow.project.query.dto.SelectTaskDTO;
+import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
 import com.ideality.coreflow.project.query.mapper.RelationMapper;
 import com.ideality.coreflow.project.query.mapper.TaskMapper;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
@@ -90,5 +91,10 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     @Override
     public String getTaskName(Long taskId) {
         return taskMapper.selectTaskNameByTaskId(taskId);
+    }
+
+    @Override
+    public List<TaskProgressDTO> getTaskProgressByProjectId(Long projectId) {
+        return taskMapper.selectTaskProgressByProjectId(projectId);
     }
 }

@@ -3,6 +3,7 @@ package com.ideality.coreflow.project.query.mapper;
 import com.ideality.coreflow.project.query.dto.DeptWorkDTO;
 import com.ideality.coreflow.project.query.dto.DetailDTO;
 import com.ideality.coreflow.project.query.dto.ParticipantDTO;
+import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
 import com.ideality.coreflow.project.query.dto.WorkDetailDTO;
 import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
@@ -27,5 +28,9 @@ public interface WorkMapper {
 
     List<String> selectDetailListByTarget(Long projectId, Long taskId, String detailTarget);
 
+    String findTaskNameByTaskId(Long targetId);
+
     List<Long> selectWorkIdByName(List<String> details);
+
+    List<TaskProgressDTO> selectDetailProgressByTaskId(Long taskId);
 }
