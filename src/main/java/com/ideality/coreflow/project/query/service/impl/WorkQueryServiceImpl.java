@@ -3,9 +3,10 @@ package com.ideality.coreflow.project.query.service.impl;
 import com.ideality.coreflow.project.query.dto.DeptWorkDTO;
 import com.ideality.coreflow.project.query.dto.DetailDTO;
 import com.ideality.coreflow.project.query.dto.ParticipantDTO;
+import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
 import com.ideality.coreflow.project.query.dto.WorkDetailDTO;
 import com.ideality.coreflow.project.query.mapper.WorkMapper;
-import com.ideality.coreflow.project.query.service.WorkService;
+import com.ideality.coreflow.project.query.service.WorkQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class WorkServiceImpl implements WorkService {
+public class WorkQueryServiceImpl implements WorkQueryService {
 
     private final WorkMapper workMapper;
 
@@ -86,5 +87,10 @@ public class WorkServiceImpl implements WorkService {
     @Override
     public List<Long> selectWorkIdByName(List<String> details) {
         return workMapper.selectWorkIdByName(details);
+    }
+
+    @Override
+    public List<TaskProgressDTO> getDetailProgressByTaskId(Long taskId) {
+        return workMapper.selectDetailProgressByTaskId(taskId);
     }
 }

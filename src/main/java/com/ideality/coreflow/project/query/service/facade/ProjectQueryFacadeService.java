@@ -6,6 +6,11 @@ import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.org.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.service.*;
 import com.ideality.coreflow.user.query.dto.AllUserDTO;
+import com.ideality.coreflow.project.query.service.ProjectQueryService;
+import com.ideality.coreflow.project.query.service.RelationQueryService;
+import com.ideality.coreflow.project.query.service.TaskQueryService;
+import com.ideality.coreflow.project.query.service.WorkDeptQueryService;
+import com.ideality.coreflow.project.query.service.WorkQueryService;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 
 import lombok.RequiredArgsConstructor;
@@ -23,7 +28,7 @@ public class ProjectQueryFacadeService {
     private final UserQueryService userQueryService;
     private final DeptQueryService deptQueryService;
     private final RelationQueryService relationQueryService;
-    private final WorkService workService;
+    private final WorkQueryService workService;
     private final WorkDeptQueryService workDeptQueryService;
     private final ProjectQueryService projectQueryService;
     private final ParticipantQueryService participantQueryService;
