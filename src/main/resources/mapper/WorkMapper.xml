@@ -140,6 +140,12 @@
         </if>
     </select>
 
+       <!-- Id로 태스크 이름 조회 -->
+        <select id="findTaskNameByTaskId" resultType="String">
+            SELECT NAME
+            FROM WORK
+            WHERE id = #{taskId}
+        </select>
     <select id="selectWorkIdByName" resultType="long">
         SELECT id
           FROM work

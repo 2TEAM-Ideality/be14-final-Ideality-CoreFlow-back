@@ -44,85 +44,6 @@ VALUES
  1
 ) ;
 
--- 원부자재 발주 태스크에 대한 세부일정 더미데이터 넣기
-INSERT INTO work (name, description, created_at, start_base, end_base, start_expect, end_expect, parent_task_id, project_id)
-VALUES
-    ('세부일정 1', '원부자재 발주에 대한 세부일정1', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10',  4, 1),    -- parent_task_id = 4
-    ('세부일정 2', '원부자재 발주에 대한 세부일정2', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10',  4, 1),    -- parent_task_id = 4
-    ('세부일정 3', '원부자재 발주에 대한 세부일정3', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10',  4, 1);    -- parent_task_id = 4
-
-
--- 작업 별 참여 부서
-INSERT INTO work_dept
-(work_id, dept_id)
-VALUES
-(
- 1,
- 1
-),
-(
- 2,
- 1
-),
-(
-    2,
-    2
-),
-(
-    2,
-    3
-),
-(
-    2,
-    4
-),
-(
- 3,
- 2
-),
-(
- 4,
- 4
-),
-(
-    5,
-    1
-),
-(
-    6,
-    2
-),
-(
-    7,
-    3
-)
-;
-
-
-
-
--- 작업 별 관계
-INSERT INTO relation
-(prev_work_id, next_work_id)
-VALUES
-(
- 1,
- 2
-),
-(
- 2,
- 3
-),
-(
- 2,
- 4
-),
-(5,
- 6
-),
-(6,
- 7)
-;
 
 -- 도식화 (work.id = 1)
 INSERT INTO participant (target_type, target_id, user_id, role_id)
@@ -156,3 +77,77 @@ VALUES
 
 
 
+-- 원부자재 발주 태스크에 대한 세부일정 더미데이터 넣기
+INSERT INTO work (name, description, created_at, start_base, end_base, start_expect, end_expect, parent_task_id, project_id)
+VALUES
+    ('세부일정 1', '원부자재 발주에 대한 세부일정1', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10',  4, 1),    -- parent_task_id = 4
+    ('세부일정 2', '원부자재 발주에 대한 세부일정2', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10',  4, 1),    -- parent_task_id = 4
+    ('세부일정 3', '원부자재 발주에 대한 세부일정3', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10',  4, 1);    -- parent_task_id = 4
+
+-- 작업 별 참여 부서
+INSERT INTO work_dept
+(work_id, dept_id)
+VALUES
+    (
+        1,
+        1
+    ),
+    (
+        2,
+        1
+    ),
+    (
+        2,
+        2
+    ),
+    (
+        2,
+        3
+    ),
+    (
+        2,
+        4
+    ),
+    (
+        3,
+        2
+    ),
+    (
+        4,
+        4
+    ),
+    (
+        5,
+        1
+    ),
+    (
+        6,
+        2
+    ),
+    (
+        7,
+        3
+    )
+;
+-- 작업 별 관계
+INSERT INTO relation
+(prev_work_id, next_work_id)
+VALUES
+    (
+        1,
+        2
+    ),
+    (
+        2,
+        3
+    ),
+    (
+        2,
+        4
+    ),
+    (5,
+     6
+    ),
+    (6,
+     7)
+;

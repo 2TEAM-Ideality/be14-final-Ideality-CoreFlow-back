@@ -22,6 +22,8 @@ public interface ProjectMapper {
 
     ProjectSummaryDTO selectProjectSummary(Long projectId);
 
+    String findProjectNameByProjectId(Long projectId);
+
     PipelineResponseDTO findProjectById(@Param("projectId") Long projectId);
 
     List<NodeDTO> findWorksByProjectId(@Param("projectId") Long projectId);
@@ -32,5 +34,8 @@ public interface ProjectMapper {
 
     List<WorkDeptDTO> findDeptsByWorkIds(@Param("workIds") List<Long> workIds);
 
+<<<<<<< HEAD
     String selectProjectNameByProjectId(Long projectId);
+=======
+>>>>>>> develop
 }

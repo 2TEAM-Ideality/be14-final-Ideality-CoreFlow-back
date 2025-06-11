@@ -35,11 +35,9 @@ public class CommentFacadeService {
     private final CommentService commentService;
     private final ParticipantQueryService participantQueryService;
     private final AttachmentCommandService attachmentCommandService;
-    private final MentionService mentionService;
     private final NotificationService notificationService;
     private final NotificationRecipientsService notificationRecipientsService;
     private final WorkService workService;
-    private final TaskService taskService;
     private final TaskQueryService taskQueryService;
     private final S3Service s3Service;
     private final UserQueryService userQueryService;
@@ -127,6 +125,7 @@ public class CommentFacadeService {
     public Long deleteComment(Long userId, Long commentId) {;
 
         Long returnCommentId = commentService.updateByDelete(userId, commentId);
+
         return returnCommentId;
     }
 
