@@ -15,6 +15,7 @@ import com.ideality.coreflow.template.command.domain.aggregate.Template;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class Project {
 
 	@Id

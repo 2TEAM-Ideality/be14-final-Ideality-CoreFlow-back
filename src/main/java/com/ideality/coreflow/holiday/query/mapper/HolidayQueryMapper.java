@@ -17,4 +17,6 @@ public interface HolidayQueryMapper {
     List<HolidayQueryDto> findByMonth(@Param("year") int year, @Param("month") int month);
 
     List<HolidayQueryDto> findBetweenDates(@Param("start") LocalDate start, @Param("end") LocalDate end);
+
+    Integer countBetweenDates(LocalDate start, LocalDate end);
 }

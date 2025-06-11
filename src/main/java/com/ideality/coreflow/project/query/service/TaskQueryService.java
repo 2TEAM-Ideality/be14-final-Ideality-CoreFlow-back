@@ -2,6 +2,7 @@ package com.ideality.coreflow.project.query.service;
 
 import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskInfoDTO;
+import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 
 import java.util.List;
@@ -20,4 +21,6 @@ public interface TaskQueryService {
     Long selectProjectIdByTaskId(Long taskId);
 
     String getTaskName(Long taskId);
+
+    List<TaskProgressDTO> getTaskProgressByProjectId(Long projectId);
 }
