@@ -279,23 +279,23 @@
     <div class="sub-title" style="margin-top: 30px;">
         부서별 참여자
     </div>
-    <table class="info-table">
-        <tr th:each="leader : ${leaderList}">
-            <th th:text="${leader.deptName + ' : ' + leader.userName + ' ' + leader.jobRankName + ' / ' + leader.jobRoleName}"></th>
-        </tr>
-    </table>
-    <table>
-        <tr th:each="entry : ${participantList}">
-            <td>
-                <strong th:text="${entry.key}"></strong>
-            </td>
-            <td>
-                <ul>
-                    <li th:each="person : ${entry.value}" th:text="${person}"></li>
-                </ul>
-            </td>
-        </tr>
-    </table>
+<!--    <table class="info-table">-->
+<!--        <tr th:each="leader : ${leaderList}">-->
+<!--            <th th:text="${leader.deptName + ' : ' + leader.userName + ' ' + leader.jobRankName + ' / ' + leader.jobRoleName}"></th>-->
+<!--        </tr>-->
+<!--    </table>-->
+<!--    <table>-->
+<!--        <tr th:each="entry : ${participantList}">-->
+<!--            <td>-->
+<!--                <strong th:text="${entry.key}"></strong>-->
+<!--            </td>-->
+<!--            <td>-->
+<!--                <ul>-->
+<!--                    <li th:each="person : ${entry.value}" th:text="${person}"></li>-->
+<!--                </ul>-->
+<!--            </td>-->
+<!--        </tr>-->
+<!--    </table>-->
 
 
 </div>
