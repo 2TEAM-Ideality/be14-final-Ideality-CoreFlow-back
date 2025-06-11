@@ -33,6 +33,8 @@ import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.project.command.application.service.PdfService;
 import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
 import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
+import com.ideality.coreflow.project.query.dto.UserInfoDTO;
+import com.ideality.coreflow.project.query.dto.report.ProjectParticipantDTO;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -52,10 +54,11 @@ public class PdfServiceImpl implements PdfService {
 	@Override
 	public void createReportPdf(
 		HttpServletResponse response,
-		ProjectDetailResponseDTO projectDetail,
-		List<CompletedTaskDTO> completedTaskList,
-		List<ProjectApprovalDTO> delayList,
-		List<ReportAttachmentDTO> attachmentList
+		ProjectDetailResponseDTO projectDetail,   // 프로젝트 기본 정보
+		List<ProjectParticipantDTO> projectParticipantList,   // 프로젝트 참여자 목록
+		List<CompletedTaskDTO> completedTaskList,    // 프로젝트 태스크
+		List<ProjectApprovalDTO> delayList,			 // 지연 정보
+		List<ReportAttachmentDTO> attachmentList	 // 산출물 목록
 	) {
 		// 가져온 정보로 프로젝트 분석 리포트 PDF 만들기
 		log.info("프로젝트 분석 리포트 만들기");
@@ -81,8 +84,22 @@ public class PdfServiceImpl implements PdfService {
 			context.setVariable("projectProgress", projectDetail.getProgressRate());
 			context.setVariable("projectDescription", projectDetail.getDescription());
 			context.setVariable("projectDelayDays" , projectDetail.getDelayDays());
-			// 참여 인원
-			context.setVariable("leaderList", projectDetail.getLeaders());
+			// 참여 리더
+			Map<String, List<String>> participantMap = new HashMap<>();
+
+			for (UserInfoDTO leader : projectDetail.getLeaders()) {
+				String dept = leader.getDeptName();
+				String info = leader.getName() + " " + leader.getJobRoleName();
+
+				participantMap.computeIfAbsent(dept, k -> new ArrayList<>()).add(info);
+			}
+			for(ProjectParticipantDTO dto : projectParticipantList){
+				String dept = dto.getDeptName();
+				String info = dto.getUserName() + " " + dto.getJobRankName() + " " + dto.getJobRoleName();
+				participantMap.computeIfAbsent(dept, k -> new ArrayList<>()).add(info);
+			}
+			context.setVariable("participantList", participantMap);
+
 
 			// 커버 로고 이미지 파일
 			byte[] coverLogoBytes = Files.readAllBytes(new File("src/main/resources/static/ReportLogo.png").toPath());
