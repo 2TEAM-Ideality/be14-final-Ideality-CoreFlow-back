@@ -1,6 +1,8 @@
 package com.ideality.coreflow.common.exception;
 
 import com.ideality.coreflow.common.response.APIResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -27,12 +29,20 @@ public class GlobalExceptionHandler {
                 .body(APIResponse.fail(message));
     }
 
-    /* 설명. 예상치 못한 일반 예외 처리 -> 500번대 서버 에러 */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<APIResponse<Void>> handleException(Exception ex) {
-        ex.printStackTrace(); // or log.error(...)
+    public ResponseEntity<?> handleException(HttpServletRequest request, Exception ex) {
+        ex.printStackTrace(); // 또는 log.error("Unhandled exception", ex);
+
+        // 1. SSE 요청은 JSON 반환 불가 → 204 No Content 등 간단한 응답
+        String accept = request.getHeader("Accept");
+        if (accept != null && accept.contains("text/event-stream")) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+
+        // 2. 일반 REST 요청 → APIResponse 래핑해서 500 반환
         return ResponseEntity
                 .status(ErrorCode.INTERNAL_SERVER_ERROR.getHttpStatus())
                 .body(APIResponse.error(ErrorCode.INTERNAL_SERVER_ERROR.getMessage()));
     }
+
 }

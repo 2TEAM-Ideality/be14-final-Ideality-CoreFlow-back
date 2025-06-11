@@ -21,8 +21,8 @@ public class PipelineResponseDTO {
     private LocalDate endExpect;
     private LocalDate startReal;
     private LocalDate endReal;
-    private Integer progressRate;
-    private Integer passedRate;
+    private Double progressRate;
+    private Double passedRate;
     private Integer delayDays;
     private String status;
     private List<NodeDTO> nodeList;
