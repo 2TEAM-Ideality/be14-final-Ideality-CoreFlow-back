@@ -27,7 +27,7 @@
         AND a.target_type = #{targetType}
     </select>
 
-    <!-- 프로젝트 타입 첨부파일 조회 -->
+    <!-- 프로젝트 타입 첨부파일 조회 + 태스크명 포함 -->
     <select id="selectAttachmentsByProjectId" parameterType="long" resultType="com.ideality.coreflow.attachment.query.dto.ReportAttachmentDTO">
         SELECT
             a.id,
@@ -37,12 +37,16 @@
             u.name AS uploader,
             a.file_type AS fileType,
             a.size,
+            a.task_id,
             a.target_type AS targetType,
-            a.target_id AS targetId
-         FROM attachment a
+            a.target_id AS targetId,
+            w.name AS taskName
+        FROM attachment a
           JOIN user u ON a.uploader_id = u.id
+          LEFT JOIN work w ON a.task_id = w.id
         WHERE a.target_type = 'PROJECT'
-            AND a.target_id = #{projectId}
-            AND a.is_deleted = FALSE
+          AND a.target_id = #{projectId}
+          AND a.is_deleted = FALSE
     </select>
+
 </mapper>

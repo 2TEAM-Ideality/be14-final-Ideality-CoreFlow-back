@@ -22,6 +22,8 @@ public class ReportAttachmentDTO {
 
 	private LocalDateTime uploadAt;
 	private String uploader;
+	
+	private String taskName; 	// 관련 태스크 이름
 
 	private String fileType;
 	private String size;

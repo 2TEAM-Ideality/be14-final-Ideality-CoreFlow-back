@@ -314,8 +314,7 @@ CREATE TABLE attachment (
     uploader_id BIGINT NOT NULL,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     deleted_at DATETIME DEFAULT NULL,
-    -- 관련 태스크 분리 위함
-    task_id BIGINT NULL,
+    task_id BIGINT NULL,   -- 관련 태스크 분리 위함
     CONSTRAINT FOREIGN KEY (uploader_id) REFERENCES user(id),
     CHECK (target_type IN ('APPROVAL', 'COMMENT', 'PROJECT', 'TEMPLATE'))
 );

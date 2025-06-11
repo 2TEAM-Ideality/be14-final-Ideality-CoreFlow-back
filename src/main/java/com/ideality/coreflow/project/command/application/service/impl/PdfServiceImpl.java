@@ -10,6 +10,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -194,11 +196,16 @@ public class PdfServiceImpl implements PdfService {
 			String reportHtml = templateEngine.process("report", context);
 			reportHtml = reportHtml.replace("&nbsp;", "&#160;"); // 안전 처리
 
-			String rawFileName = "프로젝트분석보고서_" + projectDetail.getName() + ".pdf";
+			String timeSuffix = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+			// String rawFileName = "프로젝트분석보고서_" + projectDetail.getName() + "_" + timeSuffix + ".pdf";
+			String rawFileName = "프로젝트 분석 보고서_" + projectDetail.getName() + ".pdf";
+			log.info("PDF FILE NAME : {}" , rawFileName);
 			String encodedFileName = URLEncoder.encode(rawFileName, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
 
 			response.setHeader("Content-Disposition",
-				"attachment; filename=\"report.pdf\"; filename*=UTF-8''" + encodedFileName);
+				"attachment; filename=\"" + encodedFileName + "\"; filename*=UTF-8''" + encodedFileName);
+			response.setContentType("application/pdf");
+
 
 			try(OutputStream os = response.getOutputStream()){
 				PdfRendererBuilder builder = new PdfRendererBuilder();
