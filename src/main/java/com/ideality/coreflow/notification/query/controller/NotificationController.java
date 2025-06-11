@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 public class NotificationController {
 
     private final NotificationQueryService notificationQueryService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     // SLF4J 로거 선언
     private static final Logger logger = LoggerFactory.getLogger(NotificationController.class);
@@ -53,6 +55,14 @@ public class NotificationController {
         // 조회된 알림을 반환
         return APIResponse.success(notificationDataList, "알림 조회 성공");
     }
+
+    // 메시지를 클라이언트로 보내는 메서드
+    @PreAuthorize("isAuthenticated()")  // 인증된 사용자만 접근
+    public void sendNotification(Notification notification) {
+        // 클라이언트에게 알림을 보냄
+        messagingTemplate.convertAndSend("/topic/notifications", notification);  // /topic/notifications 경로로 메시지 전송
+    }
+
 
 
     @PreAuthorize("isAuthenticated()")  // 인증된 사용자만 접근 가능
