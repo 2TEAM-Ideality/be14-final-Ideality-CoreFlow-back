@@ -1,4 +1,4 @@
-package com.ideality.coreflow.project.command.domain.aggregate;
+package com.ideality.coreflow.org.command.domain.aggregate;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,7 +25,6 @@ public class Dept {
     @Column(name="is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
-    @ManyToOne
-    @JoinColumn(name = "parent_dept_id")
-    private Dept parentDept;
+    @Column(name = "parent_dept_id")
+    private Long parentDeptId;
 }
