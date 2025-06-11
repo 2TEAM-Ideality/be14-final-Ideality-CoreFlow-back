@@ -12,6 +12,7 @@
         <result property="jobRoleName" column="JOB_ROLE_NAME" />
         <result property="isCreation" column="IS_CREATION" />
         <result property="isActive" column="IS_ACTIVE"/>
+        <result property="isInner" column="IS_INNER"/>
     </resultMap>
 
     <!-- 유저별 역할 -->
@@ -32,6 +33,7 @@
              , u.job_role_name AS JOB_ROLE_NAME
              , MAX(CASE WHEN r.name = 'CREATOR' THEN TRUE ELSE FALSE END) AS IS_CREATION
              , u.is_resign AS IS_ACTIVE
+             , MAX(CASE WHEN r.name = 'PARTNER' THEN FALSE ELSE TRUE END) AS IS_INNER
           FROM USER u
           LEFT JOIN USER_OF_ROLE ur ON ur.user_id = u.id
           LEFT JOIN ROLE r ON ur.role_id = r.id
