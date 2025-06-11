@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.query.service.impl;
 
+import com.ideality.coreflow.project.query.dto.DepartmentLeaderDTO;
 import com.ideality.coreflow.project.query.dto.ParticipantDepartmentDTO;
 import com.ideality.coreflow.project.query.mapper.ParticipantMapper;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
@@ -38,5 +39,10 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
     @Override
     public List<ParticipantDepartmentDTO> selectParticipantCountByDept(Long projectId) {
         return participantMapper.selectParticipantCountByDept(projectId);
+    }
+
+    @Override
+    public List<DepartmentLeaderDTO> selectTeamLeaderByDepartment(Long projectId) {
+        return participantMapper.selectTeamLeaderByDepartment(projectId);
     }
 }

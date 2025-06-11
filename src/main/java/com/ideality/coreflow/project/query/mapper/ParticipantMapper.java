@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.query.mapper;
 
+import com.ideality.coreflow.project.query.dto.DepartmentLeaderDTO;
 import com.ideality.coreflow.project.query.dto.ParticipantDepartmentDTO;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -16,4 +17,6 @@ public interface ParticipantMapper {
     boolean isParticipantUser(Long userId, Long projectId);
 
     List<ParticipantDepartmentDTO> selectParticipantCountByDept(Long projectId);
+
+    List<DepartmentLeaderDTO> selectTeamLeaderByDepartment(Long projectId);
 }

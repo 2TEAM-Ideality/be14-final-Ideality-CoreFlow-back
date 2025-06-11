@@ -79,4 +79,15 @@ public class ProjectQueryFacadeService {
         List<ParticipantDepartmentDTO> dto = participantQueryService.selectParticipantCountByDept(projectId);
         return dto;
     }
+
+    public List<DepartmentLeaderDTO> getTeamLeaderByDepartment(Long projectId, Long userId) {
+        projectService.existsById(projectId);
+        boolean isParticipant = participantQueryService.isParticipant(userId, projectId);
+        if (!isParticipant) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
+
+        List<DepartmentLeaderDTO> dto = participantQueryService.selectTeamLeaderByDepartment(projectId);
+        return dto;
+    }
 }

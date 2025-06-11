@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.query.service;
 
+import com.ideality.coreflow.project.query.dto.DepartmentLeaderDTO;
 import com.ideality.coreflow.project.query.dto.ParticipantDepartmentDTO;
 
 import java.util.List;
@@ -14,4 +15,6 @@ public interface ParticipantQueryService {
     boolean isParticipant(Long userId, Long projectId);
 
     List<ParticipantDepartmentDTO> selectParticipantCountByDept(Long projectId);
+
+    List<DepartmentLeaderDTO> selectTeamLeaderByDepartment(Long projectId);
 }
