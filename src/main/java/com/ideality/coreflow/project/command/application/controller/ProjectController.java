@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@RequestMapping("/api/project")
+@RequestMapping("/api/projects")
 @RestController
 public class ProjectController {
 
@@ -68,6 +68,15 @@ public class ProjectController {
         return ResponseEntity.ok(
                 APIResponse.success(Map.of("updatedPassedRate", updatedPassedRate),
                         projectId + "번 프로젝트의 경과율이 업데이트 되었습니다")
+        );
+    }
+
+    @PatchMapping("/{projectId}/progress-rate")
+    public ResponseEntity<APIResponse<Map<String,Object>>> updateProjectProgressRate(@PathVariable Long projectId){
+        Double updatedProgressRate = projectFacadeService.updateProjectProgressRate(projectId);
+        return ResponseEntity.ok(
+                APIResponse.success(Map.of("updatedProgressRate", updatedProgressRate),
+                        projectId + "번 프로젝트의 진척률이 업데이트 되었습니다")
         );
     }
 }

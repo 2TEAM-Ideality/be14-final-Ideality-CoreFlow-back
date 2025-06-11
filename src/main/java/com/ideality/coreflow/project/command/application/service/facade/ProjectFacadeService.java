@@ -1,5 +1,7 @@
 package com.ideality.coreflow.project.command.application.service.facade;
 
+import static java.awt.SystemColor.info;
+
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
@@ -9,8 +11,10 @@ import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
+import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
 import com.ideality.coreflow.project.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
+import com.ideality.coreflow.project.query.service.ProjectQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
@@ -48,6 +52,13 @@ public class ProjectFacadeService {
     private final DetailService detailService;
     private final TaskQueryService taskQueryService;
     private final WorkService workService;
+
+    @Transactional
+    public Double updateProjectProgressRate(Long projectId){
+        List<TaskProgressDTO> taskList = taskQueryService.getTaskProgressByProjectId(projectId);
+        System.out.println("taskList.size() = " + taskList.size());
+        return projectService.updateProjectProgress(projectId, taskList);
+    }
 
     @Transactional
     public Double updatePassedRate(Long workId){

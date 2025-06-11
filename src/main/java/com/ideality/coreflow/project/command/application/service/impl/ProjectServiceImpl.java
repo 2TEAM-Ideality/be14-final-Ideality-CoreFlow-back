@@ -7,9 +7,11 @@ import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
+import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.javassist.NotFoundException;
@@ -91,5 +93,28 @@ public class ProjectServiceImpl implements ProjectService {
         project.setPassedRate(passedRate);
         projectRepository.saveAndFlush(project);
         return passedRate;
+    }
+
+    @Override
+    public Double updateProjectProgress(Long projectId, List<TaskProgressDTO> taskList) {
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+        System.out.println("project = " + project);
+        Long totalDuration = 0L;
+        Double totalProgress = 0.0;
+        for (TaskProgressDTO task : taskList) {
+            System.out.println("task = " + task);
+            Long duration = (ChronoUnit.DAYS.between(task.getStartDate(), task.getEndDate()) + 1
+                    - holidayQueryService.countHolidaysBetween(task.getStartDate(), task.getEndDate()));
+            totalDuration += duration;
+            System.out.println("duration = " + duration);
+
+            Double progress = duration * (task.getProgressRate()/100);
+            System.out.println("progress = " + progress);
+            totalProgress += progress;
+        }
+        System.out.println("Num to Save = " + Math.round(totalProgress/totalDuration*10000)/100.0);
+        project.setProgressRate(Math.round(totalProgress/totalDuration*10000)/100.0);
+        projectRepository.saveAndFlush(project);
+        return project.getProgressRate();
     }
 }
