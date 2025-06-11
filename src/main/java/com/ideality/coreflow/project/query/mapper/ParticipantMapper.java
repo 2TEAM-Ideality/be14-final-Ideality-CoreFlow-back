@@ -19,4 +19,6 @@ public interface ParticipantMapper {
     boolean isInviteRole(Long projectId, Long userId);
 
     boolean isAlreadyParticipant(Long projectId, Long userId, String deptName);
+
+    List<Long> selectParticipantUserId(Long projectId);
 }

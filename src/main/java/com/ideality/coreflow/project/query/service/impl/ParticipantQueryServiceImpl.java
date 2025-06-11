@@ -65,4 +65,9 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
             }
         }
     }
+
+    @Override
+    public List<Long> selectParticipantUserId(Long projectId) {
+        return participantMapper.selectParticipantUserId(projectId);
+    }
 }

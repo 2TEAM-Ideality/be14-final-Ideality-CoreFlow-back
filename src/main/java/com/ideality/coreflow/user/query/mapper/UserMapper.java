@@ -1,9 +1,6 @@
 package com.ideality.coreflow.user.query.mapper;
 
-import com.ideality.coreflow.user.query.dto.MentionConditionDTO;
-import com.ideality.coreflow.user.query.dto.UserOfRoleDTO;
-import com.ideality.coreflow.user.query.dto.UserMentionDTO;
-import com.ideality.coreflow.user.query.dto.UserNameIdDto;
+import com.ideality.coreflow.user.query.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -41,4 +38,6 @@ public interface UserMapper {
     List<Long> selectUserListByMention(List<MentionConditionDTO> mentionConditionDTOS);
 
     String selectUserNameById(Long userId);
+
+    List<AllUserDTO> selectAllUser();
 }

@@ -1,17 +1,11 @@
 package com.ideality.coreflow.project.query.service.facade;
 
-import com.ideality.coreflow.project.query.dto.DeptWorkDTO;
-import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
-import com.ideality.coreflow.project.query.dto.PipelineResponseDTO;
-import com.ideality.coreflow.project.query.dto.ProjectSummaryDTO;
-import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
-import com.ideality.coreflow.project.query.dto.ResponseTaskInfoDTO;
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.org.query.service.DeptQueryService;
-import com.ideality.coreflow.project.query.service.ProjectQueryService;
-import com.ideality.coreflow.project.query.service.RelationQueryService;
-import com.ideality.coreflow.project.query.service.TaskQueryService;
-import com.ideality.coreflow.project.query.service.WorkDeptQueryService;
-import com.ideality.coreflow.project.query.service.WorkService;
+import com.ideality.coreflow.project.query.service.*;
+import com.ideality.coreflow.user.query.dto.AllUserDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 
 import lombok.RequiredArgsConstructor;
@@ -32,6 +26,7 @@ public class ProjectQueryFacadeService {
     private final WorkService workService;
     private final WorkDeptQueryService workDeptQueryService;
     private final ProjectQueryService projectQueryService;
+    private final ParticipantQueryService participantQueryService;
 
 
 
@@ -73,4 +68,25 @@ public class ProjectQueryFacadeService {
     }
 
 
+    public List<ResponseInvitableUserDTO> getInvitableUser(Long projectId, Long userId) {
+        boolean isInviteRole = participantQueryService.isInviteRole(userId, projectId);
+        if (!isInviteRole) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
+
+        List<AllUserDTO> userList = userQueryService.selectAllUser();
+        List<Long> alreadyParticipantUser = participantQueryService.selectParticipantUserId(projectId);
+
+        List<ResponseInvitableUserDTO> result = userList.stream()
+                .map(user -> new ResponseInvitableUserDTO(
+                        user.getId(),
+                        user.getName(),
+                        user.getDeptName(),
+                        user.getJobRank(),
+                        alreadyParticipantUser.contains(user.getId())
+                ))
+                .toList();
+
+        return result;
+    }
 }

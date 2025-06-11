@@ -18,4 +18,6 @@ public interface ParticipantQueryService {
     boolean isInviteRole(Long userId, Long projectId);
 
     void alreadyExistsMember(Long projectId, List<RequestInviteUserDTO> reqMemberDTO);
+
+    List<Long> selectParticipantUserId(Long projectId);
 }

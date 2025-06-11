@@ -58,7 +58,7 @@
         WHERE a.target_type = 'PROJECT'
         AND a.target_id = #{projectId}
         AND a.user_id = #{userId}
-        AND (a.role_id = 2 OR a.role_id = 3)
+        AND (a.role_id = 1 OR a.role_id = 2)
         )
     </select>
 
@@ -72,5 +72,13 @@
             AND a.target_id = #{projectId}
             AND b.dept_name = #{deptName}
         )
+    </select>
+
+    <select id="selectParticipantUserId" resultType="long">
+        SELECT
+               user_id
+          FROM participant
+         WHERE target_type = 'PROJECT'
+           AND target_id = #{project_id}
     </select>
 </mapper>
