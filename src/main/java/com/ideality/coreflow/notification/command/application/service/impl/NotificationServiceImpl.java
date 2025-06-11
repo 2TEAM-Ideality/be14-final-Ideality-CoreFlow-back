@@ -95,6 +95,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .status(Status.SENT)
                 .dispatchAt(LocalDateTime.now())
                 .createdAt(LocalDateTime.now())
+                .isAutoDelete(false)
                 .build();
 
         notificationRepository.save(notification);

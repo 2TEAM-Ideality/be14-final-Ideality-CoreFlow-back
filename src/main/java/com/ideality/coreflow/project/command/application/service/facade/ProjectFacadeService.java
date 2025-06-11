@@ -383,9 +383,11 @@ public class ProjectFacadeService {
 
     @Transactional
     public void createParticipantsLeader(Long userId, Long projectId, List<RequestInviteUserDTO> reqLeaderDTO) {
+
+        projectService.existsById(projectId);
         boolean isDirector = participantQueryService.isProjectDirector(projectId, userId);
         if (!isDirector) {
-            throw new BaseException(ErrorCode.ACCESS_DENIED);
+            throw new BaseException(ErrorCode.TEAM_LEADER_ALREADY_EXISTS);
         }
 
         List<Long> leaderUserIds = reqLeaderDTO.stream()
@@ -419,10 +421,11 @@ public class ProjectFacadeService {
 
     @Transactional
     public void createParticipantsTeamLeader(Long userId, Long projectId, List<RequestInviteUserDTO> reqMemberDTO) {
+        projectService.existsById(projectId);
         // 권한 확인 필요 -> 팀장이거나 or 디렉터
         boolean isInviteRole = participantQueryService.isInviteRole(userId, projectId);
         if (!isInviteRole) {
-            throw new BaseException(ErrorCode.ACCESS_DENIED);
+            throw new BaseException(ErrorCode.TEAM_MEMBER_ALREADY_EXISTS);
         }
 
         List<Long> participantUser = reqMemberDTO.stream()
