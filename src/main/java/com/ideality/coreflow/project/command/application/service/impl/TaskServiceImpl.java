@@ -132,7 +132,7 @@ public class TaskServiceImpl implements TaskService {
         Long passedDates = ChronoUnit.DAYS.between(startReal, now)+1
                             -holidayQueryService.countHolidaysBetween(startReal, now);
         Double passedRate = (double) passedDates / totalDuration * 100;
-        passedRate = passedRate > 100 ? 100 : passedRate;
+        passedRate = passedRate>100?100:Math.round(passedRate*100)/100.0;
         work.setPassedRate(passedRate);
         taskRepository.saveAndFlush(work);
         return work.getPassedRate();

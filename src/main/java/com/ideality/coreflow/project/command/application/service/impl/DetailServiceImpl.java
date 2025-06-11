@@ -2,6 +2,7 @@ package com.ideality.coreflow.project.command.application.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
 import com.ideality.coreflow.project.command.application.service.DetailService;
@@ -13,6 +14,7 @@ import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.command.domain.repository.ParticipantRepository;
 import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
+import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static com.ideality.coreflow.common.exception.ErrorCode.DETAIL_NOT_FOUND;
 import static com.ideality.coreflow.common.exception.ErrorCode.INVALID_SOURCE_LIST;
 import static com.ideality.coreflow.common.exception.ErrorCode.TASK_NOT_FOUND;
 
@@ -36,8 +39,29 @@ public class DetailServiceImpl implements DetailService {
     private final ParticipantService participantService;
     private final RelationService relationService;
     private final WorkDeptService workDeptService;
+    private final HolidayQueryService holidayQueryService;
 
 
+    @Override
+    public Double updateDetailPassedRate(Long detailId) {
+        Work detailWork = workRepository.findById(detailId).orElseThrow(() -> new BaseException(DETAIL_NOT_FOUND));
+        LocalDate now = LocalDate.now();
+        LocalDate endBase = detailWork.getEndBase();
+        LocalDate startBase = detailWork.getStartBase();
+        LocalDate startReal = detailWork.getStartReal();
+
+        Long totalDuration = ChronoUnit.DAYS.between(startBase, endBase)+1
+                -holidayQueryService.countHolidaysBetween(startBase, endBase);
+        Long passedDates = ChronoUnit.DAYS.between(startReal, now)+1
+                -holidayQueryService.countHolidaysBetween(startReal, now);
+
+        Double passedRate = (double) passedDates / totalDuration * 100;
+        passedRate = passedRate>100?100:Math.round(passedRate*100)/100.0;
+
+        detailWork.setPassedRate(passedRate);
+        workRepository.save(detailWork);
+        return detailWork.getPassedRate();
+    }
 
     @Override
     @Transactional

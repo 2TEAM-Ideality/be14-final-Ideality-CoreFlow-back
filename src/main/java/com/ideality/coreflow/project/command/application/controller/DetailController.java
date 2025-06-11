@@ -2,11 +2,8 @@ package com.ideality.coreflow.project.command.application.controller;
 
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
-import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
-import com.ideality.coreflow.project.command.application.service.DetailService;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -72,5 +69,13 @@ public class DetailController {
         );
     }
 
+    @PatchMapping("{workId}/passed-rate")
+    public ResponseEntity<APIResponse<Map<String, Object>>> updateDetailPassedRate(@PathVariable Long workId){
+        Double updatedPassedRate = projectFacadeService.updateDetailPassedRate(workId);
+        return ResponseEntity.ok(
+                APIResponse.success(Map.of("updatedPassedRate", updatedPassedRate),
+                        workId +"번 세부일정의 경과율이 업데이트 되었습니다.")
+        );
+    }
 
 }

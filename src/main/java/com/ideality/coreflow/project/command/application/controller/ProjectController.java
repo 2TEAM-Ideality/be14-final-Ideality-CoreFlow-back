@@ -67,7 +67,7 @@ public class ProjectController {
         Double updatedPassedRate = projectFacadeService.updateProjectPassedRate(projectId);
         return ResponseEntity.ok(
                 APIResponse.success(Map.of("updatedPassedRate", updatedPassedRate),
-                        projectId + "번 프로젝트의 진행률이 업데이트 되었습니다")
+                        projectId + "번 프로젝트의 경과율이 업데이트 되었습니다")
         );
     }
 }

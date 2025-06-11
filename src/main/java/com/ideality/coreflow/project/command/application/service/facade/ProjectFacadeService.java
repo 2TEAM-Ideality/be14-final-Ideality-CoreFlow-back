@@ -48,6 +48,10 @@ public class ProjectFacadeService {
     private final DetailService detailService;
     private final TaskQueryService taskQueryService;
 
+    public Double updateDetailPassedRate(Long detailId){
+        return detailService.updateDetailPassedRate(detailId);
+    }
+
     @Transactional
     public Double updateTaskPassedRate(Long taskId){
         return taskService.updateTaskPassedRate(taskId);

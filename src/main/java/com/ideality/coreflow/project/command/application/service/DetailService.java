@@ -19,4 +19,6 @@ public interface DetailService {
     void completeDetail(Long workId);
 
     void deleteDetail(Long workId);
+
+    Double updateDetailPassedRate(Long detailId);
 }
