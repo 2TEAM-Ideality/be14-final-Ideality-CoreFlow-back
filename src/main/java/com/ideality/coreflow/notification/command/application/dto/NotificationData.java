@@ -1,12 +1,16 @@
 package com.ideality.coreflow.notification.command.application.dto;
 
 import com.ideality.coreflow.notification.command.domain.aggregate.Status;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 // 알림 데이터를 담는 DTO 클래스 (NotificationData)
 @Getter
+@Data
 public class NotificationData {
     private final String content;
     private final String date;

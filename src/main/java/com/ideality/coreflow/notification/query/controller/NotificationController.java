@@ -7,6 +7,7 @@ import com.ideality.coreflow.notification.command.application.dto.NotificationDa
 import com.ideality.coreflow.notification.command.domain.aggregate.Notification;
 import com.ideality.coreflow.notification.command.domain.aggregate.Status;
 import com.ideality.coreflow.notification.query.service.NotificationQueryService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +57,14 @@ public class NotificationController {
 
 
     @PreAuthorize("isAuthenticated()")  // 인증된 사용자만 접근 가능
-    @GetMapping(value = "/api/notifications/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter streamNotifications(@RequestParam("token") String token) {
+    @GetMapping(value = "/api/notifications/stream", produces = "text/event-stream;charset=UTF-8")
+    public SseEmitter streamNotifications(@RequestParam("token") String token, HttpServletResponse response) {
+        // 여기서 직접 UTF-8 설정
+        response.setContentType("text/event-stream;charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
+
+
         // 로그에 token 값 출력
         logger.info("Received token: {}", token);
 
@@ -66,8 +73,20 @@ public class NotificationController {
             return new SseEmitter(0L); // 적절한 처리 (토큰이 없으면 401)
         }
 
-        SseEmitter emitter = new SseEmitter();
-        
+        SseEmitter emitter = new SseEmitter(60 * 60 * 1000L); // 1시간
+
+
+    // 타임아웃 시 처리 로직 등록
+        emitter.onTimeout(() -> {
+            logger.warn("SSE 타임아웃 발생 - 연결 종료");
+            emitter.complete();
+        });
+
+// 연결 완료 시 로그
+        emitter.onCompletion(() -> {
+            logger.info("SSE 연결 완료 후 정상 종료됨");
+        });
+
         // 사용자 ID 가져오기 (SecurityContext에서 새 스레드에선 컨텍스트 공유 안됨)
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
 
@@ -95,7 +114,10 @@ public class NotificationController {
                                 .map(notification -> new NotificationData(notification.getContent(), notification.getDispatchAt(), notification.getStatus(), notification.getId()))
                                 .collect(Collectors.toList());
 
-                        emitter.send(SseEmitter.event().data(notificationDataList));
+                        emitter.send(SseEmitter.event().name("notification").data(notificationDataList).reconnectTime(3000));
+                    } else {
+                        // 연결 유지용 dummy 메시지 (클라이언트에서 무시)
+                        emitter.send(SseEmitter.event().name("heartbeat").data("ping"));
                     }
 
                     // 5초마다 알림을 전송
