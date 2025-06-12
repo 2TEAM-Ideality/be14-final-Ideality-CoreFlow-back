@@ -153,6 +153,7 @@ public class TaskServiceImpl implements TaskService {
     public Integer delayAndPropagate(Long taskId, Integer delayDays) {
         Set<Long> visited = new HashSet<>();
         Queue<DelayNodeDTO> queue = new LinkedList<>();
+        Integer count = 0;
 
         // 초기 태스크 처리
         Work startTask = taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
@@ -181,16 +182,18 @@ public class TaskServiceImpl implements TaskService {
                     nextTask.setSlackTime(0);
                     delayTask(nextTask, realDelay);
                     queue.offer(new DelayNodeDTO(nextTaskId, realDelay));
+                    count++;
                 }
                 visited.add(nextTaskId);
             }
         }
-        return visited.size();
+        return count;
     }
 
     private void delayTask(Work task, Integer delayDays) {
         task.setStartExpect(task.getStartExpect().plusDays(delayDays));
         task.setEndExpect(task.getEndExpect().plusDays(delayDays));
+        task.setDelayDays(task.getDelayDays() + delayDays);
         taskRepository.save(task);
     }
 }
