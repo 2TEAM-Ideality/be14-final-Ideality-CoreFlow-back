@@ -269,7 +269,7 @@ public class ProjectFacadeService {
             workDeptService.createWorkDept(taskId, deptId);
             log.info("작업 별 참여 부서 생성 완료");
 
-            List<Long> userIds = deptUsersMaps.get(deptName);
+            List<Long> newParticipantsIds = deptUsersMaps.get(deptName);
             List<Long> leaderIds = deptLeaderMaps.get(deptName);
             // ✅ 1. 팀장 먼저 등록
             List<ParticipantDTO> leaderParticipants = leaderIds.stream()
@@ -279,10 +279,10 @@ public class ProjectFacadeService {
             log.info("팀장 등록 완료");
 
             // ✅ 2. 팀원 등록 (디렉터 & 팀장 제외)
-            List<ParticipantDTO> teamParticipants = userIds.stream()
-                    .filter(userId -> !leaderIds.contains(userId))       // 팀장 제외
-                    .filter(userId -> !userId.equals(directorId))        // 디렉터 제외
-                    .map(userId -> new ParticipantDTO(taskId, userId, TargetType.TASK, 3L))
+            List<ParticipantDTO> teamParticipants = newParticipantsIds.stream()
+                    .filter(participantUserId -> !leaderIds.contains(userId))       // 팀장 제외
+                    .filter(participantUserId -> !userId.equals(directorId))        // 디렉터 제외
+                    .map(participantUserId -> new ParticipantDTO(taskId, userId, TargetType.TASK, 3L))
                     .toList();
             participantService.createParticipants(teamParticipants);
             log.info("팀원 등록 완료");
@@ -312,7 +312,12 @@ public class ProjectFacadeService {
 
 
     @Transactional
-    public Long createDetail(RequestDetailDTO requestDetailDTO) {
+    public Long createDetail(RequestDetailDTO requestDetailDTO, Long userId) {
+
+        boolean isParticipant = participantQueryService.isParticipant(requestDetailDTO.getProjectId(), userId);
+        if (!isParticipant) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
         Long detailId = detailService.createDetail(requestDetailDTO);
         log.info("세부 일정 생성");
 
