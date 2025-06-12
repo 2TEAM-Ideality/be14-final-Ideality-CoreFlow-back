@@ -13,6 +13,7 @@ import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
 import com.ideality.coreflow.project.query.service.RelationQueryService;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -190,10 +191,29 @@ public class TaskServiceImpl implements TaskService {
 
     private void delayTask(Work task, Integer delayDays) {
         if (task.getStatus() == Status.PENDING) {
-            task.setStartExpect(task.getStartExpect().plusDays(delayDays));
+            task.setStartExpect(task.getStartExpect().plusDays(
+                    calculateDelayExcludingHolidays(task.getStartExpect(), delayDays)
+            ));
         }
-        task.setEndExpect(task.getEndExpect().plusDays(delayDays));
+        task.setEndExpect(task.getEndExpect().plusDays(
+                calculateDelayExcludingHolidays(task.getEndExpect(), delayDays)
+        ));
         task.setDelayDays(task.getDelayDays() + delayDays);
         taskRepository.save(task);
+    }
+
+    private int calculateDelayExcludingHolidays(LocalDate startDate, Integer delayDays) {
+        int addedDays = 0;
+        int workingDays = 0;
+        LocalDate date = startDate;
+
+        while (workingDays < delayDays) {
+            date = date.plusDays(1);
+            if(!holidayQueryService.isHoliday(date)) {
+                workingDays++;
+            }
+            addedDays++;
+        }
+        return addedDays;
     }
 }
