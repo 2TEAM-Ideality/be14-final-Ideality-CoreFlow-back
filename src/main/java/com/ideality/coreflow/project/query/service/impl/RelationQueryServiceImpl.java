@@ -5,6 +5,7 @@ import com.ideality.coreflow.project.query.dto.PrevTaskDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskInfoDTO;
 import com.ideality.coreflow.project.query.mapper.RelationMapper;
 import com.ideality.coreflow.project.query.service.RelationQueryService;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,5 +29,10 @@ public class RelationQueryServiceImpl implements RelationQueryService {
     public void selectNextRelation(Long taskId, ResponseTaskInfoDTO selectTask) {
         List<NextTaskDTO> nextSet = relationMapper.selectNextRelation(taskId);
         selectTask.setNextTasks(nextSet);
+    }
+
+    @Override
+    public List<Long> findNextTaskIds(Long taskId) {
+        return relationMapper.selectNextTaskIds(taskId);
     }
 }

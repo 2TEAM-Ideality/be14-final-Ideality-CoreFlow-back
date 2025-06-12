@@ -52,6 +52,8 @@ public class ProjectFacadeService {
     private final WorkService workService;
     private final WorkQueryService workQueryService;
 
+
+    @Transactional
     public Double updateProgressRate(Long taskId) {
         List<TaskProgressDTO> workList = workQueryService.getDetailProgressByTaskId(taskId);
         System.out.println("workList.size() = " + workList.size());
@@ -374,4 +376,8 @@ public class ProjectFacadeService {
         detailService.deleteDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
     }
 
+    @Transactional
+    public Integer delayAndPropagate(Long taskId, Integer delayDays) {
+        return taskService.delayAndPropagate(taskId, delayDays);
+    }
 }

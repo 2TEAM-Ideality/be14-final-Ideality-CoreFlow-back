@@ -2,23 +2,28 @@ package com.ideality.coreflow.project.command.application.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
+import com.ideality.coreflow.project.command.application.dto.DelayNodeDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
+import com.ideality.coreflow.project.command.domain.repository.RelationRepository;
 import com.ideality.coreflow.project.command.domain.repository.TaskRepository;
 import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
+import com.ideality.coreflow.project.query.service.RelationQueryService;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 
-import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
-
 import static com.ideality.coreflow.common.exception.ErrorCode.*;
 
 @Service
@@ -28,6 +33,7 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
     private final HolidayQueryService holidayQueryService;
+    private final RelationQueryService relationQueryService;
 
     @Override
     @Transactional
@@ -140,5 +146,51 @@ public class TaskServiceImpl implements TaskService {
         task.setProgressRate(Math.round(totalProgress/totalDuration*10000)/100.0);
         taskRepository.saveAndFlush(task);
         return task.getProgressRate();
+    }
+
+    @Override
+    @Transactional
+    public Integer delayAndPropagate(Long taskId, Integer delayDays) {
+        Set<Long> visited = new HashSet<>();
+        Queue<DelayNodeDTO> queue = new LinkedList<>();
+
+        // 초기 태스크 처리
+        Work startTask = taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+        startTask.setEndExpect(startTask.getEndExpect().plusDays(delayDays));
+        startTask.setDelayDays(startTask.getDelayDays() + delayDays);
+        taskRepository.save(startTask);
+
+        // 지연 전파
+        queue.offer(new DelayNodeDTO(taskId, delayDays));
+
+        while (!queue.isEmpty()) {
+            DelayNodeDTO currentNode = queue.poll();
+            List<Long> nextTaskIds = relationQueryService.findNextTaskIds(currentNode.getTaskId());
+
+            for (Long nextTaskId : nextTaskIds) {
+                if (visited.contains(nextTaskId)) {continue;}
+
+                Work nextTask = taskRepository.findById(nextTaskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+                Integer delayToApply = currentNode.getDelayDays();
+
+                if (nextTask.getSlackTime() >= delayToApply) {
+                    nextTask.setSlackTime(nextTask.getSlackTime() - delayToApply);
+                    taskRepository.save(nextTask);
+                }else {
+                    int realDelay = delayToApply - nextTask.getSlackTime();
+                    nextTask.setSlackTime(0);
+                    delayTask(nextTask, realDelay);
+                    queue.offer(new DelayNodeDTO(nextTaskId, realDelay));
+                }
+                visited.add(nextTaskId);
+            }
+        }
+        return visited.size();
+    }
+
+    private void delayTask(Work task, Integer delayDays) {
+        task.setStartExpect(task.getStartExpect().plusDays(delayDays));
+        task.setEndExpect(task.getEndExpect().plusDays(delayDays));
+        taskRepository.save(task);
     }
 }
