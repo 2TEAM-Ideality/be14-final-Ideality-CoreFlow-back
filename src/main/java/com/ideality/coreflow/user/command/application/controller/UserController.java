@@ -22,16 +22,16 @@ public class UserController {
     @PatchMapping("/update-profile")
     public ResponseEntity<APIResponse<?>> modifyUserProfileImg(@RequestBody RequestUpdateProfile request) {
         UserInfoDTO userInfoDTO = UserInfoDTO.builder()
-                .id(Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName()))
+                .id(request.getId())
                 .profileImage(request.getProfileImage()).build();
         userFacadeService.modifyUserProfileImg(userInfoDTO);
 
         return ResponseEntity.ok(APIResponse.success(null, "프로필 사진 변경 완료"));
     }
 
-    @DeleteMapping("/delete-profile")
-    public ResponseEntity<APIResponse<?>> deleteUserProfileImg() {
-        userFacadeService.deleteUserProfileImg(Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName()));
+    @DeleteMapping("/delete-profile/{userId}")
+    public ResponseEntity<APIResponse<?>> deleteUserProfileImg(@PathVariable Long userId) {
+        userFacadeService.deleteUserProfileImg(userId);
         return ResponseEntity.ok(APIResponse.success(null, "프로필 사진 삭제 완료"));
     }
 
