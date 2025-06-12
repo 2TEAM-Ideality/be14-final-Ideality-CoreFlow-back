@@ -33,8 +33,7 @@ public class AuthController {
     // 협력 업체 계정 생성
     @PostMapping("/signup-partner")
     public ResponseEntity<APIResponse<?>> signupPartner(@RequestBody RequestSignUpPartner request) {
-        authFacadeService.signUpPartner(request);
-        return ResponseEntity.ok(APIResponse.success(null, "협력업체 계정 생성 완료"));
+        return ResponseEntity.ok(APIResponse.success(authFacadeService.signUpPartner(request), "협력업체 계정 생성 완료"));
     }
 
     @PostMapping("logout")
