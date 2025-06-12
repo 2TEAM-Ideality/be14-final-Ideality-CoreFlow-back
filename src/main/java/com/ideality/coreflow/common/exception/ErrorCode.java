@@ -106,7 +106,10 @@ public enum ErrorCode {
     COMMENT_ACCESS_DENIED("COMMENT_ACCESS_DENIED", "댓글에 접근할 수 없는 권합입니다.", HttpStatus.FORBIDDEN),
     COMMENT_ALREADY_DELETED("COMMENT_ALREADY_DELETED", "이미 삭제된 댓글입니다." , HttpStatus.FORBIDDEN),
     REPEATRULE_NOT_FOUND("REPEATRULE_NOT_FOUND", "존재하지 않는 반복규칙입니다.", HttpStatus.NOT_FOUND ),
-	PDF_CREATE_FAILED("PDF_CREATE_FAILED", "프로젝트 리포트 PDF 파일 생성이 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+	PDF_CREATE_FAILED("PDF_CREATE_FAILED", "프로젝트 리포트 PDF 파일 생성이 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    NO_COMPLETED_PROJECT("NO_COMPLETED_PROJECT", "완료된 프로젝트가 없습니다." , HttpStatus.NOT_FOUND )
+    ;
+
 
     private final String code;
     private final String message;

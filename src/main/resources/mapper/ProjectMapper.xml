@@ -155,6 +155,29 @@
             JOIN user director  ON director.id      = pt.user_id
     </select>
 
+    <!--  완료된 프로젝트 전체 목록 가져오기 -->
+    <select id="selectCompletedProjects" resultType="com.ideality.coreflow.project.query.dto.CompletedProjectDTO">
+        SELECT
+            p.id,
+            p.name,
+            p.status,
+            CASE
+            WHEN p.status = 'PENDING' THEN p.start_expect
+            WHEN p.status = 'PROGRESS' THEN p.start_base
+            WHEN p.status = 'COMPLETED' THEN p.start_base
+            END AS start_date,
+            CASE
+            WHEN p.status = 'PENDING' THEN p.end_expect
+            WHEN p.status = 'PROGRESS' THEN p.end_expect
+            WHEN p.status = 'COMPLETED' THEN p.end_base
+            END AS end_date,
+            p.progress_rate,
+            p.passed_rate,
+            p.delay_days
+        FROM project p
+        WHERE p.status = 'COMPLETED'
+    </select>
+
     <select id="findProjectNameByProjectId" resultType="String">
         SELECT NAME
         FROM PROJECT

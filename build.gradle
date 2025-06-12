@@ -93,6 +93,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     // 차트 이미지 생성
     implementation 'org.knowm.xchart:xchart:3.8.1'
+    implementation 'org.jfree:jfreechart:1.5.3'
 
 
 }

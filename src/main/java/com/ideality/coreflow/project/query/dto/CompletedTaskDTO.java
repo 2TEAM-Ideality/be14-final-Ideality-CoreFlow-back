@@ -19,6 +19,7 @@ import lombok.ToString;
 public class CompletedTaskDTO {
 	
 	// 일단, 프로젝트 분석 리포트용 - 완료된 태스크 정보
+	private Long projectId;
 	private Long taskId;
 	private String taskName;
 	private LocalDateTime createdAt;
