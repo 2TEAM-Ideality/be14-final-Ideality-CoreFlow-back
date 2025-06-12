@@ -25,4 +25,6 @@ public interface UserService {
     void updateUserOrg(OrgType type, String prevJobRankName, String newJobRankName);
 
     UserInfoDTO findUserById(long userId);
+
+    void deleteUserProfileImg(long userId);
 }

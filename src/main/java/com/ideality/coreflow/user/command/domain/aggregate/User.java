@@ -80,4 +80,8 @@ public class User {
             case JOB_ROLE -> this.jobRoleName = newName;
         }
     }
+
+    public void deleteProfile() {
+        this.profileImage = null;
+    }
 }

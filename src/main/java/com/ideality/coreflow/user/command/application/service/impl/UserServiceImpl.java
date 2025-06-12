@@ -162,4 +162,11 @@ public class UserServiceImpl implements UserService {
                 .jobRoleName(user.getJobRoleName())
                 .build();
     }
+
+    @Override
+    public void deleteUserProfileImg(long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
+        user.deleteProfile();
+        userRepository.save(user);
+    }
 }

@@ -47,4 +47,8 @@ public class UserFacadeService {
                 .userOfRoles(userOfRoles)
                 .build();
     }
+
+    public void deleteUserProfileImg(long userId) {
+        userService.deleteUserProfileImg(userId);
+    }
 }
