@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@RequestMapping("/api/project")
+@RequestMapping("/api/projects")
 @RestController
 public class ProjectController {
 
