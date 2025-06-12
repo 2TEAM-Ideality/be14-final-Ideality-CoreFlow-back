@@ -157,9 +157,7 @@ public class TaskServiceImpl implements TaskService {
 
         // 초기 태스크 처리
         Work startTask = taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
-        startTask.setEndExpect(startTask.getEndExpect().plusDays(delayDays));
-        startTask.setDelayDays(startTask.getDelayDays() + delayDays);
-        taskRepository.save(startTask);
+        delayTask(startTask, delayDays);
 
         // 지연 전파
         queue.offer(new DelayNodeDTO(taskId, delayDays));
@@ -168,7 +166,7 @@ public class TaskServiceImpl implements TaskService {
             DelayNodeDTO currentNode = queue.poll();
             List<Long> nextTaskIds = relationQueryService.findNextTaskIds(currentNode.getTaskId());
 
-            for (Long nextTaskId : nextTaskIds) {
+            for (Long nextTaskId  : nextTaskIds) {
                 if (visited.contains(nextTaskId)) {continue;}
 
                 Work nextTask = taskRepository.findById(nextTaskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
@@ -191,7 +189,9 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private void delayTask(Work task, Integer delayDays) {
-        task.setStartExpect(task.getStartExpect().plusDays(delayDays));
+        if (task.getStatus() == Status.PENDING) {
+            task.setStartExpect(task.getStartExpect().plusDays(delayDays));
+        }
         task.setEndExpect(task.getEndExpect().plusDays(delayDays));
         task.setDelayDays(task.getDelayDays() + delayDays);
         taskRepository.save(task);
