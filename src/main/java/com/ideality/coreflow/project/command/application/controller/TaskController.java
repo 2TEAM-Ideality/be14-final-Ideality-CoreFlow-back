@@ -58,15 +58,6 @@ public class TaskController {
         );
     }
 
-<<<<<<< HEAD
-    @PatchMapping("/detail/update/{taskId}")
-    public ResponseEntity<APIResponse<Map<String, Long>>> updateTaskDetailInfo
-            (@PathVariable Long taskId, @RequestBody RequestTaskDTO requestTaskDTO) {
-        Long updateTask = projectFacadeService.updateTaskDetail(taskId, requestTaskDTO);
-        return ResponseEntity.ok(
-                APIResponse.success(Map.of("taskId", updateTask),
-                        "태스크가 업데이트 되었습니다.")
-=======
     @PatchMapping("/{taskId}/passed-rate")
     public ResponseEntity<APIResponse<Map<String, Double>>> updateTaskPassedRate(@PathVariable Long taskId) {
         Double passedRate = projectFacadeService.updatePassedRate(taskId);
@@ -82,7 +73,6 @@ public class TaskController {
         return ResponseEntity.ok(
                 APIResponse.success(Map.of("progressRate", progressRate),
                         taskId + "번 태스크의 진척률이 업데이트 되었습니다.")
->>>>>>> develop
         );
     }
 }

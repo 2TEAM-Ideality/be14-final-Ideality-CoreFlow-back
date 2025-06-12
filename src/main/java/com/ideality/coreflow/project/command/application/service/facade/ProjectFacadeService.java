@@ -233,14 +233,23 @@ public class ProjectFacadeService {
 
         /* 설명. 태스크 부터 */
         Long taskId = taskService.createTask(requestTaskDTO);
-        taskService.validateSource(requestTaskDTO.getSource());
-        if (requestTaskDTO.getTarget() == null || requestTaskDTO.getTarget().isEmpty()) {
-            // target이 없으면
-            relationService.appendRelation(requestTaskDTO.getSource(), taskId);
+
+        if (requestTaskDTO.getSource() != null && requestTaskDTO.getTarget() != null) {
+            // 검증 부터 수행
+            taskService.validateRelation(requestTaskDTO.getSource());
+            taskService.validateRelation(requestTaskDTO.getTarget());
+
+            // 실제 값을 넣기 -> 이 부분을 수정했음
+            relationService.appendRelation(taskId, requestTaskDTO.getSource(), requestTaskDTO.getTarget());
+
         } else {
-            taskService.validateTarget(requestTaskDTO.getTarget());
-            relationService.appendMiddleRelation(requestTaskDTO.getSource(), requestTaskDTO.getTarget(), taskId);
+            log.info("둘 다 null이라 값을 넣지 않음");
         }
+//        if (requestTaskDTO.getTarget() == null || requestTaskDTO.getTarget().isEmpty()) {
+//            // target이 없으면
+//        } else {
+//            relationService.appendMiddleRelation(requestTaskDTO.getSource(), requestTaskDTO.getTarget(), taskId);
+//        }
         log.info("태스크 및 태스트별 관계 설정 완료");
 
 
@@ -304,21 +313,22 @@ public class ProjectFacadeService {
             log.info("source와 target 모두 null이므로 관계 설정을 생략합니다.");
         } else {
 
-            if (requestDetailDTO.getSource() == null || requestDetailDTO.getSource().isEmpty()) {
-                //2. source가 없고, target만 있을 때 관계 설정
-                if (requestDetailDTO.getTarget() != null && !requestDetailDTO.getTarget().isEmpty()) {
-                    relationService.appendTargetRelation(requestDetailDTO.getTarget(), detailId); // target에 대한 관계 설정
-                }
-            } else {
-                if (requestDetailDTO.getTarget() == null || requestDetailDTO.getTarget().isEmpty()) {
-                    // 3.source는 있고 target이 없을 때
-                    relationService.appendRelation(requestDetailDTO.getSource(), detailId);
-                } else {
-                    //4.source와 target 둘 다 있을 때
-
-                    relationService.appendMiddleRelation(requestDetailDTO.getSource(), requestDetailDTO.getTarget(), detailId);
-                }
-            }
+//            if (requestDetailDTO.getSource() == null || requestDetailDTO.getSource().isEmpty()) {
+//                //2. source가 없고, target만 있을 때 관계 설정
+//                if (requestDetailDTO.getTarget() != null && !requestDetailDTO.getTarget().isEmpty()) {
+//                    relationService.appendTargetRelation(requestDetailDTO.getTarget(), detailId); // target에 대한 관계 설정
+//                }
+//            } else {
+//                if (requestDetailDTO.getTarget() == null || requestDetailDTO.getTarget().isEmpty()) {
+//                    // 3.source는 있고 target이 없을 때
+//                    relationService.appendRelation(requestDetailDTO.getSource(), detailId);
+//                } else {
+//                    //4.source와 target 둘 다 있을 때
+//
+//                    relationService.appendMiddleRelation(requestDetailDTO.getSource(), requestDetailDTO.getTarget(), detailId);
+//                }
+//            }
+            relationService.appendRelation(detailId, requestDetailDTO.getSource(), requestDetailDTO.getTarget());
             log.info("세부 일정 관계 설정");
         }
 
