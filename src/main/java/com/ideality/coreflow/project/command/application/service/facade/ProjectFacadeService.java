@@ -1,5 +1,7 @@
 package com.ideality.coreflow.project.command.application.service.facade;
 
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
@@ -210,11 +212,18 @@ public class ProjectFacadeService {
     }
 
     @Transactional
-    public Long createTask(RequestTaskDTO requestTaskDTO) {
+    public Long createTask(RequestTaskDTO requestTaskDTO, Long userId) {
 
         /* 설명. “읽기-쓰기 분리 전략”
          *  중복 select를 방지하기 위해 읽기부터
         * */
+
+        boolean isParticipant = participantQueryService.isParticipant(requestTaskDTO.getProjectId(), userId);
+
+        if (!isParticipant) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
+
         Map<Long, String> deptIdMap = requestTaskDTO.getDeptList().stream()
                         .collect
                         (Collectors.toMap(id -> id, deptQueryService::findNameById));
