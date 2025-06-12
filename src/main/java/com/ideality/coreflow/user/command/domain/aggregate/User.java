@@ -63,7 +63,10 @@ public class User {
         if (dto.getBirth() != null) this.birth = dto.getBirth();
         if (dto.getHireDate() != null) this.hireDate = dto.getHireDate();
         if (dto.getIsResign() != null) this.isResign = dto.getIsResign();
-        if (dto.getResignDate() != null) this.resignDate = dto.getResignDate();
+        if (dto.getResignDate() != null) {
+            this.resignDate = dto.getResignDate();
+            this.isResign = false;
+        }
         if (dto.getProfileImage() != null) this.profileImage = dto.getProfileImage();
         if (dto.getDeptName() != null) this.deptName = dto.getDeptName();
         if (dto.getJobRankName() != null) this.jobRankName = dto.getJobRankName();

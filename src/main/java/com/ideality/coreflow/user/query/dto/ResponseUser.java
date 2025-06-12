@@ -9,7 +9,7 @@ public class ResponseUser {
     String deptName;
     String jobRankName;
     String jobRoleName;
-    boolean isCreation;
-    boolean isActive;
-    boolean isInner;
+    Boolean isCreation;
+    Boolean isActive;
+    Boolean isInner;
 }
