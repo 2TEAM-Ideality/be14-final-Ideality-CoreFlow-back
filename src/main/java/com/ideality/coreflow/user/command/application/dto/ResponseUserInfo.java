@@ -23,5 +23,5 @@ public class ResponseUserInfo {
     String jobRoleName;
     Boolean isCreation;
 
-    List<String> userOfRoles;
+    List<String> roles;
 }

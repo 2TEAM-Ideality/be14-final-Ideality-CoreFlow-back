@@ -44,7 +44,7 @@ public class UserFacadeService {
                 .jobRankName(userInfo.getJobRankName())
                 .jobRoleName(userInfo.getJobRoleName())
                 .isCreation(isCreation)
-                .userOfRoles(userOfRoles)
+                .roles(userOfRoles)
                 .build();
     }
 
