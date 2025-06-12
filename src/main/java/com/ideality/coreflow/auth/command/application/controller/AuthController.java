@@ -27,8 +27,7 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<APIResponse<?>> signupEntry(@RequestBody RequestSignUp requestSignUp) {
-        authFacadeService.signUp(requestSignUp);
-        return ResponseEntity.ok(APIResponse.success(null, "회원가입 성공"));
+        return ResponseEntity.ok(APIResponse.success(authFacadeService.signUp(requestSignUp), "회원가입 성공"));
     }
 
     // 협력 업체 계정 생성
