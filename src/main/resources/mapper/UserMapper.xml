@@ -11,7 +11,7 @@
         <result property="jobRankName" column="JOB_RANK_NAME" />
         <result property="jobRoleName" column="JOB_ROLE_NAME" />
         <result property="isCreation" column="IS_CREATION" />
-        <result property="isActive" column="IS_ACTIVE"/>
+        <result property="isResign" column="IS_RESIGN"/>
         <result property="isInner" column="IS_INNER"/>
     </resultMap>
 
@@ -32,7 +32,7 @@
              , u.job_rank_name AS JOB_RANK_NAME
              , u.job_role_name AS JOB_ROLE_NAME
              , MAX(CASE WHEN r.name = 'CREATOR' THEN TRUE ELSE FALSE END) AS IS_CREATION
-             , u.is_resign AS IS_ACTIVE
+             , u.is_resign AS IS_RESIGN
              , MAX(CASE WHEN r.name = 'PARTNER' THEN FALSE ELSE TRUE END) AS IS_INNER
           FROM USER u
           LEFT JOIN USER_OF_ROLE ur ON ur.user_id = u.id
@@ -46,7 +46,7 @@
              , u.is_resign
          ORDER BY
                u.is_resign
-             , u.id
+             , u.id DESC
     </select>
 
     <select id="selectUserOfGeneralRole" parameterType="_long" resultMap="userOfRoleResultMap">

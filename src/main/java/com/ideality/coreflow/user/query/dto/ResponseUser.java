@@ -10,6 +10,6 @@ public class ResponseUser {
     String jobRankName;
     String jobRoleName;
     Boolean isCreation;
-    Boolean isActive;
+    Boolean isResign;
     Boolean isInner;
 }
