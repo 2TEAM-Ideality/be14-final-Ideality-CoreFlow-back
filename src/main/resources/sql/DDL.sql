@@ -111,6 +111,7 @@ CREATE TABLE template (
     CONSTRAINT FOREIGN KEY (updated_by) REFERENCES user(id)
 );
 
+-- 템플릿별 참여 부서
 CREATE TABLE template_dept(
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     template_id BIGINT NOT NULL,
@@ -207,6 +208,7 @@ CREATE TABLE schedule (
     user_id BIGINT NOT NULL,
     dept_id BIGINT,
     is_repeat BOOLEAN NOT NULL DEFAULT FALSE,
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     event_type VARCHAR(255) NOT NULL DEFAULT 'PERSONAL',
     CONSTRAINT FOREIGN KEY (user_id) REFERENCES user(id),
     CONSTRAINT FOREIGN KEY (dept_id) REFERENCES dept(id),
@@ -217,7 +219,7 @@ CREATE TABLE schedule (
 CREATE TABLE repeat_rule (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     schedule_id BIGINT NOT NULL,
-    frequency VARCHAR(255) NOT NULL,
+    frequency VARCHAR(10) NOT NULL,
     repeat_interval INT NOT NULL DEFAULT 1,
     end_date DATE,
     by_day VARCHAR(255),
@@ -262,6 +264,7 @@ CREATE TABLE approval (
     created_at DATETIME NOT NULL,
     approved_at DATETIME,
     work_id BIGINT,
+    reject_reason TEXT,
     CONSTRAINT FOREIGN KEY (user_id) REFERENCES user(id),
     CONSTRAINT FOREIGN KEY (work_id) REFERENCES work(id) ,
     CHECK (type IN ('GENERAL', 'DELIVERABLE','DELAY')),
@@ -302,7 +305,7 @@ CREATE TABLE attachment (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     origin_name VARCHAR(255) NOT NULL,
     stored_name VARCHAR(255) NOT NULL,
-    url VARCHAR(255) NOT NULL,
+    url TEXT NOT NULL,
     file_type VARCHAR(255) NOT NULL,
     size VARCHAR(255) NOT NULL,
     upload_at DATETIME NOT NULL,

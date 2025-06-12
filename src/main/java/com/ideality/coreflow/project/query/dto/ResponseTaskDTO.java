@@ -5,6 +5,8 @@ import lombok.*;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.ideality.coreflow.template.query.dto.DeptDTO;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -20,4 +22,6 @@ public class ResponseTaskDTO {
     private int slackTime;
     private LocalDate startBaseLine;
     private LocalDate endBaseLine;
+
+
 }

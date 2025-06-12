@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ResponseAttachmentDTO {
 
-	private Long id;
-	private String url;
-	private String fileType;
-	private String size;
-	private String targetType;
-	private Long targetId;
+    private Long id;
+    private String url;
+    private String fileType;
+    private String size;
+    private String targetType;
+    private Long targetId;
 }

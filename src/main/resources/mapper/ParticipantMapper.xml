@@ -10,4 +10,31 @@
            AND target_type = 'PROJECT'
            AND role_id = 1
     </select>
+    <select id="isProjectDirector" parameterType="map" resultType="boolean">
+        SELECT EXISTS (
+               SELECT 1
+                 FROM participant
+                WHERE target_type = 'PROJECT'
+                  AND target_id   = #{projectId}
+                  AND user_id     = #{userId}
+                  AND role_id     = 1
+        )
+    </select>
+
+    <select id="selectParticipantsList" resultType="long">
+        SELECT user_id
+          FROM participant
+         WHERE target_id = #{detailParticipantId}
+           AND target_type = 'DETAILED'
+    </select>
+
+    <select id="isParticipantUser" resultType="boolean">
+        SELECT EXISTS (
+        SELECT 1
+        FROM participant
+        WHERE target_id = #{projectId}
+        AND user_id = #{userId}
+        AND target_type = 'PROJECT'
+        )
+    </select>
 </mapper>

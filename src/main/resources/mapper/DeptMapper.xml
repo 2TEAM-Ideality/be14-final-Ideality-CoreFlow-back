@@ -2,7 +2,8 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ideality.coreflow.project.query.mapper.DeptMapper">
+<mapper namespace="com.ideality.coreflow.org.query.mapper.DeptMapper">
+
     <select id="findNameById" resultType="string">
         SELECT name
           FROM dept
@@ -15,11 +16,18 @@
         WHERE name = #{deptName}
     </select>
 
-    <!-- 부서명만 조회하는 SQL -->
-    <select id="findAllDeptNames" resultType="string">
-        SELECT name
+
+    <!-- 부서명과 부서 ID 조회하는 SQL -->
+    <select id="findAllDeptNames" resultType="com.ideality.coreflow.project.query.dto.DepartmentDTO">
+        SELECT id AS deptId, name AS deptName
         FROM dept
     </select>
 
+
+    <select id="findDeptIdByName" resultType="long" parameterType="string">
+        SELECT id
+        FROM dept
+        WHERE name=#{deptName}
+    </select>
 
 </mapper>

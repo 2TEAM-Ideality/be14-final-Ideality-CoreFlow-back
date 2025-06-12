@@ -1,19 +1,16 @@
 package com.ideality.coreflow.comment.command.domain.aggregate;
 
-import com.ideality.coreflow.project.command.domain.aggregate.Work;
-import com.ideality.coreflow.user.command.domain.aggregate.User;
-
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Table(name = "comment")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Comment {
+public class
+Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +20,11 @@ public class Comment {
     private String content;
 
     @Column(name = "is_deleted", nullable = false)
+    @Builder.Default
     private boolean isDeleted = false;
 
     @Column(name = "is_notice", nullable = false)
+    @Builder.Default
     private boolean isNotice = false;
 
     @Column(nullable = false)
@@ -40,4 +39,22 @@ public class Comment {
 
     @Column(name = "parent_comment_id")
     private Long parentCommentId;
+
+
+    public void updateDeleted() {
+        this.isDeleted = true;
+    }
+
+    public void updateComment(String content, Boolean isNotice) {
+
+        if (content == null) {
+            return;
+        }
+        this.content = content;
+        this.isNotice = isNotice;
+
+        if (isNotice) {
+            this.type = CommentType.NOTICE;
+        }
+    }
 }
