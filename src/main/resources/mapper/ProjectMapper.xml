@@ -252,4 +252,11 @@
                 </foreach>
     </select>
 
+    <select id="selectProjectNameByProjectId" resultType="string">
+        SELECT
+               name
+          FROM project
+         WHERE id = #{projectId}
+    </select>
+
 </mapper>

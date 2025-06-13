@@ -20,25 +20,23 @@ public class AuthController {
     private final AuthFacadeService authFacadeService;
     private final JwtUtil jwtUtil;
 
-    @PostMapping("login")
+    @PostMapping("/login")
     public ResponseEntity<APIResponse<?>> loginEntry(@RequestBody RequestLogin requestLogin) {
         return ResponseEntity.ok(APIResponse.success(authFacadeService.login(requestLogin), "로그인 성공"));
     }
 
     @PostMapping("/signup")
     public ResponseEntity<APIResponse<?>> signupEntry(@RequestBody RequestSignUp requestSignUp) {
-        authFacadeService.signUp(requestSignUp);
-        return ResponseEntity.ok(APIResponse.success(null, "회원가입 성공"));
+        return ResponseEntity.ok(APIResponse.success(authFacadeService.signUp(requestSignUp), "회원가입 성공"));
     }
 
     // 협력 업체 계정 생성
     @PostMapping("/signup-partner")
     public ResponseEntity<APIResponse<?>> signupPartner(@RequestBody RequestSignUpPartner request) {
-        authFacadeService.signUpPartner(request);
-        return ResponseEntity.ok(APIResponse.success(null, "협력업체 계정 생성 완료"));
+        return ResponseEntity.ok(APIResponse.success(authFacadeService.signUpPartner(request), "협력업체 계정 생성 완료"));
     }
 
-    @PostMapping("logout")
+    @PostMapping("/logout")
     public ResponseEntity<APIResponse<?>> logoutEntry(HttpServletRequest request) {
         String accessToken = jwtUtil.extractAccessToken(request);
         authFacadeService.logout(accessToken);

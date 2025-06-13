@@ -36,21 +36,58 @@ public class RelationServiceImpl implements RelationService {
 
     @Override
     @Transactional
-    public void appendRelation(List<Long> prevWorkId, Long nextWorkId) {
+    public void appendRelation(Long workId, List<Long> source, List<Long> target) {
+        // source가 null -> 맨 앞에 넣을 것이지만, target과 관계를 이어간다.
+        if (source == null) {
+            for (Long targetWorkId : target) {
 
-        for (Long workId : prevWorkId) {
+                Work prevWork = taskRepository.getReferenceById(workId);
+                Work nextWork = taskRepository.getReferenceById(targetWorkId);
+                Relation relation = Relation
+                        .builder()
+                        .prevWork(prevWork)
+                        .nextWork(nextWork)
+                        .build();
 
-            Work prevWork = taskRepository.getReferenceById(workId);
-            Work nextWork = taskRepository.getReferenceById(nextWorkId);
-            Relation relation = Relation
-                    .builder()
-                    .prevWork(prevWork)
-                    .nextWork(nextWork)
-                    .build();
+                relationRepository.save(relation);
+            }
+            // target이 null 앞에 관계가 있고 지금 생성한 작업을 넣는다 -> 수행한 작업을
+        } else if (target == null) {
+            for (Long sourceWorkId : target) {
 
-            relationRepository.save(relation);
+                Work prevWork = taskRepository.getReferenceById(sourceWorkId);
+                Work nextWork = taskRepository.getReferenceById(workId);
+                Relation relation = Relation
+                        .builder()
+                        .prevWork(prevWork)
+                        .nextWork(nextWork)
+                        .build();
+
+                relationRepository.save(relation);
+            }
+            // 둘 다 값이 존재할 때 -> source와 target과 workId를 전부 넘겨서 중간 삭제 및 새로 삽입 작업 수행
+        } else {
+            appendMiddleRelation(source, target, workId);
         }
     }
+
+//    @Override
+//    @Transactional
+//    public void appendRelation(List<Long> prevWorkId, Long nextWorkId) {
+//
+//        for (Long workId : prevWorkId) {
+//
+//            Work prevWork = taskRepository.getReferenceById(workId);
+//            Work nextWork = taskRepository.getReferenceById(nextWorkId);
+//            Relation relation = Relation
+//                    .builder()
+//                    .prevWork(prevWork)
+//                    .nextWork(nextWork)
+//                    .build();
+//
+//            relationRepository.save(relation);
+//        }
+//    }
 
     @Override
     @Transactional
@@ -103,24 +140,24 @@ public class RelationServiceImpl implements RelationService {
         }
     }
 
-//    @Transactional
-//    public void updateRelations(Long detailId, List<Long> source, List<Long> target) {
-//        // 선행 일정 (source) 수정
-//        if (source != null && !source.isEmpty()) {
-//            // 기존 선행 일정 삭제
-//            deleteRelationsByDetailId(detailId);
-//            // 새로운 선행 일정 추가
-//            appendRelation(source, detailId);
-//        }
-//
-//        // 후행 일정 (target) 수정
-//        if (target != null && !target.isEmpty()) {
-//            // 기존 후행 일정 삭제
-//            deleteTargetRelationsByDetailId((detailId));
-//            // 새로운 후행 일정 추가
-//            appendTargetRelation(target, detailId);
-//        }
-//    }
+    @Transactional
+    public void updateRelations(Long detailId, List<Long> source, List<Long> target) {
+        // 선행 일정 (source) 수정
+        if (source != null && !source.isEmpty()) {
+            // 기존 선행 일정 삭제
+            deleteRelationsByDetailId(detailId);
+            // 새로운 선행 일정 추가
+            appendRelation(detailId, source, target);
+        }
+
+        // 후행 일정 (target) 수정
+        if (target != null && !target.isEmpty()) {
+            // 기존 후행 일정 삭제
+            deleteTargetRelationsByDetailId((detailId));
+            // 새로운 후행 일정 추가
+            appendTargetRelation(target, detailId);
+        }
+    }
 
     // 선행 일정 삭제
     @Transactional

@@ -28,6 +28,8 @@ public class UserFacadeService {
 
         List<String> userOfRoles = userQueryService.findGeneralRolesByUserId(userId);
 
+        Boolean isCreation = userOfRoles.contains("CREATOR");
+
         return ResponseUserInfo.builder()
                 .id(userInfo.getId())
                 .employeeNum(userInfo.getEmployeeNum())
@@ -41,7 +43,12 @@ public class UserFacadeService {
                 .deptName(userInfo.getDeptName())
                 .jobRankName(userInfo.getJobRankName())
                 .jobRoleName(userInfo.getJobRoleName())
-                .userOfRoles(userOfRoles)
+                .isCreation(isCreation)
+                .roles(userOfRoles)
                 .build();
+    }
+
+    public void deleteUserProfileImg(long userId) {
+        userService.deleteUserProfileImg(userId);
     }
 }

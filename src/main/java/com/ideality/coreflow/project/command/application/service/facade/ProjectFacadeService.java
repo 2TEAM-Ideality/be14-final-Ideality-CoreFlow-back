@@ -1,5 +1,12 @@
 package com.ideality.coreflow.project.command.application.service.facade;
 
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.notification.command.application.service.NotificationRecipientsService;
+import com.ideality.coreflow.notification.command.application.service.NotificationService;
+import com.ideality.coreflow.project.command.application.dto.*;
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
@@ -12,12 +19,14 @@ import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
 import com.ideality.coreflow.org.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
+import com.ideality.coreflow.project.query.service.ProjectQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.project.query.service.WorkQueryService;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
 import com.ideality.coreflow.template.query.dto.NodeDataDTO;
+import com.ideality.coreflow.user.command.application.service.UserService;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -43,6 +52,9 @@ public class ProjectFacadeService {
     private final RelationService relationService;
     private final WorkDeptService workDeptService;
     private final ParticipantService participantService;
+    private final UserService userService;
+    private final NotificationService notificationService;
+    private final NotificationRecipientsService notificationRecipientsService;
 
     private final DeptQueryService deptQueryService;
     private final UserQueryService userQueryService;
@@ -51,6 +63,7 @@ public class ProjectFacadeService {
     private final TaskQueryService taskQueryService;
     private final WorkService workService;
     private final WorkQueryService workQueryService;
+    private final ProjectQueryService projectQueryService;
 
 
     @Transactional
@@ -213,11 +226,18 @@ public class ProjectFacadeService {
     }
 
     @Transactional
-    public Long createTask(RequestTaskDTO requestTaskDTO) {
+    public Long createTask(RequestTaskDTO requestTaskDTO, Long userId) {
 
         /* 설명. “읽기-쓰기 분리 전략”
          *  중복 select를 방지하기 위해 읽기부터
         * */
+
+        boolean isParticipant = participantQueryService.isParticipant(userId, requestTaskDTO.getProjectId());
+
+        if (!isParticipant) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
+
         Map<Long, String> deptIdMap = requestTaskDTO.getDeptList().stream()
                         .collect
                         (Collectors.toMap(id -> id, deptQueryService::findNameById));
@@ -236,14 +256,23 @@ public class ProjectFacadeService {
 
         /* 설명. 태스크 부터 */
         Long taskId = taskService.createTask(requestTaskDTO);
-        taskService.validateSource(requestTaskDTO.getSource());
-        if (requestTaskDTO.getTarget() == null || requestTaskDTO.getTarget().isEmpty()) {
-            // target이 없으면
-            relationService.appendRelation(requestTaskDTO.getSource(), taskId);
+
+        if (requestTaskDTO.getSource() != null && requestTaskDTO.getTarget() != null) {
+            // 검증 부터 수행
+            taskService.validateRelation(requestTaskDTO.getSource());
+            taskService.validateRelation(requestTaskDTO.getTarget());
+
+            // 실제 값을 넣기 -> 이 부분을 수정했음
+            relationService.appendRelation(taskId, requestTaskDTO.getSource(), requestTaskDTO.getTarget());
+
         } else {
-            taskService.validateTarget(requestTaskDTO.getTarget());
-            relationService.appendMiddleRelation(requestTaskDTO.getSource(), requestTaskDTO.getTarget(), taskId);
+            log.info("둘 다 null이라 값을 넣지 않음");
         }
+//        if (requestTaskDTO.getTarget() == null || requestTaskDTO.getTarget().isEmpty()) {
+//            // target이 없으면
+//        } else {
+//            relationService.appendMiddleRelation(requestTaskDTO.getSource(), requestTaskDTO.getTarget(), taskId);
+//        }
         log.info("태스크 및 태스트별 관계 설정 완료");
 
 
@@ -254,7 +283,7 @@ public class ProjectFacadeService {
             workDeptService.createWorkDept(taskId, deptId);
             log.info("작업 별 참여 부서 생성 완료");
 
-            List<Long> userIds = deptUsersMaps.get(deptName);
+            List<Long> newParticipantsIds = deptUsersMaps.get(deptName);
             List<Long> leaderIds = deptLeaderMaps.get(deptName);
             // ✅ 1. 팀장 먼저 등록
             List<ParticipantDTO> leaderParticipants = leaderIds.stream()
@@ -264,10 +293,10 @@ public class ProjectFacadeService {
             log.info("팀장 등록 완료");
 
             // ✅ 2. 팀원 등록 (디렉터 & 팀장 제외)
-            List<ParticipantDTO> teamParticipants = userIds.stream()
-                    .filter(userId -> !leaderIds.contains(userId))       // 팀장 제외
-                    .filter(userId -> !userId.equals(directorId))        // 디렉터 제외
-                    .map(userId -> new ParticipantDTO(taskId, userId, TargetType.TASK, 3L))
+            List<ParticipantDTO> teamParticipants = newParticipantsIds.stream()
+                    .filter(participantUserId -> !leaderIds.contains(userId))       // 팀장 제외
+                    .filter(participantUserId -> !userId.equals(directorId))        // 디렉터 제외
+                    .map(participantUserId -> new ParticipantDTO(taskId, userId, TargetType.TASK, 3L))
                     .toList();
             participantService.createParticipants(teamParticipants);
             log.info("팀원 등록 완료");
@@ -288,6 +317,7 @@ public class ProjectFacadeService {
         return updateTaskId;
     }
 
+    @Transactional
     public Long deleteTaskBySoft(Long taskId) {
         Long deleteTaskId = taskService.softDeleteTask(taskId);
         return deleteTaskId;
@@ -295,7 +325,12 @@ public class ProjectFacadeService {
 
 
     @Transactional
-    public Long createDetail(RequestDetailDTO requestDetailDTO) {
+    public Long createDetail(RequestDetailDTO requestDetailDTO, Long userId) {
+
+        boolean isParticipant = participantQueryService.isParticipant(userId, requestDetailDTO.getProjectId());
+        if (!isParticipant) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
         Long detailId = detailService.createDetail(requestDetailDTO);
         log.info("세부 일정 생성");
 
@@ -305,21 +340,22 @@ public class ProjectFacadeService {
             log.info("source와 target 모두 null이므로 관계 설정을 생략합니다.");
         } else {
 
-            if (requestDetailDTO.getSource() == null || requestDetailDTO.getSource().isEmpty()) {
-                //2. source가 없고, target만 있을 때 관계 설정
-                if (requestDetailDTO.getTarget() != null && !requestDetailDTO.getTarget().isEmpty()) {
-                    relationService.appendTargetRelation(requestDetailDTO.getTarget(), detailId); // target에 대한 관계 설정
-                }
-            } else {
-                if (requestDetailDTO.getTarget() == null || requestDetailDTO.getTarget().isEmpty()) {
-                    // 3.source는 있고 target이 없을 때
-                    relationService.appendRelation(requestDetailDTO.getSource(), detailId);
-                } else {
-                    //4.source와 target 둘 다 있을 때
-
-                    relationService.appendMiddleRelation(requestDetailDTO.getSource(), requestDetailDTO.getTarget(), detailId);
-                }
-            }
+//            if (requestDetailDTO.getSource() == null || requestDetailDTO.getSource().isEmpty()) {
+//                //2. source가 없고, target만 있을 때 관계 설정
+//                if (requestDetailDTO.getTarget() != null && !requestDetailDTO.getTarget().isEmpty()) {
+//                    relationService.appendTargetRelation(requestDetailDTO.getTarget(), detailId); // target에 대한 관계 설정
+//                }
+//            } else {
+//                if (requestDetailDTO.getTarget() == null || requestDetailDTO.getTarget().isEmpty()) {
+//                    // 3.source는 있고 target이 없을 때
+//                    relationService.appendRelation(requestDetailDTO.getSource(), detailId);
+//                } else {
+//                    //4.source와 target 둘 다 있을 때
+//
+//                    relationService.appendMiddleRelation(requestDetailDTO.getSource(), requestDetailDTO.getTarget(), detailId);
+//                }
+//            }
+            relationService.appendRelation(detailId, requestDetailDTO.getSource(), requestDetailDTO.getTarget());
             log.info("세부 일정 관계 설정");
         }
 
@@ -376,6 +412,80 @@ public class ProjectFacadeService {
         detailService.deleteDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
     }
 
+    @Transactional
+    public void createParticipantsLeader(Long userId, Long projectId, List<RequestInviteUserDTO> reqLeaderDTO) {
+
+        projectService.existsById(projectId);
+        boolean isDirector = participantQueryService.isProjectDirector(projectId, userId);
+        if (!isDirector) {
+            throw new BaseException(ErrorCode.TEAM_LEADER_ALREADY_EXISTS);
+        }
+
+        List<Long> leaderUserIds = reqLeaderDTO.stream()
+                .map(RequestInviteUserDTO::getUserId)
+                .collect(Collectors.toList());
+        // 2가지 예외 처리 회원 id 값들이 제대로 된 회원 값이냐
+        // request 된 값으로 된 팀장이 이미 존재하거나 -> 팀장은 1
+
+        userService.existsUserId(leaderUserIds);
+        participantQueryService.findTeamLedaer(projectId, reqLeaderDTO);
+
+        // 리더 삽입 -> 기존 로직 활용
+        List<ParticipantDTO> leaders = leaderUserIds.stream()
+                .map(leaderId -> ParticipantDTO.builder()
+                        .taskId(projectId)
+                        .userId(leaderId)
+                        .targetType(TargetType.PROJECT)
+                        .roleId(2L)
+                        .build()
+                ).toList();
+        participantService.createParticipants(leaders);
+
+        // 초대 됐다는 알림 작성
+        String writerName = userQueryService.getUserId(userId);
+        String projectName = projectQueryService.getProjectName(projectId);
+        String content = String.format("%s 님이 회원님을 %s에 초대하였습니다.", writerName, projectName);
+        Long notificationId = notificationService.createInviteProject(projectId, content);
+        notificationRecipientsService.createRecipients(leaderUserIds, notificationId);
+
+    }
+
+    @Transactional
+    public void createParticipantsTeamLeader(Long userId, Long projectId, List<RequestInviteUserDTO> reqMemberDTO) {
+        projectService.existsById(projectId);
+        // 권한 확인 필요 -> 팀장이거나 or 디렉터
+        boolean isInviteRole = participantQueryService.isAboveTeamLeader(userId, projectId);
+        if (!isInviteRole) {
+            throw new BaseException(ErrorCode.TEAM_MEMBER_ALREADY_EXISTS);
+        }
+
+        List<Long> participantUser = reqMemberDTO.stream()
+                .map(RequestInviteUserDTO::getUserId)
+                .collect(Collectors.toList());
+
+        // 사용자 id가 적절한지 확인
+        userService.existsUserId(participantUser);
+        // 혹시 이미 팀원인 사람 초대 했는지 확인
+        participantQueryService.alreadyExistsMember(projectId, reqMemberDTO);
+
+        // 이제 참여자 초대
+        List<ParticipantDTO> teamMember = participantUser.stream()
+                .map(leaderId -> ParticipantDTO.builder()
+                        .taskId(projectId)
+                        .userId(leaderId)
+                        .targetType(TargetType.PROJECT)
+                        .roleId(3L)
+                        .build()
+                ).toList();
+        participantService.createParticipants(teamMember);
+
+        // 초대 됐다는 알림 작성
+        String writerName = userQueryService.getUserId(userId);
+        String projectName = projectQueryService.getProjectName(projectId);
+        String content = String.format("%s 님이 회원님을 %s에 초대하였습니다.", writerName, projectName);
+        Long notificationId = notificationService.createInviteProject(projectId, content);
+        notificationRecipientsService.createRecipients(participantUser, notificationId);
+    }
     @Transactional
     public Integer delayAndPropagate(Long taskId, Integer delayDays) {
         return taskService.delayAndPropagate(taskId, delayDays);
