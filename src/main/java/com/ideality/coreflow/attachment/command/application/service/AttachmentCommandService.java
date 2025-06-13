@@ -85,8 +85,12 @@ public class AttachmentCommandService {
 	}
 
 	public AttachmentPreviewDTO getOriginName(long approvalId, FileTargetType fileTargetType) {
-		Attachment attachment = attachmentRepository.findByTargetIdAndTargetType(approvalId, fileTargetType).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
-		return AttachmentPreviewDTO.builder().originName(attachment.getOriginName()).url(attachment.getUrl()).build();
+		return attachmentRepository.findByTargetIdAndTargetType(approvalId, fileTargetType)
+				.map(attachment -> AttachmentPreviewDTO.builder()
+						.originName(attachment.getOriginName())
+						.url(attachment.getUrl())
+						.build())
+				.orElse(null);
 	}
 
 	public Boolean findAttachmentByTargetId(Long templateId) {

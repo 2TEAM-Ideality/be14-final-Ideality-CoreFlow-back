@@ -69,8 +69,9 @@ public class ApprovalQueryFacadeService {
                 .delayDays(approvalDetails.getDelayDays())
                 .actionDetail(approvalDetails.getActionDetail())
                 .delayReason(approvalDetails.getDelayReason())
-                .attachmentUrl(attachmentPreviewInfo.getUrl())
-                .originName(attachmentPreviewInfo.getOriginName())
+                .attachmentUrl(attachmentPreviewInfo != null ? attachmentPreviewInfo.getUrl() : null)
+                .originName(attachmentPreviewInfo != null ? attachmentPreviewInfo.getOriginName() : null)
+                .approvalParticipants(approvalParticipant)
                 .build();
     }
 

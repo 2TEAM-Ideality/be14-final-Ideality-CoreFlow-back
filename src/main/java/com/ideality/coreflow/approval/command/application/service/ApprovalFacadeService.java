@@ -141,21 +141,23 @@ public class ApprovalFacadeService {
         // 첨부파일 업로드
         String folder = "approval-docs";
 
-        for (MultipartFile file : request.getAttachmentFile()) {
-            UploadFileResult fileResult = s3Service.uploadFile(file, folder);
+        if (request.getAttachmentFile() != null) {
+            for (MultipartFile file : request.getAttachmentFile()) {
+                UploadFileResult fileResult = s3Service.uploadFile(file, folder);
 
-            RegistAttachmentDTO approvalAttachment = RegistAttachmentDTO.builder()
-                    .originName(fileResult.getOriginalName())
-                    .storedName(fileResult.getStoredName())
-                    .url(fileResult.getUrl())
-                    .fileType(fileResult.getFileType())
-                    .size(fileResult.getSize())
-                    .targetId(approvalId)
-                    .uploaderId(requesterId)
-                    .targetType(FileTargetType.APPROVAL)
-                    .build();
+                RegistAttachmentDTO approvalAttachment = RegistAttachmentDTO.builder()
+                        .originName(fileResult.getOriginalName())
+                        .storedName(fileResult.getStoredName())
+                        .url(fileResult.getUrl())
+                        .fileType(fileResult.getFileType())
+                        .size(fileResult.getSize())
+                        .targetId(approvalId)
+                        .uploaderId(requesterId)
+                        .targetType(FileTargetType.APPROVAL)
+                        .build();
 
-            attachmentCommandService.registAttachment(approvalAttachment);
+                attachmentCommandService.registAttachment(approvalAttachment);
+            }
         }
 
         return approvalId;
