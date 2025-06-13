@@ -164,4 +164,19 @@
           FROM work
          WHERE parent_task_id = #{taskId}
     </select>
+    <!-- 오늘 마감일인 진행 중인 작업 조회 -->
+    <select id="findTasksDueToday" resultType="Work">
+        SELECT *
+        FROM work
+        WHERE status = 'PROGRESS'
+        AND end_expect = #{today}
+    </select>
+
+    <!-- 내일 마감일인 진행 중인 작업 조회 -->
+    <select id="findTasksDueTomorrow" resultType="Work">
+        SELECT *
+        FROM work
+        WHERE status = 'PROGRESS'
+        AND end_expect = #{tomorrow}
+    </select>
 </mapper>

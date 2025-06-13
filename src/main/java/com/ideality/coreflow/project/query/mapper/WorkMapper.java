@@ -1,11 +1,14 @@
 package com.ideality.coreflow.project.query.mapper;
 
+import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.query.dto.DeptWorkDTO;
 import com.ideality.coreflow.project.query.dto.DetailDTO;
 import com.ideality.coreflow.project.query.dto.ParticipantDTO;
 import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
 import com.ideality.coreflow.project.query.dto.WorkDetailDTO;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @Mapper
@@ -33,4 +36,10 @@ public interface WorkMapper {
     List<Long> selectWorkIdByName(List<String> details);
 
     List<TaskProgressDTO> selectDetailProgressByTaskId(Long taskId);
+
+    // 오늘 마감일인 진행 중인 작업 조회
+    List<Work> findTasksDueToday(LocalDate today);
+
+    // 내일 마감일인 진행 중인 작업 조회
+    List<Work> findTasksDueTomorrow(LocalDate tomorrow);
 }
