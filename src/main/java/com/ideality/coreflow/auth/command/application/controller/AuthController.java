@@ -20,7 +20,7 @@ public class AuthController {
     private final AuthFacadeService authFacadeService;
     private final JwtUtil jwtUtil;
 
-    @PostMapping("login")
+    @PostMapping("/login")
     public ResponseEntity<APIResponse<?>> loginEntry(@RequestBody RequestLogin requestLogin) {
         return ResponseEntity.ok(APIResponse.success(authFacadeService.login(requestLogin), "로그인 성공"));
     }
@@ -36,7 +36,7 @@ public class AuthController {
         return ResponseEntity.ok(APIResponse.success(authFacadeService.signUpPartner(request), "협력업체 계정 생성 완료"));
     }
 
-    @PostMapping("logout")
+    @PostMapping("/logout")
     public ResponseEntity<APIResponse<?>> logoutEntry(HttpServletRequest request) {
         String accessToken = jwtUtil.extractAccessToken(request);
         authFacadeService.logout(accessToken);
