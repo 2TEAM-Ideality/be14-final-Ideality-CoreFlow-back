@@ -14,4 +14,6 @@ public interface ProjectQueryService {
     ProjectDetailResponseDTO getProjectDetail(Long projectId);
 
     PipelineResponseDTO getPipeline(Long projectId);
+
+    String getProjectName(Long projectId);
 }
