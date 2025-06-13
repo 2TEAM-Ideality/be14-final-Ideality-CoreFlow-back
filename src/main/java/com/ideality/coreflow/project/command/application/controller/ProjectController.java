@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -27,7 +28,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 public class ProjectController {
 
-    //    private final ProjectService projectService;
     private final ProjectFacadeService projectFacadeService;
 
     @PostMapping
@@ -79,4 +79,13 @@ public class ProjectController {
                         projectId + "번 프로젝트의 진척률이 업데이트 되었습니다")
         );
     }
+
+
+    // TODO. 프로젝트 분석 리포트 생성
+    @GetMapping("/report/{projectId}")
+    public void downloadReport(HttpServletResponse response, @PathVariable Long projectId) {
+        projectFacadeService.downloadReport(projectId, response);
+   }
+
+
 }

@@ -27,6 +27,7 @@ public class TemplateCommandService {
 	// 템플릿 정보 생성
 	@Transactional
 	public Template createTemplate(RequestCreateTemplateDTO requestDTO) {
+		// 템플릿 이름 중복 시 예외 처리
 
 		// 1. 템플릿 DB 저장
 		Template newTemplate = Template.builder()

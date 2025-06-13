@@ -55,7 +55,6 @@ public class Work {
 	@Builder.Default
 	private Double passedRate = 0.0;
 
-
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private Status status;

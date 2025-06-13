@@ -81,6 +81,30 @@
            AND status != 'DELETED'
     </select>
 
+
+    <select id="selectCompletedTasks" parameterType="long" resultType="com.ideality.coreflow.project.query.dto.CompletedTaskDTO">
+        SELECT
+            id AS taskId
+            , name AS taskName
+            , description
+            , created_at AS createdAt
+            , start_base AS startBase
+            , end_base AS endBase
+            , start_expect AS startExpect
+            , end_expect AS endExpect
+            , start_real AS startReal
+            , end_real AS endReal
+            , status
+            , progress_rate AS progressRate
+            , passed_rate AS passedRate
+            , delay_days AS delayDays
+            , NULL AS slackTime
+        FROM work
+        WHERE project_id = #{projectId}
+        AND status != 'DELETED'
+
+    </select>
+
     <select id="selectTaskProgressByProjectId" resultType="com.ideality.coreflow.project.query.dto.TaskProgressDTO">
         SELECT
                start_base    AS startDate
