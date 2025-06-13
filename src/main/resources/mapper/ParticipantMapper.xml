@@ -50,7 +50,7 @@
         )
     </select>
 
-    <select id="isInviteRole" resultType="boolean">
+    <select id="isAboveTeamLeader" resultType="boolean">
         SELECT EXISTS (
         SELECT 1
         FROM participant a

@@ -78,8 +78,9 @@ public class ProjectQueryFacadeService {
 
     public List<ResponseInvitableUserDTO> getInvitableUser(Long projectId, Long userId) {
         projectService.existsById(projectId);
-        boolean isInviteRole = participantQueryService.isInviteRole(userId, projectId);
-        if (!isInviteRole) {
+        boolean isAboveTeamLeader
+                = participantQueryService.isAboveTeamLeader(userId, projectId);
+        if (!isAboveTeamLeader) {
             throw new BaseException(ErrorCode.ACCESS_DENIED);
         }
 

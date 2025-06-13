@@ -50,8 +50,8 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
     }
 
     @Override
-    public boolean isInviteRole(Long userId, Long projectId) {
-        return participantMapper.isInviteRole(projectId, userId);
+    public boolean isAboveTeamLeader(Long userId, Long projectId) {
+        return participantMapper.isAboveTeamLeader(projectId, userId);
     }
 
     @Override

@@ -15,7 +15,7 @@ public interface ParticipantQueryService {
 
     boolean isParticipant(Long userId, Long projectId);
 
-    boolean isInviteRole(Long userId, Long projectId);
+    boolean isAboveTeamLeader(Long userId, Long projectId);
 
     void alreadyExistsMember(Long projectId, List<RequestInviteUserDTO> reqMemberDTO);
 

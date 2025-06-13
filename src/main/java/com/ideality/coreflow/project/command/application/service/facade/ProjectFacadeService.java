@@ -423,7 +423,7 @@ public class ProjectFacadeService {
     public void createParticipantsTeamLeader(Long userId, Long projectId, List<RequestInviteUserDTO> reqMemberDTO) {
         projectService.existsById(projectId);
         // 권한 확인 필요 -> 팀장이거나 or 디렉터
-        boolean isInviteRole = participantQueryService.isInviteRole(userId, projectId);
+        boolean isInviteRole = participantQueryService.isAboveTeamLeader(userId, projectId);
         if (!isInviteRole) {
             throw new BaseException(ErrorCode.TEAM_MEMBER_ALREADY_EXISTS);
         }
