@@ -84,30 +84,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void validateSource(List<Long> source) {
-        if (source.isEmpty()) {
+    public void validateRelation(List<Long> source) {
+        if (source.isEmpty() || source.contains(null)) {
             throw new BaseException(INVALID_SOURCE_LIST);
         }
-
-        if (source.contains(null)){
-            throw new BaseException(INVALID_SOURCE_LIST);
-        }
-
         for (Long sourceId : source) {
-            if (sourceId != 0 && !taskRepository.existsById(sourceId)) {
-                throw new BaseException(TASK_NOT_FOUND);
-            }
-        }
-    }
-
-    @Override
-    public void validateTarget(List<Long> target) {
-        if (target.isEmpty()) {
-            throw new BaseException(INVALID_SOURCE_LIST);
-        }
-
-        for (Long targetId : target) {
-            if (!taskRepository.existsById(targetId)) {
+            if (!taskRepository.existsById(sourceId)) {
                 throw new BaseException(TASK_NOT_FOUND);
             }
         }

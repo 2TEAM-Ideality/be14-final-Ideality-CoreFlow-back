@@ -5,6 +5,12 @@ import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.notification.command.application.service.NotificationRecipientsService;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
 import com.ideality.coreflow.project.command.application.dto.*;
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
+import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
+import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
+import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
@@ -218,11 +224,18 @@ public class ProjectFacadeService {
     }
 
     @Transactional
-    public Long createTask(RequestTaskDTO requestTaskDTO) {
+    public Long createTask(RequestTaskDTO requestTaskDTO, Long userId) {
 
         /* 설명. “읽기-쓰기 분리 전략”
          *  중복 select를 방지하기 위해 읽기부터
         * */
+
+        boolean isParticipant = participantQueryService.isParticipant(userId, requestTaskDTO.getProjectId());
+
+        if (!isParticipant) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
+
         Map<Long, String> deptIdMap = requestTaskDTO.getDeptList().stream()
                         .collect
                         (Collectors.toMap(id -> id, deptQueryService::findNameById));
@@ -241,14 +254,23 @@ public class ProjectFacadeService {
 
         /* 설명. 태스크 부터 */
         Long taskId = taskService.createTask(requestTaskDTO);
-        taskService.validateSource(requestTaskDTO.getSource());
-        if (requestTaskDTO.getTarget() == null || requestTaskDTO.getTarget().isEmpty()) {
-            // target이 없으면
-            relationService.appendRelation(requestTaskDTO.getSource(), taskId);
+
+        if (requestTaskDTO.getSource() != null && requestTaskDTO.getTarget() != null) {
+            // 검증 부터 수행
+            taskService.validateRelation(requestTaskDTO.getSource());
+            taskService.validateRelation(requestTaskDTO.getTarget());
+
+            // 실제 값을 넣기 -> 이 부분을 수정했음
+            relationService.appendRelation(taskId, requestTaskDTO.getSource(), requestTaskDTO.getTarget());
+
         } else {
-            taskService.validateTarget(requestTaskDTO.getTarget());
-            relationService.appendMiddleRelation(requestTaskDTO.getSource(), requestTaskDTO.getTarget(), taskId);
+            log.info("둘 다 null이라 값을 넣지 않음");
         }
+//        if (requestTaskDTO.getTarget() == null || requestTaskDTO.getTarget().isEmpty()) {
+//            // target이 없으면
+//        } else {
+//            relationService.appendMiddleRelation(requestTaskDTO.getSource(), requestTaskDTO.getTarget(), taskId);
+//        }
         log.info("태스크 및 태스트별 관계 설정 완료");
 
 
@@ -259,7 +281,7 @@ public class ProjectFacadeService {
             workDeptService.createWorkDept(taskId, deptId);
             log.info("작업 별 참여 부서 생성 완료");
 
-            List<Long> userIds = deptUsersMaps.get(deptName);
+            List<Long> newParticipantsIds = deptUsersMaps.get(deptName);
             List<Long> leaderIds = deptLeaderMaps.get(deptName);
             // ✅ 1. 팀장 먼저 등록
             List<ParticipantDTO> leaderParticipants = leaderIds.stream()
@@ -269,10 +291,10 @@ public class ProjectFacadeService {
             log.info("팀장 등록 완료");
 
             // ✅ 2. 팀원 등록 (디렉터 & 팀장 제외)
-            List<ParticipantDTO> teamParticipants = userIds.stream()
-                    .filter(userId -> !leaderIds.contains(userId))       // 팀장 제외
-                    .filter(userId -> !userId.equals(directorId))        // 디렉터 제외
-                    .map(userId -> new ParticipantDTO(taskId, userId, TargetType.TASK, 3L))
+            List<ParticipantDTO> teamParticipants = newParticipantsIds.stream()
+                    .filter(participantUserId -> !leaderIds.contains(userId))       // 팀장 제외
+                    .filter(participantUserId -> !userId.equals(directorId))        // 디렉터 제외
+                    .map(participantUserId -> new ParticipantDTO(taskId, userId, TargetType.TASK, 3L))
                     .toList();
             participantService.createParticipants(teamParticipants);
             log.info("팀원 등록 완료");
@@ -293,6 +315,7 @@ public class ProjectFacadeService {
         return updateTaskId;
     }
 
+    @Transactional
     public Long deleteTaskBySoft(Long taskId) {
         Long deleteTaskId = taskService.softDeleteTask(taskId);
         return deleteTaskId;
@@ -300,7 +323,12 @@ public class ProjectFacadeService {
 
 
     @Transactional
-    public Long createDetail(RequestDetailDTO requestDetailDTO) {
+    public Long createDetail(RequestDetailDTO requestDetailDTO, Long userId) {
+
+        boolean isParticipant = participantQueryService.isParticipant(userId, requestDetailDTO.getProjectId());
+        if (!isParticipant) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
         Long detailId = detailService.createDetail(requestDetailDTO);
         log.info("세부 일정 생성");
 
@@ -310,21 +338,22 @@ public class ProjectFacadeService {
             log.info("source와 target 모두 null이므로 관계 설정을 생략합니다.");
         } else {
 
-            if (requestDetailDTO.getSource() == null || requestDetailDTO.getSource().isEmpty()) {
-                //2. source가 없고, target만 있을 때 관계 설정
-                if (requestDetailDTO.getTarget() != null && !requestDetailDTO.getTarget().isEmpty()) {
-                    relationService.appendTargetRelation(requestDetailDTO.getTarget(), detailId); // target에 대한 관계 설정
-                }
-            } else {
-                if (requestDetailDTO.getTarget() == null || requestDetailDTO.getTarget().isEmpty()) {
-                    // 3.source는 있고 target이 없을 때
-                    relationService.appendRelation(requestDetailDTO.getSource(), detailId);
-                } else {
-                    //4.source와 target 둘 다 있을 때
-
-                    relationService.appendMiddleRelation(requestDetailDTO.getSource(), requestDetailDTO.getTarget(), detailId);
-                }
-            }
+//            if (requestDetailDTO.getSource() == null || requestDetailDTO.getSource().isEmpty()) {
+//                //2. source가 없고, target만 있을 때 관계 설정
+//                if (requestDetailDTO.getTarget() != null && !requestDetailDTO.getTarget().isEmpty()) {
+//                    relationService.appendTargetRelation(requestDetailDTO.getTarget(), detailId); // target에 대한 관계 설정
+//                }
+//            } else {
+//                if (requestDetailDTO.getTarget() == null || requestDetailDTO.getTarget().isEmpty()) {
+//                    // 3.source는 있고 target이 없을 때
+//                    relationService.appendRelation(requestDetailDTO.getSource(), detailId);
+//                } else {
+//                    //4.source와 target 둘 다 있을 때
+//
+//                    relationService.appendMiddleRelation(requestDetailDTO.getSource(), requestDetailDTO.getTarget(), detailId);
+//                }
+//            }
+            relationService.appendRelation(detailId, requestDetailDTO.getSource(), requestDetailDTO.getTarget());
             log.info("세부 일정 관계 설정");
         }
 
