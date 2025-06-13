@@ -28,5 +28,7 @@ public interface UserService {
 
     UserInfoDTO findUserById(long userId);
 
+    void deleteUserProfileImg(long userId);
+
     void existsUserId(List<Long> leaderUserIds);
 }

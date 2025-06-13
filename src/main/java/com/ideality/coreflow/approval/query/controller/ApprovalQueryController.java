@@ -32,6 +32,13 @@ public class ApprovalQueryController {
         return ResponseEntity.ok(APIResponse.success(approvalQueryFacadeService.searchMyApprovalSent(id), "결재 발신 내역 조회"));
     }
 
+    // 수신 + 발신 내역 조회
+    @GetMapping("/my-approval/all")
+    public ResponseEntity<APIResponse<?>> searchMyApprovalAll() {
+        long id = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        return ResponseEntity.ok(APIResponse.success(approvalQueryFacadeService.searchMyApprovalAll(id), "모든 결재 내역 조회"));
+    }
+
     // workId로 결재 승인 이력 조회
     @GetMapping("/task-approval/{taskId}")
     public ResponseEntity<APIResponse<?>> searchApprovalByTaskId(@PathVariable long taskId) {

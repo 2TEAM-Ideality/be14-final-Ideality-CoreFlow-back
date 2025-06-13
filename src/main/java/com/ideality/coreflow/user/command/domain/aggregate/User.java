@@ -60,14 +60,12 @@ public class User {
         if (dto.getPassword() != null) this.password = dto.getPassword();
         if (dto.getName() != null) this.name = dto.getName();
         if (dto.getEmail() != null) this.email = dto.getEmail();
+        if (dto.getBirth() != null) this.birth = dto.getBirth();
         if (dto.getHireDate() != null) this.hireDate = dto.getHireDate();
-        if (dto.getIsResign() != null) {
-            if (dto.getIsResign()) {
-                this.isResign = true;
-                this.resignDate = LocalDate.now();
-            } else {
-                this.isResign = false;
-            }
+        if (dto.getIsResign() != null) this.isResign = dto.getIsResign();
+        if (dto.getResignDate() != null) {
+            this.resignDate = dto.getResignDate();
+            this.isResign = false;
         }
         if (dto.getProfileImage() != null) this.profileImage = dto.getProfileImage();
         if (dto.getDeptName() != null) this.deptName = dto.getDeptName();
@@ -81,5 +79,9 @@ public class User {
             case JOB_RANK -> this.jobRankName = newName;
             case JOB_ROLE -> this.jobRoleName = newName;
         }
+    }
+
+    public void deleteProfile() {
+        this.profileImage = null;
     }
 }
