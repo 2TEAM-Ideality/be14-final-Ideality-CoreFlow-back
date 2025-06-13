@@ -77,7 +77,7 @@ public class AuthFacadeService {
 
     // 회원가입
     @Transactional
-    public void signUp(RequestSignUp requestSignUp) {
+    public ResponseSignUp signUp(RequestSignUp requestSignUp) {
 
         log.info("등록된 이메일인지 확인");
         // 등록된 이메일인지 확인
@@ -132,6 +132,16 @@ public class AuthFacadeService {
                 "password", password
         );
         emailSendService.sendEmail(EmailType.USER_LOGIN_INFO, data);
+
+        return ResponseSignUp.builder()
+                .id(userId)
+                .name(requestSignUp.getName())
+                .deptName(requestSignUp.getDeptName())
+                .jobRankName(requestSignUp.getJobRankName())
+                .jobRoleName(requestSignUp.getJobRoleName())
+                .isCreation(requestSignUp.isCreation())
+                .isResign(false)
+                .build();
     }
 
     // 로그아웃
@@ -174,7 +184,7 @@ public class AuthFacadeService {
     }
 
     @Transactional
-    public void signUpPartner(RequestSignUpPartner request) {
+    public ResponseSignUp signUpPartner(RequestSignUpPartner request) {
 
         log.info("등록된 이메일인지 확인");
         // 등록된 이메일인지 확인
@@ -224,6 +234,16 @@ public class AuthFacadeService {
                 "password", password
         );
         emailSendService.sendEmail(EmailType.USER_LOGIN_INFO, data);
+
+        return ResponseSignUp.builder()
+                .id(userId)
+                .name(request.getName())
+                .deptName(request.getRoleName())
+                .jobRankName(request.getRoleName())
+                .jobRoleName(request.getRoleName())
+                .isCreation(false)
+                .isResign(false)
+                .build();
     }
 
     @Transactional

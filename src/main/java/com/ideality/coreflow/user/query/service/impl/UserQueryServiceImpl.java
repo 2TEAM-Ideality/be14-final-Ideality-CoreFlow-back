@@ -125,6 +125,11 @@ public class UserQueryServiceImpl implements UserQueryService {
     }
 
     @Override
+    public List<ResponseUser> findAllUsers() {
+        return userMapper.selectAllUserPreView();
+    }
+
+    @Override
     public List<AllUserDTO> selectAllUser() {
         return userMapper.selectAllUser();
     }

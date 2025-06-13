@@ -1,9 +1,6 @@
 package com.ideality.coreflow.approval.query.service;
 
-import com.ideality.coreflow.approval.query.dto.ApprovalDetailsDTO;
-import com.ideality.coreflow.approval.query.dto.ApprovalParticipantDTO;
-import com.ideality.coreflow.approval.query.dto.ResponseApprovalDetails;
-import com.ideality.coreflow.approval.query.dto.ResponsePreviewApproval;
+import com.ideality.coreflow.approval.query.dto.*;
 import com.ideality.coreflow.attachment.command.application.dto.AttachmentPreviewDTO;
 import com.ideality.coreflow.attachment.command.application.service.AttachmentCommandService;
 import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
@@ -74,6 +71,15 @@ public class ApprovalQueryFacadeService {
                 .delayReason(approvalDetails.getDelayReason())
                 .attachmentUrl(attachmentPreviewInfo.getUrl())
                 .originName(attachmentPreviewInfo.getOriginName())
+                .build();
+    }
+
+    public ResponseAllPreviewApproval searchMyApprovalAll(long id) {
+        List<ResponsePreviewApproval> receivedApproval = approvalQueryService.searchMyApprovalReceive(id);
+        List<ResponsePreviewApproval> sentApproval = approvalQueryService.searchMyApprovalSent(id);
+        return ResponseAllPreviewApproval.builder()
+                .receivedApproval(receivedApproval)
+                .sentApproval(sentApproval)
                 .build();
     }
 }

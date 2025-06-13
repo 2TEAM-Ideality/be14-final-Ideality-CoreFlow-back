@@ -1,5 +1,6 @@
 package com.ideality.coreflow.approval.query.dto;
 
+import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalStatus;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -11,4 +12,5 @@ public class ResponsePreviewApproval {
     String approverName;
     String title;
     LocalDateTime approvedAt;
+    ApprovalStatus approvalStatus;
 }

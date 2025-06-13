@@ -164,6 +164,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void deleteUserProfileImg(long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
+        user.deleteProfile();
+        userRepository.save(user);
+    }
+
+    @Override
     public void existsUserId(List<Long> leaderUserIds) {
         for (Long userId : leaderUserIds) {
             userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));

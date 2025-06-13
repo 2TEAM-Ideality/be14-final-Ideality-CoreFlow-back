@@ -5,6 +5,7 @@ import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -19,7 +20,9 @@ public class DetailController {
     @PostMapping("/create")
     public ResponseEntity<APIResponse<Map<String, Long>>> createDetailWithFacade(
             @RequestBody RequestDetailDTO requestDetailDTO) {
-        Long detailId = projectFacadeService.createDetail(requestDetailDTO);
+
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        Long detailId = projectFacadeService.createDetail(requestDetailDTO, userId);
         return ResponseEntity.ok(
                 APIResponse.success(Map.of("detailId", detailId),
                         "세부일정이 성공적으로 생성되었습니다.")
