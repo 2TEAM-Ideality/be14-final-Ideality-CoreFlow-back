@@ -149,4 +149,11 @@
            AND a.target_id = #{projectId}
            AND b.dept_name = #{deptName}
     </select>
+
+    <select id="findParticipantsByTaskId" resultType="Long">
+        SELECT p.user_id
+        FROM participant p
+        WHERE p.target_type = 'TASK'
+        AND p.target_id = #{taskId}
+    </select>
 </mapper>

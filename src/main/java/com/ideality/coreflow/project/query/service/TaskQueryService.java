@@ -25,5 +25,5 @@ public interface TaskQueryService {
 
     List<TaskProgressDTO> getTaskProgressByProjectId(Long projectId);
 
-
+    void sendTaskDueReminder();
 }
