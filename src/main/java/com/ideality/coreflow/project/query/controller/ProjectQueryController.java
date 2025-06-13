@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.query.controller;
 
 import com.ideality.coreflow.common.response.APIResponse;
+import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
 import com.ideality.coreflow.project.query.dto.PipelineResponseDTO;
 import com.ideality.coreflow.project.query.dto.ProjectSummaryDTO;
@@ -48,5 +49,30 @@ public class ProjectQueryController {
         List<ResponseInvitableUserDTO> res = projectQueryFacadeService.getInvitableUser(projectId, userId);
 
         return ResponseEntity.ok(APIResponse.success(res, "초대 가능한 회원 리스트 조회 성공"));
+    }
+
+    @GetMapping("/{projectId}/participants/department")
+    public ResponseEntity<APIResponse<List<ParticipantDepartmentDTO>>> getParticipantDepartment(@PathVariable Long projectId) {
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        List<ParticipantDepartmentDTO> reqDTO = projectQueryFacadeService.getParticipantDepartment(projectId, userId);
+        return ResponseEntity.ok(APIResponse.success(reqDTO, "부서 조회 완료"));
+    }
+
+    @GetMapping("/{projectId}/participants/department/team-leader")
+    public ResponseEntity<APIResponse<List<DepartmentLeaderDTO>>>
+    getTeamLeaderByDepartment(@PathVariable Long projectId) {
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        List<DepartmentLeaderDTO> reqDTO = projectQueryFacadeService.getTeamLeaderByDepartment(projectId, userId);
+        return ResponseEntity.ok(APIResponse.success(reqDTO, "부서별 책임자 조회 완료"));
+    }
+
+    @GetMapping("/{projectId}/participants/by-department")
+    public ResponseEntity<APIResponse<List<ResponseParticipantDTO>>>
+    getParticipantsByDepartment(@PathVariable Long projectId, @RequestParam String deptName) {
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        List<ResponseParticipantDTO> reqDTO =
+                projectQueryFacadeService.getParticipantByDepartment(projectId, userId, deptName);
+
+        return ResponseEntity.ok(APIResponse.success(reqDTO, "부서 별 참여자 조회 완료"));
     }
 }

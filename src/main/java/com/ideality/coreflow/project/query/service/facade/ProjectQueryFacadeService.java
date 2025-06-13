@@ -37,7 +37,6 @@ public class ProjectQueryFacadeService {
     private final ParticipantQueryService participantQueryService;
 
 
-
     public ProjectDetailResponseDTO getProjectDetail(Long projectId) {
         return projectQueryService.getProjectDetail(projectId);
     }
@@ -99,5 +98,37 @@ public class ProjectQueryFacadeService {
                 .toList();
 
         return result;
+    }
+    public List<ParticipantDepartmentDTO> getParticipantDepartment(Long projectId, Long userId) {
+        projectService.existsById(projectId);
+        boolean isParticipant = participantQueryService.isParticipant(userId, projectId);
+        if (!isParticipant) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
+
+        List<ParticipantDepartmentDTO> dto = participantQueryService.selectParticipantCountByDept(projectId);
+        return dto;
+    }
+
+    public List<DepartmentLeaderDTO> getTeamLeaderByDepartment(Long projectId, Long userId) {
+        projectService.existsById(projectId);
+        boolean isParticipant = participantQueryService.isParticipant(userId, projectId);
+        if (!isParticipant) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
+
+        List<DepartmentLeaderDTO> dto = participantQueryService.selectTeamLeaderByDepartment(projectId);
+        return dto;
+    }
+
+    public List<ResponseParticipantDTO> getParticipantByDepartment(Long projectId, Long userId, String deptName) {
+        projectService.existsById(projectId);
+        boolean isParticipant = participantQueryService.isParticipant(userId, projectId);
+        if (!isParticipant) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
+
+        List<ResponseParticipantDTO> dto = participantQueryService.selectParticipantsByDeptName(projectId, deptName);
+        return dto;
     }
 }

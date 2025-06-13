@@ -1,5 +1,8 @@
 package com.ideality.coreflow.project.query.service.impl;
 
+import com.ideality.coreflow.project.query.dto.DepartmentLeaderDTO;
+import com.ideality.coreflow.project.query.dto.ParticipantDepartmentDTO;
+import com.ideality.coreflow.project.query.dto.ResponseParticipantDTO;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.project.command.application.dto.RequestInviteUserDTO;
@@ -35,6 +38,21 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
     @Override
     public boolean isParticipant(Long userId, Long projectId) {
         return participantMapper.isParticipantUser(userId, projectId);
+    }
+
+    @Override
+    public List<ParticipantDepartmentDTO> selectParticipantCountByDept(Long projectId) {
+        return participantMapper.selectParticipantCountByDept(projectId);
+    }
+
+    @Override
+    public List<DepartmentLeaderDTO> selectTeamLeaderByDepartment(Long projectId) {
+        return participantMapper.selectTeamLeaderByDepartment(projectId);
+    }
+
+    @Override
+    public List<ResponseParticipantDTO> selectParticipantsByDeptName(Long projectId, String deptName) {
+        return participantMapper.selectParticipantByDeptName(projectId, deptName);
     }
 
     @Override
