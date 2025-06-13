@@ -1,5 +1,8 @@
 package com.ideality.coreflow.project.query.mapper;
 
+import com.ideality.coreflow.project.query.dto.DepartmentLeaderDTO;
+import com.ideality.coreflow.project.query.dto.ParticipantDepartmentDTO;
+import com.ideality.coreflow.project.query.dto.ResponseParticipantDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -15,4 +18,19 @@ public interface ParticipantMapper {
     boolean isParticipantUser(Long userId, Long projectId);
 
     List<Long> findNextTaskUsersByTaskId(Long taskId);
+
+    boolean isTeamLeader(Long projectId, String deptName);
+
+    boolean isAboveTeamLeader(Long projectId, Long userId);
+
+    boolean isAlreadyParticipant(Long projectId, Long userId, String deptName);
+
+    List<Long> selectParticipantUserId(Long projectId);
+
+    List<ParticipantDepartmentDTO> selectParticipantCountByDept(Long projectId);
+
+    List<DepartmentLeaderDTO> selectTeamLeaderByDepartment(Long projectId);
+
+    List<ResponseParticipantDTO> selectParticipantByDeptName(Long projectId, String deptName);
+
 }

@@ -1,9 +1,10 @@
 package com.ideality.coreflow.project.command.application.service.facade;
 
-import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
-import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
-import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
-import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.notification.command.application.service.NotificationRecipientsService;
+import com.ideality.coreflow.notification.command.application.service.NotificationService;
+import com.ideality.coreflow.project.command.application.dto.*;
 import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
@@ -12,12 +13,14 @@ import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
 import com.ideality.coreflow.org.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
+import com.ideality.coreflow.project.query.service.ProjectQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.project.query.service.WorkQueryService;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
 import com.ideality.coreflow.template.query.dto.NodeDataDTO;
+import com.ideality.coreflow.user.command.application.service.UserService;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -43,6 +46,9 @@ public class ProjectFacadeService {
     private final RelationService relationService;
     private final WorkDeptService workDeptService;
     private final ParticipantService participantService;
+    private final UserService userService;
+    private final NotificationService notificationService;
+    private final NotificationRecipientsService notificationRecipientsService;
 
     private final DeptQueryService deptQueryService;
     private final UserQueryService userQueryService;
@@ -51,6 +57,7 @@ public class ProjectFacadeService {
     private final TaskQueryService taskQueryService;
     private final WorkService workService;
     private final WorkQueryService workQueryService;
+    private final ProjectQueryService projectQueryService;
 
     public Double updateProgressRate(Long taskId) {
         List<TaskProgressDTO> workList = workQueryService.getDetailProgressByTaskId(taskId);
@@ -375,4 +382,78 @@ public class ProjectFacadeService {
         detailService.deleteDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
     }
 
+    @Transactional
+    public void createParticipantsLeader(Long userId, Long projectId, List<RequestInviteUserDTO> reqLeaderDTO) {
+
+        projectService.existsById(projectId);
+        boolean isDirector = participantQueryService.isProjectDirector(projectId, userId);
+        if (!isDirector) {
+            throw new BaseException(ErrorCode.TEAM_LEADER_ALREADY_EXISTS);
+        }
+
+        List<Long> leaderUserIds = reqLeaderDTO.stream()
+                .map(RequestInviteUserDTO::getUserId)
+                .collect(Collectors.toList());
+        // 2가지 예외 처리 회원 id 값들이 제대로 된 회원 값이냐
+        // request 된 값으로 된 팀장이 이미 존재하거나 -> 팀장은 1
+
+        userService.existsUserId(leaderUserIds);
+        participantQueryService.findTeamLedaer(projectId, reqLeaderDTO);
+
+        // 리더 삽입 -> 기존 로직 활용
+        List<ParticipantDTO> leaders = leaderUserIds.stream()
+                .map(leaderId -> ParticipantDTO.builder()
+                        .taskId(projectId)
+                        .userId(leaderId)
+                        .targetType(TargetType.PROJECT)
+                        .roleId(2L)
+                        .build()
+                ).toList();
+        participantService.createParticipants(leaders);
+
+        // 초대 됐다는 알림 작성
+        String writerName = userQueryService.getUserId(userId);
+        String projectName = projectQueryService.getProjectName(projectId);
+        String content = String.format("%s 님이 회원님을 %s에 초대하였습니다.", writerName, projectName);
+        Long notificationId = notificationService.createInviteProject(projectId, content);
+        notificationRecipientsService.createRecipients(leaderUserIds, notificationId);
+
+    }
+
+    @Transactional
+    public void createParticipantsTeamLeader(Long userId, Long projectId, List<RequestInviteUserDTO> reqMemberDTO) {
+        projectService.existsById(projectId);
+        // 권한 확인 필요 -> 팀장이거나 or 디렉터
+        boolean isInviteRole = participantQueryService.isAboveTeamLeader(userId, projectId);
+        if (!isInviteRole) {
+            throw new BaseException(ErrorCode.TEAM_MEMBER_ALREADY_EXISTS);
+        }
+
+        List<Long> participantUser = reqMemberDTO.stream()
+                .map(RequestInviteUserDTO::getUserId)
+                .collect(Collectors.toList());
+
+        // 사용자 id가 적절한지 확인
+        userService.existsUserId(participantUser);
+        // 혹시 이미 팀원인 사람 초대 했는지 확인
+        participantQueryService.alreadyExistsMember(projectId, reqMemberDTO);
+
+        // 이제 참여자 초대
+        List<ParticipantDTO> teamMember = participantUser.stream()
+                .map(leaderId -> ParticipantDTO.builder()
+                        .taskId(projectId)
+                        .userId(leaderId)
+                        .targetType(TargetType.PROJECT)
+                        .roleId(3L)
+                        .build()
+                ).toList();
+        participantService.createParticipants(teamMember);
+
+        // 초대 됐다는 알림 작성
+        String writerName = userQueryService.getUserId(userId);
+        String projectName = projectQueryService.getProjectName(projectId);
+        String content = String.format("%s 님이 회원님을 %s에 초대하였습니다.", writerName, projectName);
+        Long notificationId = notificationService.createInviteProject(projectId, content);
+        notificationRecipientsService.createRecipients(participantUser, notificationId);
+    }
 }

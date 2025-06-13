@@ -13,4 +13,6 @@ public interface NotificationService {
     Long createMentionNotification(Long taskId, String content);
 
     void save(Notification notification);
+
+    Long createInviteProject(Long projectId, String content);
 }
