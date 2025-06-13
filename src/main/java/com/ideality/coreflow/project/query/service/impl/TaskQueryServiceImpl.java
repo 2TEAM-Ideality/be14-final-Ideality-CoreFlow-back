@@ -115,13 +115,15 @@ public class TaskQueryServiceImpl implements TaskQueryService {
 
         // 오늘 마감일인 작업들에 대해 알림 전송
         for (Work task : tasksToday) {
+            String taskName = taskMapper.selectTaskNameByTaskId(task.getId());
+
             // 해당 태스크에 참여한 사용자들을 조회
             List<Long> participants = participantMapper.findParticipantsByTaskId(task.getId());
 
             // 각 참여자에게 알림 전송
             for (Long userId : participants) {
                 notificationService.sendNotification(userId,
-                        "오늘 마감일입니다! 태스크 완료를 확인하세요.",
+                        "오늘은 태스크 ["+taskName+"]의 예상 마감일입니다!",
                         task.getId(),
                         TargetType.WORK);
             }
@@ -129,13 +131,15 @@ public class TaskQueryServiceImpl implements TaskQueryService {
 
         // 내일 마감일인 작업들에 대해 알림 전송
         for (Work task : tasksTomorrow) {
+            String taskName = taskMapper.selectTaskNameByTaskId(task.getId());
+
             // 해당 태스크에 참여한 사용자들을 조회
             List<Long> participants = participantMapper.findParticipantsByTaskId(task.getId());
 
             // 각 참여자에게 알림 전송
             for (Long userId : participants) {
                 notificationService.sendNotification(userId,
-                        "내일 마감일입니다! 작업을 완료해 주세요.",
+                        "내일은 태스크 ["+taskName+"]의 예상 마감일입니다!",
                         task.getId(),
                         TargetType.WORK);
             }
