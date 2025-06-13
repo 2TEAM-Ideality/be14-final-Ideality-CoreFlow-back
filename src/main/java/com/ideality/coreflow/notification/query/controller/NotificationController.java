@@ -69,6 +69,7 @@ public class NotificationController {
         // 로그에 token 값 출력
         logger.info("Received token: {}", token);
 
+
         if (token == null || token.isEmpty()) {
             logger.error("Token is null or empty!");
             return new SseEmitter(0L); // 적절한 처리 (토큰이 없으면 401)

@@ -2,6 +2,7 @@ package com.ideality.coreflow.project.query.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
 import com.ideality.coreflow.notification.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
@@ -104,6 +105,13 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     @Scheduled(cron = "0 0 0 * * *") // 매일 자정에 실행
     @Override
     public void sendTaskDueReminder() {
+        log.info("알림 작업 시작 - 오늘 마감일인 태스크 확인");
+
+        // 1. 기존 테넌트 정보 가져오기
+        String tenant = TenantContext.getTenant();  // 현재 테넌트 정보를 가져옵니다.
+        // 2. 여기서 새로운 테넌트를 설정
+        TenantContext.setTenant("company_a");  // 예시로 "company_a"로 테넌트 설정
+
         LocalDate today = LocalDate.now();
         LocalDate tomorrow = today.plusDays(1);
 
