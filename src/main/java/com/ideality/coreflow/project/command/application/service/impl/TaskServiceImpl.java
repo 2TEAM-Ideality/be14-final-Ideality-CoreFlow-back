@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.command.application.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.holiday.query.dto.HolidayQueryDto;
 import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.project.command.application.dto.DelayNodeDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
@@ -19,6 +20,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -155,10 +157,12 @@ public class TaskServiceImpl implements TaskService {
         Set<Long> visited = new HashSet<>();
         Queue<DelayNodeDTO> queue = new LinkedList<>();
         Integer count = 0;
+        Set<LocalDate> holidays = holidayQueryService.getHolidays().stream()
+                .map(HolidayQueryDto::getDate).collect(Collectors.toSet());
 
         // 초기 태스크 처리
         Work startTask = taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
-        delayTask(startTask, delayDays);
+        delayTask(startTask, delayDays, holidays);
 
         // 지연 전파
         queue.offer(new DelayNodeDTO(taskId, delayDays));
@@ -179,7 +183,7 @@ public class TaskServiceImpl implements TaskService {
                 }else {
                     int realDelay = delayToApply - nextTask.getSlackTime();
                     nextTask.setSlackTime(0);
-                    delayTask(nextTask, realDelay);
+                    delayTask(nextTask, realDelay, holidays);
                     queue.offer(new DelayNodeDTO(nextTaskId, realDelay));
                     count++;
                 }
@@ -189,27 +193,27 @@ public class TaskServiceImpl implements TaskService {
         return count;
     }
 
-    private void delayTask(Work task, Integer delayDays) {
+    private void delayTask(Work task, Integer delayDays, Set<LocalDate> holidays) {
         if (task.getStatus() == Status.PENDING) {
             task.setStartExpect(task.getStartExpect().plusDays(
-                    calculateDelayExcludingHolidays(task.getStartExpect(), delayDays)
+                    calculateDelayExcludingHolidays(task.getStartExpect(), delayDays, holidays)
             ));
         }
         task.setEndExpect(task.getEndExpect().plusDays(
-                calculateDelayExcludingHolidays(task.getEndExpect(), delayDays)
+                calculateDelayExcludingHolidays(task.getEndExpect(), delayDays, holidays)
         ));
         task.setDelayDays(task.getDelayDays() + delayDays);
         taskRepository.save(task);
     }
 
-    private int calculateDelayExcludingHolidays(LocalDate startDate, Integer delayDays) {
+    private int calculateDelayExcludingHolidays(LocalDate startDate, Integer delayDays, Set<LocalDate> holidays) {
         int addedDays = 0;
         int workingDays = 0;
         LocalDate date = startDate;
 
         while (workingDays < delayDays) {
             date = date.plusDays(1);
-            if(!holidayQueryService.isHoliday(date)) {
+            if(!holidays.contains(date)) {
                 workingDays++;
             }
             addedDays++;
