@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.query.service.facade;
 
+import com.ideality.coreflow.project.query.dto.CompletedProjectDTO;
 import com.ideality.coreflow.project.query.dto.DeptWorkDTO;
 import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
 import com.ideality.coreflow.project.query.dto.PipelineResponseDTO;
@@ -72,5 +73,8 @@ public class ProjectQueryFacadeService {
         return projectQueryService.getPipeline(projectId);
     }
 
-
+    // 완료된 프로젝트 목록 조회
+    public List<CompletedProjectDTO> getCompletedProjectList() {
+        return projectQueryService.selectCompletedProjects();
+    }
 }
