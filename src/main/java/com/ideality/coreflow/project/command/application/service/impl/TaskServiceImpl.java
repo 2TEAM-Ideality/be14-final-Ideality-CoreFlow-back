@@ -6,8 +6,10 @@ import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.project.command.application.dto.DelayNodeDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.service.TaskService;
+import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
+import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
 import com.ideality.coreflow.project.command.domain.repository.RelationRepository;
 import com.ideality.coreflow.project.command.domain.repository.TaskRepository;
 import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
@@ -41,6 +43,7 @@ public class TaskServiceImpl implements TaskService {
     private final RelationQueryService relationQueryService;
     private final WorkQueryService workQueryService;
     private final WorkRepository workRepository;
+    private final ProjectRepository projectRepository;
 
     @Override
     @Transactional
@@ -166,7 +169,10 @@ public class TaskServiceImpl implements TaskService {
 
         // 초기 태스크 처리
         Work startTask = taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
-        delayTask(startTask, delayDays, holidays);
+        Project project = projectRepository.findById(startTask.getProjectId()).orElseThrow(()->new BaseException(PROJECT_NOT_FOUND));
+        LocalDate projectEndExpect = project.getEndExpect();
+        System.out.println("projectEndExpect = " + projectEndExpect);
+        projectEndExpect=delayTask(startTask, delayDays, holidays, projectEndExpect);
         startTask.setDelayDays(delayDays);
         taskRepository.save(startTask);
 
@@ -189,17 +195,28 @@ public class TaskServiceImpl implements TaskService {
                 }else {
                     int realDelay = delayToApply - nextTask.getSlackTime();
                     nextTask.setSlackTime(0);
-                    delayTask(nextTask, realDelay, holidays);
+                    projectEndExpect = delayTask(nextTask, realDelay, holidays, projectEndExpect);
                     queue.offer(new DelayNodeDTO(nextTaskId, realDelay));
                     count++;
                 }
                 visited.add(nextTaskId);
             }
         }
+
+        // 프로젝트 예상 마감일 업데이트
+        if (project.getEndExpect().isBefore(projectEndExpect)) {
+            Long projectDelay = ChronoUnit.DAYS.between(project.getEndExpect(), projectEndExpect);
+        // 프로젝트 지연일수 업데이트
+            project.setEndExpect(projectEndExpect);
+            project.setDelayDays(Math.toIntExact(projectDelay));
+            projectRepository.save(project);
+        }
+
+
         return count;
     }
 
-    private void delayTask(Work task, Integer delayDays, Set<LocalDate> holidays) {
+    private LocalDate delayTask(Work task, Integer delayDays, Set<LocalDate> holidays, LocalDate projectEndExpect) {
         if (task.getStatus() == Status.PENDING) {
             task.setStartExpect(task.getStartExpect().plusDays(
                     calculateDelayExcludingHolidays(task.getStartExpect(), delayDays, holidays)
@@ -208,6 +225,12 @@ public class TaskServiceImpl implements TaskService {
         task.setEndExpect(task.getEndExpect().plusDays(
                 calculateDelayExcludingHolidays(task.getEndExpect(), delayDays, holidays)
         ));
+        System.out.println("task.getId() = " + task.getId());
+        System.out.println("task.getEndExpect() = " + task.getEndExpect());
+        if(projectEndExpect.isBefore(task.getEndExpect())) {
+            projectEndExpect = task.getEndExpect();
+        }
+        System.out.println("projectEndExpect = " + projectEndExpect);
         taskRepository.save(task);
 
         // 태스크 하위 세부일정들도 지연 처리
@@ -218,6 +241,7 @@ public class TaskServiceImpl implements TaskService {
             Work detailWork = workRepository.findById(detailId).orElseThrow(() -> new BaseException(WORK_NOT_FOUND));
             delayWork(detailWork, delayDays, holidays);
         }
+        return projectEndExpect;
     }
 
     private void delayWork(Work work, Integer delayDays, Set<LocalDate> holidays) {
