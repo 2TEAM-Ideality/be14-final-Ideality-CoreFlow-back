@@ -49,11 +49,11 @@ public class NotificationRecipientsServiceImpl implements NotificationRecipients
 
     @Override
     @Transactional
-    public void createRecipientsByMention(List<Long> userIdByMention, Long notificationId) {
+    public void createRecipients(List<Long> userList, Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new BaseException(ErrorCode.NOTIFICATION_NOT_FOUND));
 
-        for (Long userId : userIdByMention) {
+        for (Long userId : userList) {
             log.info("Creating recipient {} for notification {}", userId, notificationId);
 
             NotificationRecipient notificationRecipient = NotificationRecipient.builder()

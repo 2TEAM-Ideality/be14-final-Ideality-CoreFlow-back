@@ -14,9 +14,7 @@ public interface TaskService {
 
     Long softDeleteTask(Long taskId);
 
-    void validateSource(List<Long> source);
-
-    void validateTarget(List<Long> target);
+    void validateRelation(List<Long> source);
 
     void validateTask(Long taskId);
 

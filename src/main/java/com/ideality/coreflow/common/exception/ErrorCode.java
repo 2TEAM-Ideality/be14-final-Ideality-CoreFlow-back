@@ -36,7 +36,7 @@ public enum ErrorCode {
     // ✅ 서버 오류
     INTERNAL_SERVER_ERROR("INTERNAL_SERVER_ERROR", "서버 내부 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR), // 500
 
-    // ✅ 템플릿 관련
+    // ✅ 템플릿 없는 정보
     TEMPLATE_NOT_FOUND("TEMPLATE_NOT_FOUND", "존재하지 않는 템플릿입니다.", HttpStatus.NOT_FOUND),   // 400
 
     // ✅ DB 관련
@@ -106,6 +106,8 @@ public enum ErrorCode {
     COMMENT_ACCESS_DENIED("COMMENT_ACCESS_DENIED", "댓글에 접근할 수 없는 권합입니다.", HttpStatus.FORBIDDEN),
     COMMENT_ALREADY_DELETED("COMMENT_ALREADY_DELETED", "이미 삭제된 댓글입니다." , HttpStatus.FORBIDDEN),
     REPEATRULE_NOT_FOUND("REPEATRULE_NOT_FOUND", "존재하지 않는 반복규칙입니다.", HttpStatus.NOT_FOUND ),
+    TEAM_LEADER_ALREADY_EXISTS("TEAM_LEADER_ALREADY_EXISTS", "이미 팀장이 존재합니다", HttpStatus.CONFLICT),
+    TEAM_MEMBER_ALREADY_EXISTS("TEAM_MEMBER_ALREADY_EXISTS", "이미 팀원으로 참여중인 회원입니다.", HttpStatus.CONFLICT),
 	PDF_CREATE_FAILED("PDF_CREATE_FAILED", "프로젝트 리포트 PDF 파일 생성이 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     NO_COMPLETED_PROJECT("NO_COMPLETED_PROJECT", "완료된 프로젝트가 없습니다." , HttpStatus.NOT_FOUND )
     ;

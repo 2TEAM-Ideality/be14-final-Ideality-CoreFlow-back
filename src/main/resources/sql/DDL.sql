@@ -14,7 +14,7 @@ CREATE TABLE user (
     hire_date DATE NOT NULL,
     is_resign BOOLEAN NOT NULL DEFAULT FALSE,
     resign_date DATE,
-    profile_image TEXT,
+    profile_image MEDIUMTEXT,
     dept_name VARCHAR(255) NOT NULL,
     job_rank_name VARCHAR(255) NOT NULL,                -- 직위 명
     job_role_name VARCHAR(255) NOT NULL DEFAULT '사원'   -- 직책 명
