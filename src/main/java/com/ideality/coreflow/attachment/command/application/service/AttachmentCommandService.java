@@ -2,6 +2,10 @@ package com.ideality.coreflow.attachment.command.application.service;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.ideality.coreflow.attachment.command.application.dto.AttachmentPreviewDTO;
 import com.ideality.coreflow.attachment.command.application.dto.CreateAttachmentDTO;
 import com.ideality.coreflow.attachment.command.application.dto.RegistAttachmentDTO;
@@ -91,6 +95,21 @@ public class AttachmentCommandService {
 						.url(attachment.getUrl())
 						.build())
 				.orElse(null);
+	}
+
+	public List<AttachmentPreviewDTO> getOriginNameList(long approvalId, FileTargetType fileTargetType) {
+		List<Attachment> attachments = attachmentRepository.findListByTargetIdAndTargetType(approvalId, fileTargetType);
+
+		if (attachments == null || attachments.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		return attachments.stream()
+				.map(attachment -> AttachmentPreviewDTO.builder()
+						.originName(attachment.getOriginName())
+						.url(attachment.getUrl())
+						.build())
+				.collect(Collectors.toList());
 	}
 
 	public Boolean findAttachmentByTargetId(Long templateId) {
