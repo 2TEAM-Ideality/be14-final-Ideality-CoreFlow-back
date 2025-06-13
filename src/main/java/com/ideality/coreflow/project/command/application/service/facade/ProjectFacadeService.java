@@ -230,7 +230,7 @@ public class ProjectFacadeService {
          *  중복 select를 방지하기 위해 읽기부터
         * */
 
-        boolean isParticipant = participantQueryService.isParticipant(requestTaskDTO.getProjectId(), userId);
+        boolean isParticipant = participantQueryService.isParticipant(userId, requestTaskDTO.getProjectId());
 
         if (!isParticipant) {
             throw new BaseException(ErrorCode.ACCESS_DENIED);
@@ -325,7 +325,7 @@ public class ProjectFacadeService {
     @Transactional
     public Long createDetail(RequestDetailDTO requestDetailDTO, Long userId) {
 
-        boolean isParticipant = participantQueryService.isParticipant(requestDetailDTO.getProjectId(), userId);
+        boolean isParticipant = participantQueryService.isParticipant(userId, requestDetailDTO.getProjectId());
         if (!isParticipant) {
             throw new BaseException(ErrorCode.ACCESS_DENIED);
         }
