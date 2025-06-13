@@ -240,24 +240,31 @@ public class ProjectFacadeService {
     }
 
     @Transactional
-    public Long createTask(RequestTaskDTO requestTaskDTO) {
+    public Long createTask(RequestTaskDTO requestTaskDTO, Long userId) {
 
         /* 설명. “읽기-쓰기 분리 전략”
          *  중복 select를 방지하기 위해 읽기부터
-        * */
+         * */
+
+        boolean isParticipant = participantQueryService.isParticipant(userId, requestTaskDTO.getProjectId());
+
+        if (!isParticipant) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
+
         Map<Long, String> deptIdMap = requestTaskDTO.getDeptList().stream()
-                        .collect
-                        (Collectors.toMap(id -> id, deptQueryService::findNameById));
+            .collect
+                (Collectors.toMap(id -> id, deptQueryService::findNameById));
         log.info("부서 조회 끝");
         List<String> deptNames = deptIdMap.values().stream().distinct().toList();
 
         Map<String, List<Long>> deptLeaderMaps = deptNames.stream()
-                .collect(Collectors.toMap(name -> name, userQueryService::selectLeadersByDeptName));
+            .collect(Collectors.toMap(name -> name, userQueryService::selectLeadersByDeptName));
 
         Long directorId = participantQueryService.selectDirectorByProjectId(requestTaskDTO.getProjectId());
 
         Map<String, List<Long>> deptUsersMaps = deptNames.stream()
-                .collect(Collectors.toMap(name -> name, userQueryService::selectMentionUserByDeptName));
+            .collect(Collectors.toMap(name -> name, userQueryService::selectMentionUserByDeptName));
 
         log.info("조회부터 완료");
 
@@ -275,11 +282,11 @@ public class ProjectFacadeService {
         } else {
             log.info("둘 다 null이라 값을 넣지 않음");
         }
-//        if (requestTaskDTO.getTarget() == null || requestTaskDTO.getTarget().isEmpty()) {
-//            // target이 없으면
-//        } else {
-//            relationService.appendMiddleRelation(requestTaskDTO.getSource(), requestTaskDTO.getTarget(), taskId);
-//        }
+        //        if (requestTaskDTO.getTarget() == null || requestTaskDTO.getTarget().isEmpty()) {
+        //            // target이 없으면
+        //        } else {
+        //            relationService.appendMiddleRelation(requestTaskDTO.getSource(), requestTaskDTO.getTarget(), taskId);
+        //        }
         log.info("태스크 및 태스트별 관계 설정 완료");
 
 
@@ -294,17 +301,17 @@ public class ProjectFacadeService {
             List<Long> leaderIds = deptLeaderMaps.get(deptName);
             // ✅ 1. 팀장 먼저 등록
             List<ParticipantDTO> leaderParticipants = leaderIds.stream()
-                    .map(leaderId -> new ParticipantDTO(taskId, leaderId, TargetType.TASK, 2L))
-                    .toList();
+                .map(leaderId -> new ParticipantDTO(taskId, leaderId, TargetType.TASK, 2L))
+                .toList();
             participantService.createParticipants(leaderParticipants);
             log.info("팀장 등록 완료");
 
             // ✅ 2. 팀원 등록 (디렉터 & 팀장 제외)
             List<ParticipantDTO> teamParticipants = newParticipantsIds.stream()
-                    .filter(participantUserId -> !leaderIds.contains(userId))       // 팀장 제외
-                    .filter(participantUserId -> !userId.equals(directorId))        // 디렉터 제외
-                    .map(participantUserId -> new ParticipantDTO(taskId, userId, TargetType.TASK, 3L))
-                    .toList();
+                .filter(participantUserId -> !leaderIds.contains(userId))       // 팀장 제외
+                .filter(participantUserId -> !userId.equals(directorId))        // 디렉터 제외
+                .map(participantUserId -> new ParticipantDTO(taskId, userId, TargetType.TASK, 3L))
+                .toList();
             participantService.createParticipants(teamParticipants);
             log.info("팀원 등록 완료");
 
