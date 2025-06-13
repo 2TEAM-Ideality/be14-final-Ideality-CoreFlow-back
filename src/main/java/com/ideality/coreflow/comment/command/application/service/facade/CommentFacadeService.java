@@ -78,7 +78,7 @@ public class CommentFacadeService {
             String content = String.format("%s TASK에서 '%s'님이 회원님을 언급하였습니다.", taskTitle, writerName);
             Long notificationId = notificationService.createMentionNotification(taskId, content);
             log.info("알림 생성 완료");
-            notificationRecipientsService.createRecipientsByMention(userIdByMention, notificationId);
+            notificationRecipientsService.createRecipients(userIdByMention, notificationId);
             log.info("알림 전달할 사람에게 전달 완료");
         }
 

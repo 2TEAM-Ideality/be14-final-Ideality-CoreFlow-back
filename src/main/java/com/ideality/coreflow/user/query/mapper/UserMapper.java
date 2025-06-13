@@ -39,5 +39,7 @@ public interface UserMapper {
 
     String selectUserNameById(Long userId);
 
-    List<ResponseUser> selectAllUser();
+    List<ResponseUser> selectAllUserPreView();
+
+    List<AllUserDTO> selectAllUser();
 }
