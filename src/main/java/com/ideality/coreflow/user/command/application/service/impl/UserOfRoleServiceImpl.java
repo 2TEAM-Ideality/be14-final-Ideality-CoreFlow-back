@@ -3,8 +3,11 @@ package com.ideality.coreflow.user.command.application.service.impl;
 import com.ideality.coreflow.user.command.application.service.UserOfRoleService;
 import com.ideality.coreflow.user.command.domain.aggregate.UserOfRole;
 import com.ideality.coreflow.user.command.domain.repository.UserOfRoleRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor

@@ -6,6 +6,12 @@ import com.ideality.coreflow.project.command.application.service.ProjectService;
 import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.org.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.service.*;
+import com.ideality.coreflow.user.query.dto.AllUserDTO;
+import com.ideality.coreflow.project.query.service.ProjectQueryService;
+import com.ideality.coreflow.project.query.service.RelationQueryService;
+import com.ideality.coreflow.project.query.service.TaskQueryService;
+import com.ideality.coreflow.project.query.service.WorkDeptQueryService;
+import com.ideality.coreflow.project.query.service.WorkQueryService;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 
 import lombok.RequiredArgsConstructor;
@@ -69,6 +75,30 @@ public class ProjectQueryFacadeService {
     }
 
 
+    public List<ResponseInvitableUserDTO> getInvitableUser(Long projectId, Long userId) {
+        projectService.existsById(projectId);
+        boolean isAboveTeamLeader
+                = participantQueryService.isAboveTeamLeader(userId, projectId);
+        if (!isAboveTeamLeader) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
+
+        List<AllUserDTO> userList = userQueryService.selectAllUser();
+        List<Long> alreadyParticipantUser = participantQueryService.selectParticipantUserId(projectId);
+
+        List<ResponseInvitableUserDTO> result = userList.stream()
+                .map(user -> new ResponseInvitableUserDTO(
+                        user.getId(),
+                        user.getName(),
+                        user.getDeptName(),
+                        user.getJobRank(),
+                        user.getProfileImage(),
+                        alreadyParticipantUser.contains(user.getId())
+                ))
+                .toList();
+
+        return result;
+    }
     public List<ParticipantDepartmentDTO> getParticipantDepartment(Long projectId, Long userId) {
         projectService.existsById(projectId);
         boolean isParticipant = participantQueryService.isParticipant(userId, projectId);

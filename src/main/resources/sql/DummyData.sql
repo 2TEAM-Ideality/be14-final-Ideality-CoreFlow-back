@@ -36,7 +36,7 @@ VALUES
 ),
 (
     'bcde',
-    '1234',
+    '$2a$12$dD0aS4kIMvZnWIWxVXr.3us3W97791wgVLi2gyY4kuCU6/KQMHrcG',
     '성한빈',
     'hanbin@naver.com',
     '2001-02-02',
@@ -47,7 +47,7 @@ VALUES
 ),
 (
     'bcdf',
-    '1234',
+    '$2a$12$dD0aS4kIMvZnWIWxVXr.3us3W97791wgVLi2gyY4kuCU6/KQMHrcG',
     '이혜영',
     'hailey@naver.com',
     '2002-06-02',
@@ -58,7 +58,7 @@ VALUES
 ),
 (
     'cdef',
-    '1234',
+    '$2a$12$dD0aS4kIMvZnWIWxVXr.3us3W97791wgVLi2gyY4kuCU6/KQMHrcG',
     '류현진',
     'ryuryu@naver.com',
     '1987-03-03',
@@ -69,7 +69,7 @@ VALUES
 ),
 (
     'cdeg',
-    '1234',
+    '$2a$12$dD0aS4kIMvZnWIWxVXr.3us3W97791wgVLi2gyY4kuCU6/KQMHrcG',
     '권민수',
     'minsu@naver.com',
     '1997-04-04',
@@ -80,7 +80,7 @@ VALUES
 ),
 (
     'defg',
-    '1234',
+    '$2a$12$dD0aS4kIMvZnWIWxVXr.3us3W97791wgVLi2gyY4kuCU6/KQMHrcG',
     '한석현',
     'hancoal@naver.com',
     '1999-05-05',
@@ -91,7 +91,7 @@ VALUES
 ),
 (
     'abde',
-    '1234',
+    '$2a$12$dD0aS4kIMvZnWIWxVXr.3us3W97791wgVLi2gyY4kuCU6/KQMHrcG',
     '김도영',
     'doyoungkim@naver.com',
     '2000-03-03',
@@ -102,7 +102,7 @@ VALUES
 ),
 (
     'abba',
-    '1234',
+    '$2a$12$dD0aS4kIMvZnWIWxVXr.3us3W97791wgVLi2gyY4kuCU6/KQMHrcG',
     '정효주',
     'hyoju@naver.com',
     '2000-03-09',

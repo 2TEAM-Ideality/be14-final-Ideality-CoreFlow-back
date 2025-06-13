@@ -2,6 +2,10 @@ package com.ideality.coreflow.project.query.controller;
 
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.project.query.dto.*;
+import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
+import com.ideality.coreflow.project.query.dto.PipelineResponseDTO;
+import com.ideality.coreflow.project.query.dto.ProjectSummaryDTO;
+import com.ideality.coreflow.project.query.dto.ResponseInvitableUserDTO;
 import com.ideality.coreflow.project.query.service.facade.ProjectQueryFacadeService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +41,14 @@ public class ProjectQueryController {
     public APIResponse<PipelineResponseDTO> getPipeline(@PathVariable Long projectId) {
         PipelineResponseDTO project = projectQueryFacadeService.getPipeline(projectId);
         return APIResponse.success(project, project.getName() + " 파이프라인 조회 성공");
+    }
+
+    @GetMapping("/{projectId}/invitable-user")
+    public ResponseEntity<APIResponse<List<ResponseInvitableUserDTO>>> getInvitableUser(@PathVariable Long projectId) {
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        List<ResponseInvitableUserDTO> res = projectQueryFacadeService.getInvitableUser(projectId, userId);
+
+        return ResponseEntity.ok(APIResponse.success(res, "초대 가능한 회원 리스트 조회 성공"));
     }
 
     @GetMapping("/{projectId}/participants/department")
