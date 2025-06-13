@@ -68,6 +68,8 @@ public class NotificationServiceImpl implements NotificationService {
         return notification.getId();
     }
 
+
+
     @Override
     @Transactional
     public Long createMentionNotification(Long taskId, String content) {
@@ -83,5 +85,12 @@ public class NotificationServiceImpl implements NotificationService {
 
         notificationRepository.save(notification);
         return notification.getId();
+    }
+
+    // 알림 상태 저장
+    @Transactional
+    @Override
+    public void save(Notification notification) {
+        notificationRepository.save(notification);
     }
 }

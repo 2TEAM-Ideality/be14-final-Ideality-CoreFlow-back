@@ -13,4 +13,6 @@ public interface ParticipantMapper {
     List<Long> selectParticipantsList(Long detailParticipantId);
 
     boolean isParticipantUser(Long userId, Long projectId);
+
+    List<Long> findNextTaskUsersByTaskId(Long taskId);
 }

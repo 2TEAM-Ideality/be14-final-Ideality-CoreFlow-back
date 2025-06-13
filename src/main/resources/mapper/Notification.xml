@@ -11,7 +11,32 @@
         JOIN notification_recipients nr ON n.id = nr.notification_id  <!-- notification_id는 Notification 테이블의 id를 참조 -->
         WHERE nr.user_id = #{userId}  <!-- 현재 로그인한 사용자의 알림만 가져옴 -->
         ORDER BY n.created_at DESC
-        LIMIT 10  <!-- 최근 10개의 알림만 가져옴 -->
+        LIMIT 20  <!-- 최근 20개의 알림만 가져옴 -->
     </select>
+
+    <!-- getLatestNotifications 쿼리 -->
+    <select id="getLatestNotifications" resultType="com.ideality.coreflow.notification.command.domain.aggregate.Notification">
+        SELECT n.id, n.target_type, n.target_id, n.content, n.status, n.dispatch_at, n.created_at, n.updated_at, n.is_auto_delete
+        FROM notification n
+        JOIN notification_recipients nr ON n.id = nr.notification_id
+        WHERE nr.user_id = #{userId}
+        AND n.id > #{lastNotificationId}  <!-- 마지막으로 받은 알림 이후의 알림만 -->
+        ORDER BY n.created_at ASC
+    </select>
+
+    <!-- 알림 존재여부 확인 조회 -->
+    <select id="getNotificationById" resultType="com.ideality.coreflow.notification.command.domain.aggregate.Notification">
+        SELECT *
+        FROM notification
+        WHERE id = #{id}
+    </select>
+
+    <!-- 특정 알림을 받은 사용자인지 확인 -->
+    <select id="isRecipient" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM notification_recipients
+        WHERE notification_id = #{notificationId} AND user_id = #{userId}
+    </select>
+
 
 </mapper>

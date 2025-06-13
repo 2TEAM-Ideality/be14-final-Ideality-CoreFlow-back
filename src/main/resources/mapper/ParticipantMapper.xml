@@ -37,4 +37,13 @@
         AND target_type = 'PROJECT'
         )
     </select>
+
+    <select id="findNextTaskUsersByTaskId" resultType="java.lang.Long">
+        SELECT p.user_id
+        FROM relation r
+        JOIN participant p ON r.next_work_id = p.target_id
+        WHERE r.prev_work_id = #{taskId}
+        AND p.target_type = 'TASK'
+    </select>
+
 </mapper>
