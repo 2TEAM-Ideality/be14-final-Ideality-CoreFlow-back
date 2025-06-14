@@ -45,7 +45,6 @@ public class TaskServiceImpl implements TaskService {
     private final ProjectService projectService;
     private final WorkQueryService workQueryService;
     private final RelationQueryService relationQueryService;
-    private final WorkQueryService workQueryService;
     private final WorkRepository workRepository;
     private final ProjectRepository projectRepository;
 
@@ -197,10 +196,11 @@ public class TaskServiceImpl implements TaskService {
 
         // 프로젝트 예상 마감일 업데이트
         if (project.getEndExpect().isBefore(projectEndExpect)) {
-            Long projectDelay = ChronoUnit.DAYS.between(project.getEndExpect(), projectEndExpect);
+            Long projectDelay = ChronoUnit.DAYS.between(project.getEndExpect(), projectEndExpect)
+                    -holidayQueryService.countHolidaysBetween(project.getEndExpect(), projectEndExpect);
         // 프로젝트 지연일수 업데이트
             project.setEndExpect(projectEndExpect);
-            project.setDelayDays(Math.toIntExact(projectDelay));
+            project.setDelayDays(project.getDelayDays()+Math.toIntExact(projectDelay));
             projectRepository.save(project);
         }
 
@@ -242,9 +242,11 @@ public class TaskServiceImpl implements TaskService {
                     calculateDelayExcludingHolidays(work.getStartExpect(), delayDays, holidays)
             ));
         }
-        work.setEndExpect(work.getEndExpect().plusDays(
-                calculateDelayExcludingHolidays(work.getEndExpect(), delayDays, holidays)
-        ));
+        if (work.getStatus() == Status.PENDING || work.getStatus() == Status.PROGRESS) {
+            work.setEndExpect(work.getEndExpect().plusDays(
+                    calculateDelayExcludingHolidays(work.getEndExpect(), delayDays, holidays)
+            ));
+        }
         workRepository.save(work);
     }
 
