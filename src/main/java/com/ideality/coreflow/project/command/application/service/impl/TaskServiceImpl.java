@@ -19,6 +19,7 @@ import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
 import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
 import com.ideality.coreflow.project.query.mapper.ParticipantMapper;
 import com.ideality.coreflow.notification.command.domain.aggregate.TargetType;
+import com.ideality.coreflow.project.query.mapper.TaskMapper;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.project.query.service.RelationQueryService;
 import com.ideality.coreflow.project.query.service.WorkQueryService;
@@ -56,7 +57,7 @@ public class TaskServiceImpl implements TaskService {
     private final RelationQueryService relationQueryService;
     private final WorkRepository workRepository;
     private final ProjectRepository projectRepository;
-
+    private final TaskMapper taskMapper;
 
 
     @Override
@@ -190,12 +191,18 @@ public class TaskServiceImpl implements TaskService {
         projectEndExpect=delayTask(startTask, delayDays, holidays, projectEndExpect);
         startTask.setDelayDays(delayDays);
 
-        // 첫 번째 태스크는 이제 지연된 태스크 목록에 포함
-        delayedTaskIds.add(startTask.getId());  // 첫 번째 태스크 ID 추가
-        // 첫 번째 태스크에 참여한 인원에게 알림 보내기
-        List<Long> participants = participantMapper.findParticipantsByTaskId(startTask.getId());
+        String firstTaskName = taskMapper.selectTaskNameByTaskId(startTask.getId());
+
+        // 첫 번째 태스크가 이미 지연되었으므로 무조건 알림 보내기
+        delayedTaskIds.add(startTask.getId());  // 첫 번째 태스크 ID 무조건 추가
         String content = "태스크 [" + startTask.getName() + "]가 지연되어 예상마감일이 변경되었습니다!";
-        for (Long userId : participants) {
+
+        // 첫 번째 태스크에 참여한 인원에게 알림 보내기
+        List<Long> firstparticipants = participantMapper.findParticipantsByTaskId(startTask.getId());
+        if (firstparticipants == null || firstparticipants.isEmpty()) {
+            log.warn("참여자 목록이 비어 있습니다. 태스크 ID: " + startTask.getId());
+        }
+        for (Long userId : firstparticipants) {
             notificationService.sendNotification(userId, content, startTask.getId(), TargetType.WORK);
         }
 
@@ -231,12 +238,11 @@ public class TaskServiceImpl implements TaskService {
                 // 예상 종료일이 변경된 경우에만 태스크ID 추가
                 if (!nextTask.getEndExpect().equals(originalEndExpect)) {
                     delayedTaskIds.add(nextTaskId);  // 실제로 마감일이 변경된 태스크만 추가
-
                     // 지연된 태스크에 참여한 인원에게 알림 보내기
-                    participants = participantMapper.findParticipantsByTaskId(nextTaskId);
-                    content = "태스크 [" + nextTask.getName() + "]가 지연되어 예상마감일이 변경되었습니다!";
+                    List<Long> participants = participantMapper.findParticipantsByTaskId(nextTaskId);
+                    String contents = "태스크 [" + firstTaskName + "]가 지연되어 ["+ nextTask.getName() +"]의 예상마감일이 변경되었습니다!";
                     for (Long userId : participants) {
-                        notificationService.sendNotification(userId, content, nextTask.getId(), TargetType.WORK);
+                        notificationService.sendNotification(userId, contents, nextTask.getId(), TargetType.WORK);
                     }
                 }
 
