@@ -93,4 +93,9 @@ public class WorkQueryServiceImpl implements WorkQueryService {
     public List<TaskProgressDTO> getDetailProgressByTaskId(Long taskId) {
         return workMapper.selectDetailProgressByTaskId(taskId);
     }
+
+    @Override
+    public List<Long> selectWorkIdsByParentTaskId(Long parentTaskId) {
+        return workMapper.selectWorkIdsByParentTaskId(parentTaskId);
+    }
 }

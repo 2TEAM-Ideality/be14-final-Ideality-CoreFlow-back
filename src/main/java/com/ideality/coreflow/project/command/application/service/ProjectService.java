@@ -26,4 +26,5 @@ public interface ProjectService {
     Double updateProjectProgress(Long projectId, List<TaskProgressDTO> taskList);
 
     List<ProjectOTD> calculateProjectOTD(List<CompletedProjectDTO> completedProjectList);
+    Double updateProjectProgress(Long projectId);
 }

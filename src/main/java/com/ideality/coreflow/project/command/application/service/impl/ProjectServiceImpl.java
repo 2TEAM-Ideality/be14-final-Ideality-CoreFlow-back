@@ -15,6 +15,7 @@ import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
 import com.ideality.coreflow.project.query.service.ProjectQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
 
+import com.ideality.coreflow.project.query.service.TaskQueryService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -109,7 +110,8 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Double updateProjectProgress(Long projectId, List<TaskProgressDTO> taskList) {
+    public Double updateProjectProgress(Long projectId) {
+        List<TaskProgressDTO> taskList = taskQueryService.getTaskProgressByProjectId(projectId);
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         System.out.println("project = " + project);
         Long totalDuration = 0L;

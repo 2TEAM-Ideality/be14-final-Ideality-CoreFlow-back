@@ -81,39 +81,37 @@ public class ProjectFacadeService {
     private final WorkService workService;
     private final WorkQueryService workQueryService;
 
+
+    @Transactional
     public Double updateProgressRate(Long taskId) {
-        List<TaskProgressDTO> workList = workQueryService.getDetailProgressByTaskId(taskId);
-        System.out.println("workList.size() = " + workList.size());
-        return taskService.updateTaskProgress(taskId, workList);
+        return taskService.updateTaskProgress(taskId);
     }
 
     @Transactional
-    public Double updateProjectProgressRate(Long projectId) {
-        List<TaskProgressDTO> taskList = taskQueryService.getTaskProgressByProjectId(projectId);
-        System.out.println("taskList.size() = " + taskList.size());
-        return projectService.updateProjectProgress(projectId, taskList);
+    public Double updateProjectProgressRate(Long projectId){
+        return projectService.updateProjectProgress(projectId);
     }
 
     @Transactional
-    public Double updatePassedRate(Long workId) {
+    public Double updatePassedRate(Long workId){
         return workService.updatePassedRate(workId);
     }
 
     @Transactional
-    public Double updateProjectPassedRate(Long projectId) {
+    public Double updateProjectPassedRate(Long projectId){
         return projectService.updateProjectPassedRate(projectId);
     }
 
     @Transactional
     public Long updateProjectStatus(Long projectId, Long userId, Status targetStatus)
-        throws NotFoundException, IllegalAccessException {
+            throws NotFoundException, IllegalAccessException {
         Project project = projectService.findById(projectId);
 
-        if (project.getStatus() == targetStatus) {
+        if(project.getStatus()==targetStatus){
             throw new IllegalStateException("이미 '" + targetStatus + "' 상태입니다.");
         }
 
-        if (!participantQueryService.isProjectDirector(projectId, userId)) {
+        if(!participantQueryService.isProjectDirector(projectId, userId)){
             throw new IllegalAccessException("이 프로젝트의 디렉터가 아닙니다");
         }
 
@@ -127,8 +125,8 @@ public class ProjectFacadeService {
         }
 
         if (targetStatus == Status.PENDING &&
-            !EnumSet.of(Status.DELETED, Status.CANCELLED).contains(project.getStatus())) {
-            throw new IllegalStateException(project.getStatus() + " 상태에서는 PENDING으로 전환할 수 없습니다");
+                !EnumSet.of(Status.DELETED, Status.CANCELLED).contains(project.getStatus())) {
+            throw new IllegalStateException(project.getStatus()+" 상태에서는 PENDING으로 전환할 수 없습니다");
         }
 
         return projectService.updateProjectStatus(project, targetStatus);
@@ -139,7 +137,7 @@ public class ProjectFacadeService {
         Project project = registerProject(request);
         registerProjectDirector(project.getId(), request.getDirectorId());
         List<ParticipantDTO> leaders = registerProjectLeaders(project.getId(), request.getLeaderIds());
-        if (request.getTemplateData() != null) {
+        if (request.getTemplateData() != null){
             applyTemplate(project.getId(), request.getTemplateData(), leaders);
         }
         return project;
@@ -148,7 +146,7 @@ public class ProjectFacadeService {
     private void applyTemplate(Long projectId, TemplateDataDTO templateData, List<ParticipantDTO> projectLeaders) {
         Map<String, Long> nodeIdToTaskId = new HashMap<>();
 
-        for (NodeDTO node : templateData.getNodeList()) {
+        for(NodeDTO node:templateData.getNodeList()){
             Long taskId = createTaskWithDepts(projectId, node);
             nodeIdToTaskId.put(node.getId(), taskId);
             assignTaskLeaders(taskId, node.getData().getDeptList(), projectLeaders);
@@ -163,22 +161,22 @@ public class ProjectFacadeService {
 
     private void assignTaskLeaders(Long taskId, List<TaskDeptDTO> taskDeptList, List<ParticipantDTO> projectLeaders) {
         List<Long> taskDeptIds = taskDeptList.stream()
-            .map(TaskDeptDTO::getId)
-            .toList();
+                .map(TaskDeptDTO::getId)
+                .toList();
 
         List<ParticipantDTO> matchedLeaders = new ArrayList<>();
 
-        for (ParticipantDTO leader : projectLeaders) {
+        for(ParticipantDTO leader:projectLeaders){
             String deptName = userQueryService.getDeptNameByUserId(leader.getUserId());
             Long deptId = deptQueryService.findDeptIdByName(deptName);
             if (taskDeptIds.contains(deptId)) {
                 matchedLeaders.add(
-                    ParticipantDTO.builder()
-                        .taskId(taskId)
-                        .userId(leader.getUserId())
-                        .targetType(TargetType.TASK)
-                        .roleId(2L)
-                        .build()
+                        ParticipantDTO.builder()
+                                .taskId(taskId)
+                                .userId(leader.getUserId())
+                                .targetType(TargetType.TASK)
+                                .roleId(2L)
+                                .build()
                 );
             }
         }
@@ -191,18 +189,18 @@ public class ProjectFacadeService {
         NodeDataDTO data = node.getData();
 
         RequestTaskDTO taskDTO = RequestTaskDTO.builder()
-            .label(data.getLabel())
-            .description(data.getDescription())
-            .startBaseLine(LocalDate.parse(data.getStartBaseLine()))
-            .endBaseLine(LocalDate.parse(data.getEndBaseLine()))
-            .projectId(projectId)
-            .build();
+                .label(data.getLabel())
+                .description(data.getDescription())
+                .startBaseLine(LocalDate.parse(data.getStartBaseLine()))
+                .endBaseLine(LocalDate.parse(data.getEndBaseLine()))
+                .projectId(projectId)
+                .build();
 
         Long taskId = taskService.createTask(taskDTO);
 
         List<Long> deptIds = data.getDeptList().stream()
-            .map(TaskDeptDTO::getId)
-            .toList();
+                .map(TaskDeptDTO::getId)
+                .toList();
 
         for(Long deptId:deptIds){
             workDeptService.createWorkDept(taskId, deptId);
@@ -244,7 +242,7 @@ public class ProjectFacadeService {
 
         /* 설명. “읽기-쓰기 분리 전략”
          *  중복 select를 방지하기 위해 읽기부터
-         * */
+        * */
 
         boolean isParticipant = participantQueryService.isParticipant(userId, requestTaskDTO.getProjectId());
 
@@ -253,18 +251,18 @@ public class ProjectFacadeService {
         }
 
         Map<Long, String> deptIdMap = requestTaskDTO.getDeptList().stream()
-            .collect
-                (Collectors.toMap(id -> id, deptQueryService::findNameById));
+                        .collect
+                        (Collectors.toMap(id -> id, deptQueryService::findNameById));
         log.info("부서 조회 끝");
         List<String> deptNames = deptIdMap.values().stream().distinct().toList();
 
         Map<String, List<Long>> deptLeaderMaps = deptNames.stream()
-            .collect(Collectors.toMap(name -> name, userQueryService::selectLeadersByDeptName));
+                .collect(Collectors.toMap(name -> name, userQueryService::selectLeadersByDeptName));
 
         Long directorId = participantQueryService.selectDirectorByProjectId(requestTaskDTO.getProjectId());
 
         Map<String, List<Long>> deptUsersMaps = deptNames.stream()
-            .collect(Collectors.toMap(name -> name, userQueryService::selectMentionUserByDeptName));
+                .collect(Collectors.toMap(name -> name, userQueryService::selectMentionUserByDeptName));
 
         log.info("조회부터 완료");
 
@@ -282,11 +280,11 @@ public class ProjectFacadeService {
         } else {
             log.info("둘 다 null이라 값을 넣지 않음");
         }
-        //        if (requestTaskDTO.getTarget() == null || requestTaskDTO.getTarget().isEmpty()) {
-        //            // target이 없으면
-        //        } else {
-        //            relationService.appendMiddleRelation(requestTaskDTO.getSource(), requestTaskDTO.getTarget(), taskId);
-        //        }
+//        if (requestTaskDTO.getTarget() == null || requestTaskDTO.getTarget().isEmpty()) {
+//            // target이 없으면
+//        } else {
+//            relationService.appendMiddleRelation(requestTaskDTO.getSource(), requestTaskDTO.getTarget(), taskId);
+//        }
         log.info("태스크 및 태스트별 관계 설정 완료");
 
 
@@ -301,17 +299,17 @@ public class ProjectFacadeService {
             List<Long> leaderIds = deptLeaderMaps.get(deptName);
             // ✅ 1. 팀장 먼저 등록
             List<ParticipantDTO> leaderParticipants = leaderIds.stream()
-                .map(leaderId -> new ParticipantDTO(taskId, leaderId, TargetType.TASK, 2L))
-                .toList();
+                    .map(leaderId -> new ParticipantDTO(taskId, leaderId, TargetType.TASK, 2L))
+                    .toList();
             participantService.createParticipants(leaderParticipants);
             log.info("팀장 등록 완료");
 
             // ✅ 2. 팀원 등록 (디렉터 & 팀장 제외)
             List<ParticipantDTO> teamParticipants = newParticipantsIds.stream()
-                .filter(participantUserId -> !leaderIds.contains(userId))       // 팀장 제외
-                .filter(participantUserId -> !userId.equals(directorId))        // 디렉터 제외
-                .map(participantUserId -> new ParticipantDTO(taskId, userId, TargetType.TASK, 3L))
-                .toList();
+                    .filter(participantUserId -> !leaderIds.contains(userId))       // 팀장 제외
+                    .filter(participantUserId -> !userId.equals(directorId))        // 디렉터 제외
+                    .map(participantUserId -> new ParticipantDTO(taskId, userId, TargetType.TASK, 3L))
+                    .toList();
             participantService.createParticipants(teamParticipants);
             log.info("팀원 등록 완료");
 
@@ -499,6 +497,10 @@ public class ProjectFacadeService {
         String content = String.format("%s 님이 회원님을 %s에 초대하였습니다.", writerName, projectName);
         Long notificationId = notificationService.createInviteProject(projectId, content);
         notificationRecipientsService.createRecipients(participantUser, notificationId);
+    }
+    @Transactional
+    public Integer delayAndPropagate(Long taskId, Integer delayDays) {
+        return taskService.delayAndPropagate(taskId, delayDays);
     }
 
 

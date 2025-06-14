@@ -18,4 +18,6 @@ public interface RelationMapper {
     List<PrevTaskDTO> selectPrevRelation(Long taskId);
 
     List<NextTaskDTO> selectNextRelation(Long taskId);
+
+    List<Long> selectNextTaskIds(Long taskId);
 }
