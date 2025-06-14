@@ -25,4 +25,6 @@ public interface WorkQueryService {
     List<Long> selectWorkIdByName(List<String> details);
 
     List<TaskProgressDTO> getDetailProgressByTaskId(Long taskId);
+
+    List<Long> selectWorkIdsByParentTaskId(Long parentTaskId);
 }

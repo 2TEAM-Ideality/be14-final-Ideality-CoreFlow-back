@@ -65,6 +65,8 @@ public class ProjectFacadeService {
     private final WorkQueryService workQueryService;
     private final ProjectQueryService projectQueryService;
 
+
+    @Transactional
     public Double updateProgressRate(Long taskId) {
         List<TaskProgressDTO> workList = workQueryService.getDetailProgressByTaskId(taskId);
         System.out.println("workList.size() = " + workList.size());
@@ -483,5 +485,9 @@ public class ProjectFacadeService {
         String content = String.format("%s 님이 회원님을 %s에 초대하였습니다.", writerName, projectName);
         Long notificationId = notificationService.createInviteProject(projectId, content);
         notificationRecipientsService.createRecipients(participantUser, notificationId);
+    }
+    @Transactional
+    public Integer delayAndPropagate(Long taskId, Integer delayDays) {
+        return taskService.delayAndPropagate(taskId, delayDays);
     }
 }

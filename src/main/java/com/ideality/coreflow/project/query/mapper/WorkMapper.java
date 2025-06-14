@@ -33,4 +33,6 @@ public interface WorkMapper {
     List<Long> selectWorkIdByName(List<String> details);
 
     List<TaskProgressDTO> selectDetailProgressByTaskId(Long taskId);
+
+    List<Long> selectWorkIdsByParentTaskId(Long parentTaskId);
 }

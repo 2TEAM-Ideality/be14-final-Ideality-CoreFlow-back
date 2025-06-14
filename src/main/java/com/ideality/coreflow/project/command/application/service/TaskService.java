@@ -19,4 +19,6 @@ public interface TaskService {
     void validateTask(Long taskId);
 
     Double updateTaskProgress(Long taskId, List<TaskProgressDTO> workList);
+
+    Integer delayAndPropagate(Long taskId, Integer delayDays);
 }

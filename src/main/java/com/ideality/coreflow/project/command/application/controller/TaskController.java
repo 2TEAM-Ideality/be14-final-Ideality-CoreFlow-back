@@ -78,4 +78,13 @@ public class TaskController {
                         taskId + "번 태스크의 진척률이 업데이트 되었습니다.")
         );
     }
+
+    @PatchMapping("{taskId}/delay")
+    public ResponseEntity<APIResponse<Map<String, Long>>> delayTaskPropagate(@PathVariable Long taskId, @RequestParam Integer delayDays) {
+        Integer countDelayedTasks = projectFacadeService.delayAndPropagate(taskId, delayDays);
+        return ResponseEntity.ok(
+                APIResponse.success(Map.of("countDelayedTasks", Long.valueOf(countDelayedTasks)),
+                        taskId + "번 태스크를 " + delayDays + "일 지연시킨 결과 " + countDelayedTasks + "개의 태스크가 지연되었습니다.")
+        );
+    }
 }
