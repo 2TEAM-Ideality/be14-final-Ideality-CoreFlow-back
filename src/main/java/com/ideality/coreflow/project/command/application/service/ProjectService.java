@@ -20,5 +20,5 @@ public interface ProjectService {
 
     Double updateProjectPassedRate(Long projectId);
 
-    Double updateProjectProgress(Long projectId, List<TaskProgressDTO> taskList);
+    Double updateProjectProgress(Long projectId);
 }
