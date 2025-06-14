@@ -45,7 +45,6 @@ public class TaskServiceImpl implements TaskService {
     private final ProjectService projectService;
     private final WorkQueryService workQueryService;
     private final RelationQueryService relationQueryService;
-    private final WorkQueryService workQueryService;
     private final WorkRepository workRepository;
     private final ProjectRepository projectRepository;
 

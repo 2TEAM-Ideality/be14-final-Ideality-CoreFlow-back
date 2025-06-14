@@ -23,8 +23,8 @@ public interface ProjectService {
 
     Double updateProjectPassedRate(Long projectId);
 
-    Double updateProjectProgress(Long projectId, List<TaskProgressDTO> taskList);
+    Double updateProjectProgress(Long projectId);
 
     List<ProjectOTD> calculateProjectOTD(List<CompletedProjectDTO> completedProjectList);
-    Double updateProjectProgress(Long projectId);
+
 }
