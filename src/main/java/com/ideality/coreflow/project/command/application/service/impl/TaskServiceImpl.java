@@ -179,6 +179,9 @@ public class TaskServiceImpl implements TaskService {
         Set<LocalDate> holidays = holidayQueryService.getHolidays().stream()
                 .map(HolidayQueryDto::getDate).collect(Collectors.toSet());
 
+        // 지연된 태스크 ID를 추적할 Set
+        Set<Long> delayedTaskIds = new HashSet<>();
+
         // 초기 태스크 처리
         Work startTask = taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
         Project project = projectRepository.findById(startTask.getProjectId()).orElseThrow(()->new BaseException(PROJECT_NOT_FOUND));
@@ -186,6 +189,16 @@ public class TaskServiceImpl implements TaskService {
         System.out.println("projectEndExpect = " + projectEndExpect);
         projectEndExpect=delayTask(startTask, delayDays, holidays, projectEndExpect);
         startTask.setDelayDays(delayDays);
+
+        // 첫 번째 태스크는 이제 지연된 태스크 목록에 포함
+        delayedTaskIds.add(startTask.getId());  // 첫 번째 태스크 ID 추가
+        // 첫 번째 태스크에 참여한 인원에게 알림 보내기
+        List<Long> participants = participantMapper.findParticipantsByTaskId(startTask.getId());
+        String content = "태스크 [" + startTask.getName() + "]가 지연되어 예상마감일이 변경되었습니다!";
+        for (Long userId : participants) {
+            notificationService.sendNotification(userId, content, startTask.getId(), TargetType.WORK);
+        }
+
         taskRepository.save(startTask);
 
         // 지연 전파
@@ -201,16 +214,32 @@ public class TaskServiceImpl implements TaskService {
                 Work nextTask = taskRepository.findById(nextTaskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
                 Integer delayToApply = currentNode.getDelayDays();
 
-                if (nextTask.getSlackTime() >= delayToApply) {
+                // 예상 마감일이 변경될 경우만 추적
+                LocalDate originalEndExpect = nextTask.getEndExpect();
+
+                if (nextTask.getSlackTime() >= delayToApply) { // 슬랙 타임이 충분한 경우
                     nextTask.setSlackTime(nextTask.getSlackTime() - delayToApply);
                     taskRepository.save(nextTask);
-                }else {
+                }else {  // 슬랙 타임이 부족한 경우, 실제로 지연을 전파
                     int realDelay = delayToApply - nextTask.getSlackTime();
                     nextTask.setSlackTime(0);
                     projectEndExpect = delayTask(nextTask, realDelay, holidays, projectEndExpect);
                     queue.offer(new DelayNodeDTO(nextTaskId, realDelay));
                     count++;
                 }
+
+                // 예상 종료일이 변경된 경우에만 태스크ID 추가
+                if (!nextTask.getEndExpect().equals(originalEndExpect)) {
+                    delayedTaskIds.add(nextTaskId);  // 실제로 마감일이 변경된 태스크만 추가
+
+                    // 지연된 태스크에 참여한 인원에게 알림 보내기
+                    participants = participantMapper.findParticipantsByTaskId(nextTaskId);
+                    content = "태스크 [" + nextTask.getName() + "]가 지연되어 예상마감일이 변경되었습니다!";
+                    for (Long userId : participants) {
+                        notificationService.sendNotification(userId, content, nextTask.getId(), TargetType.WORK);
+                    }
+                }
+
                 visited.add(nextTaskId);
             }
         }
@@ -222,9 +251,15 @@ public class TaskServiceImpl implements TaskService {
             project.setEndExpect(projectEndExpect);
             project.setDelayDays(Math.toIntExact(projectDelay));
             projectRepository.save(project);
+
+            // 프로젝트 마감일이 변경되었으면, 프로젝트 디렉터에게 알림 보내기
+            Long directorUserId = participantMapper.findDirectorByProjectId(project.getId());
+            String directorContent = "프로젝트 [" + project.getName() + "]의 예상 마감일이 지연되었습니다!";
+            notificationService.sendNotification(directorUserId, directorContent, project.getId(), TargetType.PROJECT);
         }
 
-
+        // 지연된 태스크 ID 출력
+        System.out.println("지연된 태스크 ID들: " + delayedTaskIds);
         return count;
     }
 

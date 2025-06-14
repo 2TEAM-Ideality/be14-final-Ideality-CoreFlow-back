@@ -156,4 +156,13 @@
         WHERE p.target_type = 'TASK'
         AND p.target_id = #{taskId}
     </select>
+
+    <!-- 프로젝트에 디렉터가 누구인지 조회하는 쿼리 -->
+    <select id="findDirectorByProjectId" resultType="Long">
+        SELECT user_id
+        FROM participant
+        WHERE target_type = 'PROJECT'
+        AND target_id = #{projectId}
+        AND role_id = 1
+    </select>
 </mapper>

@@ -34,4 +34,6 @@ public interface ParticipantMapper {
     List<ResponseParticipantDTO> selectParticipantByDeptName(Long projectId, String deptName);
 
     List<Long> findParticipantsByTaskId(Long taskId);
+
+    Long findDirectorByProjectId(Long projectId);
 }
