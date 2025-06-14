@@ -58,4 +58,10 @@
         </where>
     </select>
 
+    <select id="selectNextTaskIds" resultType="long">
+        SELECT next_work_id
+          FROM relation
+         WHERE prev_work_id = #{taskId}
+    </select>
+
 </mapper>

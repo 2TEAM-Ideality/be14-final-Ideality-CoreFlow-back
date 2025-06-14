@@ -8,6 +8,7 @@ import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
+import com.ideality.coreflow.project.query.service.TaskQueryService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -24,6 +25,7 @@ import static com.ideality.coreflow.common.exception.ErrorCode.PROJECT_NOT_FOUND
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final HolidayQueryService holidayQueryService;
+    private final TaskQueryService taskQueryService;
 
     @Override
     public void existsById(Long projectId) {
@@ -96,7 +98,8 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Double updateProjectProgress(Long projectId, List<TaskProgressDTO> taskList) {
+    public Double updateProjectProgress(Long projectId) {
+        List<TaskProgressDTO> taskList = taskQueryService.getTaskProgressByProjectId(projectId);
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         System.out.println("project = " + project);
         Long totalDuration = 0L;

@@ -1,8 +1,9 @@
 package com.ideality.coreflow.project.command.application.service;
 
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
-
 import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
+
+
 import java.util.List;
 
 public interface TaskService {
@@ -18,5 +19,9 @@ public interface TaskService {
 
     void validateTask(Long taskId);
 
-    Double updateTaskProgress(Long taskId, List<TaskProgressDTO> workList);
+    Double updateTaskProgress(Long taskId);
+
+
+    Integer delayAndPropagate(Long taskId, Integer delayDays);
+
 }

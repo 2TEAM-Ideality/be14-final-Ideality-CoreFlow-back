@@ -42,4 +42,7 @@ public interface WorkMapper {
 
     // 내일 마감일인 진행 중인 작업 조회
     List<Work> findTasksDueTomorrow(LocalDate tomorrow);
+
+    List<Long> selectWorkIdsByParentTaskId(Long parentTaskId);
+
 }
