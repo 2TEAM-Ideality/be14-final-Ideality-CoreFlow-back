@@ -52,7 +52,7 @@ public class ApprovalQueryFacadeService {
 
 
         // 첨부파일 조회
-        AttachmentPreviewDTO attachmentPreviewInfo = attachmentCommandService.getOriginName(approvalId, FileTargetType.APPROVAL);
+        List<AttachmentPreviewDTO> attachmentPreviewInfo = attachmentCommandService.getOriginNameList(approvalId, FileTargetType.APPROVAL);
 
         return ResponseApprovalDetails.builder()
                 .id(approvalDetails.getId())
@@ -69,8 +69,8 @@ public class ApprovalQueryFacadeService {
                 .delayDays(approvalDetails.getDelayDays())
                 .actionDetail(approvalDetails.getActionDetail())
                 .delayReason(approvalDetails.getDelayReason())
-                .attachmentUrl(attachmentPreviewInfo.getUrl())
-                .originName(attachmentPreviewInfo.getOriginName())
+                .attachmentPreviewInfo(attachmentPreviewInfo)
+                .approvalParticipants(approvalParticipant)
                 .build();
     }
 

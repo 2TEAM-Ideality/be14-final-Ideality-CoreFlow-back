@@ -2,10 +2,12 @@ package com.ideality.coreflow.approval.query.dto;
 
 import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalStatus;
 import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalType;
+import com.ideality.coreflow.attachment.command.application.dto.AttachmentPreviewDTO;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @Getter
@@ -27,6 +29,7 @@ public class ResponseApprovalDetails {
     String actionDetail;
     String delayReason;
 
-    String attachmentUrl;
-    String originName;
+    List<AttachmentPreviewDTO> attachmentPreviewInfo;
+
+    List<ApprovalParticipantDTO> approvalParticipants;
 }
