@@ -66,16 +66,12 @@ public class ProjectFacadeService {
     private final ProjectQueryService projectQueryService;
 
     public Double updateProgressRate(Long taskId) {
-        List<TaskProgressDTO> workList = workQueryService.getDetailProgressByTaskId(taskId);
-        System.out.println("workList.size() = " + workList.size());
-        return taskService.updateTaskProgress(taskId, workList);
+        return taskService.updateTaskProgress(taskId);
     }
 
     @Transactional
     public Double updateProjectProgressRate(Long projectId){
-        List<TaskProgressDTO> taskList = taskQueryService.getTaskProgressByProjectId(projectId);
-        System.out.println("taskList.size() = " + taskList.size());
-        return projectService.updateProjectProgress(projectId, taskList);
+        return projectService.updateProjectProgress(projectId);
     }
 
     @Transactional
