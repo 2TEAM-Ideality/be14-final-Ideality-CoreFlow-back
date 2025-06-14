@@ -164,4 +164,10 @@
           FROM work
          WHERE parent_task_id = #{taskId}
     </select>
+
+    <select id="selectWorkIdsByParentTaskId" resultType="long">
+        SELECT id
+          FROM work
+         WHERE parent_task_id = #{taskId}
+    </select>
 </mapper>
