@@ -73,7 +73,7 @@ public class ProjectQueryController {
         return ResponseEntity.ok(APIResponse.success(reqDTO, "부서 별 참여자 조회 완료"));
     }
 
-    @GetMapping("/tasks/list")
+    @PostMapping("/tasks/list")
     public ResponseEntity<APIResponse<?>> getTasks(@RequestBody RequestTaskList request) {
         return ResponseEntity.ok(APIResponse.success(projectQueryFacadeService.selectTaskSummaries(request.getProjectIds()),"참여 중인 프로젝트의 태스크 조회"));
     }
