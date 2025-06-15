@@ -11,11 +11,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -75,5 +71,10 @@ public class ProjectQueryController {
                 projectQueryFacadeService.getParticipantByDepartment(projectId, userId, deptName);
 
         return ResponseEntity.ok(APIResponse.success(reqDTO, "부서 별 참여자 조회 완료"));
+    }
+
+    @GetMapping("/tasks/list")
+    public ResponseEntity<APIResponse<?>> getTasks(@RequestBody RequestTaskList request) {
+        return ResponseEntity.ok(APIResponse.success(projectQueryFacadeService.selectTaskSummaries(request.getProjectIds()),"참여 중인 프로젝트의 태스크 조회"));
     }
 }
