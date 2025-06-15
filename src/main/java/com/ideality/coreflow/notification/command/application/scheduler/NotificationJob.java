@@ -25,7 +25,7 @@ public class NotificationJob implements Job {
         System.out.println("알림 전송: " + notification.getContent());
 
         // 실제 알림 전송 로직 (예: 이메일, 푸시 알림 등)
-        notification.setStatus(Status.PENDING);
+        notification.setStatus(Status.SENT);
         notificationRepository.save(notification); // 상태 업데이트
     }
 }

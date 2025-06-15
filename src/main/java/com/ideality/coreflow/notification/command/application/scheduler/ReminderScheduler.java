@@ -1,37 +1,42 @@
 package com.ideality.coreflow.notification.command.application.scheduler;
 
+import com.ideality.coreflow.notification.command.domain.aggregate.Notification;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
+import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 public class ReminderScheduler {
 
-    public void scheduleReminder(Long scheduleId, Long userId, LocalDateTime reminderTime) throws SchedulerException {
-        // Quartz Scheduler 인스턴스를 생성합니다.
+    public void scheduleReminderJob(Notification notification) throws SchedulerException {
+        // Quartz 스케줄러 인스턴스를 생성
         Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
 
-        // 알림을 전송할 시간 (reminderTime이 `dispatch_at`)
-        Date reminderDate = java.sql.Timestamp.valueOf(reminderTime);
+        // 알림을 전송할 시간 (dispatch_at)
+        LocalDateTime reminderTime = notification.getDispatchAt();
+        //trigger는 Date 타입만 받음
+        Date reminderDate = Date.from(reminderTime.atZone(ZoneId.systemDefault()).toInstant());
 
         // JobDetail 정의
         JobDetail job = JobBuilder.newJob(NotificationJob.class)
-                .withIdentity("reminderJob" + scheduleId, "group1")
-                .usingJobData("scheduleId", scheduleId)  // Job에 데이터를 전달
-                .usingJobData("userId", userId)          // Job에 데이터를 전달
+                .withIdentity("notificationJob" + notification.getId(), "group1")
+                .usingJobData("notificationId", notification.getId())  // 알림 ID 전달
                 .build();
 
-        // Trigger 정의: 예약된 시간에 알림 전송
+        // Trigger 정의: 알림 전송 시간에 실행
         Trigger trigger = TriggerBuilder.newTrigger()
-                .withIdentity("reminderTrigger" + scheduleId, "group1")
+                .withIdentity("notificationTrigger" + notification.getId(), "group1")
                 .startAt(reminderDate)  // 알림 시간을 예약
                 .build();
 
-        // 스케줄러에 Job과 Trigger를 등록
+        // 스케줄러에 Job과 Trigger 등록
         scheduler.scheduleJob(job, trigger);
 
         // 스케줄러 시작
         scheduler.start();
     }
+
 }
