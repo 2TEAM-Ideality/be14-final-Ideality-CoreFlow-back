@@ -23,6 +23,7 @@
         JOIN notification_recipients nr ON n.id = nr.notification_id
         WHERE nr.user_id = #{userId}
         AND n.id > #{lastNotificationId}  <!-- 마지막으로 받은 알림 이후의 알림만 -->
+        AND n.status = 'SENT'  <!-- 상태가 'SENT'인 알림만 조회 -->
         ORDER BY n.created_at ASC
     </select>
 
