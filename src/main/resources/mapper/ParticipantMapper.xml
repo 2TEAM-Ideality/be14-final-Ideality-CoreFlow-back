@@ -57,6 +57,14 @@
         )
     </select>
 
+    <select id="findNextTaskUsersByTaskId" resultType="java.lang.Long">
+        SELECT p.user_id
+        FROM relation r
+        JOIN participant p ON r.next_work_id = p.target_id
+        WHERE r.prev_work_id = #{taskId}
+        AND p.target_type = 'TASK'
+    </select>
+
     <select id="isTeamLeader" parameterType="map" resultType="boolean">
         SELECT EXISTS (
         SELECT 1
@@ -140,5 +148,21 @@
          WHERE a.target_type = 'PROJECT'
            AND a.target_id = #{projectId}
            AND b.dept_name = #{deptName}
+    </select>
+
+    <select id="findParticipantsByTaskId" resultType="Long">
+        SELECT p.user_id
+        FROM participant p
+        WHERE p.target_type = 'TASK'
+        AND p.target_id = #{taskId}
+    </select>
+
+    <!-- 프로젝트에 디렉터가 누구인지 조회하는 쿼리 -->
+    <select id="findDirectorByProjectId" resultType="Long">
+        SELECT user_id
+        FROM participant
+        WHERE target_type = 'PROJECT'
+        AND target_id = #{projectId}
+        AND role_id = 1
     </select>
 </mapper>

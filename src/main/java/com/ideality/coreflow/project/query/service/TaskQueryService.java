@@ -16,6 +16,7 @@ public interface TaskQueryService {
     List<EdgeDTO> getEdgeList(List<ResponseTaskDTO> taskList);
 
     Long getProjectId(Long taskId);
+
     boolean isAllTaskCompleted(Long projectId);
 
     Long selectProjectIdByTaskId(Long taskId);
@@ -23,4 +24,6 @@ public interface TaskQueryService {
     String getTaskName(Long taskId);
 
     List<TaskProgressDTO> getTaskProgressByProjectId(Long projectId);
+
+    void sendTaskDueReminder();
 }

@@ -3,6 +3,7 @@ package com.ideality.coreflow.project.command.application.service.impl;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.holiday.query.dto.HolidayQueryDto;
 import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
+import com.ideality.coreflow.notification.command.application.service.NotificationService;
 import com.ideality.coreflow.project.command.application.dto.DelayNodeDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.service.ProjectService;
@@ -16,6 +17,10 @@ import com.ideality.coreflow.project.command.domain.repository.RelationRepositor
 import com.ideality.coreflow.project.command.domain.repository.TaskRepository;
 import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
 import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
+import com.ideality.coreflow.project.query.mapper.ParticipantMapper;
+import com.ideality.coreflow.notification.command.domain.aggregate.TargetType;
+import com.ideality.coreflow.project.query.mapper.TaskMapper;
+import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.project.query.service.RelationQueryService;
 import com.ideality.coreflow.project.query.service.WorkQueryService;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
@@ -42,11 +47,17 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
     private final HolidayQueryService holidayQueryService;
+
+    private final ParticipantMapper participantMapper;
+    private final NotificationService notificationService;
+    private final TaskQueryService taskQueryService;
+
     private final ProjectService projectService;
     private final WorkQueryService workQueryService;
     private final RelationQueryService relationQueryService;
     private final WorkRepository workRepository;
     private final ProjectRepository projectRepository;
+    private final TaskMapper taskMapper;
 
 
     @Override
@@ -90,6 +101,17 @@ public class TaskServiceImpl implements TaskService {
         }
 
         updatedTask.endTask();
+
+        // 후행 태스크에 참여하는 사용자에게 알림 전송
+        List<Long> userIds = participantMapper.findNextTaskUsersByTaskId(taskId);
+
+        String taskName =  taskQueryService.getTaskName(taskId);
+
+        // 각 사용자에게 알림 전송
+        for (Long userId : userIds) {
+            notificationService.sendNotification(userId, "선행 태스크["+ taskName + "]가 완료되었습니다.", updatedTask.getId(), TargetType.WORK);
+        }
+
         return updatedTask.getId();
     }
 
@@ -158,6 +180,9 @@ public class TaskServiceImpl implements TaskService {
         Set<LocalDate> holidays = holidayQueryService.getHolidays().stream()
                 .map(HolidayQueryDto::getDate).collect(Collectors.toSet());
 
+        // 지연된 태스크 ID를 추적할 Set
+        Set<Long> delayedTaskIds = new HashSet<>();
+
         // 초기 태스크 처리
         Work startTask = taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
         Project project = projectRepository.findById(startTask.getProjectId()).orElseThrow(()->new BaseException(PROJECT_NOT_FOUND));
@@ -165,6 +190,22 @@ public class TaskServiceImpl implements TaskService {
         System.out.println("projectEndExpect = " + projectEndExpect);
         projectEndExpect=delayTask(startTask, delayDays, holidays, projectEndExpect);
         startTask.setDelayDays(delayDays);
+
+        String firstTaskName = taskMapper.selectTaskNameByTaskId(startTask.getId());
+
+        // 첫 번째 태스크가 이미 지연되었으므로 무조건 알림 보내기
+        delayedTaskIds.add(startTask.getId());  // 첫 번째 태스크 ID 무조건 추가
+        String content = "태스크 [" + startTask.getName() + "]가 지연되어 예상마감일이 변경되었습니다!";
+
+        // 첫 번째 태스크에 참여한 인원에게 알림 보내기
+        List<Long> firstparticipants = participantMapper.findParticipantsByTaskId(startTask.getId());
+        if (firstparticipants == null || firstparticipants.isEmpty()) {
+            log.warn("참여자 목록이 비어 있습니다. 태스크 ID: " + startTask.getId());
+        }
+        for (Long userId : firstparticipants) {
+            notificationService.sendNotification(userId, content, startTask.getId(), TargetType.WORK);
+        }
+
         taskRepository.save(startTask);
 
         // 지연 전파
@@ -180,16 +221,31 @@ public class TaskServiceImpl implements TaskService {
                 Work nextTask = taskRepository.findById(nextTaskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
                 Integer delayToApply = currentNode.getDelayDays();
 
-                if (nextTask.getSlackTime() >= delayToApply) {
+                // 예상 마감일이 변경될 경우만 추적
+                LocalDate originalEndExpect = nextTask.getEndExpect();
+
+                if (nextTask.getSlackTime() >= delayToApply) { // 슬랙 타임이 충분한 경우
                     nextTask.setSlackTime(nextTask.getSlackTime() - delayToApply);
                     taskRepository.save(nextTask);
-                }else {
+                }else {  // 슬랙 타임이 부족한 경우, 실제로 지연을 전파
                     int realDelay = delayToApply - nextTask.getSlackTime();
                     nextTask.setSlackTime(0);
                     projectEndExpect = delayTask(nextTask, realDelay, holidays, projectEndExpect);
                     queue.offer(new DelayNodeDTO(nextTaskId, realDelay));
                     count++;
                 }
+
+                // 예상 종료일이 변경된 경우에만 태스크ID 추가
+                if (!nextTask.getEndExpect().equals(originalEndExpect)) {
+                    delayedTaskIds.add(nextTaskId);  // 실제로 마감일이 변경된 태스크만 추가
+                    // 지연된 태스크에 참여한 인원에게 알림 보내기
+                    List<Long> participants = participantMapper.findParticipantsByTaskId(nextTaskId);
+                    String contents = "태스크 [" + firstTaskName + "]가 지연되어 ["+ nextTask.getName() +"]의 예상마감일이 변경되었습니다!";
+                    for (Long userId : participants) {
+                        notificationService.sendNotification(userId, contents, nextTask.getId(), TargetType.WORK);
+                    }
+                }
+
                 visited.add(nextTaskId);
             }
         }
@@ -202,9 +258,15 @@ public class TaskServiceImpl implements TaskService {
             project.setEndExpect(projectEndExpect);
             project.setDelayDays(project.getDelayDays()+Math.toIntExact(projectDelay));
             projectRepository.save(project);
+
+            // 프로젝트 마감일이 변경되었으면, 프로젝트 디렉터에게 알림 보내기
+            Long directorUserId = participantMapper.findDirectorByProjectId(project.getId());
+            String directorContent = "프로젝트 [" + project.getName() + "]의 예상 마감일이 지연되었습니다!";
+            notificationService.sendNotification(directorUserId, directorContent, project.getId(), TargetType.PROJECT);
         }
 
-
+        // 지연된 태스크 ID 출력
+        System.out.println("지연된 태스크 ID들: " + delayedTaskIds);
         return count;
     }
 
