@@ -143,7 +143,7 @@ public class ProjectQueryFacadeService {
         return workCommandService.findByProjectIdIn(projectIds);
     }
 
-    public Map<Long, List<UserNameIdDto>> selectParticipantSummaries(List<Long> projectIds) {
+    public Map<Long, List<ResponseParticipantUser>> selectParticipantSummaries(List<Long> projectIds) {
         return participantQueryService.findByParticipantsIn(projectIds);
     }
 }

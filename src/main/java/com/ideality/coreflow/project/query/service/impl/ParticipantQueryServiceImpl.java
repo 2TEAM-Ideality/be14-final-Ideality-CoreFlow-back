@@ -1,9 +1,6 @@
 package com.ideality.coreflow.project.query.service.impl;
 
-import com.ideality.coreflow.project.query.dto.DepartmentLeaderDTO;
-import com.ideality.coreflow.project.query.dto.ParticipantDepartmentDTO;
-import com.ideality.coreflow.project.query.dto.ParticipantUserDTO;
-import com.ideality.coreflow.project.query.dto.ResponseParticipantDTO;
+import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.project.command.application.dto.RequestInviteUserDTO;
@@ -60,14 +57,14 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
     }
 
     @Override
-    public Map<Long, List<UserNameIdDto>> findByParticipantsIn(List<Long> projectIds) {
+    public Map<Long, List<ResponseParticipantUser>> findByParticipantsIn(List<Long> projectIds) {
         List<ParticipantUserDTO> participant = participantMapper.selectAllUserByProjectIds(projectIds);
 
         return participant.stream()
                 .collect(Collectors.groupingBy(
                         ParticipantUserDTO::getProjectId,
                         Collectors.mapping(
-                            dto -> new UserNameIdDto(dto.getUserId(), dto.getName()),
+                            dto -> new ResponseParticipantUser(dto.getUserId(), dto.getName(), dto.getDeptName(), dto.getJobRankName(), dto.getJobRoleName()),
                             Collectors.toList()
                         )
                 ));

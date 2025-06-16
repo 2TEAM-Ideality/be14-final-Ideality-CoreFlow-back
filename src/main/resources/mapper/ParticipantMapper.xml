@@ -26,6 +26,9 @@
         <id property="userId" column="USER_ID" />
         <result property="name" column="NAME" />
         <result property="projectId" column="PROJECT_ID" />
+        <result property="deptName" column="DEPT_NAME" />
+        <result property="jobRankName" column="JOB_RANK_NAME" />
+        <result property="jobRoleName" column="JOB_ROLE_NAME" />
     </resultMap>
 
     <select id="selectAllUserByProjectIds" resultMap="ParticipantByProjectIds">
@@ -33,6 +36,9 @@
                u.id AS USER_ID
              , u.name AS NAME
              , p.target_id AS PROJECT_ID
+             , u.dept_name AS DEPT_NAME
+             , u.job_rank_name AS JOB_RANK_NAME
+             , u.job_role_name AS JOB_ROLE_NAME
           FROM PARTICIPANT p
           LEFT JOIN USER u ON p.user_id = u.id
          WHERE p.target_type = 'PROJECT'
