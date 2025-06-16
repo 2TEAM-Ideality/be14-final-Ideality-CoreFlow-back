@@ -82,6 +82,7 @@ public class ProjectQueryController {
         return ResponseEntity.ok(APIResponse.success(projectQueryFacadeService.selectTaskSummaries(request.getProjectIds()),"참여 중인 프로젝트의 태스크 조회"));
     }
 
+
     @GetMapping("/completed")
     public ResponseEntity<APIResponse<List<CompletedProjectDTO>>> getCompletedProjects() {
         List<CompletedProjectDTO> completedProjects = projectQueryFacadeService.getCompletedProjectList();

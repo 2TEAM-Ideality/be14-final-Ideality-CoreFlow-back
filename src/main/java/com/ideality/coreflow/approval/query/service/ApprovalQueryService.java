@@ -22,4 +22,5 @@ public interface ApprovalQueryService {
     ApprovalDetailsDTO searchApprovalDetailsById(long approvalId);
 
     List<ProjectApprovalDTO> selectProjectApprovalByProjectId(long projectId, ApprovalType approvalType);
+
 }

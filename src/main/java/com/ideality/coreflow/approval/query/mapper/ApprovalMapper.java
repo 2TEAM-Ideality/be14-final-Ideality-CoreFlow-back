@@ -24,4 +24,5 @@ public interface ApprovalMapper {
     ApprovalDetailsDTO selectApprovalDetailsById(long approvalId);
 
     List<ProjectApprovalDTO> selectProjectApprovalByProjectId(long projectId, ApprovalType approvalType);
+
 }

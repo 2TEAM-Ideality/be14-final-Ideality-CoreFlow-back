@@ -29,5 +29,7 @@ public class ReportAttachmentDTO {
 	private String size;
 	private String targetType;   // PROJECT
 	private Long targetId;		 // 프로젝트 아이디
+	
+	// 담당 부서
 
 }
