@@ -22,13 +22,13 @@ public class TenantRoutingDataSource extends AbstractRoutingDataSource {
 
     @Override
     protected Object determineCurrentLookupKey() {
-        log.info("determine current tenant: " + TenantContext.getTenant());
+//        log.info("determine current tenant: " + TenantContext.getTenant());
         return TenantContext.getTenant();   // 현재 스레드의 테넌트 스키마 명
     }
 
     @Override
     protected DataSource determineTargetDataSource() {
-        log.info("determineTargetDataSource");
+//        log.info("determineTargetDataSource");
         String schema = (String) determineCurrentLookupKey();
 
         if (schema == null) {
@@ -39,7 +39,7 @@ public class TenantRoutingDataSource extends AbstractRoutingDataSource {
 
         DataSource dataSource = (DataSource) dataSources.get(schema);
         if (dataSource != null) {
-            log.info("determine target data source: " + dataSource);
+//            log.info("determine target data source: " + dataSource);
             return dataSource;
         }
 

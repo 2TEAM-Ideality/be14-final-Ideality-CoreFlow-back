@@ -484,6 +484,6 @@ public class ProjectFacadeService {
     }
     @Transactional
     public Integer delayAndPropagate(Long taskId, Integer delayDays) {
-        return taskService.delayAndPropagate(taskId, delayDays);
+        return taskService.delayAndPropagate(taskId, delayDays, false);
     }
 }

@@ -19,6 +19,5 @@ public interface TaskService {
 
     Double updateTaskProgress(Long taskId);
 
-    Integer delayAndPropagate(Long taskId, Integer delayDays);
-
+    Integer delayAndPropagate(Long taskId, Integer delayDays, boolean isSimulate);
 }
