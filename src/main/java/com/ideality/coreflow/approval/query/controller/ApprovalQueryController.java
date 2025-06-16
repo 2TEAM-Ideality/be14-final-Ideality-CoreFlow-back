@@ -1,7 +1,6 @@
 package com.ideality.coreflow.approval.query.controller;
 
 import com.ideality.coreflow.approval.query.service.ApprovalQueryFacadeService;
-import com.ideality.coreflow.approval.query.service.ApprovalQueryService;
 import com.ideality.coreflow.common.response.APIResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -50,4 +49,11 @@ public class ApprovalQueryController {
     public ResponseEntity<APIResponse<?>> searchApprovalDetailsById(@PathVariable long approvalId) {
         return ResponseEntity.ok(APIResponse.success(approvalQueryFacadeService.searchApprovalDetailsById(approvalId, Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName())), "결재 상세 내역 조회"));
     }
+
+    // 지연 사유 리스트 조회
+    @GetMapping("/delay-reason")
+    public ResponseEntity<APIResponse<?>> searchDelayReason() {
+        return ResponseEntity.ok(APIResponse.success(approvalQueryFacadeService.searchDelayReason(), "결재 타입 리스트 조회"));
+    }
+
 }

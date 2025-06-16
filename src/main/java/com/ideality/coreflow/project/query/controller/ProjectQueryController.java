@@ -25,7 +25,8 @@ public class ProjectQueryController {
     private final ProjectQueryFacadeService projectQueryFacadeService;
 
     @GetMapping("/list") // 임시로 userId를 param으로 받아옴. 추후 반드시 수정
-    public APIResponse<List<ProjectSummaryDTO>> getProjects(@RequestParam Long userId) {
+    public APIResponse<List<ProjectSummaryDTO>> getProjects() {
+        long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
         List<ProjectSummaryDTO> projects = projectQueryFacadeService.selectProjectSummaries(userId);
         int count=projects.size();
         return APIResponse.success(projects, "참여중인 프로젝트 목록 조회 완료 ("+count+"개)");
