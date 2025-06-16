@@ -5,6 +5,6 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class RequestTaskList {
+public class RequestProjectIds {
     List<Long> projectIds;
 }
