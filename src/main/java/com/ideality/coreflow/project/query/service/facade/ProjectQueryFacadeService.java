@@ -14,6 +14,7 @@ import com.ideality.coreflow.project.query.service.RelationQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.project.query.service.WorkDeptQueryService;
 import com.ideality.coreflow.project.query.service.WorkQueryService;
+import com.ideality.coreflow.user.query.dto.UserNameIdDto;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 
 import lombok.RequiredArgsConstructor;
@@ -140,5 +141,9 @@ public class ProjectQueryFacadeService {
 
     public Map<Long, List<TaskPreviewDTO>> selectTaskSummaries(List<Long> projectIds) {
         return workCommandService.findByProjectIdIn(projectIds);
+    }
+
+    public Map<Long, List<UserNameIdDto>> selectParticipantSummaries(List<Long> projectIds) {
+        return participantQueryService.findByParticipantsIn(projectIds);
     }
 }
