@@ -16,14 +16,16 @@ public class NotificationData {
     private final String date;
     private final String status;
     private final Long id;  // ID 필드 추가
+    private final Boolean isAutoDelete;
 
     // 생성자
     // 생성자: LocalDateTime과 Status를 String으로 변환
-    public NotificationData(String content, LocalDateTime date, Status status, Long id) {
+    public NotificationData(String content, LocalDateTime date, Status status, Long id, Boolean isAutoDelete) {
         this.content = content;
         this.date = date.toString();  // LocalDateTime을 String으로 변환
         this.status = status.toString();  // Status를 String으로 변환
         this.id = id;
+        this.isAutoDelete = isAutoDelete;
     }
 
 }

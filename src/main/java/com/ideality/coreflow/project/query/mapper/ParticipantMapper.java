@@ -17,6 +17,8 @@ public interface ParticipantMapper {
 
     boolean isParticipantUser(Long userId, Long projectId);
 
+    List<Long> findNextTaskUsersByTaskId(Long taskId);
+
     boolean isTeamLeader(Long projectId, String deptName);
 
     boolean isAboveTeamLeader(Long projectId, Long userId);
@@ -30,4 +32,8 @@ public interface ParticipantMapper {
     List<DepartmentLeaderDTO> selectTeamLeaderByDepartment(Long projectId);
 
     List<ResponseParticipantDTO> selectParticipantByDeptName(Long projectId, String deptName);
+
+    List<Long> findParticipantsByTaskId(Long taskId);
+
+    Long findDirectorByProjectId(Long projectId);
 }

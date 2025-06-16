@@ -2,21 +2,28 @@ package com.ideality.coreflow.project.query.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
-import com.ideality.coreflow.project.command.domain.repository.TaskRepository;
+import com.ideality.coreflow.infra.tenant.config.TenantContext;
+import com.ideality.coreflow.notification.command.application.service.NotificationService;
+import com.ideality.coreflow.notification.command.domain.aggregate.TargetType;
+import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.query.dto.RelationDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskInfoDTO;
 import com.ideality.coreflow.project.query.dto.SelectTaskDTO;
 import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
+import com.ideality.coreflow.project.query.mapper.ParticipantMapper;
 import com.ideality.coreflow.project.query.mapper.RelationMapper;
 import com.ideality.coreflow.project.query.mapper.TaskMapper;
+import com.ideality.coreflow.project.query.mapper.WorkMapper;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -25,7 +32,9 @@ import java.util.List;
 public class TaskQueryServiceImpl implements TaskQueryService {
     private final TaskMapper taskMapper;
     private final RelationMapper relationMapper;
-    private final TaskRepository taskRepository;
+    private final WorkMapper workMapper;
+    private final ParticipantMapper participantMapper;
+    private final NotificationService notificationService;
 
     @Override
     public ResponseTaskInfoDTO selectTaskInfo(Long taskId) {
@@ -91,4 +100,59 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     public List<TaskProgressDTO> getTaskProgressByProjectId(Long projectId) {
         return taskMapper.selectTaskProgressByProjectId(projectId);
     }
+
+    // 매일 자정에 실행되도록 설정
+    @Scheduled(cron = "0 0 0 * * *") // 매일 자정에 실행
+    @Override
+    public void sendTaskDueReminder() {
+        log.info("알림 작업 시작 - 오늘 마감일인 태스크 확인");
+
+        // 1. 기존 테넌트 정보 가져오기
+        String tenant = TenantContext.getTenant();  // 현재 테넌트 정보를 가져옵니다.
+        // 2. 여기서 새로운 테넌트를 설정
+        TenantContext.setTenant("company_a");  // 예시로 "company_a"로 테넌트 설정
+
+        LocalDate today = LocalDate.now();
+        LocalDate tomorrow = today.plusDays(1);
+
+        // 오늘 마감일인 진행 중인 작업 조회
+        List<Work> tasksToday = workMapper.findTasksDueToday(today);
+
+        // 내일 마감일인 진행 중인 작업 조회
+        List<Work> tasksTomorrow = workMapper.findTasksDueTomorrow(tomorrow);
+
+        // 오늘 마감일인 작업들에 대해 알림 전송
+        for (Work task : tasksToday) {
+            String taskName = taskMapper.selectTaskNameByTaskId(task.getId());
+
+            // 해당 태스크에 참여한 사용자들을 조회
+            List<Long> participants = participantMapper.findParticipantsByTaskId(task.getId());
+
+            // 각 참여자에게 알림 전송
+            for (Long userId : participants) {
+                notificationService.sendNotification(userId,
+                        "오늘은 태스크 ["+taskName+"]의 예상 마감일입니다!",
+                        task.getId(),
+                        TargetType.WORK);
+            }
+        }
+
+        // 내일 마감일인 작업들에 대해 알림 전송
+        for (Work task : tasksTomorrow) {
+            String taskName = taskMapper.selectTaskNameByTaskId(task.getId());
+
+            // 해당 태스크에 참여한 사용자들을 조회
+            List<Long> participants = participantMapper.findParticipantsByTaskId(task.getId());
+
+            // 각 참여자에게 알림 전송
+            for (Long userId : participants) {
+                notificationService.sendNotification(userId,
+                        "내일은 태스크 ["+taskName+"]의 예상 마감일입니다!",
+                        task.getId(),
+                        TargetType.WORK);
+            }
+        }
+    }
+
+
 }

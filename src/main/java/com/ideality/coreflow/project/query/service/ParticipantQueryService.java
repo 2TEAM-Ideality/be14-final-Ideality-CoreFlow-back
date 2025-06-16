@@ -30,4 +30,6 @@ public interface ParticipantQueryService {
     List<DepartmentLeaderDTO> selectTeamLeaderByDepartment(Long projectId);
 
     List<ResponseParticipantDTO> selectParticipantsByDeptName(Long projectId, String deptName);
+
+
 }

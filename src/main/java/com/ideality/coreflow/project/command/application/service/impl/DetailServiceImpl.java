@@ -5,10 +5,7 @@ import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
-import com.ideality.coreflow.project.command.application.service.DetailService;
-import com.ideality.coreflow.project.command.application.service.ParticipantService;
-import com.ideality.coreflow.project.command.application.service.RelationService;
-import com.ideality.coreflow.project.command.application.service.WorkDeptService;
+import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
@@ -39,6 +36,7 @@ public class DetailServiceImpl implements DetailService {
     private final ParticipantService participantService;
     private final RelationService relationService;
     private final WorkDeptService workDeptService;
+    private final TaskService taskService;
 
     @Override
     @Transactional
@@ -107,6 +105,10 @@ public class DetailServiceImpl implements DetailService {
         existingDetail.setDescription(requestDetailDTO.getDescription());
         existingDetail.setEndExpect(requestDetailDTO.getExpectEnd());
         existingDetail.setProgressRate(requestDetailDTO.getProgress());
+
+        //세부일정 진척률기반으로 태스크/프로젝트 진척률 자동업데이트
+        Long taskId = existingDetail.getParentTaskId();
+        taskService.updateTaskProgress(taskId);
 
         // 선행 일정 (source) 및 후행 일정 (target) 관계 수정
         //relationService.updateRelations(detailId, requestDetailDTO.getSource(), requestDetailDTO.getTarget());
