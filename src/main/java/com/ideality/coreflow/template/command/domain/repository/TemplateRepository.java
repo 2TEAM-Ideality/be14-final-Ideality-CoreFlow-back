@@ -7,4 +7,7 @@ import com.ideality.coreflow.template.command.domain.aggregate.Template;
 
 @Repository
 public interface TemplateRepository extends JpaRepository<Template, Long> {
+	boolean existsByName(String name);
+
+	boolean existsByNameAndIdNot(String name, Long templateId);
 }

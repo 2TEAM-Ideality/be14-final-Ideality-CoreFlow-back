@@ -6,14 +6,25 @@ import com.ideality.coreflow.project.command.application.service.ProjectService;
 import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.application.service.WorkService;
 import com.ideality.coreflow.project.query.dto.*;
+import com.ideality.coreflow.project.query.dto.CompletedProjectDTO;
+import com.ideality.coreflow.project.query.dto.DepartmentLeaderDTO;
+import com.ideality.coreflow.project.query.dto.DeptWorkDTO;
+import com.ideality.coreflow.project.query.dto.ParticipantDepartmentDTO;
+import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
+import com.ideality.coreflow.project.query.dto.PipelineResponseDTO;
+import com.ideality.coreflow.project.query.dto.ProjectSummaryDTO;
+import com.ideality.coreflow.project.query.dto.ResponseInvitableUserDTO;
+import com.ideality.coreflow.project.query.dto.ResponseParticipantDTO;
+import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
+import com.ideality.coreflow.project.query.dto.ResponseTaskInfoDTO;
 import com.ideality.coreflow.org.query.service.DeptQueryService;
-import com.ideality.coreflow.project.query.service.*;
-import com.ideality.coreflow.user.query.dto.AllUserDTO;
+import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import com.ideality.coreflow.project.query.service.ProjectQueryService;
 import com.ideality.coreflow.project.query.service.RelationQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.project.query.service.WorkDeptQueryService;
 import com.ideality.coreflow.project.query.service.WorkQueryService;
+import com.ideality.coreflow.user.query.dto.AllUserDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 
 import lombok.RequiredArgsConstructor;
@@ -140,5 +151,9 @@ public class ProjectQueryFacadeService {
 
     public Map<Long, List<TaskPreviewDTO>> selectTaskSummaries(List<Long> projectIds) {
         return workCommandService.findByProjectIdIn(projectIds);
+    }
+    // 완료된 프로젝트 목록 조회
+    public List<CompletedProjectDTO> getCompletedProjectList() {
+        return projectQueryService.selectCompletedProjects();
     }
 }

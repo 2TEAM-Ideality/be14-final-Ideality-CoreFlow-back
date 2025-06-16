@@ -1,5 +1,8 @@
 package com.ideality.coreflow.project.query.service.impl;
 
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.project.query.dto.CompletedProjectDTO;
 import com.ideality.coreflow.project.query.dto.NodeDTO;
 import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
 import com.ideality.coreflow.project.query.dto.PipelineResponseDTO;
@@ -105,6 +108,18 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
                 .build();
     }
 
+    // 완료 상태 프로젝트 가져오기
+    @Override
+    public List<CompletedProjectDTO> selectCompletedProjects() {
+        List<CompletedProjectDTO> list = projectMapper.selectCompletedProjects();
+
+        if (list == null || list.isEmpty()) {
+            throw new BaseException(ErrorCode.NO_COMPLETED_PROJECT);
+        }
+
+        return list;
+    }
+
     @Override
     public ProjectSummaryDTO selectProjectSummary(Long projectId) {
         return projectMapper.selectProjectSummary(projectId);
@@ -114,4 +129,5 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
     public String getProjectName(Long projectId) {
         return projectMapper.selectProjectNameByProjectId(projectId);
     }
+
 }

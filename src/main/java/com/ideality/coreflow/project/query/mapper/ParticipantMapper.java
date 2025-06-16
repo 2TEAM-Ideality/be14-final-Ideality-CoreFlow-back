@@ -7,6 +7,8 @@ import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
+import com.ideality.coreflow.project.query.dto.ProjectParticipantDTO;
+
 @Mapper
 public interface ParticipantMapper {
     Long selectDirectorByProjectId(Long projectId);
@@ -16,6 +18,8 @@ public interface ParticipantMapper {
     List<Long> selectParticipantsList(Long detailParticipantId);
 
     boolean isParticipantUser(Long userId, Long projectId);
+
+    List<ProjectParticipantDTO> selectProjectParticipantList(Long projectId);
 
     boolean isTeamLeader(Long projectId, String deptName);
 
