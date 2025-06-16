@@ -27,17 +27,17 @@ import com.ideality.coreflow.template.query.dto.NodeDTO;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
-import java.util.List;
+
 import static com.ideality.coreflow.common.exception.ErrorCode.*;
 
 @Service
@@ -59,6 +59,8 @@ public class TaskServiceImpl implements TaskService {
     private final ProjectRepository projectRepository;
     private final TaskMapper taskMapper;
 
+    @PersistenceContext
+    private EntityManager em;
 
     @Override
     @Transactional
@@ -173,12 +175,14 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public Integer delayAndPropagate(Long taskId, Integer delayDays) {
-        Set<Long> visited = new HashSet<>();
+    public Integer delayAndPropagate(Long taskId, Integer delayDays, boolean isSimulate) {
+        Map<Long, Integer> visited = new HashMap<>();   // 지연일
         Queue<DelayNodeDTO> queue = new LinkedList<>();
         Integer count = 0;
         Set<LocalDate> holidays = holidayQueryService.getHolidays().stream()
                 .map(HolidayQueryDto::getDate).collect(Collectors.toSet());
+
+        // 초기 태스크 조회
 
         // 지연된 태스크 ID를 추적할 Set
         Set<Long> delayedTaskIds = new HashSet<>();
@@ -188,65 +192,92 @@ public class TaskServiceImpl implements TaskService {
         Project project = projectRepository.findById(startTask.getProjectId()).orElseThrow(()->new BaseException(PROJECT_NOT_FOUND));
         LocalDate projectEndExpect = project.getEndExpect();
         System.out.println("projectEndExpect = " + projectEndExpect);
-        projectEndExpect=delayTask(startTask, delayDays, holidays, projectEndExpect);
-        startTask.setDelayDays(delayDays);
 
-        String firstTaskName = taskMapper.selectTaskNameByTaskId(startTask.getId());
-
-        // 첫 번째 태스크가 이미 지연되었으므로 무조건 알림 보내기
-        delayedTaskIds.add(startTask.getId());  // 첫 번째 태스크 ID 무조건 추가
-        String content = "태스크 [" + startTask.getName() + "]가 지연되어 예상마감일이 변경되었습니다!";
-
-        // 첫 번째 태스크에 참여한 인원에게 알림 보내기
-        List<Long> firstparticipants = participantMapper.findParticipantsByTaskId(startTask.getId());
-        if (firstparticipants == null || firstparticipants.isEmpty()) {
-            log.warn("참여자 목록이 비어 있습니다. 태스크 ID: " + startTask.getId());
-        }
-        for (Long userId : firstparticipants) {
-            notificationService.sendNotification(userId, content, startTask.getId(), TargetType.WORK);
-        }
-
-        taskRepository.save(startTask);
+//        String firstTaskName = taskMapper.selectTaskNameByTaskId(startTask.getId());
+//
+//        // 첫 번째 태스크가 이미 지연되었으므로 무조건 알림 보내기
+//        delayedTaskIds.add(startTask.getId());  // 첫 번째 태스크 ID 무조건 추가
+//        String content = "태스크 [" + startTask.getName() + "]가 지연되어 예상마감일이 변경되었습니다!";
+//
+//        // 첫 번째 태스크에 참여한 인원에게 알림 보내기
+//        List<Long> firstparticipants = participantMapper.findParticipantsByTaskId(startTask.getId());
+//        if (firstparticipants == null || firstparticipants.isEmpty()) {
+//            log.warn("참여자 목록이 비어 있습니다. 태스크 ID: " + startTask.getId());
+//        }
+//        for (Long userId : firstparticipants) {
+//            notificationService.sendNotification(userId, content, startTask.getId(), TargetType.WORK);
+//        }
 
         // 지연 전파
         queue.offer(new DelayNodeDTO(taskId, delayDays));
 
         while (!queue.isEmpty()) {
             DelayNodeDTO currentNode = queue.poll();
-            List<Long> nextTaskIds = relationQueryService.findNextTaskIds(currentNode.getTaskId());
 
-            for (Long nextTaskId  : nextTaskIds) {
-                if (visited.contains(nextTaskId)) {continue;}
+            // 현재 taskId에 대해 visited보다 작은 지연일일 경우 스킵
+            Integer visitedDelay = visited.get(currentNode.getTaskId());
+            if (visitedDelay != null && visitedDelay > currentNode.getDelayDays()) {
+                continue;
+            }
 
-                Work nextTask = taskRepository.findById(nextTaskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
-                Integer delayToApply = currentNode.getDelayDays();
+            // 현재 태스크 지연 설정
+            Work currentTask = taskRepository.findById(currentNode.getTaskId()).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+            if (isSimulate) {
+                em.detach(currentTask);
+            }
+
+            // 현재 태스크의 지연일
+            int delayToApply = currentNode.getDelayDays();
+
+            // 현재 태스크의 슬랙타임 및 지연일 설정
+            if (currentTask.getSlackTime() >= delayToApply) {
+                currentTask.setSlackTime(currentTask.getSlackTime() - delayToApply);
+                currentTask.setDelayDays(delayToApply);
+                currentTask.setEndExpect(currentTask.getEndExpect().plusDays(
+                        calculateDelayExcludingHolidays(currentTask.getEndExpect(), delayDays, holidays)
+                ));
+            } else {
+                log.info("슬랙타임 내에서 해결 실패");
+                count++;
+                int realDelay = delayToApply - currentTask.getSlackTime();
+                System.out.println("delayToApply = " + delayToApply);
+                System.out.println("slackTime = " + currentTask.getSlackTime());
+                System.out.println("realDelay: " + realDelay);
+                System.out.println("taskId = " + currentTask.getId());
+                currentTask.setDelayDays(currentTask.getDelayDays() + realDelay);
+                currentTask.setSlackTime(0);
 
                 // 예상 마감일이 변경될 경우만 추적
-                LocalDate originalEndExpect = nextTask.getEndExpect();
+                LocalDate originalEndExpect = currentTask.getEndExpect();
 
-                if (nextTask.getSlackTime() >= delayToApply) { // 슬랙 타임이 충분한 경우
-                    nextTask.setSlackTime(nextTask.getSlackTime() - delayToApply);
-                    taskRepository.save(nextTask);
-                }else {  // 슬랙 타임이 부족한 경우, 실제로 지연을 전파
-                    int realDelay = delayToApply - nextTask.getSlackTime();
-                    nextTask.setSlackTime(0);
-                    projectEndExpect = delayTask(nextTask, realDelay, holidays, projectEndExpect);
-                    queue.offer(new DelayNodeDTO(nextTaskId, realDelay));
-                    count++;
-                }
+                // 현재 태스크와 세부일정 예상 마감일 미루기
+                projectEndExpect=delayTask(currentTask, realDelay, holidays, projectEndExpect, isSimulate);
 
                 // 예상 종료일이 변경된 경우에만 태스크ID 추가
-                if (!nextTask.getEndExpect().equals(originalEndExpect)) {
-                    delayedTaskIds.add(nextTaskId);  // 실제로 마감일이 변경된 태스크만 추가
+                if (!currentTask.getEndExpect().equals(originalEndExpect)) {
+                    delayedTaskIds.add(currentTask.getId());  // 실제로 마감일이 변경된 태스크만 추가
                     // 지연된 태스크에 참여한 인원에게 알림 보내기
-                    List<Long> participants = participantMapper.findParticipantsByTaskId(nextTaskId);
-                    String contents = "태스크 [" + firstTaskName + "]가 지연되어 ["+ nextTask.getName() +"]의 예상마감일이 변경되었습니다!";
+                    List<Long> participants = participantMapper.findParticipantsByTaskId(currentTask.getId());
+                    String contents = "태스크 [" + startTask.getName() + "]가 지연되어 ["+ currentTask.getName() +"]의 예상마감일이 변경되었습니다!";
                     for (Long userId : participants) {
-                        notificationService.sendNotification(userId, contents, nextTask.getId(), TargetType.WORK);
+                        notificationService.sendNotification(userId, contents, currentTask.getId(), TargetType.WORK);
                     }
                 }
 
-                visited.add(nextTaskId);
+                // 다음 노드에 realDelay를 전파
+                List<Long> nextTaskIds = relationQueryService.findNextTaskIds(currentNode.getTaskId());
+
+                for (Long nextTaskId  : nextTaskIds) {
+                    // 다음 노드에 저장된 지연일
+                    Integer storedDelay = visited.get(nextTaskId);
+                    if (storedDelay == null || realDelay > storedDelay) {
+                        visited.put(nextTaskId, realDelay);
+                        queue.offer(new DelayNodeDTO(nextTaskId, realDelay));
+                    }
+                }
+            }
+            if (!isSimulate) {
+                taskRepository.save(currentTask);
             }
         }
 
@@ -265,12 +296,14 @@ public class TaskServiceImpl implements TaskService {
             notificationService.sendNotification(directorUserId, directorContent, project.getId(), TargetType.PROJECT);
         }
 
+
         // 지연된 태스크 ID 출력
         System.out.println("지연된 태스크 ID들: " + delayedTaskIds);
+
         return count;
     }
 
-    private LocalDate delayTask(Work task, Integer delayDays, Set<LocalDate> holidays, LocalDate projectEndExpect) {
+    private LocalDate delayTask(Work task, Integer delayDays, Set<LocalDate> holidays, LocalDate projectEndExpect, boolean isSimulate) {
         if (task.getStatus() == Status.PENDING) {
             task.setStartExpect(task.getStartExpect().plusDays(
                     calculateDelayExcludingHolidays(task.getStartExpect(), delayDays, holidays)
@@ -285,20 +318,27 @@ public class TaskServiceImpl implements TaskService {
             projectEndExpect = task.getEndExpect();
         }
         System.out.println("projectEndExpect = " + projectEndExpect);
-        taskRepository.save(task);
+        if (!isSimulate) {
+            taskRepository.save(task);
+        }
 
         // 태스크 하위 세부일정들도 지연 처리
         // 하위 세부일정들 불러오기
         List<Long> detailIds = workQueryService.selectWorkIdsByParentTaskId(task.getId());
         // 하위 세부일정 지연 처리
-        for(Long detailId : detailIds) {
-            Work detailWork = workRepository.findById(detailId).orElseThrow(() -> new BaseException(WORK_NOT_FOUND));
-            delayWork(detailWork, delayDays, holidays);
+        if (detailIds != null) {
+            for (Long detailId : detailIds) {
+                Work detailWork = workRepository.findById(detailId).orElseThrow(() -> new BaseException(WORK_NOT_FOUND));
+                if (isSimulate) {
+                    em.detach(detailWork);
+                }
+                delayWork(detailWork, delayDays, holidays, isSimulate);
+            }
         }
         return projectEndExpect;
     }
 
-    private void delayWork(Work work, Integer delayDays, Set<LocalDate> holidays) {
+    private void delayWork(Work work, Integer delayDays, Set<LocalDate> holidays, boolean isSimulate) {
         if (work.getStatus() == Status.PENDING) {
             work.setStartExpect(work.getStartExpect().plusDays(
                     calculateDelayExcludingHolidays(work.getStartExpect(), delayDays, holidays)
@@ -309,7 +349,9 @@ public class TaskServiceImpl implements TaskService {
                     calculateDelayExcludingHolidays(work.getEndExpect(), delayDays, holidays)
             ));
         }
-        workRepository.save(work);
+        if (!isSimulate) {
+            workRepository.save(work);
+        }
     }
 
     private int calculateDelayExcludingHolidays(LocalDate startDate, Integer delayDays, Set<LocalDate> holidays) {
