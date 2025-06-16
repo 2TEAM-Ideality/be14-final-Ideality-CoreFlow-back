@@ -1,5 +1,6 @@
 package com.ideality.coreflow.notification.command.application.service;
 
+import com.ideality.coreflow.notification.command.domain.aggregate.Notification;
 import com.ideality.coreflow.notification.command.domain.aggregate.TargetType;
 
 
@@ -10,6 +11,8 @@ public interface NotificationService {
     Long createDetailNotification(Long detailId, String content);
 
     Long createMentionNotification(Long taskId, String content);
+
+    void save(Notification notification);
 
     Long createInviteProject(Long projectId, String content);
 }

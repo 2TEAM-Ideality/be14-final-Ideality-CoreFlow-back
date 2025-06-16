@@ -35,4 +35,6 @@ public interface ParticipantQueryService {
     List<ResponseParticipantDTO> selectParticipantsByDeptName(Long projectId, String deptName);
 
     Map<Long, List<ResponseParticipantUser>> findByParticipantsIn(List<Long> projectIds);
+
+
 }
