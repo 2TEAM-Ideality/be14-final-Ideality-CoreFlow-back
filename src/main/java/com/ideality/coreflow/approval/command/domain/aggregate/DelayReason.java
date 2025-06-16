@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "delay_approval")
+@Table(name = "delay_reason")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

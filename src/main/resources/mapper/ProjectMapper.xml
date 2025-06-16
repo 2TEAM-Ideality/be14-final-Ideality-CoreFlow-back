@@ -13,6 +13,7 @@
         <result property="passedRate" column="passed_rate"/>
         <result property="delayDays" column="delay_days"/>
         <association property="director" javaType="com.ideality.coreflow.project.query.dto.UserInfoDTO">
+            <result property="userId" column="director_id"/>
             <result property="name" column="director_name"/>
             <result property="deptName" column="dept_name"/>
             <result property="jobRoleName" column="job_role_name"/>
@@ -34,6 +35,7 @@
                     WHEN p.status = 'PROGRESS' THEN p.end_expect
                     WHEN p.status = 'COMPLETED' THEN p.end_base
                END AS end_date
+             , director.id AS director_id
              , director.name AS director_name
              , director.dept_name AS dept_name
              , director.job_role_name AS job_role_name

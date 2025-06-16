@@ -3,6 +3,9 @@ package com.ideality.coreflow.project.query.service.facade;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.project.command.application.service.ProjectService;
+import com.ideality.coreflow.project.command.application.service.TaskService;
+import com.ideality.coreflow.project.command.application.service.WorkService;
+import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.project.query.dto.CompletedProjectDTO;
 import com.ideality.coreflow.project.query.dto.DepartmentLeaderDTO;
 import com.ideality.coreflow.project.query.dto.DeptWorkDTO;
@@ -29,6 +32,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -45,6 +50,8 @@ public class ProjectQueryFacadeService {
     private final WorkDeptQueryService workDeptQueryService;
     private final ProjectQueryService projectQueryService;
     private final ParticipantQueryService participantQueryService;
+    private final TaskService taskService;
+    private final WorkService workCommandService;
 
 
     public ProjectDetailResponseDTO getProjectDetail(Long projectId) {
@@ -140,6 +147,10 @@ public class ProjectQueryFacadeService {
 
         List<ResponseParticipantDTO> dto = participantQueryService.selectParticipantsByDeptName(projectId, deptName);
         return dto;
+    }
+
+    public Map<Long, List<TaskPreviewDTO>> selectTaskSummaries(List<Long> projectIds) {
+        return workCommandService.findByProjectIdIn(projectIds);
     }
     // 완료된 프로젝트 목록 조회
     public List<CompletedProjectDTO> getCompletedProjectList() {
