@@ -69,6 +69,7 @@ public class ApprovalQueryFacadeService {
                                                 .content(approvalDetails.getContent())
                                                 .createdAt(approvalDetails.getCreatedAt())
                                                 .approvedAt(approvalDetails.getApprovedAt())
+                                                .rejectReason(approvalDetails.getRejectReason())
                                                 .taskId(approvalDetails.getTaskId())
                                                 .taskName(approvalDetails.getTaskName())
                                                 .projectName(approvalDetails.getProjectName())

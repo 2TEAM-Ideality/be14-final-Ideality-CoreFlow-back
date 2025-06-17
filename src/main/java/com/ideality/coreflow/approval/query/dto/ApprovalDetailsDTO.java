@@ -19,6 +19,7 @@ public class ApprovalDetailsDTO {
     String content;
     LocalDateTime createdAt;
     LocalDateTime approvedAt;
+    String rejectReason;
 
     long taskId;
     String taskName;

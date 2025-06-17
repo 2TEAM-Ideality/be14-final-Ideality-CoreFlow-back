@@ -43,6 +43,7 @@
         <result property="content" column="CONTENT" />
         <result property="createdAt" column="CREATED_AT" />
         <result property="approvedAt" column="APPROVED_AT" />
+        <result property="rejectReason" column="REJECT_REASON" />
         <result property="taskId" column="TASK_ID" />
         <result property="taskName" column="TASK_NAME" />
         <result property="projectName" column="PROJECT_NAME" />
@@ -91,6 +92,7 @@
              , a.content AS CONTENT
              , a.created_at AS CREATED_AT
              , a.approved_at AS APPROVED_AT
+             , a.reject_reason AS REJECT_REASON
              , w.id AS TASK_ID
              , w.name AS TASK_NAME
              , p.name AS PROJECT_NAME
