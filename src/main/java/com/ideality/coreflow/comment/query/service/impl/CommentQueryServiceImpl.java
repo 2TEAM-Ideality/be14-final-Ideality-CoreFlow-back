@@ -30,6 +30,7 @@ public class CommentQueryServiceImpl implements CommentQueryService {
                     selectCommentDTO.getName();
             responseCommentsDTO.setCommentId(selectCommentDTO.getCommentId());
             responseCommentsDTO.setParentCommentId(selectCommentDTO.getParentCommentId());
+            responseCommentsDTO.setUserId(selectCommentDTO.getUserId());
             responseCommentsDTO.setCommentWriter(resName);
             responseCommentsDTO.setContent(selectCommentDTO.getContent());
             res.add(responseCommentsDTO);

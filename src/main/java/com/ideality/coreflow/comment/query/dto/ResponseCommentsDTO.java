@@ -11,6 +11,7 @@ import lombok.*;
 public class ResponseCommentsDTO {
     private Long commentId;
     private Long parentCommentId;
+    private Long userId;
     private String commentWriter;
     private String content;
 }

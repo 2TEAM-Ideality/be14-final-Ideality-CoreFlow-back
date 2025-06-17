@@ -57,4 +57,9 @@ Comment {
             this.type = CommentType.NOTICE;
         }
     }
+
+    public void updateNotice() {
+        this.isNotice = true;
+        this.type = CommentType.NOTICE;
+    }
 }

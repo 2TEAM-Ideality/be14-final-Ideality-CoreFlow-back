@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 import static com.ideality.coreflow.common.exception.ErrorCode.*;
 
 @Service
@@ -25,9 +27,13 @@ public class CommentServiceImpl implements CommentService {
     public Long createComment(RequestCommentDTO commentDTO, Long taskId, Long userId) {
 
         /* 설명. 잘못된 대댓글 접근에 대한 예외처리 */
-        if (commentDTO.getParentCommentId() != null
-                &&!commentRepository.existsById(commentDTO.getParentCommentId())) {
-            throw new BaseException(COMMENT_NOT_FOUND);
+        if (commentDTO.getParentCommentId() != null) {
+            Comment parentComment = commentRepository.findById(commentDTO.getParentCommentId())
+                    .orElseThrow(() -> new BaseException(COMMENT_NOT_FOUND));
+
+            if (parentComment.isDeleted()) {
+                throw new BaseException(COMMENT_ALREADY_DELETED);
+            }
         }
 
         Comment newComment =
@@ -76,5 +82,34 @@ public class CommentServiceImpl implements CommentService {
         comment.updateComment(reqModify.getContent(), reqModify.getIsNotice());
         commentRepository.save(comment);
         return comment.getId();
+    }
+
+    @Override
+    @Transactional
+    public Long updateByNotice(Long userId, Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new BaseException(COMMENT_NOT_FOUND));
+
+        if (!comment.getUserId().equals(userId)) {
+            throw new BaseException(COMMENT_ACCESS_DENIED);
+        }
+
+        if(comment.isDeleted()) {
+            throw new BaseException(COMMENT_ALREADY_DELETED);
+        }
+
+        if(comment.isNotice() && comment.getType() == CommentType.NOTICE) {
+            throw new BaseException(COMMENT_ALREADY_NOTICE);
+        }
+
+        comment.updateNotice();
+        commentRepository.save(comment);
+        return comment.getId();
+    }
+
+    @Override
+    public Comment findById(Long commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new BaseException(COMMENT_NOT_FOUND));
     }
 }
