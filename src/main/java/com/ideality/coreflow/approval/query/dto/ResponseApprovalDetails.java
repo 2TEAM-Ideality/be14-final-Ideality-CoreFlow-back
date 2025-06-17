@@ -3,6 +3,7 @@ package com.ideality.coreflow.approval.query.dto;
 import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalStatus;
 import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalType;
 import com.ideality.coreflow.attachment.command.application.dto.AttachmentPreviewDTO;
+import com.ideality.coreflow.project.command.application.dto.DelayInfoDTO;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -32,4 +33,10 @@ public class ResponseApprovalDetails {
     List<AttachmentPreviewDTO> attachmentPreviewInfo;
 
     List<ApprovalParticipantDTO> approvalParticipants;
+
+    DelayInfoDTO delayInfo;
+
+    public void delayImpact(DelayInfoDTO delayInfo) {
+        this.delayInfo = delayInfo;
+    }
 }

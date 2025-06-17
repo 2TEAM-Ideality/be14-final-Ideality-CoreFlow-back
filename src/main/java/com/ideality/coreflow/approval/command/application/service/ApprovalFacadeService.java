@@ -14,6 +14,7 @@ import com.ideality.coreflow.infra.s3.S3Service;
 import com.ideality.coreflow.infra.s3.UploadFileResult;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
 import com.ideality.coreflow.notification.command.domain.aggregate.TargetType;
+import com.ideality.coreflow.project.command.application.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,7 @@ public class ApprovalFacadeService {
     private final AttachmentCommandService attachmentCommandService;
     private final NotificationService notificationService;
     private final S3Service s3Service;
+    private final TaskService taskService;
 
     @Transactional
     public void approve(RequestApprove request, long userId) {
@@ -61,14 +63,17 @@ public class ApprovalFacadeService {
             );
 
             // 추가적인 열람자 설정
-            for (long viewerId : request.getViewerIds()) {
-                approvalParticipantService.registViewerById(viewerId, approvalId);
-                log.info("열람자 등록");
+            if (request.getViewerIds() != null) {
+                for (long viewerId : request.getViewerIds()) {
+                    approvalParticipantService.registViewerById(viewerId, approvalId);
+                    log.info("열람자 등록");
+                }
             }
         } else {
             throw new BaseException(ErrorCode.ACCESS_DENIED_APPROVAL);
         }
-
+        // 지연 전파
+        taskService.delayAndPropagate(approval.getWorkId(), request.getDelayDays(), false);
     }
 
     @Transactional

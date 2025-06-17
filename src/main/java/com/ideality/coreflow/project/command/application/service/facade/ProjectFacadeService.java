@@ -10,11 +10,7 @@ import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.notification.command.application.service.NotificationRecipientsService;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
 import com.ideality.coreflow.org.query.service.DeptQueryService;
-import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
-import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
-import com.ideality.coreflow.project.command.application.dto.RequestInviteUserDTO;
-import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
-import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
+import com.ideality.coreflow.project.command.application.dto.*;
 import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
@@ -499,8 +495,10 @@ public class ProjectFacadeService {
         Long notificationId = notificationService.createInviteProject(projectId, content);
         notificationRecipientsService.createRecipients(participantUser, notificationId);
     }
+    
+    // 추후 퍼사드 의의에 맞게 리팩토링 필요
     @Transactional
-    public Integer delayAndPropagate(Long taskId, Integer delayDays) {
+    public DelayInfoDTO delayAndPropagate(Long taskId, Integer delayDays) {
         return taskService.delayAndPropagate(taskId, delayDays, false);
     }
 
