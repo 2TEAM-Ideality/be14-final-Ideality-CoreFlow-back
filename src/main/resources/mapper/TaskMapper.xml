@@ -101,8 +101,8 @@
             , NULL AS slackTime
         FROM work
         WHERE project_id = #{projectId}
+        AND parent_task_id IS NULL
         AND status != 'DELETED'
-
     </select>
 
     <select id="selectTaskProgressByProjectId" resultType="com.ideality.coreflow.project.query.dto.TaskProgressDTO">

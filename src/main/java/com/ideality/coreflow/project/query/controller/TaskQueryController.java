@@ -2,6 +2,7 @@ package com.ideality.coreflow.project.query.controller;
 
 import com.ideality.coreflow.calendar.query.dto.RequestUserDTO;
 import com.ideality.coreflow.common.response.APIResponse;
+import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
 import com.ideality.coreflow.project.query.dto.DeptWorkDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskInfoDTO;
@@ -9,6 +10,7 @@ import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.project.query.service.facade.ProjectQueryFacadeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,6 +41,13 @@ public class TaskQueryController {
         return ResponseEntity.ok(
                 APIResponse.success(tasks, "태스크 목록 조회 성공")
         );
+    }
+
+    // 완료된 태스크 목록 조회
+    @GetMapping("/completed/{projectId}")
+    public ResponseEntity<APIResponse<List<CompletedTaskDTO>>> getCompletedTasks(@PathVariable Long projectId) {
+        List<CompletedTaskDTO> completedTasks = projectQueryFacadeService.selectCompletedTasks(projectId);
+        return ResponseEntity.ok(APIResponse.success(completedTasks, "완료된 태스크 목록 조회 성공"));
     }
 
     @GetMapping("/dept")
