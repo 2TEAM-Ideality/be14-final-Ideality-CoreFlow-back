@@ -84,6 +84,12 @@ VALUES
     ('세부일정 2', '원부자재 발주에 대한 세부일정2', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10',  4, 1),    -- parent_task_id = 4
     ('세부일정 3', '원부자재 발주에 대한 세부일정3', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10',  4, 1);    -- parent_task_id = 4
 
+INSERT INTO work (name, description, created_at, start_base, end_base, start_expect, end_expect, parent_task_id, project_id)
+VALUES
+    ('세부일정 1', '그레이딩에 대한 세부일정1', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10',  3, 1),    -- parent_task_id = 3
+    ('세부일정 2', '그레이딩에 대한 세부일정2', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10',  3, 1),    -- parent_task_id = 3
+    ('세부일정 3', '그레이딩에 대한 세부일정3', CURRENT_TIMESTAMP, '2025-01-01', '2025-01-10', '2025-01-01', '2025-01-10',  3, 1);    -- parent_task_id = 3
+
 -- 작업 별 참여 부서
 INSERT INTO work_dept
 (work_id, dept_id)

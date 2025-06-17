@@ -106,10 +106,6 @@ public class DetailServiceImpl implements DetailService {
         existingDetail.setEndExpect(requestDetailDTO.getExpectEnd());
         existingDetail.setProgressRate(requestDetailDTO.getProgress());
 
-        //세부일정 진척률기반으로 태스크/프로젝트 진척률 자동업데이트
-        Long taskId = existingDetail.getParentTaskId();
-        taskService.updateTaskProgress(taskId);
-
         // 선행 일정 (source) 및 후행 일정 (target) 관계 수정
         //relationService.updateRelations(detailId, requestDetailDTO.getSource(), requestDetailDTO.getTarget());
 
@@ -135,8 +131,12 @@ public class DetailServiceImpl implements DetailService {
         }
 
         // 세부 일정 저장
-        workRepository.save(existingDetail);
+        workRepository.saveAndFlush(existingDetail);
         log.info("세부 일정 수정 완료");
+
+        //세부일정 진척률기반으로 태스크/프로젝트 진척률 자동업데이트
+        Long taskId = existingDetail.getParentTaskId();
+        taskService.updateTaskProgress(taskId);
 
         return detailId;
     }
