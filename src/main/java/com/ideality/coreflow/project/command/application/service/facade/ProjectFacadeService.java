@@ -326,6 +326,7 @@ public class ProjectFacadeService {
     @Transactional
     public Long updateStatusComplete(Long taskId) {
         Long updateTaskId = taskService.updateStatusComplete(taskId);
+
         return updateTaskId;
     }
 
@@ -500,7 +501,7 @@ public class ProjectFacadeService {
     }
     @Transactional
     public Integer delayAndPropagate(Long taskId, Integer delayDays) {
-        return taskService.delayAndPropagate(taskId, delayDays);
+        return taskService.delayAndPropagate(taskId, delayDays, false);
     }
 
 

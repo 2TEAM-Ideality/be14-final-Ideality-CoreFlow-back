@@ -164,10 +164,28 @@
           FROM work
          WHERE parent_task_id = #{taskId}
     </select>
+    <!-- 오늘 마감일인 진행 중인 작업 조회 -->
+    <select id="findTasksDueToday" resultType="com.ideality.coreflow.project.command.domain.aggregate.Work">
+        SELECT *
+        FROM work
+        WHERE status = 'PROGRESS'
+        AND end_expect = #{today}
+    </select>
+
+    <!-- 내일 마감일인 진행 중인 작업 조회 -->
+    <select id="findTasksDueTomorrow" resultType="com.ideality.coreflow.project.command.domain.aggregate.Work">
+        SELECT *
+        FROM work
+        WHERE status = 'PROGRESS'
+        AND end_expect = #{tomorrow}
+    </select>
+
+
 
     <select id="selectWorkIdsByParentTaskId" resultType="long">
         SELECT id
           FROM work
          WHERE parent_task_id = #{taskId}
     </select>
+
 </mapper>

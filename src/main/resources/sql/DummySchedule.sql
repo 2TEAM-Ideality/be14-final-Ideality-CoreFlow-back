@@ -1,4 +1,4 @@
-
+Use company_a;
 -- 반복 규칙 없는 개인 일정
 INSERT INTO schedule (
     name,
@@ -9,7 +9,6 @@ INSERT INTO schedule (
     dept_id,
     is_repeat,
     event_type
-
 ) VALUES (
              '보고서 마무리',
              '프로젝트 리포트 pdf 생성해서 보고서 제출하기',
@@ -18,7 +17,8 @@ INSERT INTO schedule (
              1,
              NULL,
              FALSE,
-             'PERSONAL'
+             'PERSONAL',
+             NULL
          );
 
 

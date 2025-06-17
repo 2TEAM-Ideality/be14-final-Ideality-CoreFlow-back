@@ -24,6 +24,7 @@ import com.ideality.coreflow.project.query.service.RelationQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.project.query.service.WorkDeptQueryService;
 import com.ideality.coreflow.project.query.service.WorkQueryService;
+import com.ideality.coreflow.user.query.dto.UserNameIdDto;
 import com.ideality.coreflow.user.query.dto.AllUserDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 
@@ -151,6 +152,10 @@ public class ProjectQueryFacadeService {
 
     public Map<Long, List<TaskPreviewDTO>> selectTaskSummaries(List<Long> projectIds) {
         return workCommandService.findByProjectIdIn(projectIds);
+    }
+
+    public Map<Long, List<ResponseParticipantUser>> selectParticipantSummaries(List<Long> projectIds) {
+        return participantQueryService.findByParticipantsIn(projectIds);
     }
     // 완료된 프로젝트 목록 조회
     public List<CompletedProjectDTO> getCompletedProjectList() {

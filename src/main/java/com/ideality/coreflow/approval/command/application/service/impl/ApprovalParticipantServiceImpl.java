@@ -47,14 +47,16 @@ public class ApprovalParticipantServiceImpl implements ApprovalParticipantServic
         approvalParticipantRepository.save(approver);
 
         // 참조자 등록
-        for (long viewerId : approvalParticipant.getViewerIds()) {
-            ApprovalParticipant viewer = ApprovalParticipant.builder()
-                    .approvalId(approvalId)
-                    .userId(viewerId)
-                    .role(ApprovalRole.VIEWER)
-                    .createdAt(LocalDateTime.now())
-                    .build();
-            approvalParticipantRepository.save(viewer);
+        if (approvalParticipant.getViewerIds() != null) {
+            for (long viewerId : approvalParticipant.getViewerIds()) {
+                ApprovalParticipant viewer = ApprovalParticipant.builder()
+                        .approvalId(approvalId)
+                        .userId(viewerId)
+                        .role(ApprovalRole.VIEWER)
+                        .createdAt(LocalDateTime.now())
+                        .build();
+                approvalParticipantRepository.save(viewer);
+            }
         }
     }
 }

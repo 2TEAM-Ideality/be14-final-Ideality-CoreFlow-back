@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.query.service.impl;
 
+import com.ideality.coreflow.project.query.dto.*;
 import java.util.List;
 
 import com.ideality.coreflow.project.query.dto.ProjectParticipantDTO;
@@ -11,10 +12,14 @@ import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.project.command.application.dto.RequestInviteUserDTO;
 import com.ideality.coreflow.project.query.mapper.ParticipantMapper;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
+import com.ideality.coreflow.user.query.dto.UserNameIdDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -55,6 +60,20 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
     @Override
     public List<ResponseParticipantDTO> selectParticipantsByDeptName(Long projectId, String deptName) {
         return participantMapper.selectParticipantByDeptName(projectId, deptName);
+    }
+
+    @Override
+    public Map<Long, List<ResponseParticipantUser>> findByParticipantsIn(List<Long> projectIds) {
+        List<ParticipantUserDTO> participant = participantMapper.selectAllUserByProjectIds(projectIds);
+
+        return participant.stream()
+                .collect(Collectors.groupingBy(
+                        ParticipantUserDTO::getProjectId,
+                        Collectors.mapping(
+                            dto -> new ResponseParticipantUser(dto.getUserId(), dto.getName(), dto.getDeptName(), dto.getJobRankName(), dto.getJobRoleName()),
+                            Collectors.toList()
+                        )
+                ));
     }
 
     @Override

@@ -18,4 +18,18 @@ public class NotificationQueryService {
 
         return notificationMapper.getMyNotifications(userId);
     }
+
+    public List<Notification> getLatestNotifications(Long userId, Long lastNotificationId) {
+        return notificationMapper.getLatestNotifications(userId, lastNotificationId);
+    }
+
+    // MyBatis로 알림 조회
+    public Notification getNotificationById(Long id) {
+        return notificationMapper.getNotificationById(id);
+    }
+
+    // MyBatis로 해당 알림을 받은 사용자인지 확인
+    public boolean isRecipient(Long notificationId, Long userId) {
+        return notificationMapper.isRecipient(notificationId, userId);
+    }
 }

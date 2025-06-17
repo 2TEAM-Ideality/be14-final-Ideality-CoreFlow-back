@@ -78,8 +78,13 @@ public class ProjectQueryController {
     }
 
     @PostMapping("/tasks/list")
-    public ResponseEntity<APIResponse<?>> getTasks(@RequestBody RequestTaskList request) {
+    public ResponseEntity<APIResponse<?>> getTasks(@RequestBody RequestProjectIds request) {
         return ResponseEntity.ok(APIResponse.success(projectQueryFacadeService.selectTaskSummaries(request.getProjectIds()),"참여 중인 프로젝트의 태스크 조회"));
+    }
+
+    @PostMapping("/participants/list")
+    public ResponseEntity<APIResponse<?>> getParticipants(@RequestBody RequestProjectIds request) {
+        return ResponseEntity.ok(APIResponse.success(projectQueryFacadeService.selectParticipantSummaries(request.getProjectIds()), "참여자 조회"));
     }
 
 
