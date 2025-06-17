@@ -77,7 +77,11 @@ public class ProjectQueryFacadeService {
     public List<ResponseTaskDTO> selectTasks(Long projectId) {
         List<ResponseTaskDTO> tasks = taskQueryService.selectTasks(projectId);
 
-        workDeptQueryService.selectDeptList(tasks);
+        // 태스크 있을 때만 부서 정보 탐색
+        if (tasks != null && !tasks.isEmpty()) {
+            workDeptQueryService.selectDeptList(tasks);
+        }
+
         return tasks;
     }
 

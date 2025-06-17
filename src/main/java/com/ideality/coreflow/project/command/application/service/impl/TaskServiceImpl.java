@@ -305,6 +305,7 @@ public class TaskServiceImpl implements TaskService {
         return count;
     }
 
+
     private LocalDate delayTask(Work task, Integer delayDays, Set<LocalDate> holidays, LocalDate projectEndExpect, boolean isSimulate) {
         if (task.getStatus() == Status.PENDING) {
             task.setStartExpect(task.getStartExpect().plusDays(
