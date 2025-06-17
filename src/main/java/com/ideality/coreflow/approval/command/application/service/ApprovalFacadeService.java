@@ -172,10 +172,9 @@ public class ApprovalFacadeService {
     public void cancelled(Long approvalId, long userId) {
         Approval approval = approvalService.findApprovalById(approvalId);
 
-        if (approval.getUserId() != userId && approval.getStatus() == ApprovalStatus.PENDING) {
+        if (approval.getUserId() != userId && approval.getStatus() != ApprovalStatus.PENDING) {
             throw new BaseException(ErrorCode.ACCESS_DENIED_APPROVAL);
         }
         approvalService.updateStatus(approval, ApprovalStatus.CANCELLED);
-
     }
 }
