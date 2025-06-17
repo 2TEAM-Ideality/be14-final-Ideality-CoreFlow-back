@@ -35,6 +35,7 @@
 
     <resultMap id="ApprovalDetailsResultMap" type="com.ideality.coreflow.approval.query.dto.ApprovalDetailsDTO">
         <id property="id" column="ID" />
+        <result property="requesterId" column="REQUESTER_ID" />
         <result property="requesterName" column="REQUESTER_NAME" />
         <result property="title" column="TITLE" />
         <result property="type" column="TYPE" />
@@ -82,6 +83,7 @@
     <select id="selectApprovalDetailsById" parameterType="long" resultMap="ApprovalDetailsResultMap">
         SELECT
                a.id AS ID
+             , u.id AS REQUESTER_ID
              , u.name AS REQUESTER_NAME
              , a.title AS TITLE
              , a.type AS TYPE

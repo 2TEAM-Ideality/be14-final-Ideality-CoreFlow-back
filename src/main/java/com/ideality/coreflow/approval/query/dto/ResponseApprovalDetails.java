@@ -14,6 +14,7 @@ import java.util.List;
 @Getter
 public class ResponseApprovalDetails {
     long id;
+    long requesterId;
     String requesterName;
     String title;
     ApprovalType type;
