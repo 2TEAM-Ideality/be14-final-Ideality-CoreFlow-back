@@ -91,6 +91,21 @@
         AND p.target_type = 'TASK'
     </select>
 
+    <!-- 특정 프로젝트에 참여하는 모든 회원 정보 가져오기 -->
+    <select id="selectProjectParticipantList" parameterType="long" resultType="com.ideality.coreflow.project.query.dto.ProjectParticipantDTO">
+        SELECT
+            p.target_id AS projectId,
+            u.id AS userId,
+            u.name AS userName,
+            u.dept_name AS deptName,
+            u.job_rank_name AS jobRankName,
+            u.job_role_name AS jobRoleName
+        FROM participant p
+          JOIN user u ON p.user_id = u.id
+         WHERE p.target_type = 'PROJECT'
+          AND p.target_id = #{projectId}
+    </select>
+
     <select id="isTeamLeader" parameterType="map" resultType="boolean">
         SELECT EXISTS (
         SELECT 1

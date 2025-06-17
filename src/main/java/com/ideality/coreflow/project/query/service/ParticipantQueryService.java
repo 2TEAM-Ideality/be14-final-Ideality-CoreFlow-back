@@ -11,10 +11,14 @@ import com.ideality.coreflow.user.query.dto.UserNameIdDto;
 import java.util.List;
 import java.util.Map;
 
+import com.ideality.coreflow.project.query.dto.ProjectParticipantDTO;
+
 public interface ParticipantQueryService {
     Long selectDirectorByProjectId(Long projectId);
 
     boolean isProjectDirector(Long projectId, Long userId);
+
+	List<ProjectParticipantDTO> getProjectParticipantList(Long projectId);
 
     void findTeamLedaer(Long projectId, List<RequestInviteUserDTO> reqLeaderDTO);
 

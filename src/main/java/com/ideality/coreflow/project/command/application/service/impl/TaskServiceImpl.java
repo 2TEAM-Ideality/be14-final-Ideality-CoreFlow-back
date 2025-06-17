@@ -75,6 +75,7 @@ public class TaskServiceImpl implements TaskService {
                 .endExpect(taskDTO.getEndBaseLine())
                 .status(Status.PENDING)
                 .projectId(taskDTO.getProjectId())
+                .delayDays(0)
                 .build();
         taskRepository.saveAndFlush(taskWork);
         log.info("Task created with id {}", taskWork.getId());
@@ -129,11 +130,12 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void validateRelation(List<Long> source) {
-        if (source.isEmpty() || source.contains(null)) {
+        if (source == null) {
             throw new BaseException(INVALID_SOURCE_LIST);
         }
+
         for (Long sourceId : source) {
-            if (!taskRepository.existsById(sourceId)) {
+            if (sourceId == null || !taskRepository.existsById(sourceId)) {
                 throw new BaseException(TASK_NOT_FOUND);
             }
         }

@@ -5,6 +5,8 @@ import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +16,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/task")
 @RequiredArgsConstructor
+@Slf4j
 public class TaskController {
     private final ProjectFacadeService projectFacadeService;
     private final TaskService taskService;
@@ -21,7 +24,7 @@ public class TaskController {
     @PostMapping("")
     public ResponseEntity<APIResponse<Map<String, Long>>> createTaskWithFacade(
             @RequestBody RequestTaskDTO requestTaskDTO) {
-
+        log.info("태스크 생성 요청 들어옴");
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
         Long taskId = projectFacadeService.createTask(requestTaskDTO, userId);
         return ResponseEntity.ok(

@@ -1,6 +1,7 @@
 package com.ideality.coreflow.approval.query.service;
 
 import com.ideality.coreflow.approval.command.application.service.DelayReasonService;
+import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalType;
 import com.ideality.coreflow.approval.command.domain.aggregate.DelayReason;
 import com.ideality.coreflow.approval.query.dto.*;
 import com.ideality.coreflow.attachment.command.application.dto.AttachmentPreviewDTO;
@@ -88,5 +89,9 @@ public class ApprovalQueryFacadeService {
 
     public List<DelayReason> searchDelayReason() {
         return delayReasonService.findAllDelayReason();
+    }
+
+    public List<ProjectApprovalDTO> searchDelayListByProjectId(long projectId) {
+        return approvalQueryService.selectProjectApprovalByProjectId(projectId, ApprovalType.DELAY);
     }
 }

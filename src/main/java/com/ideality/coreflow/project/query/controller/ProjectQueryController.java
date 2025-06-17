@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.query.controller;
 
 import com.ideality.coreflow.common.response.APIResponse;
+import com.ideality.coreflow.project.query.dto.CompletedProjectDTO;
 import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
 import com.ideality.coreflow.project.query.dto.PipelineResponseDTO;
@@ -9,6 +10,9 @@ import com.ideality.coreflow.project.query.dto.ResponseInvitableUserDTO;
 import com.ideality.coreflow.project.query.service.facade.ProjectQueryFacadeService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+
+import org.checkerframework.checker.units.qual.C;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -81,5 +85,12 @@ public class ProjectQueryController {
     @PostMapping("/participants/list")
     public ResponseEntity<APIResponse<?>> getParticipants(@RequestBody RequestProjectIds request) {
         return ResponseEntity.ok(APIResponse.success(projectQueryFacadeService.selectParticipantSummaries(request.getProjectIds()), "참여자 조회"));
+    }
+
+
+    @GetMapping("/completed")
+    public ResponseEntity<APIResponse<List<CompletedProjectDTO>>> getCompletedProjects() {
+        List<CompletedProjectDTO> completedProjects = projectQueryFacadeService.getCompletedProjectList();
+        return ResponseEntity.ok(APIResponse.success(completedProjects, "완료된 프로젝트 리스트 조회 성공"));
     }
 }
