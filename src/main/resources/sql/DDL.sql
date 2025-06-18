@@ -314,3 +314,68 @@ CREATE TABLE attachment (
     CONSTRAINT FOREIGN KEY (uploader_id) REFERENCES user(id),
     CHECK (target_type IN ('APPROVAL', 'COMMENT', 'PROJECT', 'TEMPLATE'))
 );
+
+-- 기본 리스트 데이터
+INSERT INTO role
+(name, type)
+VALUES
+    (
+        'DIRECTOR', 'PROJECT'
+    ),
+    (
+        'TEAM_LEADER', 'PROJECT'
+    ),
+    (
+        'TEAM_MEMBER', 'PROJECT'
+    ),
+    (
+        'ADMIN', 'GENERAL'
+    ),
+    (
+        'VIEWER', 'PROJECT'
+    ),
+    (
+        'ASSIGNEE', 'PROJECT'
+    ),
+    (
+        'PARTICIPANT', 'PROJECT'
+    ),
+    (
+        'CREATOR', 'GENERAL'
+    ),
+    (
+        'PARTNER', 'GENERAL'
+    )
+;
+
+INSERT INTO job_rank (name)
+VALUES ("사원"),
+       ("대리"),
+       ("과장"),
+       ("차장"),
+       ("부장"),
+       ("협력업체");
+
+INSERT INTO job_role (name)
+VALUES ("팀원"),
+       ("파트장"),
+       ("본부장"),
+       ("협력업체");
+
+
+INSERT INTO dept (name, dept_code)
+VALUES ("기획팀", "PM"),
+       ("디자인팀", "DES"),
+       ("소싱팀", "MD"),
+       ("생산팀", "MFG"),
+       ("협력업체", "PART");
+
+INSERT INTO DELAY_REASON (reason)
+VALUES
+    ('자재 공급 지연'),
+    ('인력 부족'),
+    ('설비 고장'),
+    ('품질 이슈 재작업'),
+    ('외주 업체 문제'),
+    ('의사 결정 지연'),
+    ('기타');
