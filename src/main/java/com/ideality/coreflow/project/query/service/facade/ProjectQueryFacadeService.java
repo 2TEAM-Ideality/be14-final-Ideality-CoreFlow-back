@@ -77,8 +77,16 @@ public class ProjectQueryFacadeService {
     public List<ResponseTaskDTO> selectTasks(Long projectId) {
         List<ResponseTaskDTO> tasks = taskQueryService.selectTasks(projectId);
 
-        workDeptQueryService.selectDeptList(tasks);
+        if (!tasks.isEmpty()) {
+            workDeptQueryService.selectDeptList(tasks);
+        }
+
         return tasks;
+    }
+
+    // 완료된 태스크 목록 조회
+    public List<CompletedTaskDTO> selectCompletedTasks(Long projectId) {
+        return taskQueryService.selectCompletedTasks(projectId);
     }
 
     // 부서별 세부일정 조회
@@ -161,4 +169,6 @@ public class ProjectQueryFacadeService {
     public List<CompletedProjectDTO> getCompletedProjectList() {
         return projectQueryService.selectCompletedProjects();
     }
+
+
 }
