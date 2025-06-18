@@ -129,7 +129,8 @@ public class CommentFacadeService {
             throw new BaseException(TASK_NOT_FOUND);
         }
 
-        boolean isParticipant = participantQueryService.isParticipant(userId, comment.getWorkId());
+        Long projectId = taskQueryService.getProjectId(comment.getWorkId());
+        boolean isParticipant = participantQueryService.isParticipant(userId, projectId);
         if (!isParticipant) {
             throw new BaseException(COMMENT_ACCESS_DENIED);
         }
@@ -141,6 +142,29 @@ public class CommentFacadeService {
 
     @Transactional
     public Long modifyComment(RequestModifyCommentDTO reqModify, Long userId, Long commentId) {
+
+        Comment comment = commentService.findById(commentId);
+
+        if (comment.getWorkId() == null){
+            throw new BaseException(TASK_NOT_FOUND);
+        }
+
+        Long projectId = taskQueryService.getProjectId(comment.getWorkId());
+        boolean isParticipant = participantQueryService.isParticipant(userId, projectId);
+        if (!isParticipant) {
+            throw new BaseException(COMMENT_ACCESS_DENIED);
+        }
+
+        /* 설명. 첨부 파일이 있을 때만 로직을 수행하게끔 흐름 조정 */
+        if (reqModify.getAttachmentFile() != null) {
+            UploadFileResult uploadResult =
+                    s3Service.uploadFile(reqModify.getAttachmentFile(), "comment-docs");
+
+            CreateAttachmentDTO attachmentDTO = new CreateAttachmentDTO(uploadResult);
+            attachmentCommandService.createAttachmentForComment(attachmentDTO,
+                    comment.getWorkId(),
+                    userId);
+        }
         return commentService.updateComment(reqModify, userId, commentId);
     }
 

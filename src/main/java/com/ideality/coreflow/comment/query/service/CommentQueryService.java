@@ -9,4 +9,6 @@ public interface CommentQueryService {
     List<ResponseCommentsDTO> selectComments(Long taskId);
 
     ResponseCommentForModifyDTO selectComment(Long commentId, Long userId);
+
+    List<ResponseCommentsDTO> selectNotices(Long taskId);
 }

@@ -38,4 +38,12 @@ public class CommentQueryController {
         ResponseCommentForModifyDTO resDTO = commentQueryService.selectComment(commentId, userId);
         return ResponseEntity.ok(APIResponse.success(resDTO, "댓글 내용 조회에 성공하였습니다."));
     }
+
+    @GetMapping("/task/{taskId}/notice")
+    public ResponseEntity<APIResponse<List<ResponseCommentsDTO>>>
+    getNotices(@PathVariable Long taskId) {
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        List<ResponseCommentsDTO> resComment = commentQueryFacadeService.selectNotices(taskId, userId);
+        return ResponseEntity.ok(APIResponse.success(resComment, "댓글 목록 조회에 성공하였습니다."));
+    }
 }

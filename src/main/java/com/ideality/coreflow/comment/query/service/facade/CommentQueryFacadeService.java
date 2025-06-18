@@ -39,4 +39,17 @@ public class CommentQueryFacadeService {
         return commentQueryService.selectComments(taskId);
     }
 
+    public List<ResponseCommentsDTO> selectNotices(Long taskId, Long userId) {
+        // 태스크에 따른 projectId 가져오기 + 예외 검사 (잘못된 태스크 Id)
+        Long projectId = taskQueryService.selectProjectIdByTaskId(taskId);
+
+        boolean isParticipant = participantQueryService.isParticipant(userId, projectId);
+
+        if (!isParticipant) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
+
+        // 검증 끝나면, 해당 댓글 찾아오기
+        return commentQueryService.selectNotices(taskId);
+    }
 }

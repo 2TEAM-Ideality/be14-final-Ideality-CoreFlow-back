@@ -30,7 +30,7 @@ public class CommentQueryServiceImpl implements CommentQueryService {
                     selectCommentDTO.getName();
             responseCommentsDTO.setCommentId(selectCommentDTO.getCommentId());
             responseCommentsDTO.setParentCommentId(selectCommentDTO.getParentCommentId());
-            responseCommentsDTO.setUserId(selectCommentDTO.getUserId());
+            responseCommentsDTO.setUserId(selectCommentDTO.getUserId()  );
             responseCommentsDTO.setCommentWriter(resName);
             responseCommentsDTO.setContent(selectCommentDTO.getContent());
             res.add(responseCommentsDTO);
@@ -51,5 +51,23 @@ public class CommentQueryServiceImpl implements CommentQueryService {
         }
 
         return dto;
+    }
+
+    @Override
+    public List<ResponseCommentsDTO> selectNotices(Long taskId) {
+        List<SelectCommentDTO> selectCommentList = commentMapper.selectNotices(taskId);
+        List<ResponseCommentsDTO> res = new ArrayList<>();
+        for (SelectCommentDTO selectCommentDTO : selectCommentList) {
+            ResponseCommentsDTO responseCommentsDTO = new ResponseCommentsDTO();
+            String resName = selectCommentDTO.getDeptName() + "_" + selectCommentDTO.getJobRankName() + "_" +
+                    selectCommentDTO.getName();
+            responseCommentsDTO.setCommentId(selectCommentDTO.getCommentId());
+            responseCommentsDTO.setParentCommentId(selectCommentDTO.getParentCommentId());
+            responseCommentsDTO.setUserId(selectCommentDTO.getUserId()  );
+            responseCommentsDTO.setCommentWriter(resName);
+            responseCommentsDTO.setContent(selectCommentDTO.getContent());
+            res.add(responseCommentsDTO);
+        }
+        return res;
     }
 }
