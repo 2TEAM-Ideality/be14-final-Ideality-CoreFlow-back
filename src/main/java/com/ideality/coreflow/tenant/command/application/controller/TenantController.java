@@ -22,6 +22,6 @@ public class TenantController {
     public ResponseEntity<APIResponse<?>> createTenant(@RequestBody RequestCreateTenant request) {
         String schemaName = request.getSchemaName();
         log.info("schemaName={}", schemaName);
-        return ResponseEntity.ok(APIResponse.success(tenantFacadeService.createNewTenant(request), "테넌트 생성" + schemaName));
+        return ResponseEntity.ok(APIResponse.success(tenantFacadeService.createNewTenant(request), schemaName + " 테넌트 생성 완료"));
     }
 }

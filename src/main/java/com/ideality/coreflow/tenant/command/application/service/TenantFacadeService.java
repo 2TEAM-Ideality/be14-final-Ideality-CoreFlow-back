@@ -15,10 +15,12 @@ public class TenantFacadeService {
 
     @Transactional
     public Long createNewTenant(RequestCreateTenant request) {
+        // erp_master에 해당 테넌트 정보 등록
+        Long schemaId = tenantService.registTenant(request);
+
         // 새 테넌트 생성
         tenantService.createNewTenant(request.getSchemaName());
 
-        // erp_master에 해당 테넌트 정보 등록
-        return tenantService.registTenant(request);
+        return schemaId;
     }
 }
