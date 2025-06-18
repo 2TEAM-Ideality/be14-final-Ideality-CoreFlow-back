@@ -99,12 +99,12 @@ public class ProjectQueryController {
     }
 
     // 부서 참여 프로젝트 목록 조회
-    @GetMapping("/dept/{deptId}")
-    public ResponseEntity<APIResponse<?>> getProjectsByDept(@PathVariable Long deptId) {
-        List<ProjectSummaryDTO> projectList = projectQueryFacadeService.getProjectsByDeptId(deptId);
+    @PostMapping("/dept")
+    public ResponseEntity<APIResponse<?>> getProjectsByDept(@RequestBody RequestDeptDTO deptName) {
+        List<ProjectSummaryDTO> projectList = projectQueryFacadeService.getProjectsByDeptId(deptName);
 
         Map<String, Object> responseData = new HashMap<>();
-        responseData.put("deptInfo", deptId);
+        responseData.put("deptInfo", deptName);
         responseData.put("projectList", projectList);
 
         return ResponseEntity.ok(APIResponse.success(responseData, "부서별 참여 프로젝트 목록 조회 성공"));
