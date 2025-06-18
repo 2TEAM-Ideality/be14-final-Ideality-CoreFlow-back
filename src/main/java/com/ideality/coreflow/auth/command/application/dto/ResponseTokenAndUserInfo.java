@@ -27,4 +27,8 @@ public class ResponseTokenAndUserInfo {
     String schemaName;
     List<String> roles;
     boolean isTemp;
+
+    public void deleteRefreshToken() {
+        this.refreshToken = null;
+    }
 }

@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.command.application.controller;
 
 import com.ideality.coreflow.common.response.APIResponse;
+import com.ideality.coreflow.project.command.application.dto.DelayInfoDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
@@ -83,11 +84,11 @@ public class TaskController {
     }
 
     @PatchMapping("{taskId}/delay")
-    public ResponseEntity<APIResponse<Map<String, Long>>> delayTaskPropagate(@PathVariable Long taskId, @RequestParam Integer delayDays) {
-        Integer countDelayedTasks = projectFacadeService.delayAndPropagate(taskId, delayDays);
+    public ResponseEntity<APIResponse<?>> delayTaskPropagate(@PathVariable Long taskId, @RequestParam Integer delayDays) {
+        DelayInfoDTO response = projectFacadeService.delayAndPropagate(taskId, delayDays);
         return ResponseEntity.ok(
-                APIResponse.success(Map.of("countDelayedTasks", Long.valueOf(countDelayedTasks)),
-                        taskId + "번 태스크를 " + delayDays + "일 지연시킨 결과 " + countDelayedTasks + "개의 태스크가 지연되었습니다.")
+                APIResponse.success(response,
+                        taskId + "번 태스크를 " + delayDays + "일 지연시킨 결과 " + response.getTaskCountByDelay() + "개의 태스크가 지연되었습니다.")
         );
     }
 }
