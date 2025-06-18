@@ -1,9 +1,10 @@
-package com.ideality.coreflow.tenant.command.application.service;
+package com.ideality.coreflow.tenant.command.application.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.tenant.command.application.dto.RequestCreateTenant;
+import com.ideality.coreflow.tenant.command.application.service.TenantService;
 import com.ideality.coreflow.tenant.command.domain.aggregate.ErpMaster;
 import com.ideality.coreflow.tenant.command.domain.repository.TenantRepository;
 import lombok.RequiredArgsConstructor;

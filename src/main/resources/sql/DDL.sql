@@ -1,4 +1,3 @@
-
 -- 회원
 CREATE TABLE user (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
