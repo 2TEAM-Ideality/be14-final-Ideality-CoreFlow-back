@@ -6,6 +6,7 @@ import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.email.command.application.service.EmailSendService;
 import com.ideality.coreflow.email.command.domail.aggregate.EmailType;
+import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.org.query.service.DeptQueryService;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.application.service.RoleService;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +42,7 @@ public class AuthFacadeService {
     // 로그인
     @Transactional
     public ResponseTokenAndUserInfo login(RequestLogin requestLogin) {
-
+        String tenantName = TenantContext.getTenant();
         log.info("request identifier: {}", requestLogin.getIdentifier());
 
         LoginType loginType = LoginType.fromIdentifier(requestLogin.getIdentifier());
@@ -49,7 +51,12 @@ public class AuthFacadeService {
         UserInfoDTO loginInfo = userService.findLoginInfoByIdentifier(requestLogin.getIdentifier(), loginType);
         log.info("로그인 유저 정보 조회: {}", loginInfo);
 
-        List<String> userOfRoles = userQueryService.findGeneralRolesByUserId(loginInfo.getId());
+        List<String> userOfRoles;
+        if (!Objects.equals(tenantName, "master")) {
+            userOfRoles = userQueryService.findGeneralRolesByUserId(loginInfo.getId());
+        } else {
+            userOfRoles = null;
+        }
         log.info("해당 유저 역할 정보 조회: {}", userOfRoles);
 
         ResponseToken responseToken = authService.login(loginInfo, requestLogin.getPassword(), userOfRoles);

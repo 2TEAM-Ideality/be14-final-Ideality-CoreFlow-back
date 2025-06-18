@@ -1,7 +1,3 @@
-DROP DATABASE IF EXISTS company_a;
-
-CREATE DATABASE company_a;
-USE company_a;
 
 -- 회원
 CREATE TABLE user (

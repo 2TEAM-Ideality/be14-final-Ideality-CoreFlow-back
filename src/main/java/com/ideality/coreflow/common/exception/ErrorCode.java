@@ -112,7 +112,10 @@ public enum ErrorCode {
     TEAM_MEMBER_ALREADY_EXISTS("TEAM_MEMBER_ALREADY_EXISTS", "이미 팀원으로 참여중인 회원입니다.", HttpStatus.CONFLICT),
 	PDF_CREATE_FAILED("PDF_CREATE_FAILED", "프로젝트 리포트 PDF 파일 생성이 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     NO_COMPLETED_PROJECT("NO_COMPLETED_PROJECT", "완료된 프로젝트가 없습니다." , HttpStatus.NOT_FOUND ),
-    NOT_FOUND_REFRESH_TOKEN("NOT_FOUND_REFRESH_TOKEN", "리프레시 토큰을 찾지 못하였습니다.", HttpStatus.NOT_FOUND)
+    NOT_FOUND_REFRESH_TOKEN("NOT_FOUND_REFRESH_TOKEN", "리프레시 토큰을 찾지 못하였습니다.", HttpStatus.NOT_FOUND),
+    ILLEGAL_TENANT_NAME("ILLEGAL_TENANT_NAME", "허용되지 않은 테넌트 이름입니다.", HttpStatus.BAD_REQUEST),
+    TENANT_CREATE_FAILED("TENANT_CREATE_FAILED", "테넌트 DB 생성에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    DUPLICATED_COMPANY_CODE("DUPLICATED_COMPANY_CODE", "이미 존재하는 회사 코드입니다.", HttpStatus.BAD_REQUEST)
     ;
 
 
