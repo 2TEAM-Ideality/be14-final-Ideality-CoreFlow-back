@@ -30,7 +30,7 @@ public class CommentController {
                 "댓글 작성이 완료되었습니다."));
     }
 
-    @PatchMapping("/{commentId}")
+    @PatchMapping(value = "/{commentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<APIResponse<Map<String, Long>>> modifyComment
             (@RequestBody RequestModifyCommentDTO reqModify,
              @PathVariable Long commentId) {

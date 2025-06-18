@@ -244,6 +244,7 @@ CREATE TABLE comment (
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     is_notice BOOLEAN NOT NULL DEFAULT FALSE,
     type VARCHAR(255) NOT NULL DEFAULT 'COMMENT',
+    created_at DATETIME NOT NULL,
     work_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
     parent_comment_id BIGINT,

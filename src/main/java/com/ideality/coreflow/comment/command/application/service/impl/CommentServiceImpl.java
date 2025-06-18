@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static com.ideality.coreflow.common.exception.ErrorCode.*;
@@ -42,6 +43,7 @@ public class CommentServiceImpl implements CommentService {
                         .isDeleted(false)
                         .isNotice(commentDTO.getIsNotice())
                         .type(commentDTO.getIsNotice() ? CommentType.NOTICE: CommentType.COMMENT)
+                        .createdAt(LocalDateTime.now())
                         .userId(userId)
                         .workId(taskId)
                         .parentCommentId(commentDTO.getParentCommentId())

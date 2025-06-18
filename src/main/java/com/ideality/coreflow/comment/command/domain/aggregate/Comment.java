@@ -3,6 +3,8 @@ package com.ideality.coreflow.comment.command.domain.aggregate;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "comment")
 @Getter
@@ -30,6 +32,9 @@ Comment {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private CommentType type = CommentType.COMMENT;
+
+    @Column(name="created_at", nullable = false)
+    private LocalDateTime createdAt;
 
     @Column(name = "work_id", nullable = false)
     private Long workId;
