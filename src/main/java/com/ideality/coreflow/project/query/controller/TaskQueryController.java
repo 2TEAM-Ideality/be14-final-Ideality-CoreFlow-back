@@ -36,7 +36,7 @@ public class TaskQueryController {
     }
 
     @GetMapping("/{projectId}")
-    public ResponseEntity<APIResponse<List<ResponseTaskDTO>>> getTasks (@RequestParam Long projectId) {
+    public ResponseEntity<APIResponse<List<ResponseTaskDTO>>> getTasks (@PathVariable Long projectId) {
 
         List<ResponseTaskDTO> tasks = projectQueryFacadeService.selectTasks(projectId);
         return ResponseEntity.ok(
