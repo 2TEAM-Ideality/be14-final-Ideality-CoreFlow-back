@@ -179,6 +179,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     public DelayInfoDTO delayAndPropagate(Long taskId, Integer delayDays, boolean isSimulate) {
+        log.info("taskID: " + taskId);
         Map<Long, Integer> visited = new HashMap<>();   // 지연일
         Queue<DelayNodeDTO> queue = new LinkedList<>();
         Integer count = 0;
@@ -322,6 +323,11 @@ public class TaskServiceImpl implements TaskService {
                 .taskCountByDelay(count)
                 .delayDaysByTaskId(visited)
                 .build();
+    }
+
+    @Override
+    public String findTaskNameById(long taskId) {
+        return taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND)).getName();
     }
 
     private LocalDate delayTask(Work task, Integer delayDays, Set<LocalDate> holidays, LocalDate projectEndExpect, boolean isSimulate) {

@@ -17,7 +17,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -82,8 +84,25 @@ public class ApprovalQueryFacadeService {
 
         // 지연일 경우 지연 예상 정보 조회
         if (approvalDetails.getType() == ApprovalType.DELAY && approvalDetails.getStatus() == ApprovalStatus.PENDING) {
-            DelayInfoDTO delayInfoDTO = taskService.delayAndPropagate(approvalDetails.getId(), approvalDetails.getDelayDays(), true);
-            response.delayImpact(delayInfoDTO);
+            DelayInfoDTO delayInfoDTO = taskService.delayAndPropagate(approvalDetails.getTaskId(), approvalDetails.getDelayDays(), true);
+
+            Map<Long, DelayTaskNameDTO> result = new HashMap<>();
+
+            for (Map.Entry<Long, Integer> entry : delayInfoDTO.getDelayDaysByTaskId().entrySet()) {
+                long taskId = entry.getKey();
+                Integer delayDays = entry.getValue();
+
+                String taskName = taskService.findTaskNameById(taskId);
+
+                result.put(taskId, new DelayTaskNameDTO(taskName, delayDays));
+            }
+            response.delayExpect(
+                    delayInfoDTO.getOriginProjectEndExpect(),
+                    delayInfoDTO.getNewProjectEndExpect(),
+                    delayInfoDTO.getDelayDaysByTask(),
+                    delayInfoDTO.getTaskCountByDelay(),
+                    result
+            );
         }
         return response;
     }
