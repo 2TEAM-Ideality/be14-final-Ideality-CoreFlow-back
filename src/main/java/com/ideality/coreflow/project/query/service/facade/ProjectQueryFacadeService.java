@@ -54,6 +54,10 @@ public class ProjectQueryFacadeService {
     private final TaskService taskService;
     private final WorkService workCommandService;
 
+    public List<GanttTaskResponse> getGanttChart(Long projectId) {
+        return taskQueryService.getGanttTasksByProjectId(projectId);
+    }
+
 
     public ProjectDetailResponseDTO getProjectDetail(Long projectId) {
         return projectQueryService.getProjectDetail(projectId);

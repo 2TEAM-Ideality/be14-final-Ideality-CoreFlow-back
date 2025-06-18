@@ -8,6 +8,7 @@ import com.ideality.coreflow.notification.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.command.domain.repository.TaskRepository;
 import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
+import com.ideality.coreflow.project.query.dto.GanttTaskResponse;
 import com.ideality.coreflow.project.query.dto.RelationDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskInfoDTO;
@@ -20,6 +21,7 @@ import com.ideality.coreflow.project.query.mapper.WorkMapper;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -160,6 +162,23 @@ public class TaskQueryServiceImpl implements TaskQueryService {
                         TargetType.WORK);
             }
         }
+    }
+
+    @Override
+    public List<GanttTaskResponse> getGanttTasksByProjectId(Long projectId) {
+        List<GanttTaskResponse> rootTasks = taskMapper.selectRootTasksByProjectId(projectId);
+
+        System.out.println("rootTasks = " + rootTasks);
+        
+        return rootTasks.stream()
+                .map(task -> {
+                    List<GanttTaskResponse> children = taskMapper.selectSubTasksByParentId(task.getTaskId());
+
+                    return task.toBuilder()
+                            .subTasks(children)
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 
 
