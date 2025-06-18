@@ -19,6 +19,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.imageio.ImageIO;
 
@@ -140,14 +141,24 @@ public class PdfServiceImpl implements PdfService {
 
 			// 총계 데이터
 			String isDelay = projectDetail.getDelayDays() > 0 ?  "지연" : "기한 내 납기 준수";
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
 			Map<String, Object> total = Map.of(
-				"progress" , projectDetail.getProgressRate(),
-				"baseStart" , projectDetail.getStartBase(),
-				"baseEnd", projectDetail.getEndBase(),
-				"realStart", projectDetail.getStartReal(),
-				"realEnd", projectDetail.getEndReal(),
-				"delay" , projectDetail.getDelayDays(),
-				"status" , isDelay
+				"progress", Optional.ofNullable(projectDetail.getProgressRate()).orElse(0.0),
+				"baseStart", Optional.ofNullable(projectDetail.getStartBase())
+					.map(d -> d.format(formatter))
+					.orElse("-"),
+				"baseEnd", Optional.ofNullable(projectDetail.getEndBase())
+					.map(d -> d.format(formatter))
+					.orElse("-"),
+				"realStart", Optional.ofNullable(projectDetail.getStartReal())
+					.map(d -> d.format(formatter))
+					.orElse("미입력"),
+				"realEnd", Optional.ofNullable(projectDetail.getEndReal())
+					.map(d -> d.format(formatter))
+					.orElse("미입력"),
+				"delay", Optional.ofNullable(projectDetail.getDelayDays()).orElse(0),
+				"status", Optional.ofNullable(isDelay).orElse("N/A")
 			);
 			context.setVariable("total", total);
 

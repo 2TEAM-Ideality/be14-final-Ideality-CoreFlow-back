@@ -39,7 +39,7 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/api/auth/signup")).hasAuthority("ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/dept/all")).authenticated()
-                        .requestMatchers(new AntPathRequestMatcher("/api/project")).authenticated()
+                        .requestMatchers(new AntPathRequestMatcher("/api/projects/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/notifications/stream")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/notifications/**")).authenticated()
                         .anyRequest().authenticated()
