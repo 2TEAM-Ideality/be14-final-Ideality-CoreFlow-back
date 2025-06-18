@@ -96,7 +96,7 @@ public enum ErrorCode {
     INVALID_TARGET_LIST("INVALID_TARGET_LIST", "target은 비어 있을 수 없습니다.", HttpStatus.BAD_REQUEST),
 
     // 이미 처리된 결재 혹은 결재자가 아님
-    ACCESS_DENIED_APPROVAL("ACCESS_DENIED_APPROVAL", "결재자가 아니거나 이미 처리된 결재입니다.", HttpStatus.BAD_REQUEST),
+    ACCESS_DENIED_APPROVAL("ACCESS_DENIED_APPROVAL", "결재가 이미 처리되었거나 해당 결재에 권한이 없습니다.", HttpStatus.BAD_REQUEST),
 
     TASK_PROGRESS_NOT_COMPLETED("TASK_PROGRESS_NOT_COMPLETED","진행률이 100%여야 작업을 완료할 수 있습니다.", HttpStatus.BAD_REQUEST),
     SCHEDULE_NOT_REPEATABLE("SCHEDULE_NOT_REPEATABLE", "반복규칙을 만들 수 없는 일정입니다.", HttpStatus.CONFLICT),

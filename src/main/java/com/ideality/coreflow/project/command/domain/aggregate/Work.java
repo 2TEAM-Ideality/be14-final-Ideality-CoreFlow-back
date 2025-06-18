@@ -56,6 +56,7 @@ public class Work {
 	private Double passedRate = 0.0;
 
 	@Column(name = "delay_days", nullable = false)
+	@Builder.Default
 	private Integer delayDays = 0;
 
 	@Enumerated(EnumType.STRING)
