@@ -96,7 +96,7 @@ public enum ErrorCode {
     INVALID_TARGET_LIST("INVALID_TARGET_LIST", "target은 비어 있을 수 없습니다.", HttpStatus.BAD_REQUEST),
 
     // 이미 처리된 결재 혹은 결재자가 아님
-    ACCESS_DENIED_APPROVAL("ACCESS_DENIED_APPROVAL", "결재자가 아니거나 이미 처리된 결재입니다.", HttpStatus.BAD_REQUEST),
+    ACCESS_DENIED_APPROVAL("ACCESS_DENIED_APPROVAL", "결재가 이미 처리되었거나 해당 결재에 권한이 없습니다.", HttpStatus.BAD_REQUEST),
 
     TASK_PROGRESS_NOT_COMPLETED("TASK_PROGRESS_NOT_COMPLETED","진행률이 100%여야 작업을 완료할 수 있습니다.", HttpStatus.BAD_REQUEST),
     SCHEDULE_NOT_REPEATABLE("SCHEDULE_NOT_REPEATABLE", "반복규칙을 만들 수 없는 일정입니다.", HttpStatus.CONFLICT),
@@ -113,6 +113,7 @@ public enum ErrorCode {
 	PDF_CREATE_FAILED("PDF_CREATE_FAILED", "프로젝트 리포트 PDF 파일 생성이 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     NO_COMPLETED_PROJECT("NO_COMPLETED_PROJECT", "완료된 프로젝트가 없습니다." , HttpStatus.NOT_FOUND ),
     COMMENT_ALREADY_NOTICE("COMMENT_ALREADY_NOTICE", "이미 공지인 댓글입니다." , HttpStatus.CONFLICT),
+    NOT_FOUND_REFRESH_TOKEN("NOT_FOUND_REFRESH_TOKEN", "리프레시 토큰을 찾지 못하였습니다.", HttpStatus.NOT_FOUND)
     ;
 
 

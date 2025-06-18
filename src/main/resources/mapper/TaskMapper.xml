@@ -101,8 +101,8 @@
             , NULL AS slackTime
         FROM work
         WHERE project_id = #{projectId}
-        AND status != 'DELETED'
-
+        AND parent_task_id IS NULL
+        AND status = 'COMPLETED'
     </select>
 
     <select id="selectTaskProgressByProjectId" resultType="com.ideality.coreflow.project.query.dto.TaskProgressDTO">
@@ -113,5 +113,67 @@
           FROM work
          WHERE project_id = #{projectId}
            AND parent_task_id IS NULL
+    </select>
+
+    <resultMap id="GanttTaskWithPredecessorsMap" type="com.ideality.coreflow.project.query.dto.GanttTaskResponse">
+        <id property="taskId" column="task_id"/>
+        <result property="taskName" column="task_name"/>
+        <result property="startBase" column="start_base"/>
+        <result property="endBase" column="end_base"/>
+        <result property="startDate" column="start_date"/>
+        <result property="endDate" column="end_date"/>
+        <result property="progress" column="progress_rate"/>
+
+        <collection property="predecessor" ofType="java.lang.Long">
+            <result column="prev_work_id"/>
+        </collection>
+    </resultMap>
+    <select id="selectRootTasksByProjectId" resultMap="GanttTaskWithPredecessorsMap">
+        SELECT
+               w.id AS task_id
+             , w.name AS task_name
+             , w.start_base
+             , w.end_base
+             , CASE
+                 WHEN w.status = 'PENDING' THEN w.start_expect
+                 WHEN w.status IN ('PROGRESS', 'COMPLETED') THEN w.start_real
+               END AS start_date
+             , CASE
+                 WHEN w.status = 'PENDING' OR w.status = 'PROGRESS' THEN w.end_expect
+                 WHEN w.status = 'COMPLETED' THEN w.end_real
+                 ELSE NULL
+               END AS end_date
+             , w.progress_rate
+             , r.prev_work_id
+          FROM work w
+          LEFT JOIN relation r ON w.id = r.next_work_id
+         WHERE w.project_id = #{projectId}
+           AND w.parent_task_id IS NULL
+           AND w.status NOT IN ('DELETED', 'CANCELLED')
+         ORDER BY w.start_base
+    </select>
+
+    <select id="selectSubTasksByParentId" resultMap="GanttTaskWithPredecessorsMap">
+        SELECT
+               w.id AS task_id
+             , w.name AS task_name
+             , w.start_base AS start_base
+             , w.end_base AS end_base
+             , w.progress_rate AS progress
+             , CASE
+                 WHEN w.status = 'PENDING' THEN w.start_expect
+                 WHEN w.status IN ('PROGRESS', 'COMPLETED') THEN w.start_real
+               END AS start_date
+             , CASE
+                 WHEN w.status = 'PENDING' OR w.status = 'PROGRESS' THEN w.end_expect
+                 WHEN w.status = 'COMPLETED' THEN w.end_real
+                 ELSE Null
+               END AS end_date
+             , r.prev_work_id
+          FROM work w
+          LEFT JOIN relation r ON w.id = r.next_work_id
+         WHERE parent_task_id = #{parentId}
+           AND status NOT IN ('DELETED', 'CANCELLED')
+         ORDER BY start_base
     </select>
 </mapper>

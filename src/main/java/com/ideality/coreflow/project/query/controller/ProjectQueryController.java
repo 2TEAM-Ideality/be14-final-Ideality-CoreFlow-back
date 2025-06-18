@@ -7,8 +7,10 @@ import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
 import com.ideality.coreflow.project.query.dto.PipelineResponseDTO;
 import com.ideality.coreflow.project.query.dto.ProjectSummaryDTO;
 import com.ideality.coreflow.project.query.dto.ResponseInvitableUserDTO;
+import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.project.query.service.facade.ProjectQueryFacadeService;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 
 import org.checkerframework.checker.units.qual.C;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class ProjectQueryController {
 
     private final ProjectQueryFacadeService projectQueryFacadeService;
+    private final TaskQueryService taskQueryService;
 
     @GetMapping("/list") // 임시로 userId를 param으로 받아옴. 추후 반드시 수정
     public APIResponse<List<ProjectSummaryDTO>> getProjects() {
@@ -92,5 +95,14 @@ public class ProjectQueryController {
     public ResponseEntity<APIResponse<List<CompletedProjectDTO>>> getCompletedProjects() {
         List<CompletedProjectDTO> completedProjects = projectQueryFacadeService.getCompletedProjectList();
         return ResponseEntity.ok(APIResponse.success(completedProjects, "완료된 프로젝트 리스트 조회 성공"));
+    }
+
+    @GetMapping("/{projectId}/gantt")
+    public ResponseEntity<APIResponse<Map<String, Object>>> getGanttTasks(@PathVariable Long projectId) {
+        List<GanttTaskResponse> ganttTaskResponses = taskQueryService.getGanttTasksByProjectId(projectId);
+        return ResponseEntity.ok(
+                APIResponse.success(Map.of("data", ganttTaskResponses),
+                        projectId + "번 프로젝트 간트차트 조회 완료")
+        );
     }
 }

@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.query.service;
 
 import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
+import com.ideality.coreflow.project.query.dto.GanttTaskResponse;
 import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskInfoDTO;
 import com.ideality.coreflow.project.query.dto.SelectTaskDTO;
@@ -30,4 +31,7 @@ public interface TaskQueryService {
     List<TaskProgressDTO> getTaskProgressByProjectId(Long projectId);
 
     void sendTaskDueReminder();
+
+
+    List<GanttTaskResponse> getGanttTasksByProjectId(Long projectId);
 }

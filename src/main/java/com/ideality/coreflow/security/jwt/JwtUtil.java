@@ -5,6 +5,7 @@ import com.ideality.coreflow.common.exception.ErrorCode;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,6 +65,18 @@ public class JwtUtil {
             return header.substring(7);
         }
         return null;
+    }
+
+    // refreshToken 추출
+    public String extractRefreshTokenFromCookie(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        throw new BaseException(ErrorCode.NOT_FOUND_REFRESH_TOKEN);
     }
 
     // subject 추출
