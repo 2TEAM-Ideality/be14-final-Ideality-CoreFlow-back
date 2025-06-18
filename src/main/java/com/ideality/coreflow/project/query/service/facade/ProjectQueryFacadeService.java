@@ -170,5 +170,8 @@ public class ProjectQueryFacadeService {
         return projectQueryService.selectCompletedProjects();
     }
 
-
+    // 부서별 참여 프로젝트 목록 조회
+    public List<ProjectSummaryDTO> getProjectsByDeptId(Long deptId) {
+        return projectQueryService.selectProjectByDeptId(deptId);
+    }
 }

@@ -130,4 +130,9 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
         return projectMapper.selectProjectNameByProjectId(projectId);
     }
 
+    @Override
+    public List<ProjectSummaryDTO> selectProjectByDeptId(Long deptId) {
+        return projectMapper.selectProjectByDeptId(deptId);
+    }
+
 }

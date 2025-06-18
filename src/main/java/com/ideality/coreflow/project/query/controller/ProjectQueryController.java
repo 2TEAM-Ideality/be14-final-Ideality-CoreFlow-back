@@ -8,7 +8,11 @@ import com.ideality.coreflow.project.query.dto.PipelineResponseDTO;
 import com.ideality.coreflow.project.query.dto.ProjectSummaryDTO;
 import com.ideality.coreflow.project.query.dto.ResponseInvitableUserDTO;
 import com.ideality.coreflow.project.query.service.facade.ProjectQueryFacadeService;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
 
 import org.checkerframework.checker.units.qual.C;
@@ -87,10 +91,24 @@ public class ProjectQueryController {
         return ResponseEntity.ok(APIResponse.success(projectQueryFacadeService.selectParticipantSummaries(request.getProjectIds()), "참여자 조회"));
     }
 
-
+    // 완료된 프로젝트 목록 조회
     @GetMapping("/completed")
     public ResponseEntity<APIResponse<List<CompletedProjectDTO>>> getCompletedProjects() {
         List<CompletedProjectDTO> completedProjects = projectQueryFacadeService.getCompletedProjectList();
         return ResponseEntity.ok(APIResponse.success(completedProjects, "완료된 프로젝트 리스트 조회 성공"));
     }
+
+    // 부서 참여 프로젝트 목록 조회
+    @GetMapping("/dept/{deptId}")
+    public ResponseEntity<APIResponse<?>> getProjectsByDept(@PathVariable Long deptId) {
+        List<ProjectSummaryDTO> projectList = projectQueryFacadeService.getProjectsByDeptId(deptId);
+
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("deptInfo", deptId);
+        responseData.put("projectList", projectList);
+
+        return ResponseEntity.ok(APIResponse.success(responseData, "부서별 참여 프로젝트 목록 조회 성공"));
+
+    }
+
 }

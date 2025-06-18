@@ -51,6 +51,7 @@ public class TaskQueryController {
         return ResponseEntity.ok(APIResponse.success(completedTasks, "완료된 태스크 목록 조회 성공"));
     }
 
+    // 부서 일정 조회
     @GetMapping("/dept")
     public ResponseEntity<APIResponse<List<DeptWorkDTO>>> getTasksByDept (@RequestParam Long userId) {
 

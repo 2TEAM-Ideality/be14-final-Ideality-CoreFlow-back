@@ -19,4 +19,6 @@ public interface ProjectQueryService {
     ProjectSummaryDTO selectProjectSummary(Long projectId);
 
     String getProjectName(Long projectId);
+
+	List<ProjectSummaryDTO> selectProjectByDeptId(Long deptId);
 }
