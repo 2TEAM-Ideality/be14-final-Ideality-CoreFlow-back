@@ -29,6 +29,10 @@ Comment {
     @Builder.Default
     private boolean isNotice = false;
 
+    @Column(name = "is_modify", nullable = false)
+    @Builder.Default
+    private boolean isModify = false;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private CommentType type = CommentType.COMMENT;
@@ -57,6 +61,7 @@ Comment {
         }
         this.content = content;
         this.isNotice = isNotice;
+        this.isModify = true;
 
         if (isNotice) {
             this.type = CommentType.NOTICE;

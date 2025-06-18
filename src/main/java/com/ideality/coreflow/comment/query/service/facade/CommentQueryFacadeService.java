@@ -1,7 +1,7 @@
 package com.ideality.coreflow.comment.query.service.facade;
 
 import com.ideality.coreflow.comment.command.application.service.CommentService;
-import com.ideality.coreflow.comment.query.dto.ResponseCommentsDTO;
+import com.ideality.coreflow.comment.query.dto.SelectCommentDTO;
 import com.ideality.coreflow.comment.query.service.CommentQueryService;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
@@ -25,7 +25,7 @@ public class CommentQueryFacadeService {
     private final ParticipantQueryService participantQueryService;
 
 
-    public List<ResponseCommentsDTO> selectComments(Long taskId, Long userId) {
+    public List<SelectCommentDTO> selectComments(Long taskId, Long userId) {
         // 태스크에 따른 projectId 가져오기 + 예외 검사 (잘못된 태스크 Id)
         Long projectId = taskQueryService.selectProjectIdByTaskId(taskId);
 
@@ -39,7 +39,7 @@ public class CommentQueryFacadeService {
         return commentQueryService.selectComments(taskId);
     }
 
-    public List<ResponseCommentsDTO> selectNotices(Long taskId, Long userId) {
+    public List<SelectCommentDTO> selectNotices(Long taskId, Long userId) {
         // 태스크에 따른 projectId 가져오기 + 예외 검사 (잘못된 태스크 Id)
         Long projectId = taskQueryService.selectProjectIdByTaskId(taskId);
 

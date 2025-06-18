@@ -2,6 +2,8 @@ package com.ideality.coreflow.comment.query.dto;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -14,6 +16,7 @@ public class SelectCommentDTO {
     private Long userId;
     private String name;
     private String deptName;
-    private String jobRankName;
     private String content;
+    private LocalDateTime createdAt;
+    private Boolean isModify;
 }

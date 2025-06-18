@@ -11,8 +11,9 @@
         <result property="userId" column="user_id"/>
         <result property="name" column="name"/>
         <result property="deptName" column="dept_name"/>
-        <result property="jobRankName" column="job_rank_name"/>
         <result property="content" column="content"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="isModify" column="is_modify"/>
     </resultMap>
 
     <resultMap id="CommentModifyResultMap" type="com.ideality.coreflow.comment.query.dto.ResponseCommentForModifyDTO" >
@@ -29,8 +30,9 @@
              , a.user_id
              , b.name
              , b.dept_name
-             , b.job_rank_name
              , a.content
+             , a.created_at
+             , a.is_modify
           FROM comment a
           JOIN user b ON a.user_id = b.id
          WHERE a.work_id = #{taskId}
@@ -57,8 +59,9 @@
         , a.user_id
         , b.name
         , b.dept_name
-        , b.job_rank_name
         , a.content
+        , a.created_at
+        , a.is_modify
         FROM comment a
         JOIN user b ON a.user_id = b.id
         WHERE a.work_id = #{taskId}

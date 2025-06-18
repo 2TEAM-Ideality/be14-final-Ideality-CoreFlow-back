@@ -32,7 +32,7 @@ public class CommentController {
 
     @PatchMapping(value = "/{commentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<APIResponse<Map<String, Long>>> modifyComment
-            (@RequestBody RequestModifyCommentDTO reqModify,
+            (@ModelAttribute RequestModifyCommentDTO reqModify,
              @PathVariable Long commentId) {
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
         Long returnCommentId = commentFacadeService.modifyComment(reqModify, userId, commentId);

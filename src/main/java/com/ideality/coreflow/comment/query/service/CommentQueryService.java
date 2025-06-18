@@ -1,14 +1,14 @@
 package com.ideality.coreflow.comment.query.service;
 
 import com.ideality.coreflow.comment.query.dto.ResponseCommentForModifyDTO;
-import com.ideality.coreflow.comment.query.dto.ResponseCommentsDTO;
+import com.ideality.coreflow.comment.query.dto.SelectCommentDTO;
 
 import java.util.List;
 
 public interface CommentQueryService {
-    List<ResponseCommentsDTO> selectComments(Long taskId);
+    List<SelectCommentDTO> selectComments(Long taskId);
 
     ResponseCommentForModifyDTO selectComment(Long commentId, Long userId);
 
-    List<ResponseCommentsDTO> selectNotices(Long taskId);
+    List<SelectCommentDTO> selectNotices(Long taskId);
 }

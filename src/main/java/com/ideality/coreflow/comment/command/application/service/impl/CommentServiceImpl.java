@@ -42,11 +42,11 @@ public class CommentServiceImpl implements CommentService {
                         .content(commentDTO.getContent())
                         .isDeleted(false)
                         .isNotice(commentDTO.getIsNotice())
-                        .type(commentDTO.getIsNotice() ? CommentType.NOTICE: CommentType.COMMENT)
+                        .type(commentDTO.getIsNotice() ? CommentType.NOTICE : CommentType.COMMENT)
                         .createdAt(LocalDateTime.now())
                         .userId(userId)
                         .workId(taskId)
-                        .parentCommentId(commentDTO.getParentCommentId())
+                        .parentCommentId(commentDTO.getIsNotice() ? null : commentDTO.getParentCommentId())
                         .build();
         commentRepository.save(newComment);
         return newComment.getId();
