@@ -2,14 +2,22 @@ package com.ideality.coreflow.auth.command.application.controller;
 
 import com.ideality.coreflow.auth.command.application.dto.*;
 import com.ideality.coreflow.auth.command.application.service.AuthFacadeService;
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.security.jwt.JwtUtil;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Duration;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -21,8 +29,19 @@ public class AuthController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
-    public ResponseEntity<APIResponse<?>> loginEntry(@RequestBody RequestLogin requestLogin) {
-        return ResponseEntity.ok(APIResponse.success(authFacadeService.login(requestLogin), "로그인 성공"));
+    public ResponseEntity<APIResponse<?>> loginEntry(@RequestBody RequestLogin requestLogin, HttpServletResponse response) {
+        ResponseTokenAndUserInfo res = authFacadeService.login(requestLogin);
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", res.getRefreshToken())
+                .httpOnly(true)
+                .path("/")
+                .maxAge(Duration.ofDays(7))
+                .sameSite("Strict")
+                .build();
+        response.setHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+        res.deleteRefreshToken();
+        return ResponseEntity.ok(APIResponse.success(res, "로그인 성공"));
     }
 
     @PostMapping("/signup")
@@ -45,10 +64,16 @@ public class AuthController {
 
     // 재발급
     @PostMapping("/reissue")
-    public ResponseEntity<APIResponse<?>> reissueToken(@RequestBody RequestTokenReissue request) {
-        String refreshToken = request.getRefreshToken();
+    public ResponseEntity<APIResponse<?>> reissueToken(@RequestBody RequestTokenReissue request,
+                                                       HttpServletRequest httpRequest,
+                                                       HttpServletResponse httpResponse) {
+//        String refreshToken = request.getRefreshToken();
+        String refreshToken = jwtUtil.extractRefreshTokenFromCookie(httpRequest);
+
         Long userId = request.getUserId();
-        return ResponseEntity.ok(APIResponse.success(authFacadeService.reissueAccessToken(refreshToken, userId), "Access Token 재발급 완료"));
+        ResponseTokenAndUserInfo res = authFacadeService.reissueAccessToken(refreshToken, userId);
+        res.deleteRefreshToken();
+        return ResponseEntity.ok(APIResponse.success(res, "Access Token 재발급 완료"));
     }
 
     // 비밀번호 수정
