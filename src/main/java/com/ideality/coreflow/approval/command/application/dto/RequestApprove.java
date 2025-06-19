@@ -8,4 +8,5 @@ import java.util.List;
 public class RequestApprove {
     long approvalId;
     List<Long> viewerIds;
+    int delayDays;
 }

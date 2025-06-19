@@ -52,6 +52,7 @@ public class WorkServiceImpl implements WorkService {
         log.info("태스크 목록:{}",tasks.toString());
 
         return tasks.stream()
+                .filter(task -> task.getParentTaskId() == null)
                 .collect(Collectors.groupingBy(
                         Work::getProjectId,
                         Collectors.mapping(
