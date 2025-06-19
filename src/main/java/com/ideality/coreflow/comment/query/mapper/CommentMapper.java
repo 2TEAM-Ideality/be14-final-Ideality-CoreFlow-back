@@ -11,4 +11,6 @@ public interface CommentMapper {
     List<SelectCommentDTO> selectComments(Long taskId);
 
     ResponseCommentForModifyDTO selectCommentByModify(Long commentId);
+
+    List<SelectCommentDTO> selectNotices(Long taskId);
 }

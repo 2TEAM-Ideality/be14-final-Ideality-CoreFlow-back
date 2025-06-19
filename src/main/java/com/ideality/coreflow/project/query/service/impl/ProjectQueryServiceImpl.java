@@ -7,7 +7,7 @@ import com.ideality.coreflow.project.query.dto.NodeDTO;
 import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
 import com.ideality.coreflow.project.query.dto.PipelineResponseDTO;
 import com.ideality.coreflow.project.query.dto.ProjectSummaryDTO;
-import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
+import com.ideality.coreflow.project.query.dto.RequestDeptDTO;
 import com.ideality.coreflow.project.query.dto.UserInfoDTO;
 import com.ideality.coreflow.project.query.dto.WorkDeptDTO;
 import com.ideality.coreflow.project.query.mapper.ProjectMapper;
@@ -128,6 +128,11 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
     @Override
     public String getProjectName(Long projectId) {
         return projectMapper.selectProjectNameByProjectId(projectId);
+    }
+
+    @Override
+    public List<ProjectSummaryDTO> selectProjectByDeptId(Long deptId) {
+        return projectMapper.selectProjectByDeptId(deptId);
     }
 
 }

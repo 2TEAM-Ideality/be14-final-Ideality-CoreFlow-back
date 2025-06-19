@@ -157,9 +157,6 @@
         <if test="deptName != null and deptName != ''">
             AND a.dept_name LIKE CONCAT('%', #{deptName}, '%')
         </if>
-        <if test="jobRank != null and jobRank != ''">
-            AND a.job_rank_name LIKE CONCAT('%', #{jobRank}, '%')
-        </if>
         <if test="name != null and name != ''">
             AND a.name LIKE CONCAT('%', #{name}, '%')
         </if>
@@ -182,14 +179,12 @@
         FROM user a
         JOIN participant b ON a.id = b.user_id
         WHERE b.target_type = 'PROJECT'
+          AND b.target_id = #{projectId}
         <if test="list != null and list.size() > 0">
             AND (
             <foreach collection="list" item="cond" separator="OR">
                 (
                 a.dept_name LIKE CONCAT('%', #{cond.deptName}, '%')
-                <if test="cond.jobRank != null and cond.jobRank != ''">
-                    AND a.job_rank_name LIKE CONCAT('%', #{cond.jobRank}, '%')
-                </if>
                 <if test="cond.name != null and cond.name != ''">
                     AND a.name LIKE CONCAT('%', #{cond.name}, '%')
                 </if>
@@ -214,5 +209,14 @@
              , job_rank_name
              , profile_image
           FROM user
+    </select>
+
+    <select id="selectDeptNameByMentionInfo" parameterType="map" resultType="string">
+        SELECT DISTINCT a.dept_name
+        FROM user a
+        JOIN participant b ON a.id = b.user_id
+        WHERE b.target_type = 'PROJECT'
+        AND b.target_id = #{projectId}
+        AND a.dept_name LIKE CONCAT('%', #{mentionTarget}, '%')
     </select>
 </mapper>

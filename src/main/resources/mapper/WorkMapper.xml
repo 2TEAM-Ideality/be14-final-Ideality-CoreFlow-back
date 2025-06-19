@@ -96,6 +96,7 @@
         <result property="deptId" column="dept_id"/>
         <result property="deptName" column="dept_name"/>
         <result property="projectId" column="project_id"/>
+        <result property="projectName" column="project_name"/>
         <collection property="participants" ofType="com.ideality.coreflow.project.query.dto.ParticipantDTO">
             <result property="userId" column="user_id"/>
             <result property="roleId" column="role_id"/>
@@ -115,15 +116,16 @@
             w.project_id,
             wd.dept_id,
             d.name AS dept_name,
-
+            pr.name AS project_name,
             p.user_id,
             p.role_id,
             u.name AS user_name
-         FROM work w
-          JOIN work_dept wd ON w.id = wd.work_id
-           JOIN dept d ON wd.dept_id = d.id
-        LEFT JOIN participant p ON p.target_id = w.id AND p.target_type = 'DETAILED'
-         LEFT JOIN user u ON p.user_id = u.id
+        FROM work w
+            JOIN work_dept wd ON w.id = wd.work_id
+            JOIN dept d ON wd.dept_id = d.id
+            JOIN project pr ON w.project_id = pr.id
+            LEFT JOIN participant p ON p.target_id = w.id AND p.target_type = 'DETAILED'
+            LEFT JOIN user u ON p.user_id = u.id
         WHERE wd.dept_id = #{deptId}
             AND w.parent_task_id IS NOT NULL
             AND wd.is_deleted = FALSE

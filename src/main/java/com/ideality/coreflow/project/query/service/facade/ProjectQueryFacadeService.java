@@ -174,5 +174,10 @@ public class ProjectQueryFacadeService {
         return projectQueryService.selectCompletedProjects();
     }
 
-
+    // 부서별 참여 프로젝트 목록 조회
+    public List<ProjectSummaryDTO> getProjectsByDeptId(RequestDeptDTO deptName) {
+        // TODO. 부서 이름으로 부서 아이디 조회
+        Long deptId = deptQueryService.findDeptIdByName(deptName.getDeptName());
+        return projectQueryService.selectProjectByDeptId(deptId);
+    }
 }

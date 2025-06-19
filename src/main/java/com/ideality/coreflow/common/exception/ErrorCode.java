@@ -104,7 +104,7 @@ public enum ErrorCode {
     SCHEDULE_NOT_FOUND("SCHEDULE_NOT_FOUND", "존재하지 않는 일정입니다.", HttpStatus.NOT_FOUND),
     NOTIFICATION_NOT_FOUND("NOTIFICATION_NOT_FOUND", "존재하지 않는 알림입니다.", HttpStatus.NOT_FOUND),
     COMMENT_ACCESS_DENIED("COMMENT_ACCESS_DENIED", "댓글에 접근할 수 없는 권합입니다.", HttpStatus.FORBIDDEN),
-    COMMENT_ALREADY_DELETED("COMMENT_ALREADY_DELETED", "이미 삭제된 댓글입니다." , HttpStatus.FORBIDDEN),
+    COMMENT_ALREADY_DELETED("COMMENT_ALREADY_DELETED", "이미 삭제된 댓글입니다." , HttpStatus.CONFLICT),
     REPEATRULE_NOT_FOUND("REPEATRULE_NOT_FOUND", "존재하지 않는 반복규칙입니다.", HttpStatus.NOT_FOUND ),
     NOT_FOUND_NOTIFICATION("NOT_FOUND_NOTIFICATION","알림을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     FORBIDDEN_NOTIFICATION("FORBIDDEN_NOTIFICATION","본인의 알림만 삭제할 수 있습니다.", HttpStatus.FORBIDDEN),
@@ -115,7 +115,8 @@ public enum ErrorCode {
     NOT_FOUND_REFRESH_TOKEN("NOT_FOUND_REFRESH_TOKEN", "리프레시 토큰을 찾지 못하였습니다.", HttpStatus.NOT_FOUND),
     ILLEGAL_TENANT_NAME("ILLEGAL_TENANT_NAME", "허용되지 않은 테넌트 이름입니다.", HttpStatus.BAD_REQUEST),
     TENANT_CREATE_FAILED("TENANT_CREATE_FAILED", "테넌트 DB 생성에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
-    DUPLICATED_COMPANY_CODE("DUPLICATED_COMPANY_CODE", "이미 존재하는 회사 코드입니다.", HttpStatus.BAD_REQUEST)
+    DUPLICATED_COMPANY_CODE("DUPLICATED_COMPANY_CODE", "이미 존재하는 회사 코드입니다.", HttpStatus.BAD_REQUEST),
+    COMMENT_ALREADY_NOTICE("COMMENT_ALREADY_NOTICE", "이미 공지인 댓글입니다." , HttpStatus.CONFLICT)
     ;
 
 

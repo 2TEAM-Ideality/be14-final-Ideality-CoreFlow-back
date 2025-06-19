@@ -337,4 +337,23 @@
          WHERE id = #{projectId}
     </select>
 
+    <!-- 부서별 참여 프로젝트 목록 조회   -->
+    <select id="selectProjectByDeptId" parameterType="long" resultType="com.ideality.coreflow.project.query.dto.ProjectSummaryDTO">
+        SELECT DISTINCT
+            p.id AS id,
+            p.name AS name,
+            p.status AS status,
+            p.start_base AS startDate,
+            p.end_base AS endDate,
+            u.name AS director,
+            p.progress_rate AS progressRate,
+            p.passed_rate AS passedRate,
+            p.delay_days AS delayDays
+        FROM participant part
+            JOIN user u ON part.user_id = u.id
+            JOIN dept d ON u.dept_name = d.name
+            JOIN project p ON part.target_type = 'PROJECT' AND part.target_id = p.id
+        WHERE d.id = #{deptId}
+    </select>
+
 </mapper>

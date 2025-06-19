@@ -11,4 +11,5 @@ import org.springframework.web.multipart.MultipartFile;
 public class RequestModifyCommentDTO {
     private String content;
     private Boolean isNotice;
+    private MultipartFile attachmentFile;
 }
