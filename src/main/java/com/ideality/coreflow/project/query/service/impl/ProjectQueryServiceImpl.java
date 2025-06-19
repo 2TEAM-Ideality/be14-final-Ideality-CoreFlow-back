@@ -2,7 +2,9 @@ package com.ideality.coreflow.project.query.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.query.dto.CompletedProjectDTO;
+import com.ideality.coreflow.project.query.dto.DetailDTO;
 import com.ideality.coreflow.project.query.dto.NodeDTO;
 import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
 import com.ideality.coreflow.project.query.dto.PipelineResponseDTO;
@@ -12,8 +14,12 @@ import com.ideality.coreflow.project.query.dto.UserInfoDTO;
 import com.ideality.coreflow.project.query.dto.WorkDeptDTO;
 import com.ideality.coreflow.project.query.mapper.ProjectMapper;
 import com.ideality.coreflow.project.query.service.ProjectQueryService;
+import com.ideality.coreflow.project.query.service.WorkQueryService;
 import com.ideality.coreflow.template.query.dto.DeptDTO;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,6 +31,7 @@ import org.springframework.stereotype.Service;
 public class ProjectQueryServiceImpl implements ProjectQueryService {
 
     private final ProjectMapper projectMapper;
+    private final WorkQueryService workQueryService;
 
     @Override
     public List<ProjectSummaryDTO> selectProjectSummaries(Long userId) {
@@ -86,6 +93,7 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
                         .passedRate(node.getPassedRate())
                         .delayDays(node.getDelayDays())
                         .status(node.getStatus())
+                        .warning(checkTaskWarning(node))
                         .deptList(workIdToDeptList.getOrDefault(node.getId(), List.of()))
                         .build())
                 .toList();
@@ -106,6 +114,19 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
                 .nodeList(nodesWithDepts)
                 .edgeList(edges)
                 .build();
+    }
+
+    private Boolean checkTaskWarning(NodeDTO task) {
+        LocalDate taskEndExpect = task.getEndExpect();
+        System.out.println("task.getName() = " + task.getName());
+        System.out.println("taskEndExpect = " + taskEndExpect);
+        List<Work> subTasks = workQueryService.getSubTasksByParentTaskId(task.getId());
+        for (Work subTask : subTasks) {
+            if (taskEndExpect.isBefore(subTask.getEndExpect())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // 완료 상태 프로젝트 가져오기
