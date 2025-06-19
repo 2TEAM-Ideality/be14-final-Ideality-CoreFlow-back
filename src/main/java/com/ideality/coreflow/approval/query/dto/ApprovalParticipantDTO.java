@@ -7,5 +7,6 @@ public class ApprovalParticipantDTO {
     long id;
     long participantId;
     String participantName;
+    String participantDeptName;
     String participantRole;
 }

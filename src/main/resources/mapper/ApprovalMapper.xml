@@ -30,6 +30,7 @@
         <id property="id" column="ID" />
         <result property="participantId" column="PARTICIPANT_ID" />
         <result property="participantName" column="PARTICIPANT_NAME" />
+        <result property="participantDeptName" column="PARTICIPANT_DEPT_NAME" />
         <result property="participantRole" column="PARTICIPANT_ROLE" />
     </resultMap>
 
@@ -37,6 +38,7 @@
         <id property="id" column="ID" />
         <result property="requesterId" column="REQUESTER_ID" />
         <result property="requesterName" column="REQUESTER_NAME" />
+        <result property="requesterDeptName" column="REQUESTER_DEPT_NAME" />
         <result property="title" column="TITLE" />
         <result property="type" column="TYPE" />
         <result property="status" column="STATUS" />
@@ -86,6 +88,7 @@
                a.id AS ID
              , u.id AS REQUESTER_ID
              , u.name AS REQUESTER_NAME
+             , u.dept_name AS REQUESTER_DEPT_NAME
              , a.title AS TITLE
              , a.type AS TYPE
              , a.status AS STATUS
@@ -114,6 +117,7 @@
                ap.approval_id AS ID
              , ap.user_id AS PARTICIPANT_ID
              , u.name AS PARTICIPANT_NAME
+             , u.dept_name AS PARTICIPANT_DEPT_NAME
              , ap.role AS PARTICIPANT_ROLE
           FROM approval_participant ap
           LEFT JOIN user u ON ap.user_id = u.id
