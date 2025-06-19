@@ -35,4 +35,6 @@ public interface UserQueryService {
 
 
     List<AllUserDTO> selectAllUser();
+
+    List<String> selectTeamByMentionInfo(List<String> mentionParse, Long projectId);
 }

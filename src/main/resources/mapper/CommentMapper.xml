@@ -8,10 +8,12 @@
     <resultMap id="CommentResultMap" type="com.ideality.coreflow.comment.query.dto.SelectCommentDTO" >
         <id property="commentId" column="id" />
         <result property="parentCommentId" column="parent_comment_id"/>
+        <result property="userId" column="user_id"/>
         <result property="name" column="name"/>
         <result property="deptName" column="dept_name"/>
-        <result property="jobRankName" column="job_rank_name"/>
         <result property="content" column="content"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="isModify" column="is_modify"/>
     </resultMap>
 
     <resultMap id="CommentModifyResultMap" type="com.ideality.coreflow.comment.query.dto.ResponseCommentForModifyDTO" >
@@ -25,14 +27,18 @@
         SELECT
                a.id
              , a.parent_comment_id
+             , a.user_id
              , b.name
              , b.dept_name
-             , b.job_rank_name
              , a.content
+             , a.created_at
+             , a.is_modify
           FROM comment a
           JOIN user b ON a.user_id = b.id
          WHERE a.work_id = #{taskId}
            AND a.is_deleted = false
+           AND a.type = 'COMMENT'
+           AND a.is_notice = false
     </select>
 
     <select id="selectCommentByModify" parameterType="map" resultMap="CommentModifyResultMap">
@@ -46,4 +52,21 @@
            AND is_deleted = false
     </select>
 
+    <select id="selectNotices" parameterType="map" resultMap="CommentResultMap">
+        SELECT
+        a.id
+        , a.parent_comment_id
+        , a.user_id
+        , b.name
+        , b.dept_name
+        , a.content
+        , a.created_at
+        , a.is_modify
+        FROM comment a
+        JOIN user b ON a.user_id = b.id
+        WHERE a.work_id = #{taskId}
+        AND a.is_deleted = false
+        AND a.type = 'NOTICE'
+        AND a.is_notice = true
+    </select>
 </mapper>

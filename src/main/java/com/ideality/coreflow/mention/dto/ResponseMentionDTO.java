@@ -1,4 +1,4 @@
-package com.ideality.coreflow.user.query.dto;
+package com.ideality.coreflow.mention.dto;
 
 import lombok.*;
 
@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @ToString
 @EqualsAndHashCode
-public class MentionConditionDTO {
-    private String deptName;
+public class ResponseMentionDTO {
     private String name;
+    private String type;
 }

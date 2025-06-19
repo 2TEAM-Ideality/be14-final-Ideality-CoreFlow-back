@@ -5,13 +5,12 @@ import com.ideality.coreflow.attachment.command.application.dto.CreateAttachment
 import com.ideality.coreflow.comment.command.application.dto.RequestCommentDTO;
 import com.ideality.coreflow.comment.command.application.dto.RequestModifyCommentDTO;
 import com.ideality.coreflow.comment.command.application.service.CommentService;
+import com.ideality.coreflow.comment.command.domain.aggregate.Comment;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.infra.s3.S3Service;
 import com.ideality.coreflow.infra.s3.UploadFileResult;
-import com.ideality.coreflow.mention.service.MentionService;
 import com.ideality.coreflow.notification.command.application.service.NotificationRecipientsService;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
-import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.project.query.service.WorkQueryService;
@@ -24,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.ideality.coreflow.common.exception.ErrorCode.COMMENT_ACCESS_DENIED;
 import static com.ideality.coreflow.common.exception.ErrorCode.TASK_NOT_FOUND;
@@ -38,7 +38,6 @@ public class CommentFacadeService {
     private final NotificationService notificationService;
     private final NotificationRecipientsService notificationRecipientsService;
     private final WorkQueryService workService;
-    private final TaskService taskService;
     private final TaskQueryService taskQueryService;
     private final S3Service s3Service;
     private final UserQueryService userQueryService;
@@ -124,6 +123,17 @@ public class CommentFacadeService {
 
     @Transactional
     public Long deleteComment(Long userId, Long commentId) {;
+        Comment comment = commentService.findById(commentId);
+
+        if (comment.getWorkId() == null){
+            throw new BaseException(TASK_NOT_FOUND);
+        }
+
+        Long projectId = taskQueryService.getProjectId(comment.getWorkId());
+        boolean isParticipant = participantQueryService.isParticipant(userId, projectId);
+        if (!isParticipant) {
+            throw new BaseException(COMMENT_ACCESS_DENIED);
+        }
 
         Long returnCommentId = commentService.updateByDelete(userId, commentId);
 
@@ -132,6 +142,44 @@ public class CommentFacadeService {
 
     @Transactional
     public Long modifyComment(RequestModifyCommentDTO reqModify, Long userId, Long commentId) {
+
+        Comment comment = commentService.findById(commentId);
+
+        if (comment.getWorkId() == null){
+            throw new BaseException(TASK_NOT_FOUND);
+        }
+
+        Long projectId = taskQueryService.getProjectId(comment.getWorkId());
+        boolean isParticipant = participantQueryService.isParticipant(userId, projectId);
+        if (!isParticipant) {
+            throw new BaseException(COMMENT_ACCESS_DENIED);
+        }
+
+        /* 설명. 첨부 파일이 있을 때만 로직을 수행하게끔 흐름 조정 */
+        if (reqModify.getAttachmentFile() != null) {
+            UploadFileResult uploadResult =
+                    s3Service.uploadFile(reqModify.getAttachmentFile(), "comment-docs");
+
+            CreateAttachmentDTO attachmentDTO = new CreateAttachmentDTO(uploadResult);
+            attachmentCommandService.createAttachmentForComment(attachmentDTO,
+                    comment.getWorkId(),
+                    userId);
+        }
         return commentService.updateComment(reqModify, userId, commentId);
+    }
+
+    @Transactional
+    public Long updateCommentByNotice(Long userId, Long commentId) {
+        Comment comment = commentService.findById(commentId);
+
+        if (comment.getWorkId() == null){
+            throw new BaseException(TASK_NOT_FOUND);
+        }
+
+        boolean isParticipant = participantQueryService.isParticipant(userId, comment.getWorkId());
+        if (!isParticipant) {
+            throw new BaseException(COMMENT_ACCESS_DENIED);
+        }
+        return commentService.updateByNotice(userId, commentId);
     }
 }

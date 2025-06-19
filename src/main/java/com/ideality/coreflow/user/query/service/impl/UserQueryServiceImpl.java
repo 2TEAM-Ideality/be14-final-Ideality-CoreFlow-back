@@ -86,19 +86,17 @@ public class UserQueryServiceImpl implements UserQueryService {
         } else {
             // 정확하게 파싱 조회
             String deptName = null;
-            String jobRank = null;
             String name = null;
 
             if (mentionParse.size() >= 1) deptName = mentionParse.get(0);
-            if (mentionParse.size() >= 2) jobRank = mentionParse.get(1);
-            if (mentionParse.size() >= 3) name = mentionParse.get(2);
+            if (mentionParse.size() >= 2) name = mentionParse.get(1);
 
-            resultSet = userMapper.selectMentionUserByMentionInfo(deptName, jobRank, name, projectId);
+            resultSet = userMapper.selectMentionUserByMentionInfo(deptName, name, projectId);
         }
 
         List<String> result = new ArrayList<>();
         for (UserMentionDTO user : resultSet) {
-            result.add(user.getDeptName() + "_" + user.getJobRank() + "_" + user.getName());
+            result.add(user.getDeptName() + "_"  + user.getName());
         }
 
         return result;
@@ -111,10 +109,9 @@ public class UserQueryServiceImpl implements UserQueryService {
         for (String mention : mentions) {
             String[] parse = mention.split("_");
             String dept = parse[0];
-            String rank = parse.length > 1 ? parse[1] : "";
-            String user = parse.length > 2 ? parse[2] : "";
+            String user = parse.length > 1 ? parse[1] : "";
 
-            mentionConditionDTOS.add(new MentionConditionDTO(dept, rank, user));
+            mentionConditionDTOS.add(new MentionConditionDTO(dept,user));
         }
         return userMapper.selectUserListByMention(mentionConditionDTOS);
     }
@@ -132,5 +129,11 @@ public class UserQueryServiceImpl implements UserQueryService {
     @Override
     public List<AllUserDTO> selectAllUser() {
         return userMapper.selectAllUser();
+    }
+
+    @Override
+    public List<String> selectTeamByMentionInfo(List<String> mentionParse, Long projectId) {
+        String mentionTarget = mentionParse.get(0);
+        return userMapper.selectDeptNameByMentionInfo(mentionTarget, projectId);
     }
 }

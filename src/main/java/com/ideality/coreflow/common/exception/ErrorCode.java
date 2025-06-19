@@ -104,7 +104,7 @@ public enum ErrorCode {
     SCHEDULE_NOT_FOUND("SCHEDULE_NOT_FOUND", "존재하지 않는 일정입니다.", HttpStatus.NOT_FOUND),
     NOTIFICATION_NOT_FOUND("NOTIFICATION_NOT_FOUND", "존재하지 않는 알림입니다.", HttpStatus.NOT_FOUND),
     COMMENT_ACCESS_DENIED("COMMENT_ACCESS_DENIED", "댓글에 접근할 수 없는 권합입니다.", HttpStatus.FORBIDDEN),
-    COMMENT_ALREADY_DELETED("COMMENT_ALREADY_DELETED", "이미 삭제된 댓글입니다." , HttpStatus.FORBIDDEN),
+    COMMENT_ALREADY_DELETED("COMMENT_ALREADY_DELETED", "이미 삭제된 댓글입니다." , HttpStatus.CONFLICT),
     REPEATRULE_NOT_FOUND("REPEATRULE_NOT_FOUND", "존재하지 않는 반복규칙입니다.", HttpStatus.NOT_FOUND ),
     NOT_FOUND_NOTIFICATION("NOT_FOUND_NOTIFICATION","알림을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     FORBIDDEN_NOTIFICATION("FORBIDDEN_NOTIFICATION","본인의 알림만 삭제할 수 있습니다.", HttpStatus.FORBIDDEN),
@@ -112,6 +112,7 @@ public enum ErrorCode {
     TEAM_MEMBER_ALREADY_EXISTS("TEAM_MEMBER_ALREADY_EXISTS", "이미 팀원으로 참여중인 회원입니다.", HttpStatus.CONFLICT),
 	PDF_CREATE_FAILED("PDF_CREATE_FAILED", "프로젝트 리포트 PDF 파일 생성이 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     NO_COMPLETED_PROJECT("NO_COMPLETED_PROJECT", "완료된 프로젝트가 없습니다." , HttpStatus.NOT_FOUND ),
+    COMMENT_ALREADY_NOTICE("COMMENT_ALREADY_NOTICE", "이미 공지인 댓글입니다." , HttpStatus.CONFLICT),
     NOT_FOUND_REFRESH_TOKEN("NOT_FOUND_REFRESH_TOKEN", "리프레시 토큰을 찾지 못하였습니다.", HttpStatus.NOT_FOUND)
     ;
 

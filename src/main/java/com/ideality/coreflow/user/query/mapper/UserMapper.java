@@ -27,11 +27,7 @@ public interface UserMapper {
 
     List<UserMentionDTO> selectMentionUserByProjectId(Long projectId);
 
-    List<UserMentionDTO> selectMentionUserByDeptAndJob(String deptName, String jobRank, Long projectId);
-
-    List<UserMentionDTO> selectMentionUserByMentionInfo(String deptName, String jobRank, String name, Long projectId);
-
-    List<UserMentionDTO> selectMentionUserByDeptName(String deptName, Long projectId);
+    List<UserMentionDTO> selectMentionUserByMentionInfo(String deptName, String name, Long projectId);
 
     List<UserMentionDTO> selectMentionUserByKeyword(String keyword, Long projectId);
 
@@ -42,4 +38,6 @@ public interface UserMapper {
     List<ResponseUser> selectAllUserPreView();
 
     List<AllUserDTO> selectAllUser();
+
+    List<String> selectDeptNameByMentionInfo(String mentionTarget, Long projectId);
 }

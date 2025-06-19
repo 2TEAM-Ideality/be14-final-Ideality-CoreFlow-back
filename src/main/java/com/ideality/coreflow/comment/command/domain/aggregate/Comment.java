@@ -3,6 +3,8 @@ package com.ideality.coreflow.comment.command.domain.aggregate;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "comment")
 @Getter
@@ -27,9 +29,16 @@ Comment {
     @Builder.Default
     private boolean isNotice = false;
 
+    @Column(name = "is_modify", nullable = false)
+    @Builder.Default
+    private boolean isModify = false;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private CommentType type = CommentType.COMMENT;
+
+    @Column(name="created_at", nullable = false)
+    private LocalDateTime createdAt;
 
     @Column(name = "work_id", nullable = false)
     private Long workId;
@@ -52,9 +61,15 @@ Comment {
         }
         this.content = content;
         this.isNotice = isNotice;
+        this.isModify = true;
 
         if (isNotice) {
             this.type = CommentType.NOTICE;
         }
+    }
+
+    public void updateNotice() {
+        this.isNotice = true;
+        this.type = CommentType.NOTICE;
     }
 }
