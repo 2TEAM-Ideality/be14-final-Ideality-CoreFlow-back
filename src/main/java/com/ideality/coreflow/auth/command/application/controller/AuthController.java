@@ -56,9 +56,17 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<APIResponse<?>> logoutEntry(HttpServletRequest request) {
+    public ResponseEntity<APIResponse<?>> logoutEntry(HttpServletRequest request, HttpServletResponse response) {
+        log.info("로그아웃 요청");
         String accessToken = jwtUtil.extractAccessToken(request);
         authFacadeService.logout(accessToken);
+        ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .path("/")
+                .maxAge(Duration.ofDays(0))
+                .sameSite("Strict")
+                .build();
+        response.setHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
         return ResponseEntity.ok(APIResponse.success(null, "로그아웃 완료"));
     }
 
