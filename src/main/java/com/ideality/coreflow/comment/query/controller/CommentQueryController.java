@@ -1,7 +1,7 @@
 package com.ideality.coreflow.comment.query.controller;
 
 import com.ideality.coreflow.comment.query.dto.ResponseCommentForModifyDTO;
-import com.ideality.coreflow.comment.query.dto.ResponseCommentsDTO;
+import com.ideality.coreflow.comment.query.dto.SelectCommentDTO;
 import com.ideality.coreflow.comment.query.service.CommentQueryService;
 import com.ideality.coreflow.comment.query.service.facade.CommentQueryFacadeService;
 import com.ideality.coreflow.common.response.APIResponse;
@@ -24,10 +24,10 @@ public class CommentQueryController {
     private final CommentQueryService commentQueryService;
 
     @GetMapping("/task/{taskId}")
-    public ResponseEntity<APIResponse<List<ResponseCommentsDTO>>>
+    public ResponseEntity<APIResponse<List<SelectCommentDTO>>>
     getComments(@PathVariable Long taskId) {
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
-        List<ResponseCommentsDTO> resComment = commentQueryFacadeService.selectComments(taskId, userId);
+        List<SelectCommentDTO> resComment = commentQueryFacadeService.selectComments(taskId, userId);
         return ResponseEntity.ok(APIResponse.success(resComment, "댓글 목록 조회에 성공하였습니다."));
     }
 
@@ -37,5 +37,13 @@ public class CommentQueryController {
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
         ResponseCommentForModifyDTO resDTO = commentQueryService.selectComment(commentId, userId);
         return ResponseEntity.ok(APIResponse.success(resDTO, "댓글 내용 조회에 성공하였습니다."));
+    }
+
+    @GetMapping("/task/{taskId}/notice")
+    public ResponseEntity<APIResponse<List<SelectCommentDTO>>>
+    getNotices(@PathVariable Long taskId) {
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        List<SelectCommentDTO> resComment = commentQueryFacadeService.selectNotices(taskId, userId);
+        return ResponseEntity.ok(APIResponse.success(resComment, "댓글 목록 조회에 성공하였습니다."));
     }
 }

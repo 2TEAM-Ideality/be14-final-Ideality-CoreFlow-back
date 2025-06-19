@@ -9,6 +9,11 @@ import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.ideality.coreflow.project.query.dto.TaskPreviewDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,5 +44,21 @@ public class WorkServiceImpl implements WorkService {
         work.setPassedRate(passedRate);
         workRepository.saveAndFlush(work);
         return work.getPassedRate();
+    }
+
+    @Override
+    public Map<Long, List<TaskPreviewDTO>> findByProjectIdIn(List<Long> projectIds) {
+        List<Work> tasks = workRepository.findByProjectIdIn(projectIds);
+        log.info("태스크 목록:{}",tasks.toString());
+
+        return tasks.stream()
+                .filter(task -> task.getParentTaskId() == null)
+                .collect(Collectors.groupingBy(
+                        Work::getProjectId,
+                        Collectors.mapping(
+                                t -> new TaskPreviewDTO(t.getId(), t.getName()),
+                                Collectors.toList()
+                        )
+                ));
     }
 }

@@ -243,7 +243,9 @@ CREATE TABLE comment (
     content VARCHAR(255) NOT NULL,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     is_notice BOOLEAN NOT NULL DEFAULT FALSE,
+    is_modify BOOLEAN NOT NULL DEFAULT FALSE,
     type VARCHAR(255) NOT NULL DEFAULT 'COMMENT',
+    created_at DATETIME NOT NULL,
     work_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
     parent_comment_id BIGINT,
@@ -314,6 +316,7 @@ CREATE TABLE attachment (
     uploader_id BIGINT NOT NULL,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     deleted_at DATETIME DEFAULT NULL,
+    task_id BIGINT NULL,   -- 관련 태스크 분리 위함
     CONSTRAINT FOREIGN KEY (uploader_id) REFERENCES user(id),
     CHECK (target_type IN ('APPROVAL', 'COMMENT', 'PROJECT', 'TEMPLATE'))
 );

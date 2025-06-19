@@ -17,7 +17,8 @@ INSERT INTO schedule (
              1,
              NULL,
              FALSE,
-             'PERSONAL'
+             'PERSONAL',
+             NULL
          );
 
 

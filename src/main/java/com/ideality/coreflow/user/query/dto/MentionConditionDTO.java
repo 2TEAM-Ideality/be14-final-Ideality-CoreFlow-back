@@ -9,8 +9,6 @@ import lombok.*;
 @ToString
 @EqualsAndHashCode
 public class MentionConditionDTO {
-
     private String deptName;
-    private String jobRank;
     private String name;
 }

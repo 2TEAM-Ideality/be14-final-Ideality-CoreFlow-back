@@ -1,10 +1,13 @@
 package com.ideality.coreflow.project.command.application.controller;
 
 import com.ideality.coreflow.common.response.APIResponse;
+import com.ideality.coreflow.project.command.application.dto.DelayInfoDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +17,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/task")
 @RequiredArgsConstructor
+@Slf4j
 public class TaskController {
     private final ProjectFacadeService projectFacadeService;
     private final TaskService taskService;
@@ -21,7 +25,7 @@ public class TaskController {
     @PostMapping("")
     public ResponseEntity<APIResponse<Map<String, Long>>> createTaskWithFacade(
             @RequestBody RequestTaskDTO requestTaskDTO) {
-
+        log.info("태스크 생성 요청 들어옴");
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
         Long taskId = projectFacadeService.createTask(requestTaskDTO, userId);
         return ResponseEntity.ok(
@@ -80,11 +84,11 @@ public class TaskController {
     }
 
     @PatchMapping("{taskId}/delay")
-    public ResponseEntity<APIResponse<Map<String, Long>>> delayTaskPropagate(@PathVariable Long taskId, @RequestParam Integer delayDays) {
-        Integer countDelayedTasks = projectFacadeService.delayAndPropagate(taskId, delayDays);
+    public ResponseEntity<APIResponse<?>> delayTaskPropagate(@PathVariable Long taskId, @RequestParam Integer delayDays) {
+        DelayInfoDTO response = projectFacadeService.delayAndPropagate(taskId, delayDays);
         return ResponseEntity.ok(
-                APIResponse.success(Map.of("countDelayedTasks", Long.valueOf(countDelayedTasks)),
-                        taskId + "번 태스크를 " + delayDays + "일 지연시킨 결과 " + countDelayedTasks + "개의 태스크가 지연되었습니다.")
+                APIResponse.success(response,
+                        taskId + "번 태스크를 " + delayDays + "일 지연시킨 결과 " + response.getTaskCountByDelay() + "개의 태스크가 지연되었습니다.")
         );
     }
 }

@@ -22,6 +22,32 @@
         <result property="roleId" column="role_id"/>
     </resultMap>
 
+    <resultMap id="ParticipantByProjectIds" type="com.ideality.coreflow.project.query.dto.ParticipantUserDTO">
+        <id property="userId" column="USER_ID" />
+        <result property="name" column="NAME" />
+        <result property="projectId" column="PROJECT_ID" />
+        <result property="deptName" column="DEPT_NAME" />
+        <result property="jobRankName" column="JOB_RANK_NAME" />
+        <result property="jobRoleName" column="JOB_ROLE_NAME" />
+    </resultMap>
+
+    <select id="selectAllUserByProjectIds" resultMap="ParticipantByProjectIds">
+        SELECT
+               u.id AS USER_ID
+             , u.name AS NAME
+             , p.target_id AS PROJECT_ID
+             , u.dept_name AS DEPT_NAME
+             , u.job_rank_name AS JOB_RANK_NAME
+             , u.job_role_name AS JOB_ROLE_NAME
+          FROM PARTICIPANT p
+          LEFT JOIN USER u ON p.user_id = u.id
+         WHERE p.target_type = 'PROJECT'
+           AND p.target_id IN
+               <foreach collection="projectIds" item="id" open="(" separator="," close=")">
+                   #{id}
+               </foreach>
+    </select>
+
     <select id="selectDirectorByProjectId" resultType="_long">
         SELECT user_id
           FROM participant
@@ -63,6 +89,21 @@
         JOIN participant p ON r.next_work_id = p.target_id
         WHERE r.prev_work_id = #{taskId}
         AND p.target_type = 'TASK'
+    </select>
+
+    <!-- 특정 프로젝트에 참여하는 모든 회원 정보 가져오기 -->
+    <select id="selectProjectParticipantList" parameterType="long" resultType="com.ideality.coreflow.project.query.dto.ProjectParticipantDTO">
+        SELECT
+            p.target_id AS projectId,
+            u.id AS userId,
+            u.name AS userName,
+            u.dept_name AS deptName,
+            u.job_rank_name AS jobRankName,
+            u.job_role_name AS jobRoleName
+        FROM participant p
+          JOIN user u ON p.user_id = u.id
+         WHERE p.target_type = 'PROJECT'
+          AND p.target_id = #{projectId}
     </select>
 
     <select id="isTeamLeader" parameterType="map" resultType="boolean">

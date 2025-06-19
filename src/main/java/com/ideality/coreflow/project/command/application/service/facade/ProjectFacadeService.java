@@ -1,23 +1,29 @@
 package com.ideality.coreflow.project.command.application.service.facade;
 
+import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalType;
+import com.ideality.coreflow.approval.query.dto.ProjectApprovalDTO;
+import com.ideality.coreflow.approval.query.service.ApprovalQueryService;
+import com.ideality.coreflow.attachment.query.dto.ReportAttachmentDTO;
+import com.ideality.coreflow.attachment.query.service.AttachmentQueryService;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.notification.command.application.service.NotificationRecipientsService;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
+import com.ideality.coreflow.org.query.service.DeptQueryService;
 import com.ideality.coreflow.project.command.application.dto.*;
-import com.ideality.coreflow.common.exception.BaseException;
-import com.ideality.coreflow.common.exception.ErrorCode;
-import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
-import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
-import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
-import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
+import com.ideality.coreflow.project.query.dto.CompletedProjectDTO;
+import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
+import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
+import com.ideality.coreflow.project.query.dto.ProjectOTD;
+import com.ideality.coreflow.project.query.dto.ProjectSummaryDTO;
 import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
 import com.ideality.coreflow.org.query.service.DeptQueryService;
 import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
+import com.ideality.coreflow.project.query.dto.ProjectParticipantDTO;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import com.ideality.coreflow.project.query.service.ProjectQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
@@ -32,6 +38,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
+
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.javassist.NotFoundException;
@@ -48,6 +56,7 @@ import java.util.stream.Collectors;
 public class ProjectFacadeService {
 
     private final ProjectService projectService;
+    private final ProjectQueryService projectQueryService;
     private final TaskService taskService;
     private final RelationService relationService;
     private final WorkDeptService workDeptService;
@@ -57,13 +66,16 @@ public class ProjectFacadeService {
     private final NotificationRecipientsService notificationRecipientsService;
 
     private final DeptQueryService deptQueryService;
+    private final PdfService pdfService;
+
     private final UserQueryService userQueryService;
     private final ParticipantQueryService participantQueryService;
     private final DetailService detailService;
     private final TaskQueryService taskQueryService;
+    private final AttachmentQueryService attachmentQueryService;
+    private final ApprovalQueryService approvalQueryService;
     private final WorkService workService;
     private final WorkQueryService workQueryService;
-    private final ProjectQueryService projectQueryService;
 
 
     @Transactional
@@ -483,8 +495,49 @@ public class ProjectFacadeService {
         Long notificationId = notificationService.createInviteProject(projectId, content);
         notificationRecipientsService.createRecipients(participantUser, notificationId);
     }
+    
+    // 추후 퍼사드 의의에 맞게 리팩토링 필요
     @Transactional
-    public Integer delayAndPropagate(Long taskId, Integer delayDays) {
-        return taskService.delayAndPropagate(taskId, delayDays);
+    public DelayInfoDTO delayAndPropagate(Long taskId, Integer delayDays) {
+        return taskService.delayAndPropagate(taskId, delayDays, false);
+    }
+
+
+    // 프로젝트 분석 리포트 다운로드
+    @Transactional
+    public void downloadReport(Long projectId, HttpServletResponse response) {
+        if (!projectService.isCompleted(projectId)) {
+            throw new BaseException(ErrorCode.PROJECT_NOT_COMPLETED);
+        }
+        // 설명. 데이터 준비
+        // 프로젝트 기본 정보
+        ProjectDetailResponseDTO projectDetail = projectQueryService.getProjectDetail(projectId);
+        // 참여자 정보 다 가져오기
+        List<ProjectParticipantDTO> projectParticipantList = participantQueryService.getProjectParticipantList(projectId);
+
+        // 공정 내역 - 태스트 조회
+        List<CompletedTaskDTO> completedTaskList = taskQueryService.selectCompletedTasks(projectId);
+
+        // 지연 사유서 내역
+        List<ProjectApprovalDTO> delayList = approvalQueryService.selectProjectApprovalByProjectId(projectId, ApprovalType.DELAY);
+
+        // 전체 프로젝트 정보 가져오기
+        // 완료 상태인 프로젝트 전체 목록 가져오기
+        List<CompletedProjectDTO> completedProjectList = projectQueryService.selectCompletedProjects();
+        // 프로젝트별 태스크 리스트 가져오기
+
+        // 각 프로젝트의 OTD 계산하기
+        List<ProjectOTD> projectOTDList = projectService.calculateProjectOTD(completedProjectList);
+        for(ProjectOTD projectOTD : projectOTDList) {
+            System.out.println(projectOTD.getProjectName() + " " + projectOTD.getOtdRate());
+        }
+
+        // 산출물 목록
+        List<ReportAttachmentDTO> attachmentList = attachmentQueryService.getAttachmentsByProjectId(projectId);
+
+        // PDF 생성
+        pdfService.createReportPdf(response, projectDetail, projectParticipantList, completedTaskList, delayList, projectOTDList, attachmentList);
+
+
     }
 }

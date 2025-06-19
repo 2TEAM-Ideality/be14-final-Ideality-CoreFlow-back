@@ -5,13 +5,20 @@ import com.ideality.coreflow.project.command.application.dto.RequestInviteUserDT
 import com.ideality.coreflow.project.query.dto.DepartmentLeaderDTO;
 import com.ideality.coreflow.project.query.dto.ParticipantDepartmentDTO;
 import com.ideality.coreflow.project.query.dto.ResponseParticipantDTO;
+import com.ideality.coreflow.project.query.dto.ResponseParticipantUser;
+import com.ideality.coreflow.user.query.dto.UserNameIdDto;
 
 import java.util.List;
+import java.util.Map;
+
+import com.ideality.coreflow.project.query.dto.ProjectParticipantDTO;
 
 public interface ParticipantQueryService {
     Long selectDirectorByProjectId(Long projectId);
 
     boolean isProjectDirector(Long projectId, Long userId);
+
+	List<ProjectParticipantDTO> getProjectParticipantList(Long projectId);
 
     void findTeamLedaer(Long projectId, List<RequestInviteUserDTO> reqLeaderDTO);
 
@@ -30,6 +37,8 @@ public interface ParticipantQueryService {
     List<DepartmentLeaderDTO> selectTeamLeaderByDepartment(Long projectId);
 
     List<ResponseParticipantDTO> selectParticipantsByDeptName(Long projectId, String deptName);
+
+    Map<Long, List<ResponseParticipantUser>> findByParticipantsIn(List<Long> projectIds);
 
 
 }

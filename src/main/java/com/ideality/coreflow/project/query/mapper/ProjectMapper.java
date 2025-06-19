@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.query.mapper;
 
+import com.ideality.coreflow.project.query.dto.CompletedProjectDTO;
 import com.ideality.coreflow.project.query.dto.NodeDTO;
 import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
 import com.ideality.coreflow.project.query.dto.PipelineResponseDTO;
@@ -34,5 +35,9 @@ public interface ProjectMapper {
 
     List<WorkDeptDTO> findDeptsByWorkIds(@Param("workIds") List<Long> workIds);
 
+    List<CompletedProjectDTO> selectCompletedProjects();
+
     String selectProjectNameByProjectId(Long projectId);
+
+	List<ProjectSummaryDTO> selectProjectByDeptId(Long deptId);
 }

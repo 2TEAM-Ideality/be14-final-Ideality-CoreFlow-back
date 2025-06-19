@@ -1,7 +1,11 @@
 package com.ideality.coreflow.approval.query.controller;
 
+import java.util.List;
+
+import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalType;
+import com.ideality.coreflow.approval.query.dto.ApprovalDetailsDTO;
+import com.ideality.coreflow.approval.query.dto.ProjectApprovalDTO;
 import com.ideality.coreflow.approval.query.service.ApprovalQueryFacadeService;
-import com.ideality.coreflow.approval.query.service.ApprovalQueryService;
 import com.ideality.coreflow.common.response.APIResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -50,4 +54,17 @@ public class ApprovalQueryController {
     public ResponseEntity<APIResponse<?>> searchApprovalDetailsById(@PathVariable long approvalId) {
         return ResponseEntity.ok(APIResponse.success(approvalQueryFacadeService.searchApprovalDetailsById(approvalId, Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName())), "결재 상세 내역 조회"));
     }
+
+    // 지연 사유 리스트 조회
+    @GetMapping("/delay-reason")
+    public ResponseEntity<APIResponse<?>> searchDelayReason() {
+        return ResponseEntity.ok(APIResponse.success(approvalQueryFacadeService.searchDelayReason(), "결재 타입 리스트 조회"));
+    }
+
+    // 프로젝트 지연 리스트 조회
+    @GetMapping("/project/{projectId}/delay/list")
+    public ResponseEntity<APIResponse<List<ProjectApprovalDTO>>> searchDelayList(@PathVariable long projectId) {
+        return ResponseEntity.ok(APIResponse.success(approvalQueryFacadeService.searchDelayListByProjectId(projectId), "프로젝트 지연 사유서 목록 조회 성공"));
+    }
+
 }

@@ -37,6 +37,13 @@ public class ApprovalController {
         return ResponseEntity.ok(APIResponse.success(request.getReason(), "반려 완료"));
     }
 
+    // 결재 취소
+    @PatchMapping("/cancelled/{approvalId}")
+    public ResponseEntity<APIResponse<?>> cancelledApproval(@PathVariable Long approvalId) {
+        approvalFacadeService.cancelled(approvalId, Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName()));
+        return ResponseEntity.ok(APIResponse.success(null,"취소 완료"));
+    }
+
     // 결재 요청
     @PostMapping(value="/request", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<APIResponse<?>> requestApproval(@ModelAttribute RequestApproval request) {
