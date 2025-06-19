@@ -1,11 +1,13 @@
 package com.ideality.coreflow.project.query.service;
 
 
+import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.query.dto.DeptWorkDTO;
 import com.ideality.coreflow.project.query.dto.DetailDTO;
 import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
 import com.ideality.coreflow.project.query.dto.WorkDetailDTO;
 
+import java.util.Date;
 import java.util.List;
 
 public interface WorkQueryService {
@@ -27,4 +29,6 @@ public interface WorkQueryService {
     List<TaskProgressDTO> getDetailProgressByTaskId(Long taskId);
 
     List<Long> selectWorkIdsByParentTaskId(Long parentTaskId);
+
+    List<Work> getSubTasksByParentTaskId(Long id);
 }

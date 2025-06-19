@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.query.service.impl;
 
+import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.query.dto.DeptWorkDTO;
 import com.ideality.coreflow.project.query.dto.DetailDTO;
 import com.ideality.coreflow.project.query.dto.ParticipantDTO;
@@ -7,6 +8,7 @@ import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
 import com.ideality.coreflow.project.query.dto.WorkDetailDTO;
 import com.ideality.coreflow.project.query.mapper.WorkMapper;
 import com.ideality.coreflow.project.query.service.WorkQueryService;
+import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -97,5 +99,10 @@ public class WorkQueryServiceImpl implements WorkQueryService {
     @Override
     public List<Long> selectWorkIdsByParentTaskId(Long parentTaskId) {
         return workMapper.selectWorkIdsByParentTaskId(parentTaskId);
+    }
+
+    @Override
+    public List<Work> getSubTasksByParentTaskId(Long parentTaskId) {
+        return workMapper.selectTaskByParentTaskId(parentTaskId);
     }
 }
