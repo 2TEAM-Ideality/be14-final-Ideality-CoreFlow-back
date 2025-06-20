@@ -80,7 +80,12 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
 
     @Override
     public List<UserInfoDTO> getAllProjectParticipants(Long projectId) {
-        return participantMapper.selectAllUserByProjectId(projectId);
+        List<UserInfoDTO> result = participantMapper.selectAllUserByProjectId(projectId);
+        return result.stream()
+                .map(participant -> participant.toBuilder()
+                        .roleId(participant.getRoleId().equals("1") ? "디렉터" :
+                                participant.getRoleId().equals("2")? "팀장" : "팀원").build())
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -10,12 +10,12 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 public class UserInfoDTO {
     private Long userId;
     private String name;
     private String deptName;
     private String jobRoleName;
     private String profileImage;
-    private Long roleId;
+    private String roleId;
 }

@@ -128,7 +128,7 @@ public class ProjectQueryController {
     public ResponseEntity<APIResponse<Map<String, Object>>> getProjectParticipants(@PathVariable Long projectId) {
         System.out.println("요청은 들어옴");
         System.out.println("projectId = " + projectId);
-        List<ParticipantTeamDTO> result = projectQueryFacadeService.getParticipants(projectId);
+        List<UserInfoDTO> result = projectQueryFacadeService.getParticipants(projectId);
         return ResponseEntity.ok(
                 APIResponse.success(Map.of("participants", result),
                         "프로젝트 참여자 목록 조회 성공")

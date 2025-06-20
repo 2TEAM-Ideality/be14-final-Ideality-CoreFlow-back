@@ -59,36 +59,31 @@ public class ProjectQueryFacadeService {
     private final TaskService taskService;
     private final WorkService workCommandService;
 
-    public List<ParticipantTeamDTO> getParticipants(Long projectId) {
+    public List<UserInfoDTO> getParticipants(Long projectId) {
         // 참여중인 모든 인원 호출
         List<UserInfoDTO> allParticipants = participantQueryService.getAllProjectParticipants(projectId);
         System.out.println("allParticipants = " + allParticipants);
-        // 부서 목록 추출
-        Set<String> deptList = participantQueryService.extractDeptNamesFromParticipants(allParticipants);
-        // 데이터 조립
-        List<ParticipantTeamDTO> result = new ArrayList<>();
-        for(String dept: deptList) {
-            System.out.println("dept = " + dept);
-            ParticipantTeamDTO participantTeamDTO = ParticipantTeamDTO.builder()
-                    .deptName(dept)
-                    .teamLeader(allParticipants.stream()
-                            .filter(participant->participant.getDeptName().equals(dept))
-                            .findFirst()
-                            .orElse(null))
-                    .teamMembers(allParticipants.stream()
-                            .filter(participant->participant.getDeptName().equals(dept))
-                            .toList())
-                    .build();
-            System.out.println("participantTeamDTO = " + participantTeamDTO);
-            result.add(participantTeamDTO);
-        }
-//        // 부서별로 인원 할당
-//        Map<String, List<UserInfoDTO>> deptParticipants = allParticipants.stream()
-//                .collect(Collectors.groupingBy(UserInfoDTO::getDeptName));
-//        System.out.println("deptParticipants = " + deptParticipants);
-        // 데이터 조립
-
-        return result;
+        return allParticipants;
+//        // 부서 목록 추출
+//        Set<String> deptList = participantQueryService.extractDeptNamesFromParticipants(allParticipants);
+//        // 데이터 조립
+//        List<ParticipantTeamDTO> result = new ArrayList<>();
+//        for(String dept: deptList) {
+//            System.out.println("dept = " + dept);
+//            ParticipantTeamDTO participantTeamDTO = ParticipantTeamDTO.builder()
+//                    .deptName(dept)
+//                    .teamLeader(allParticipants.stream()
+//                            .filter(participant->participant.getDeptName().equals(dept))
+//                            .findFirst()
+//                            .orElse(null))
+//                    .teamMembers(allParticipants.stream()
+//                            .filter(participant->participant.getDeptName().equals(dept))
+//                            .toList())
+//                    .build();
+//            System.out.println("participantTeamDTO = " + participantTeamDTO);
+//            result.add(participantTeamDTO);
+//        }
+//        return result;
     }
 
     public List<GanttTaskResponse> getGanttChart(Long projectId) {
