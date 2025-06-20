@@ -84,8 +84,8 @@
     </select>
 
     <resultMap id="userMentionMap" type="com.ideality.coreflow.user.query.dto.UserMentionDTO">
+        <id property="id" column="id"/>
         <result property="name" column="name"/>
-        <result property="jobRank" column="job_rank_name"/>
         <result property="deptName" column="dept_name"/>
     </resultMap>
 
@@ -135,9 +135,8 @@
     </select>
 
     <select id="selectMentionUserByProjectId" parameterType="map" resultMap="userMentionMap">
-        SELECT
-        a.name
-        , a.job_rank_name
+        SELECT a.id
+        , a.name
         , a.dept_name
         FROM user a
         JOIN participant b ON a.id = b.user_id
@@ -147,8 +146,8 @@
 
     <select id="selectMentionUserByMentionInfo" parameterType="map" resultMap="userMentionMap">
         SELECT
-               a.name
-             , a.job_rank_name
+               a.id
+             , a.name
              , a.dept_name
           FROM user a
           JOIN participant b ON a.id = b.user_id
@@ -164,8 +163,8 @@
 
     <select id="selectMentionUserByKeyword" parameterType="map" resultMap="userMentionMap">
         SELECT
+        a.id,
         a.name,
-        a.job_rank_name,
         a.dept_name
         FROM user a
         JOIN participant b ON a.id = b.user_id
@@ -218,5 +217,13 @@
         WHERE b.target_type = 'PROJECT'
         AND b.target_id = #{projectId}
         AND a.dept_name LIKE CONCAT('%', #{mentionTarget}, '%')
+    </select>
+
+    <select id="selectDeptNamesByProjectId" parameterType="map" resultType="string">
+        SELECT DISTINCT a.dept_name
+        FROM user a
+        JOIN participant b ON a.id = b.user_id
+        WHERE b.target_type = 'PROJECT'
+        AND b.target_id = #{projectId}
     </select>
 </mapper>

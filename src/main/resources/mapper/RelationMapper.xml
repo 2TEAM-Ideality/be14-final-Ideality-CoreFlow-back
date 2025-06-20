@@ -12,7 +12,7 @@
 
     <resultMap id="nextRelationMap" type="com.ideality.coreflow.project.query.dto.NextTaskDTO">
         <result property="relationId" column="id"/>
-        <result property="nextWorkId" column="prev_work_id"/>
+        <result property="nextWorkId" column="next_work_id"/>
         <result property="nextWorkName" column="name"/>
     </resultMap>
 
@@ -26,7 +26,7 @@
          WHERE a.next_work_id = #{taskId}
     </select>
 
-    <select id="selectNextRelation" parameterType="map" resultMap="prevRelationMap">
+    <select id="selectNextRelation" parameterType="map" resultMap="nextRelationMap">
         SELECT
                a.id
              , a.next_work_id
