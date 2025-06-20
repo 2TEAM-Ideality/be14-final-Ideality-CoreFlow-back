@@ -6,6 +6,7 @@ import com.ideality.coreflow.project.query.dto.DepartmentLeaderDTO;
 import com.ideality.coreflow.project.query.dto.ParticipantDepartmentDTO;
 import com.ideality.coreflow.project.query.dto.ResponseParticipantDTO;
 import com.ideality.coreflow.project.query.dto.ResponseParticipantUser;
+import com.ideality.coreflow.project.query.dto.UserInfoDTO;
 import com.ideality.coreflow.user.query.dto.UserNameIdDto;
 
 import java.util.List;
@@ -40,5 +41,6 @@ public interface ParticipantQueryService {
 
     Map<Long, List<ResponseParticipantUser>> findByParticipantsIn(List<Long> projectIds);
 
-
+    //  프로젝트 id로 해당 프로젝트에 참여하는 모든 인원들 정보 가져옴(유저아이디, 유저이름, 부서이름, 직책, 프로필사진)
+    List<UserInfoDTO> getAllProjectParticipants(Long projectId);
 }

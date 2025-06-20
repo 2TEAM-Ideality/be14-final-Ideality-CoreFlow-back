@@ -120,7 +120,13 @@ public class ProjectQueryController {
         responseData.put("projectList", projectList);
 
         return ResponseEntity.ok(APIResponse.success(responseData, "부서별 참여 프로젝트 목록 조회 성공"));
+    }
 
+    // 프로젝트 참여인원 조회
+    @GetMapping("/{projectId}/participants")
+    public ResponseEntity<APIResponse<Map<String, Object>>> getProjectParticipants(@PathVariable Long projectId) {
+        projectQueryFacadeService.getParticipants(projectId);
+        return null;
     }
 
 }

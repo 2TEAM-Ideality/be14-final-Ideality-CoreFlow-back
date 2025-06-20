@@ -28,6 +28,8 @@ import com.ideality.coreflow.user.query.dto.UserNameIdDto;
 import com.ideality.coreflow.user.query.dto.AllUserDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 
+import java.util.HashSet;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -53,6 +55,17 @@ public class ProjectQueryFacadeService {
     private final ParticipantQueryService participantQueryService;
     private final TaskService taskService;
     private final WorkService workCommandService;
+
+    public List<ParticipantTeamDTO> getParticipants(Long projectId) {
+        // 참여중인 모든 인원 호출
+        List<UserInfoDTO> allParticipants = participantQueryService.getAllProjectParticipants(projectId);
+        // 부서 목록 추출
+        Set<String> deptList = new HashSet<>();
+        // 부서별로 인원 할당
+        // 데이터 조립
+
+        return null;
+    }
 
     public List<GanttTaskResponse> getGanttChart(Long projectId) {
         return taskQueryService.getGanttTasksByProjectId(projectId);
