@@ -68,6 +68,11 @@ public class ProjectQueryFacadeService {
 
     public ResponseTaskInfoDTO selectTaskInfo(Long taskId, Long userId) {
 
+        /* 설명. 이전 태스크랑 이후 태스크에 대한 것은 배열로 정보를 가져와야 하므로, SelectTask
+         *  조회해오고 부서 정보는 부서 정보, 이전 태스크 이후 태스크 정보는 각각에서 조합해와서 조합
+        * */
+
+        /* 설명. 프로젝트에 참여중인 사람만이 이 정보를 볼 수 있음(예외처리) */
         Long projectId = taskQueryService.selectProjectIdByTaskId(taskId);
 
         boolean isParticipant = participantQueryService.isParticipant(userId, projectId);
@@ -81,9 +86,11 @@ public class ProjectQueryFacadeService {
 
         log.info("selectTaskInfo: {}", selectTask);
 
+        /* 설명. 관계 조회 */
         relationQueryService.selectPrevRelation(taskId, selectTask);
         relationQueryService.selectNextRelation(taskId, selectTask);
 
+        /* 설명. 부서 이름 조회 */
         workDeptQueryService.selectDeptNamesByTask(taskId, selectTask);
         return selectTask;
     }

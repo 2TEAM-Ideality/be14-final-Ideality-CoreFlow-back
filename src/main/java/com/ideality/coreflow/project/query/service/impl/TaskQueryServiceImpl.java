@@ -40,6 +40,7 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     private final ParticipantMapper participantMapper;
     private final NotificationService notificationService;
 
+    /* 설명. 태스크 상세 정보 가져오는 DTO */
     @Override
     public ResponseTaskInfoDTO selectTaskInfo(Long taskId) {
         SelectTaskDTO dto = taskMapper.selectTaskInfo(taskId);
