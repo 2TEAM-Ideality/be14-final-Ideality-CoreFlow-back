@@ -4,6 +4,7 @@ import com.ideality.coreflow.auth.command.domain.aggregate.LoginType;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
+import com.ideality.coreflow.tenant.command.application.dto.ResponseInitialAdmin;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.application.service.UserService;
 import com.ideality.coreflow.user.command.domain.aggregate.OrgType;
@@ -11,8 +12,10 @@ import com.ideality.coreflow.user.command.domain.aggregate.User;
 import com.ideality.coreflow.user.command.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -21,6 +24,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserInfoDTO findLoginInfoByIdentifier(String identifier, LoginType loginType) {
@@ -175,5 +179,31 @@ public class UserServiceImpl implements UserService {
         for (Long userId : leaderUserIds) {
             userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
         }
+    }
+
+    @Override
+    public ResponseInitialAdmin createInitialAdmin(String schemaName) {
+
+        User user = User.builder()
+                .employeeNum("admin_"+schemaName)
+                .password(passwordEncoder.encode("000000"))
+                .name("admin")
+                .email("admin")
+                .birth(LocalDate.now())
+                .hireDate(LocalDate.now())
+                .isResign(false)
+                .deptName("admin")
+                .jobRankName("admin")
+                .jobRoleName("admin")
+                .build();
+
+        long userId = userRepository.save(user).getId();
+
+        return ResponseInitialAdmin.builder()
+                .id(userId)
+                .employeeNum(user.getEmployeeNum())
+                .password(user.getPassword())
+                .schemaName(schemaName)
+                .build();
     }
 }

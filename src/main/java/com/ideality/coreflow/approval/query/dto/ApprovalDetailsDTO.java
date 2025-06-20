@@ -13,6 +13,7 @@ public class ApprovalDetailsDTO {
     long id;
     long requesterId;
     String requesterName;
+    String requesterDeptName;
     String title;
     ApprovalType type;
     ApprovalStatus status;

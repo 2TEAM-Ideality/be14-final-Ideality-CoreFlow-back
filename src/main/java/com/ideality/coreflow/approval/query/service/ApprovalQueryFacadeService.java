@@ -65,6 +65,7 @@ public class ApprovalQueryFacadeService {
                                                 .id(approvalDetails.getId())
                                                 .requesterId(approvalDetails.getRequesterId())
                                                 .requesterName(approvalDetails.getRequesterName())
+                                                .requesterDeptName(approvalDetails.getRequesterDeptName())
                                                 .title(approvalDetails.getTitle())
                                                 .type(approvalDetails.getType())
                                                 .status(approvalDetails.getStatus())

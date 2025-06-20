@@ -11,6 +11,7 @@ import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.infra.redis.util.RedisUtil;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.security.custom.CachedBodyHttpServletRequest;
+import com.ideality.coreflow.tenant.command.application.dto.RequestCreateTenant;
 import com.ideality.coreflow.tenant.command.application.service.TenantService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -111,13 +112,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             log.info("jwt 필터에서 테넌트 설정");
             // 테넌트 설정
             TenantContext.setTenant(companySchema);
+            if (request.getRequestURI().startsWith("/api/tenant")) {
+                if (!"master".equals(companySchema)) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    return;
+                }
+            }
             log.info("테넌트 설정 완료: {}", TenantContext.getTenant());
 
             // 인증 객체 생성
-            List<GrantedAuthority> authorities = jwtProvider.getRoles(token)
-                    .stream()
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
+            List<GrantedAuthority> authorities;
+            if (!"master".equals(companySchema)) {
+                authorities = jwtProvider.getRoles(token)
+                        .stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
+            } else {
+                authorities = null;
+            }
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
