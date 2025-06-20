@@ -28,7 +28,10 @@ import com.ideality.coreflow.user.query.dto.UserNameIdDto;
 import com.ideality.coreflow.user.query.dto.AllUserDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 
+import com.sun.jna.platform.win32.Netapi32Util.UserInfo;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,12 +62,33 @@ public class ProjectQueryFacadeService {
     public List<ParticipantTeamDTO> getParticipants(Long projectId) {
         // 참여중인 모든 인원 호출
         List<UserInfoDTO> allParticipants = participantQueryService.getAllProjectParticipants(projectId);
+        System.out.println("allParticipants = " + allParticipants);
         // 부서 목록 추출
-        Set<String> deptList = new HashSet<>();
-        // 부서별로 인원 할당
+        Set<String> deptList = participantQueryService.extractDeptNamesFromParticipants(allParticipants);
+        // 데이터 조립
+        List<ParticipantTeamDTO> result = new ArrayList<>();
+        for(String dept: deptList) {
+            System.out.println("dept = " + dept);
+            ParticipantTeamDTO participantTeamDTO = ParticipantTeamDTO.builder()
+                    .deptName(dept)
+                    .teamLeader(allParticipants.stream()
+                            .filter(participant->participant.getDeptName().equals(dept))
+                            .findFirst()
+                            .orElse(null))
+                    .teamMembers(allParticipants.stream()
+                            .filter(participant->participant.getDeptName().equals(dept))
+                            .toList())
+                    .build();
+            System.out.println("participantTeamDTO = " + participantTeamDTO);
+            result.add(participantTeamDTO);
+        }
+//        // 부서별로 인원 할당
+//        Map<String, List<UserInfoDTO>> deptParticipants = allParticipants.stream()
+//                .collect(Collectors.groupingBy(UserInfoDTO::getDeptName));
+//        System.out.println("deptParticipants = " + deptParticipants);
         // 데이터 조립
 
-        return null;
+        return result;
     }
 
     public List<GanttTaskResponse> getGanttChart(Long projectId) {

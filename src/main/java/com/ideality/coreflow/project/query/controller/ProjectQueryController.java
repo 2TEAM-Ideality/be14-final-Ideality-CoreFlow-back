@@ -41,6 +41,7 @@ public class ProjectQueryController {
 
     @GetMapping("/{projectId}")
     public APIResponse<ProjectDetailResponseDTO> getProject(@PathVariable Long projectId) {
+        System.out.println("요청 들어옴: "+projectId);
         ProjectDetailResponseDTO project = projectQueryFacadeService.getProjectDetail(projectId);
         return APIResponse.success(project, projectId+"번 프로젝트: "+project.getName()+" 조회 완료");
     }
@@ -125,8 +126,13 @@ public class ProjectQueryController {
     // 프로젝트 참여인원 조회
     @GetMapping("/{projectId}/participants")
     public ResponseEntity<APIResponse<Map<String, Object>>> getProjectParticipants(@PathVariable Long projectId) {
-        projectQueryFacadeService.getParticipants(projectId);
-        return null;
+        System.out.println("요청은 들어옴");
+        System.out.println("projectId = " + projectId);
+        List<ParticipantTeamDTO> result = projectQueryFacadeService.getParticipants(projectId);
+        return ResponseEntity.ok(
+                APIResponse.success(Map.of("participants", result),
+                        "프로젝트 참여자 목록 조회 성공")
+        );
     }
 
 }
