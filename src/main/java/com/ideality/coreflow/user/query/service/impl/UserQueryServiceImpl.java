@@ -73,7 +73,7 @@ public class UserQueryServiceImpl implements UserQueryService {
 
 
     @Override
-    public List<String> selectMentionUserByMentionInfo(List<String> mentionParse, Long projectId) {
+    public List<UserMentionDTO> selectMentionUserByMentionInfo(List<String> mentionParse, Long projectId) {
         List<UserMentionDTO> resultSet;
 
         if (mentionParse == null || mentionParse.isEmpty()) {
@@ -94,12 +94,7 @@ public class UserQueryServiceImpl implements UserQueryService {
             resultSet = userMapper.selectMentionUserByMentionInfo(deptName, name, projectId);
         }
 
-        List<String> result = new ArrayList<>();
-        for (UserMentionDTO user : resultSet) {
-            result.add(user.getDeptName() + "_"  + user.getName());
-        }
-
-        return result;
+        return resultSet;
     }
 
     @Override
@@ -133,7 +128,12 @@ public class UserQueryServiceImpl implements UserQueryService {
 
     @Override
     public List<String> selectTeamByMentionInfo(List<String> mentionParse, Long projectId) {
-        String mentionTarget = mentionParse.get(0);
-        return userMapper.selectDeptNameByMentionInfo(mentionTarget, projectId);
+        if (mentionParse == null || mentionParse.isEmpty()) {
+            // 전체 참여자의 부서명 조회
+            return userMapper.selectDeptNamesByProjectId(projectId);
+        } else {
+            String mentionTarget = mentionParse.get(0); // 키워드 기반 검색
+            return userMapper.selectDeptNameByMentionInfo(mentionTarget, projectId);
+        }
     }
 }

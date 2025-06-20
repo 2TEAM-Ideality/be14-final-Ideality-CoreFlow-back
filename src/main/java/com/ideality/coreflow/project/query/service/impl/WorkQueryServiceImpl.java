@@ -1,5 +1,7 @@
 package com.ideality.coreflow.project.query.service.impl;
 
+import com.ideality.coreflow.project.query.dto.*;
+import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.query.dto.DeptWorkDTO;
 import com.ideality.coreflow.project.query.dto.DetailDTO;
 import com.ideality.coreflow.project.query.dto.ParticipantDTO;
@@ -80,7 +82,7 @@ public class WorkQueryServiceImpl implements WorkQueryService {
     }
 
     @Override
-    public List<String> getDetailList(Long projectId, Long taskId, String detailTarget) {
+    public List<DetailMentionDTO> getDetailList(Long projectId, Long taskId, String detailTarget) {
         return workMapper.selectDetailListByTarget(projectId, taskId, detailTarget);
     }
 
@@ -97,5 +99,10 @@ public class WorkQueryServiceImpl implements WorkQueryService {
     @Override
     public List<Long> selectWorkIdsByParentTaskId(Long parentTaskId) {
         return workMapper.selectWorkIdsByParentTaskId(parentTaskId);
+    }
+
+    @Override
+    public List<Work> getSubTasksByParentTaskId(Long parentTaskId) {
+        return workMapper.selectTaskByParentTaskId(parentTaskId);
     }
 }

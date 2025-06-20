@@ -28,5 +28,6 @@ public class NodeDTO {
     private Integer passedRate;
     private Integer delayDays;
     private String status;
+    private Boolean warning;
     private List<DeptDTO> deptList;
 }

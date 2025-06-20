@@ -8,8 +8,7 @@ import lombok.*;
 @Setter
 @ToString
 @EqualsAndHashCode
-public class ParticipantDepartmentDTO {
-    private Long deptId;
-    private String deptName;
-    private int participantCount;
+public class DetailMentionDTO {
+    private Long id;
+    private String name;
 }

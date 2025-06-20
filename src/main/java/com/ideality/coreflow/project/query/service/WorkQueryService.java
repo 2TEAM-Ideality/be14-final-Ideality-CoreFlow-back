@@ -1,6 +1,8 @@
 package com.ideality.coreflow.project.query.service;
 
 
+import com.ideality.coreflow.project.query.dto.*;
+import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.query.dto.DeptWorkDTO;
 import com.ideality.coreflow.project.query.dto.DetailDTO;
 import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
@@ -20,11 +22,13 @@ public interface WorkQueryService {
 
     List<DeptWorkDTO> selectWorksByDeptId(Long deptId);
 
-    List<String> getDetailList(Long projectId, Long taskId, String detailTarget);
+    List<DetailMentionDTO> getDetailList(Long projectId, Long taskId, String detailTarget);
 
     List<Long> selectWorkIdByName(List<String> details);
 
     List<TaskProgressDTO> getDetailProgressByTaskId(Long taskId);
 
     List<Long> selectWorkIdsByParentTaskId(Long parentTaskId);
+
+    List<Work> getSubTasksByParentTaskId(Long id);
 }
