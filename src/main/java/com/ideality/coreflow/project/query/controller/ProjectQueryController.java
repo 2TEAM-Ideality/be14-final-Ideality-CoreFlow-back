@@ -102,10 +102,9 @@ public class ProjectQueryController {
     }
 
     @GetMapping("/{projectId}/gantt")
-    public ResponseEntity<APIResponse<Map<String, Object>>> getGanttTasks(@PathVariable Long projectId) {
-        List<GanttTaskResponse> ganttTaskResponses = taskQueryService.getGanttTasksByProjectId(projectId);
+    public ResponseEntity<APIResponse<?>> getGanttTasks(@PathVariable Long projectId) {
         return ResponseEntity.ok(
-                APIResponse.success(Map.of("data", ganttTaskResponses),
+                APIResponse.success(projectQueryFacadeService.getGanttTasksByProjectId(projectId),
                         projectId + "번 프로젝트 간트차트 조회 완료")
         );
     }
@@ -123,4 +122,8 @@ public class ProjectQueryController {
 
     }
 
+    @GetMapping("/{projectId}/gantt/project-date")
+    public ResponseEntity<APIResponse<?>> getGanttProjectDate(@PathVariable Long projectId) {
+        return ResponseEntity.ok(APIResponse.success(projectQueryFacadeService.getGanttProjectDate(projectId), "프로젝트 기간 조회"));
+    }
 }

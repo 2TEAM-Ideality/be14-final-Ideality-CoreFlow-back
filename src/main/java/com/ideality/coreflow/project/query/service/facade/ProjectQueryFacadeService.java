@@ -31,6 +31,7 @@ import com.ideality.coreflow.user.query.service.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -179,5 +180,14 @@ public class ProjectQueryFacadeService {
         // TODO. 부서 이름으로 부서 아이디 조회
         Long deptId = deptQueryService.findDeptIdByName(deptName.getDeptName());
         return projectQueryService.selectProjectByDeptId(deptId);
+    }
+
+    @Transactional
+    public List<GanttTaskResponse> getGanttTasksByProjectId(Long projectId) {
+        return taskQueryService.getGanttTasksByProjectId(projectId);
+    }
+
+    public ProjectDateDTO getGanttProjectDate(Long projectId) {
+        return projectService.findProjectDateById(projectId);
     }
 }
