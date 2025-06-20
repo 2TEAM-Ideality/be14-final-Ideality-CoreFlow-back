@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.query.dto;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -7,15 +8,12 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Getter
-@ToString
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder(toBuilder = true)
-public class UserInfoDTO {
-    private Long userId;
-    private String name;
+@ToString
+public class ParticipantTeamDTO {
     private String deptName;
-    private String jobRoleName;
-    private String profileImage;
-    private String roleId;
+    private UserInfoDTO teamLeader;
+    private List<UserInfoDTO> teamMembers;
 }
