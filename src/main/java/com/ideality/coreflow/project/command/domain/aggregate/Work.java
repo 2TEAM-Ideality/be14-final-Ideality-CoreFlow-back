@@ -74,10 +74,6 @@ public class Work {
 	private Long projectId;
 
 	public void startTask() {
-		if (this.status == Status.PROGRESS) {
-			throw new BaseException(ErrorCode.INVALID_STATUS_PROGRESS);
-		}
-
 		this.status = Status.PROGRESS;
 		this.startReal = LocalDate.now();
 	}
@@ -92,9 +88,6 @@ public class Work {
 	}
 
 	public void softDeleteTask() {
-		if (this.status == Status.DELETED) {
-			throw new BaseException(ErrorCode.INVALID_STATUS_DELETED);
-		}
 		this.status = Status.DELETED;
 	}
 

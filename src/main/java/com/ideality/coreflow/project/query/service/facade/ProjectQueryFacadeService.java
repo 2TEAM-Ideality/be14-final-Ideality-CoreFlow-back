@@ -24,7 +24,6 @@ import com.ideality.coreflow.project.query.service.RelationQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.project.query.service.WorkDeptQueryService;
 import com.ideality.coreflow.project.query.service.WorkQueryService;
-import com.ideality.coreflow.user.query.dto.UserNameIdDto;
 import com.ideality.coreflow.user.query.dto.AllUserDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 
@@ -67,7 +66,16 @@ public class ProjectQueryFacadeService {
         return projectQueryService.selectProjectSummaries(userId);
     }
 
-    public ResponseTaskInfoDTO selectTaskInfo(Long taskId) {
+    public ResponseTaskInfoDTO selectTaskInfo(Long taskId, Long userId) {
+
+        Long projectId = taskQueryService.selectProjectIdByTaskId(taskId);
+
+        boolean isParticipant = participantQueryService.isParticipant(userId, projectId);
+
+        if (!isParticipant) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
+
         ResponseTaskInfoDTO selectTask =
                 taskQueryService.selectTaskInfo(taskId);
 
@@ -75,6 +83,8 @@ public class ProjectQueryFacadeService {
 
         relationQueryService.selectPrevRelation(taskId, selectTask);
         relationQueryService.selectNextRelation(taskId, selectTask);
+
+        workDeptQueryService.selectDeptNamesByTask(taskId, selectTask);
         return selectTask;
     }
 
@@ -136,8 +146,12 @@ public class ProjectQueryFacadeService {
             throw new BaseException(ErrorCode.ACCESS_DENIED);
         }
 
-        List<ParticipantDepartmentDTO> dto = participantQueryService.selectParticipantCountByDept(projectId);
-        return dto;
+        List<ParticipantDepartmentDTO> dtoList = participantQueryService.selectParticipantCountByDept(projectId);
+        for (ParticipantDepartmentDTO dto : dtoList) {
+            Long deptId = deptQueryService.findDeptIdByName(dto.getDeptName());
+            dto.setDeptId(deptId);
+        }
+        return dtoList;
     }
 
     public List<DepartmentLeaderDTO> getTeamLeaderByDepartment(Long projectId, Long userId) {
