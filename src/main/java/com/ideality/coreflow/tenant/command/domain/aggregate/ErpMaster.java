@@ -1,15 +1,12 @@
 package com.ideality.coreflow.tenant.command.domain.aggregate;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "erp_master")
 @Getter
-@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ErpMaster {

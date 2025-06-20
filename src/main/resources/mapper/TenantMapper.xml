@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ideality.coreflow.tenant.query.mapper.TenantMapper">
+    <resultMap id="tenantInfo" type="com.ideality.coreflow.tenant.query.dto.ResponseSchemaInfo">
+        <id property="id" column="ID"/>
+        <result property="companyCode" column="COMPANY_CODE"/>
+        <result property="companyName" column="COMPANY_NAME"/>
+        <result property="schemaName" column="SCHEMA_NAME"/>
+    </resultMap>
+
+    <select id="selectAllTenant" resultMap="tenantInfo">
+        SELECT
+               em.id AS ID
+             , em.company_code AS COMPANY_CODE
+             , em.company_name AS COMPANY_NAME
+             , em.company_schema AS SCHEMA_NAME
+          FROM erp_master em
+         ORDER BY ID DESC
+    </select>
+</mapper>

@@ -65,7 +65,7 @@ public class User {
         if (dto.getIsResign() != null) this.isResign = dto.getIsResign();
         if (dto.getResignDate() != null) {
             this.resignDate = dto.getResignDate();
-            this.isResign = false;
+            this.isResign = true;
         }
         if (dto.getProfileImage() != null) this.profileImage = dto.getProfileImage();
         if (dto.getDeptName() != null) this.deptName = dto.getDeptName();

@@ -42,6 +42,7 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/api/projects/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/notifications/stream")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/notifications/**")).authenticated()
+                        .requestMatchers(new AntPathRequestMatcher("/api/tenant/**")).authenticated()
                         .anyRequest().authenticated()
                 )
                 .cors(cors -> cors

@@ -191,4 +191,27 @@
          WHERE parent_task_id = #{taskId}
     </select>
 
+    <select id="selectTaskByParentTaskId" resultType="com.ideality.coreflow.project.command.domain.aggregate.Work">
+        SELECT
+               id
+             , name
+             , description
+             , created_at
+             , start_base
+             , end_base
+             , start_expect
+             , end_expect
+             , start_real
+             , end_real
+             , progress_rate
+             , passed_rate
+             , delay_days
+             , status
+             , slack_time
+             , parent_task_id
+             , project_id
+          FROM work
+         WHERE parent_task_id = #{parentTaskId}
+    </select>
+
 </mapper>
