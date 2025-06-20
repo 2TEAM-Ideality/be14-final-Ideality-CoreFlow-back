@@ -131,8 +131,9 @@
             AND wd.is_deleted = FALSE
     </select>
 
-    <select id="selectDetailListByTarget" parameterType="map" resultType="string">
-        SELECT name
+    <select id="selectDetailListByTarget" resultType="com.ideality.coreflow.project.query.dto.DetailMentionDTO">
+        SELECT id
+             , name
           FROM work
         WHERE project_id = #{projectId}
           AND parent_task_id = #{taskId}

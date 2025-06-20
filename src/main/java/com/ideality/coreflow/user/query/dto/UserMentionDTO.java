@@ -9,7 +9,7 @@ import lombok.*;
 @ToString
 @EqualsAndHashCode
 public class UserMentionDTO {
+    private Long id;
     private String name;
-    private String jobRank;
     private String deptName;
 }

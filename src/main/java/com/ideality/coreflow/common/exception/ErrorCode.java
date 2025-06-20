@@ -113,10 +113,10 @@ public enum ErrorCode {
 	PDF_CREATE_FAILED("PDF_CREATE_FAILED", "프로젝트 리포트 PDF 파일 생성이 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     NO_COMPLETED_PROJECT("NO_COMPLETED_PROJECT", "완료된 프로젝트가 없습니다." , HttpStatus.NOT_FOUND ),
     COMMENT_ALREADY_NOTICE("COMMENT_ALREADY_NOTICE", "이미 공지인 댓글입니다." , HttpStatus.CONFLICT),
-    NOT_FOUND_REFRESH_TOKEN("NOT_FOUND_REFRESH_TOKEN", "리프레시 토큰을 찾지 못하였습니다.", HttpStatus.NOT_FOUND)
+    NOT_FOUND_REFRESH_TOKEN("NOT_FOUND_REFRESH_TOKEN", "리프레시 토큰을 찾지 못하였습니다.", HttpStatus.NOT_FOUND),
+    INVALID_STATUS_PENDING("INVALID_STATUS_PENDING", "진행중인 프로젝트가 아닙니다." , HttpStatus.BAD_REQUEST),
+    ACCESS_DENIED_TEAMLEADER("ACCESS_DENIED_TEAMLEADER", "팀 리더 이상만 이용할 수 있는 권한입니다.",  HttpStatus.FORBIDDEN),
     ;
-
-
     private final String code;
     private final String message;
     private final HttpStatus httpStatus;

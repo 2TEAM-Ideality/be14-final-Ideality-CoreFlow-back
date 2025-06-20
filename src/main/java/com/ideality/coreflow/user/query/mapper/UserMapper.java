@@ -40,4 +40,6 @@ public interface UserMapper {
     List<AllUserDTO> selectAllUser();
 
     List<String> selectDeptNameByMentionInfo(String mentionTarget, Long projectId);
+
+    List<String> selectDeptNamesByProjectId(Long projectId);
 }

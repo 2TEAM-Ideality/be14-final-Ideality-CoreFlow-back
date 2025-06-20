@@ -1,10 +1,6 @@
 package com.ideality.coreflow.project.query.service.impl;
 
-import com.ideality.coreflow.project.query.dto.DeptWorkDTO;
-import com.ideality.coreflow.project.query.dto.DetailDTO;
-import com.ideality.coreflow.project.query.dto.ParticipantDTO;
-import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
-import com.ideality.coreflow.project.query.dto.WorkDetailDTO;
+import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.project.query.mapper.WorkMapper;
 import com.ideality.coreflow.project.query.service.WorkQueryService;
 import lombok.RequiredArgsConstructor;
@@ -80,7 +76,7 @@ public class WorkQueryServiceImpl implements WorkQueryService {
     }
 
     @Override
-    public List<String> getDetailList(Long projectId, Long taskId, String detailTarget) {
+    public List<DetailMentionDTO> getDetailList(Long projectId, Long taskId, String detailTarget) {
         return workMapper.selectDetailListByTarget(projectId, taskId, detailTarget);
     }
 
