@@ -206,4 +206,18 @@
         AND target_id = #{projectId}
         AND role_id = 1
     </select>
+
+    <select id="selectAllUserByProjectId" resultType="com.ideality.coreflow.project.query.dto.UserInfoDTO">
+        SELECT
+               u.id AS userId
+             , u.name AS name
+             , u.dept_name AS deptName
+             , u.job_role_name AS jobRoleName
+             , u.profile_image AS profileImage
+             , p.role_id AS roleId
+          FROM participant p
+          JOIN user u ON p.user_id = u.id
+         WHERE p.target_id = #{projectId}
+           AND p.target_type = 'PROJECT'
+    </select>
 </mapper>

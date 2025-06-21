@@ -3,10 +3,8 @@ package com.ideality.coreflow.project.command.application.service;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
-import com.ideality.coreflow.project.query.dto.CompletedProjectDTO;
-import com.ideality.coreflow.project.query.dto.ProjectOTD;
-import com.ideality.coreflow.project.query.dto.ProjectSummaryDTO;
-import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
+import com.ideality.coreflow.project.query.dto.*;
+
 import java.util.List;
 import org.apache.ibatis.javassist.NotFoundException;
 
@@ -27,4 +25,5 @@ public interface ProjectService {
 
     List<ProjectOTD> calculateProjectOTD(List<CompletedProjectDTO> completedProjectList);
 
+    ProjectDateDTO findProjectDateById(Long projectId);
 }

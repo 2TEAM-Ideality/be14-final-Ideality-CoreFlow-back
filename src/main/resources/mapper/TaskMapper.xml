@@ -132,10 +132,17 @@
         <result property="endBase" column="end_base"/>
         <result property="startDate" column="start_date"/>
         <result property="endDate" column="end_date"/>
-        <result property="progress" column="progress_rate"/>
+        <result property="progress" column="progress"/>
+        <result property="status" column="status"/>
+        <result property="delayDays" column="delay_days"/>
+        <result property="isChild" column="is_child"/>
 
         <collection property="predecessor" ofType="java.lang.Long">
             <result column="prev_work_id"/>
+        </collection>
+
+        <collection property="resources" ofType="java.lang.Long">
+            <result column="dept_id"/>
         </collection>
     </resultMap>
     <select id="selectRootTasksByProjectId" resultMap="GanttTaskWithPredecessorsMap">
@@ -144,19 +151,30 @@
              , w.name AS task_name
              , w.start_base
              , w.end_base
+             , w.progress_rate AS progress
              , CASE
                  WHEN w.status = 'PENDING' THEN w.start_expect
                  WHEN w.status IN ('PROGRESS', 'COMPLETED') THEN w.start_real
                END AS start_date
              , CASE
-                 WHEN w.status = 'PENDING' OR w.status = 'PROGRESS' THEN w.end_expect
+                 WHEN w.status IN ('PENDING', 'PROGRESS') THEN w.end_expect
                  WHEN w.status = 'COMPLETED' THEN w.end_real
                  ELSE NULL
                END AS end_date
-             , w.progress_rate
              , r.prev_work_id
+             , w.status AS status
+             , w.delay_days AS delay_days
+             , CASE
+                 WHEN w.parent_task_id IS NULL THEN FALSE
+                 ELSE TRUE
+               END AS is_child
+             , d.id AS dept_id
+             , d.name AS dept_name
           FROM work w
+          LEFT JOIN project p ON p.id = w.project_id
           LEFT JOIN relation r ON w.id = r.next_work_id
+          LEFT JOIN work_dept wd ON w.id = wd.work_id
+          LEFT JOIN dept d ON wd.dept_id = d.id
          WHERE w.project_id = #{projectId}
            AND w.parent_task_id IS NULL
            AND w.status NOT IN ('DELETED', 'CANCELLED')
@@ -180,10 +198,20 @@
                  ELSE Null
                END AS end_date
              , r.prev_work_id
+             , w.status AS status
+             , w.delay_days AS delay_days
+             , CASE
+                 WHEN w.parent_task_id IS NULL THEN FALSE
+                 ELSE TRUE
+               END AS is_child
+             , d.id AS dept_id
           FROM work w
+          LEFT JOIN project p ON p.id = w.project_id
           LEFT JOIN relation r ON w.id = r.next_work_id
+          LEFT JOIN work_dept wd ON w.id = wd.work_id
+          LEFT JOIN dept d ON wd.dept_id = d.id
          WHERE parent_task_id = #{parentId}
-           AND status NOT IN ('DELETED', 'CANCELLED')
+           AND w.status NOT IN ('DELETED', 'CANCELLED')
          ORDER BY start_base
     </select>
 </mapper>

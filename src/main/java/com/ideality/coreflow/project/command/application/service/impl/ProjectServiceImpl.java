@@ -7,11 +7,7 @@ import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
-import com.ideality.coreflow.project.query.dto.CompletedProjectDTO;
-import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
-import com.ideality.coreflow.project.query.dto.ProjectOTD;
-import com.ideality.coreflow.project.query.dto.ProjectSummaryDTO;
-import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
+import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.project.query.service.ProjectQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
 
@@ -172,6 +168,15 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         return OTDList;
+    }
+
+    @Override
+    public ProjectDateDTO findProjectDateById(Long projectId) {
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+        return ProjectDateDTO.builder()
+                .projectStartBase(project.getStartBase())
+                .projectEndBase(project.getEndBase())
+                .build();
     }
 
 }

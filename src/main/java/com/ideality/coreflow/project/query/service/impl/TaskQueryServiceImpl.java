@@ -7,13 +7,7 @@ import com.ideality.coreflow.notification.command.application.service.Notificati
 import com.ideality.coreflow.notification.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.command.domain.repository.TaskRepository;
-import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
-import com.ideality.coreflow.project.query.dto.GanttTaskResponse;
-import com.ideality.coreflow.project.query.dto.RelationDTO;
-import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
-import com.ideality.coreflow.project.query.dto.ResponseTaskInfoDTO;
-import com.ideality.coreflow.project.query.dto.SelectTaskDTO;
-import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
+import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.project.query.mapper.ParticipantMapper;
 import com.ideality.coreflow.project.query.mapper.RelationMapper;
 import com.ideality.coreflow.project.query.mapper.TaskMapper;

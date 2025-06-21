@@ -197,7 +197,8 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     public DelayInfoDTO delayAndPropagate(Long taskId, Integer delayDays, boolean isSimulate) {
         log.info("taskID: " + taskId);
-        Map<Long, Integer> visited = new HashMap<>();   // 지연일
+        Map<Long, Integer> visited = new HashMap<>();
+        Map<Long, Integer> realDelayed = new HashMap<>();
         Queue<DelayNodeDTO> queue = new LinkedList<>();
         Integer count = 0;
         Set<LocalDate> holidays = holidayQueryService.getHolidays().stream()
@@ -248,7 +249,9 @@ public class TaskServiceImpl implements TaskService {
             // 현재 태스크의 슬랙타임 및 지연일 설정
             if (currentTask.getSlackTime() >= delayToApply) {
                 currentTask.setSlackTime(currentTask.getSlackTime() - delayToApply);
-                currentTask.setDelayDays(delayToApply);
+                if (Objects.equals(currentTask.getId(), taskId)) {
+                    currentTask.setDelayDays(delayToApply);
+                }
                 currentTask.setEndExpect(currentTask.getEndExpect().plusDays(
                         calculateDelayExcludingHolidays(currentTask.getEndExpect(), delayDays, holidays)
                 ));
@@ -256,11 +259,14 @@ public class TaskServiceImpl implements TaskService {
                 log.info("슬랙타임 내에서 해결 실패");
                 count++;
                 int realDelay = delayToApply - currentTask.getSlackTime();
+                realDelayed.put(currentTask.getId(), realDelay);
                 System.out.println("delayToApply = " + delayToApply);
                 System.out.println("slackTime = " + currentTask.getSlackTime());
                 System.out.println("realDelay: " + realDelay);
                 System.out.println("taskId = " + currentTask.getId());
-                currentTask.setDelayDays(currentTask.getDelayDays() + realDelay);
+                if (Objects.equals(currentTask.getId(), taskId)) {
+                    currentTask.setDelayDays(currentTask.getDelayDays() + realDelay);   // 지연일 업데이트는 초기노드만 수정 필요
+                }
                 currentTask.setSlackTime(0);
 
                 // 예상 마감일이 변경될 경우만 추적
@@ -338,7 +344,7 @@ public class TaskServiceImpl implements TaskService {
                 .newProjectEndExpect(projectEndExpect)
                 .delayDaysByTask(delayDaysByTask)
                 .taskCountByDelay(count)
-                .delayDaysByTaskId(visited)
+                .delayDaysByTaskId(realDelayed)
                 .build();
     }
 
