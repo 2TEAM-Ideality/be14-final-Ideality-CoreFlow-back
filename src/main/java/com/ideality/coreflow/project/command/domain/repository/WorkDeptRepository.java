@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface WorkDeptRepository extends JpaRepository<WorkDept,Long> {
     Optional<WorkDept> findByWorkId(Long detailId);  // taskId로 부서 정보 조회
+
+    void deleteAllByWorkId(Long taskId);
 }

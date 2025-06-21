@@ -18,22 +18,22 @@
 
     <select id="selectPrevRelation" parameterType="map" resultMap="prevRelationMap">
         SELECT
-               a.id
-             , a.prev_work_id
-             , b.name
-          FROM relation a
-          JOIN work b ON a.next_work_id = b.id
-         WHERE a.next_work_id = #{taskId}
+        a.id,
+        a.prev_work_id,
+        b.name
+        FROM relation a
+        JOIN work b ON a.prev_work_id = b.id
+        WHERE a.next_work_id = #{taskId}
     </select>
 
     <select id="selectNextRelation" parameterType="map" resultMap="nextRelationMap">
         SELECT
-               a.id
-             , a.next_work_id
-             , b.name
-          FROM relation a
-          JOIN work b ON a.prev_work_id = b.id
-         WHERE a.prev_work_id = #{taskId}
+        a.id,
+        a.next_work_id,
+        b.name
+        FROM relation a
+        JOIN work b ON a.next_work_id = b.id
+        WHERE a.prev_work_id = #{taskId}
     </select>
 
     <select id="findAllRelationsForTaskIds" resultType="com.ideality.coreflow.project.query.dto.RelationDTO">

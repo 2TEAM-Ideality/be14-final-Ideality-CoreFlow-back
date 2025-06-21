@@ -15,11 +15,12 @@ import java.util.List;
 @ToString
 @EqualsAndHashCode
 public class RequestModifyTaskDTO {
-
-    private List<TaskDeptDTO> deptLists;
+    private Long taskId;
+    private Long projectId;
     private String description;
-    private List<PrevTaskDTO> prevTaskList;
-    private List<NextTaskDTO> nextTaskList;
+    private List<String> deptLists;
+    private List<Long> prevTaskList;
+    private List<Long> nextTaskList;
     private LocalDate startExpect;
     private LocalDate endExpect;
 }

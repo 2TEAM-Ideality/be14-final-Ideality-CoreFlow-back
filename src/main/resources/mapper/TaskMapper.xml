@@ -15,6 +15,7 @@
         <result property="progressRate" column="progress_rate"/>
         <result property="passedRate" column="passed_rate"/>
         <result property="delayDay" column="delay_days"/>
+        <result property="status" column="status"/>
         <result property="projectName" column="project_name"/>
         <result property="projectId" column="project_id"/>
     </resultMap>
@@ -40,6 +41,7 @@
              , a.progress_rate
              , a.passed_rate
              , a.delay_days
+             , a.status
              , a.project_id
              , b.name AS project_name
           FROM work a

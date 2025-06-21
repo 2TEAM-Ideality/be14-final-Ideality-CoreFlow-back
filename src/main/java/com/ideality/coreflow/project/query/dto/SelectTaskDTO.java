@@ -27,6 +27,7 @@ public class SelectTaskDTO {
     private Double passedRate;
     private int delayDay;
     // 여기서부터 헤더에 표시할 프로젝트 데이터 정보(props로 전해줄거면 추후에 삭제)
+    private String status;
     private String projectName;
     private Long projectId;
 }

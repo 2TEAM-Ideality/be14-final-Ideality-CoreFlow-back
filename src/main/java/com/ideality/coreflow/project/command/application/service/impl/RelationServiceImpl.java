@@ -71,6 +71,7 @@ public class RelationServiceImpl implements RelationService {
         }
     }
 
+
 //    @Override
 //    @Transactional
 //    public void appendRelation(List<Long> prevWorkId, Long nextWorkId) {
@@ -88,7 +89,6 @@ public class RelationServiceImpl implements RelationService {
 //            relationRepository.save(relation);
 //        }
 //    }
-
     @Override
     @Transactional
     public void appendMiddleRelation(List<Long> source, List<Long> target, Long taskId) {
@@ -160,15 +160,27 @@ public class RelationServiceImpl implements RelationService {
     }
 
     // 선행 일정 삭제
+
     @Transactional
     public void deleteRelationsByDetailId(Long detailId) {
         relationRepository.deleteByPrevWorkId(detailId);
     }
-
     // 후행 일정 삭제
+
     @Transactional
     public void deleteTargetRelationsByDetailId(Long detailId) {
         relationRepository.deleteByNextWorkId(detailId);
     }
 
+    @Override
+    @Transactional
+    public void deleteByNextWorkId(Long taskId) {
+        relationRepository.deleteByNextWorkId(taskId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteByPrevWorkId(Long taskId) {
+        relationRepository.deleteByPrevWorkId(taskId);
+    }
 }

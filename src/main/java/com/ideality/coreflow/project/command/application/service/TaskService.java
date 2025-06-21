@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.command.application.service;
 
 import com.ideality.coreflow.project.command.application.dto.DelayInfoDTO;
+import com.ideality.coreflow.project.command.application.dto.RequestModifyTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 
 
@@ -24,5 +25,8 @@ public interface TaskService {
     DelayInfoDTO delayAndPropagate(Long taskId, Integer delayDays, boolean isSimulate);
 
     String findTaskNameById(long taskId);
+
 //    Double updateTaskProgress(Long taskId, List<TaskProgressDTO> workList);
+
+    Long modifyTaskDetail(RequestModifyTaskDTO requestModifyTaskDTO, Long taskId);
 }
