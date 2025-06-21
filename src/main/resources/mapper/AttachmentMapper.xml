@@ -14,6 +14,17 @@
         <result property="targetId" column="TARGET_ID"/>
     </resultMap>
 
+    <resultMap id="AttachmentCommentResultMap" type="com.ideality.coreflow.attachment.query.dto.ResponseCommentAttachmentDTO">
+        <id property="attachmentId" column="id"/>
+        <result property="originName" column="origin_name"/>
+        <result property="url" column="url"/>
+        <result property="fileType" column="file_type"/>
+        <result property="uploadAt" column="upload_at"/>
+        <result property="userId" column="uploader_id"/>
+        <result property="userName" column="name"/>
+        <result property="deptName" column="dept_name"/>
+    </resultMap>
+
     <select id="selectUrl" parameterType="map" resultMap="AttachmentResultMap">
         SELECT
             a.id,
@@ -47,6 +58,22 @@
         WHERE a.target_type = 'PROJECT'
           AND a.target_id = #{projectId}
           AND a.is_deleted = FALSE
+    </select>
+
+    <select id="selectAttachmentsByTaskId" parameterType="long" resultMap="AttachmentCommentResultMap">
+        SELECT
+               a.id
+             , a.origin_name
+             , a.url
+             , a.file_type
+             , a.upload_at
+             , a.uploader_id
+             , b.name
+             , b.dept_name
+          FROM attachment a
+          JOIN user b ON a.uploader_id = b.id
+         WHERE a.target_id = #{taskId}
+           AND a.target_type = 'COMMENT'
     </select>
 
 </mapper>

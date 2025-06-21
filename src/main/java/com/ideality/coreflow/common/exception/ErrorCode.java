@@ -116,10 +116,10 @@ public enum ErrorCode {
     ILLEGAL_TENANT_NAME("ILLEGAL_TENANT_NAME", "허용되지 않은 테넌트 이름입니다.", HttpStatus.BAD_REQUEST),
     TENANT_CREATE_FAILED("TENANT_CREATE_FAILED", "테넌트 DB 생성에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     DUPLICATED_COMPANY_CODE("DUPLICATED_COMPANY_CODE", "이미 존재하는 회사 코드입니다.", HttpStatus.BAD_REQUEST),
-    COMMENT_ALREADY_NOTICE("COMMENT_ALREADY_NOTICE", "이미 공지인 댓글입니다." , HttpStatus.CONFLICT)
+    COMMENT_ALREADY_NOTICE("COMMENT_ALREADY_NOTICE", "이미 공지인 댓글입니다." , HttpStatus.CONFLICT),
+    INVALID_STATUS_PENDING("INVALID_STATUS_PENDING", "진행중인 프로젝트가 아닙니다." , HttpStatus.BAD_REQUEST),
+    ACCESS_DENIED_TEAMLEADER("ACCESS_DENIED_TEAMLEADER", "팀 리더 이상만 이용할 수 있는 권한입니다.",  HttpStatus.FORBIDDEN),
     ;
-
-
     private final String code;
     private final String message;
     private final HttpStatus httpStatus;

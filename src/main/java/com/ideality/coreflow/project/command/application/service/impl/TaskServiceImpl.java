@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.command.application.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.holiday.query.dto.HolidayQueryDto;
 import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
@@ -90,6 +91,10 @@ public class TaskServiceImpl implements TaskService {
         Work updatedTask = taskRepository.findById(taskId)
                 .orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
 
+
+        if (updatedTask.getStatus() == Status.PROGRESS) {
+            throw new BaseException(ErrorCode.INVALID_STATUS_PROGRESS);
+        }
         updatedTask.startTask();
         return updatedTask.getId();
     }
@@ -102,6 +107,14 @@ public class TaskServiceImpl implements TaskService {
 
         if (updatedTask.getProgressRate() != 100) {
             throw new BaseException(TASK_PROGRESS_NOT_COMPLETED);
+        }
+
+        if (updatedTask.getStatus() == Status.COMPLETED) {
+            throw new BaseException(ErrorCode.INVALID_STATUS_COMPLETED);
+        }
+
+        if (updatedTask.getStatus() == Status.PENDING) {
+           throw new BaseException(ErrorCode.INVALID_STATUS_PENDING);
         }
 
         updatedTask.endTask();
@@ -125,6 +138,9 @@ public class TaskServiceImpl implements TaskService {
         Work deleteTask = taskRepository.findById(taskId)
                 .orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
 
+        if (deleteTask.getStatus() == Status.DELETED) {
+            throw new BaseException(ErrorCode.INVALID_STATUS_DELETED);
+        }
         deleteTask.softDeleteTask();
         return deleteTask.getId();
     }
@@ -180,7 +196,8 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     public DelayInfoDTO delayAndPropagate(Long taskId, Integer delayDays, boolean isSimulate) {
         log.info("taskID: " + taskId);
-        Map<Long, Integer> visited = new HashMap<>();   // 지연일
+        Map<Long, Integer> visited = new HashMap<>();
+        Map<Long, Integer> realDelayed = new HashMap<>();
         Queue<DelayNodeDTO> queue = new LinkedList<>();
         Integer count = 0;
         Set<LocalDate> holidays = holidayQueryService.getHolidays().stream()
@@ -231,7 +248,9 @@ public class TaskServiceImpl implements TaskService {
             // 현재 태스크의 슬랙타임 및 지연일 설정
             if (currentTask.getSlackTime() >= delayToApply) {
                 currentTask.setSlackTime(currentTask.getSlackTime() - delayToApply);
-                currentTask.setDelayDays(delayToApply);
+                if (Objects.equals(currentTask.getId(), taskId)) {
+                    currentTask.setDelayDays(delayToApply);
+                }
                 currentTask.setEndExpect(currentTask.getEndExpect().plusDays(
                         calculateDelayExcludingHolidays(currentTask.getEndExpect(), delayDays, holidays)
                 ));
@@ -239,11 +258,14 @@ public class TaskServiceImpl implements TaskService {
                 log.info("슬랙타임 내에서 해결 실패");
                 count++;
                 int realDelay = delayToApply - currentTask.getSlackTime();
+                realDelayed.put(currentTask.getId(), realDelay);
                 System.out.println("delayToApply = " + delayToApply);
                 System.out.println("slackTime = " + currentTask.getSlackTime());
                 System.out.println("realDelay: " + realDelay);
                 System.out.println("taskId = " + currentTask.getId());
-                currentTask.setDelayDays(currentTask.getDelayDays() + realDelay);
+                if (Objects.equals(currentTask.getId(), taskId)) {
+                    currentTask.setDelayDays(currentTask.getDelayDays() + realDelay);   // 지연일 업데이트는 초기노드만 수정 필요
+                }
                 currentTask.setSlackTime(0);
 
                 // 예상 마감일이 변경될 경우만 추적
@@ -321,7 +343,7 @@ public class TaskServiceImpl implements TaskService {
                 .newProjectEndExpect(projectEndExpect)
                 .delayDaysByTask(delayDaysByTask)
                 .taskCountByDelay(count)
-                .delayDaysByTaskId(visited)
+                .delayDaysByTaskId(realDelayed)
                 .build();
     }
 

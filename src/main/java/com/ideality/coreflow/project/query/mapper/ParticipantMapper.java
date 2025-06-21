@@ -4,6 +4,7 @@ import com.ideality.coreflow.project.query.dto.DepartmentLeaderDTO;
 import com.ideality.coreflow.project.query.dto.ParticipantDepartmentDTO;
 import com.ideality.coreflow.project.query.dto.ParticipantUserDTO;
 import com.ideality.coreflow.project.query.dto.ResponseParticipantDTO;
+import com.ideality.coreflow.project.query.dto.UserInfoDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -44,4 +45,7 @@ public interface ParticipantMapper {
     List<Long> findParticipantsByTaskId(Long taskId);
 
     Long findDirectorByProjectId(Long projectId);
+
+    //  프로젝트 id로 해당 프로젝트에 참여하는 모든 인원들 정보 가져옴(유저아이디, 유저이름, 부서이름, 직책, 프로필사진)
+    List<UserInfoDTO> selectAllUserByProjectId(Long projectId);
 }

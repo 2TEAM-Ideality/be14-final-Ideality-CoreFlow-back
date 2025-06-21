@@ -41,6 +41,7 @@ public class ProjectQueryController {
 
     @GetMapping("/{projectId}")
     public APIResponse<ProjectDetailResponseDTO> getProject(@PathVariable Long projectId) {
+        System.out.println("요청 들어옴: "+projectId);
         ProjectDetailResponseDTO project = projectQueryFacadeService.getProjectDetail(projectId);
         return APIResponse.success(project, projectId+"번 프로젝트: "+project.getName()+" 조회 완료");
     }
@@ -102,10 +103,9 @@ public class ProjectQueryController {
     }
 
     @GetMapping("/{projectId}/gantt")
-    public ResponseEntity<APIResponse<Map<String, Object>>> getGanttTasks(@PathVariable Long projectId) {
-        List<GanttTaskResponse> ganttTaskResponses = taskQueryService.getGanttTasksByProjectId(projectId);
+    public ResponseEntity<APIResponse<?>> getGanttTasks(@PathVariable Long projectId) {
         return ResponseEntity.ok(
-                APIResponse.success(Map.of("data", ganttTaskResponses),
+                APIResponse.success(projectQueryFacadeService.getGanttTasksByProjectId(projectId),
                         projectId + "번 프로젝트 간트차트 조회 완료")
         );
     }
@@ -120,7 +120,22 @@ public class ProjectQueryController {
         responseData.put("projectList", projectList);
 
         return ResponseEntity.ok(APIResponse.success(responseData, "부서별 참여 프로젝트 목록 조회 성공"));
-
     }
 
+    // 프로젝트 참여인원 조회
+    @GetMapping("/{projectId}/participants")
+    public ResponseEntity<APIResponse<Map<String, Object>>> getProjectParticipants(@PathVariable Long projectId) {
+        System.out.println("요청은 들어옴");
+        System.out.println("projectId = " + projectId);
+        List<UserInfoDTO> result = projectQueryFacadeService.getParticipants(projectId);
+        return ResponseEntity.ok(
+                APIResponse.success(Map.of("participants", result),
+                        "프로젝트 참여자 목록 조회 성공")
+        );
+    }
+
+    @GetMapping("/{projectId}/gantt/project-date")
+    public ResponseEntity<APIResponse<?>> getGanttProjectDate(@PathVariable Long projectId) {
+        return ResponseEntity.ok(APIResponse.success(projectQueryFacadeService.getGanttProjectDate(projectId), "프로젝트 기간 조회"));
+    }
 }

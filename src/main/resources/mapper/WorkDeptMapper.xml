@@ -23,4 +23,12 @@
         AND a.is_deleted = 0
         ORDER BY a.work_id, b.id
     </select>
+
+    <select id="selectDeptNameList" parameterType="long" resultType="string">
+        SELECT
+               b.name
+          FROM work_dept a
+          JOIN dept b ON a.dept_id = b.id
+         WHERE a.work_id = #{taskId}
+    </select>
 </mapper>

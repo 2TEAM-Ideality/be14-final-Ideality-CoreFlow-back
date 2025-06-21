@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.query.service.impl;
 
 import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
+import com.ideality.coreflow.project.query.dto.ResponseTaskInfoDTO;
 import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
 import com.ideality.coreflow.project.query.dto.WorkDeptDTO;
 import com.ideality.coreflow.project.query.mapper.WorkDeptMapper;
@@ -43,5 +44,11 @@ public class WorkDeptQueryServiceImpl implements WorkDeptQueryService {
             List<TaskDeptDTO> depts = taskDeptMap.getOrDefault(task.getId(), new ArrayList<>());
             task.setDepts(depts);
         }
+    }
+
+    @Override
+    public void selectDeptNamesByTask(Long taskId, ResponseTaskInfoDTO selectTask) {
+        List<String> deptList = workDeptMapper.selectDeptNameList(taskId);
+        selectTask.setDeptNames(deptList);
     }
 }

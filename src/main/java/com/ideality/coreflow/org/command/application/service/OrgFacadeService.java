@@ -17,25 +17,4 @@ public class OrgFacadeService {
     private final JobRankService jobRankService;
     private final JobRoleService jobRoleService;
     private final DeptService deptService;
-
-    @Transactional
-    public List<ResponseJobRank> searchAllJobRank() {
-        return jobRankService.findAllJobRank();
-    }
-
-    public List<ResponseJobRole> searchAllJobRole() {
-        return jobRoleService.findAllJobRole();
-    }
-
-    public ResponseAllOrgInfo searchAllOrgInfo() {
-        List<ResponseJobRank> jobRankList = jobRankService.findAllJobRank();
-        List<ResponseJobRole> jobRoleList = jobRoleService.findAllJobRole();
-        List<ResponseDept> deptList = deptService.findAllDept();
-
-        return ResponseAllOrgInfo.builder()
-                .jobRankList(jobRankList)
-                .jobRoleList(jobRoleList)
-                .deptList(deptList)
-                .build();
-    }
 }
