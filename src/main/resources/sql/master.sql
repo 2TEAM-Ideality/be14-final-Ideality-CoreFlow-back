@@ -4,11 +4,11 @@ CREATE DATABASE master;
 USE master;
 
 CREATE TABLE erp_master (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    company_code VARCHAR(10) UNIQUE NOT NULL,   -- 회사 코드
-    company_name VARCHAR(100) NOT NULL,         -- 회사 명
-    company_schema VARCHAR(100) NOT NULL        -- 매핑된 스키마명
-);
+                            id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                            company_code VARCHAR(10) UNIQUE NOT NULL,   -- 회사 코드
+                            company_name VARCHAR(100) NOT NULL,         -- 회사 명
+                            company_schema VARCHAR(100) NOT NULL        -- 매핑된 스키마명
+)ENGINE=INNODB CHARACTER SET utf8;
 
 INSERT INTO erp_master (company_code, company_name, company_schema)
 VALUES
@@ -30,7 +30,7 @@ CREATE TABLE user (
                       dept_name VARCHAR(255),
                       job_rank_name VARCHAR(255),                -- 직위 명
                       job_role_name VARCHAR(255)   -- 직책 명
-);
+) ENGINE=INNODB CHARACTER SET utf8;
 
 INSERT INTO user (id, employee_num, password, name, email)
 VALUES ('1234', '1234', '$2a$12$dD0aS4kIMvZnWIWxVXr.3us3W97791wgVLi2gyY4kuCU6/KQMHrcG', 'master', 'test@master.com');

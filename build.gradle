@@ -19,6 +19,11 @@ configurations {
     }
 }
 
+// 하나의 jar 파일만 생성가능하도록 하는 설정 추가
+jar {
+    enabled = false
+}
+
 repositories {
     mavenCentral()
 }

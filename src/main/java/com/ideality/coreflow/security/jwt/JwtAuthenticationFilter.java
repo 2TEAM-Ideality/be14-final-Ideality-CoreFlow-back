@@ -47,7 +47,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/auth/login",
             "/api/auth/reissue",
             "/api/auth/reset-password/request",
-            "/api/auth/reset-password/verify"
+            "/api/auth/reset-password/verify",
+            "/health"
     );
 
     @Override
@@ -61,6 +62,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String method = request.getMethod();
 
         if ("Post".equalsIgnoreCase(method) && CUSTOM_SCHEMA_URIS.contains(uri)) {
+            handleSchemaInitialization(request, response, filterChain, uri);
+        } else if ("GET".equalsIgnoreCase(method) && CUSTOM_SCHEMA_URIS.contains(uri)) {
             handleSchemaInitialization(request, response, filterChain, uri);
         } else {
             handleJwtAuthentication(request, response, filterChain);
@@ -175,6 +178,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 case "/api/auth/reset-password/verify" -> {
                     RequestResetPasswordVerify requestResetPasswordVerify = parseRequest(cachedRequest, RequestResetPasswordVerify.class);
                     TenantContext.setTenant(tenantService.findSchemaNameByCompanyCode(requestResetPasswordVerify.getCompanyCode()));
+                }
+                case "/health" -> {
+
                 }
             }
             filterChain.doFilter(cachedRequest, response);
