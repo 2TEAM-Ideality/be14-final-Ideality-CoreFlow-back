@@ -32,8 +32,6 @@
         w.id AS work_id,
         w.name AS task_name,
         w.description AS task_description,
-        w.start_base,
-        w.end_base,
         w.start_expect,
         w.end_expect,
         w.start_real,
@@ -79,11 +77,20 @@
     <select id="findWorkNamesByIds" resultType="java.lang.String">
         SELECT w.name
         FROM work w
-        WHERE w.id IN
-        <foreach item="item" index="index" collection="workIds" open="(" separator="," close=")">
-            #{item}
-        </foreach>
+        WHERE
+        <choose>
+            <when test="workIds != null and workIds.size() > 0">
+                w.id IN
+                <foreach item="item" index="index" collection="workIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </when>
+            <otherwise>
+                1 = 1  <!-- workIds가 비어있을 경우, 조건을 항상 true로 설정하여 WHERE 절을 우회 -->
+            </otherwise>
+        </choose>
     </select>
+
 
     <!-- 부서별 세부일정 조회 -->
     <resultMap id="deptWorkMap" type="com.ideality.coreflow.project.query.dto.DeptWorkDTO">

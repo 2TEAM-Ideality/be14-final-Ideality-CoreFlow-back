@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Arrays;
@@ -17,12 +17,10 @@ public class WorkDetailDTO {
     private Long workId;
     private String taskName;
     private String taskDescription;
-    private LocalDate startBase;
-    private LocalDate endBase;
-    private LocalDate startExpect;
-    private LocalDate endExpect;
-    private LocalDate startReal;
-    private LocalDate endReal;
+    private Date startExpect;
+    private Date endExpect;
+    private Date startReal;
+    private Date endReal;
     private Double progressRate;
     private Integer delayDays;
     private String taskStatus;
