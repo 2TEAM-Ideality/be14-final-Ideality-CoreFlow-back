@@ -19,6 +19,8 @@ public class WorkDetailDTO {
     private String taskDescription;
     private Date startExpect;
     private Date endExpect;
+    private Date startBase;
+    private Date endBase;
     private Date startReal;
     private Date endReal;
     private Double progressRate;
