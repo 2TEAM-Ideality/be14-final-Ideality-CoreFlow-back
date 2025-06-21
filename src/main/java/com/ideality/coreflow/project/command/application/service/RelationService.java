@@ -13,4 +13,8 @@ public interface RelationService {
     void createRelation(Long taskId, Long nextWorkId);
 
     void appendRelation(Long taskId, List<Long> source, List<Long> target);
+
+    void deleteByNextWorkId(Long taskId);
+
+    void deleteByPrevWorkId(Long taskId);
 }

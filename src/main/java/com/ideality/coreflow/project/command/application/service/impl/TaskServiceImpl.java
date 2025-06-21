@@ -7,6 +7,7 @@ import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
 import com.ideality.coreflow.project.command.application.dto.DelayInfoDTO;
 import com.ideality.coreflow.project.command.application.dto.DelayNodeDTO;
+import com.ideality.coreflow.project.command.application.dto.RequestModifyTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.service.ProjectService;
 import com.ideality.coreflow.project.command.application.service.TaskService;
@@ -417,5 +418,17 @@ public class TaskServiceImpl implements TaskService {
             addedDays++;
         }
         return addedDays;
+    }
+
+    @Override
+    @Transactional
+    public Long modifyTaskDetail(RequestModifyTaskDTO requestModifyTaskDTO, Long taskId) {
+        Work modifyTask =
+                taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+
+        modifyTask.updateTaskDetail(requestModifyTaskDTO.getDescription(),
+                requestModifyTaskDTO.getStartExpect(),
+                requestModifyTaskDTO.getEndExpect());
+        return modifyTask.getId();
     }
 }

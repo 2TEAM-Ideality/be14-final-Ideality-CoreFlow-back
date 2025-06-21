@@ -554,4 +554,49 @@ public class ProjectFacadeService {
 
 
     }
+
+    /* 설명. 디테일 수정 -> 읽기부터 하고 그 다음부터 수정 하나씩 */
+    public Long updateTaskDetail(RequestModifyTaskDTO requestModifyTaskDTO, Long userId, Long taskId) {
+        log.info(requestModifyTaskDTO.toString());
+        Long projectId = requestModifyTaskDTO.getProjectId();
+        boolean isAboveTeamLeader = participantQueryService.isAboveTeamLeader(userId, projectId);
+
+        if (!isAboveTeamLeader) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED_TEAMLEADER);
+        }
+        /* 설명. 부서 id 조회 */
+        List<Long> deptIds = new ArrayList<>();
+        for( String deptName : requestModifyTaskDTO.getDeptLists()) {
+            Long deptId = deptQueryService.findDeptIdByName(deptName);
+            log.info(deptId.toString());
+            deptIds.add(deptId);
+        }
+
+        /* 설명. 기존 작업 - 부서 관계 삭제 */
+        workDeptService.deleteAllByTaskId(taskId);
+
+        /* 설명. 기존 작업 별 관계 삭제 */
+        if (requestModifyTaskDTO.getPrevTaskList() != null ||
+                !requestModifyTaskDTO.getPrevTaskList().isEmpty()) {
+            relationService.deleteByNextWorkId(taskId);
+        }
+
+        if (requestModifyTaskDTO.getNextTaskList() != null ||
+                !requestModifyTaskDTO.getNextTaskList().isEmpty()) {
+            relationService.deleteByPrevWorkId(taskId);
+        }
+
+        /* 설명. 기존 꺼 수정해서 save */
+        Long modifyTaskId = taskService.modifyTaskDetail(requestModifyTaskDTO, taskId);
+        /* 설명. 작업 별 관계, 부서 - 작업 별 관계 새로 삽입 */
+        relationService.appendRelation(taskId,
+                requestModifyTaskDTO.getPrevTaskList(),
+                requestModifyTaskDTO.getNextTaskList());
+
+        for (Long newDeptId : deptIds){
+            workDeptService.createWorkDept(taskId, newDeptId);
+        }
+
+        return modifyTaskId;
+    }
 }
