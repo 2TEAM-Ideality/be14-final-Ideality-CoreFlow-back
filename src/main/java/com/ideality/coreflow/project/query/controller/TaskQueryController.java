@@ -60,4 +60,10 @@ public class TaskQueryController {
         //
     }
 
+    @GetMapping("/dept/today")
+    public ResponseEntity<APIResponse<List<DeptWorkDTO>>> getDeptTaskToday(@RequestParam Long userId) {
+        List<DeptWorkDTO> response = projectQueryFacadeService.selectTodayWorksByDeptId(userId);
+        return ResponseEntity.ok(APIResponse.success(response, "부서 일정 목록 조회 성공"));
+    }
+
 }
