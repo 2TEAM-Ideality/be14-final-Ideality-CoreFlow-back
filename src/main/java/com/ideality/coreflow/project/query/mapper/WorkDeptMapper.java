@@ -9,4 +9,6 @@ import java.util.List;
 @Mapper
 public interface WorkDeptMapper {
     List<WorkDeptDTO> selectDeptListMap(List<Long> taskIds);
+
+    List<String> selectDeptNameList(Long taskId);
 }

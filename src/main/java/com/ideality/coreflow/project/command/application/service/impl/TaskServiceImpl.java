@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.command.application.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.holiday.query.dto.HolidayQueryDto;
 import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
@@ -90,6 +91,10 @@ public class TaskServiceImpl implements TaskService {
         Work updatedTask = taskRepository.findById(taskId)
                 .orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
 
+
+        if (updatedTask.getStatus() == Status.PROGRESS) {
+            throw new BaseException(ErrorCode.INVALID_STATUS_PROGRESS);
+        }
         updatedTask.startTask();
         return updatedTask.getId();
     }
@@ -102,6 +107,14 @@ public class TaskServiceImpl implements TaskService {
 
         if (updatedTask.getProgressRate() != 100) {
             throw new BaseException(TASK_PROGRESS_NOT_COMPLETED);
+        }
+
+        if (updatedTask.getStatus() == Status.COMPLETED) {
+            throw new BaseException(ErrorCode.INVALID_STATUS_COMPLETED);
+        }
+
+        if (updatedTask.getStatus() == Status.PENDING) {
+           throw new BaseException(ErrorCode.INVALID_STATUS_PENDING);
         }
 
         updatedTask.endTask();
@@ -125,6 +138,9 @@ public class TaskServiceImpl implements TaskService {
         Work deleteTask = taskRepository.findById(taskId)
                 .orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
 
+        if (deleteTask.getStatus() == Status.DELETED) {
+            throw new BaseException(ErrorCode.INVALID_STATUS_DELETED);
+        }
         deleteTask.softDeleteTask();
         return deleteTask.getId();
     }

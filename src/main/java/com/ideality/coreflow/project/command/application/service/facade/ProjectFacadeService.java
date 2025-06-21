@@ -19,10 +19,7 @@ import com.ideality.coreflow.project.query.dto.CompletedProjectDTO;
 import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
 import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
 import com.ideality.coreflow.project.query.dto.ProjectOTD;
-import com.ideality.coreflow.project.query.dto.ProjectSummaryDTO;
 import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
-import com.ideality.coreflow.org.query.service.DeptQueryService;
-import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
 import com.ideality.coreflow.project.query.dto.ProjectParticipantDTO;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import com.ideality.coreflow.project.query.service.ProjectQueryService;
@@ -314,20 +311,37 @@ public class ProjectFacadeService {
     }
 
     @Transactional
-    public Long updateStatusProgress(Long taskId) {
+    public Long updateStatusProgress(Long taskId, Long userId) {
+
+        Long projectId = taskQueryService.getProjectId(taskId);
+        boolean isParticipant = participantQueryService.isParticipant(userId, projectId);
+
+        if (!isParticipant) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
         Long updateTaskId = taskService.updateStatusProgress(taskId);
         return updateTaskId;
     }
 
     @Transactional
-    public Long updateStatusComplete(Long taskId) {
+    public Long updateStatusComplete(Long taskId, Long userId) {
+        Long projectId = taskQueryService.getProjectId(taskId);
+        boolean isProjectComplete = participantQueryService.isAboveTeamLeader(userId, projectId);
+        if (!isProjectComplete) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED_TEAMLEADER);
+        }
         Long updateTaskId = taskService.updateStatusComplete(taskId);
 
         return updateTaskId;
     }
 
     @Transactional
-    public Long deleteTaskBySoft(Long taskId) {
+    public Long deleteTaskBySoft(Long taskId, Long userId) {
+        Long projectId = taskQueryService.getProjectId(taskId);
+        boolean isProjectComplete = participantQueryService.isAboveTeamLeader(userId, projectId);
+        if (!isProjectComplete) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED_TEAMLEADER);
+        }
         Long deleteTaskId = taskService.softDeleteTask(taskId);
         return deleteTaskId;
     }

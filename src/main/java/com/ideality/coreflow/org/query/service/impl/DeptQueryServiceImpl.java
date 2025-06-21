@@ -51,5 +51,6 @@ public class DeptQueryServiceImpl implements DeptQueryService {
             .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
     }
 
+
 }
 

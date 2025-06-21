@@ -9,6 +9,7 @@ import lombok.*;
 @ToString
 @EqualsAndHashCode
 public class ResponseMentionDTO {
+    private Long id;
     private String name;
     private String type;
 }

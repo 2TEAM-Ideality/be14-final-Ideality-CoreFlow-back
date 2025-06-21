@@ -13,6 +13,8 @@ import com.ideality.coreflow.project.command.application.dto.RequestInviteUserDT
 import com.ideality.coreflow.project.query.mapper.ParticipantMapper;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import com.ideality.coreflow.user.query.dto.UserNameIdDto;
+import java.util.Objects;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -74,6 +76,24 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
                             Collectors.toList()
                         )
                 ));
+    }
+
+    @Override
+    public List<UserInfoDTO> getAllProjectParticipants(Long projectId) {
+        List<UserInfoDTO> result = participantMapper.selectAllUserByProjectId(projectId);
+        return result.stream()
+                .map(participant -> participant.toBuilder()
+                        .roleId(participant.getRoleId().equals("1") ? "디렉터" :
+                                participant.getRoleId().equals("2")? "팀장" : "팀원").build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Set<String> extractDeptNamesFromParticipants(List<UserInfoDTO> allParticipants) {
+        return allParticipants.stream()
+                .map(UserInfoDTO::getDeptName)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 
     @Override

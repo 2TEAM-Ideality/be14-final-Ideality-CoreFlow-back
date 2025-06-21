@@ -12,6 +12,7 @@ import java.util.List;
 @EqualsAndHashCode
 public class ResponseTaskInfoDTO {
     private SelectTaskDTO selectTask;
+    private List<String> deptNames;
     private List<PrevTaskDTO> prevTasks;
     private List<NextTaskDTO> nextTasks;
 }

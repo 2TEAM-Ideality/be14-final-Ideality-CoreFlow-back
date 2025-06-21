@@ -23,7 +23,6 @@ public class ApprovalServiceImpl implements ApprovalService {
 
     @Override
     public void updateStatus(Approval approval, ApprovalStatus status) {
-        // 결재 승인
         approval.updateStatus(status);
         log.info("status 업데이트");
         approvalRepository.save(approval);
