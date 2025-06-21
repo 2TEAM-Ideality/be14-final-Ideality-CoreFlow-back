@@ -89,6 +89,9 @@ jobs:
           cp -r .platform deploy/.platform
           cd deploy && zip -r deploy.zip .
 
+      - name: Check contents of deploy.zip
+        run: unzip -l deploy/deploy.zip
+
       - name: Beanstalk Deploy
         uses: einaregilsson/beanstalk-deploy@v22
         with:
