@@ -3,6 +3,7 @@ package com.ideality.coreflow.attachment.query.service;
 import java.util.List;
 import java.util.Map;
 
+import com.ideality.coreflow.attachment.query.dto.ResponseCommentAttachmentDTO;
 import org.springframework.stereotype.Service;
 
 import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
@@ -43,6 +44,16 @@ public class AttachmentQueryService {
 	// 프로젝트 산출물 내역 가져오기
 	public List<ReportAttachmentDTO> getAttachmentsByProjectId(Long projectId) {
 		List<ReportAttachmentDTO> response = attachmentMapper.selectAttachmentsByProjectId(projectId);
+
+		if (response == null) {
+			log.warn("첨부파일 조회 실패");
+			throw new BaseException(ErrorCode.ATTCHMENT_NOT_FOUND);
+		}
+		return response;
+	}
+
+	public List<ResponseCommentAttachmentDTO> getAttachmentsByTaskId(Long taskId, Long userId) {
+		List<ResponseCommentAttachmentDTO> response = attachmentMapper.selectAttachmentsByTaskId(taskId);
 
 		if (response == null) {
 			log.warn("첨부파일 조회 실패");

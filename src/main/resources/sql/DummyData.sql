@@ -112,37 +112,6 @@ VALUES
     '본부장'
 );
 
-INSERT INTO role
-(name, type)
-VALUES
-(
-    'DIRECTOR', 'PROJECT'
-),
-(
-    'TEAM_LEADER', 'PROJECT'
-),
-(
-    'TEAM_MEMBER', 'PROJECT'
-),
-(
-    'ADMIN', 'GENERAL'
-),
-(
-    'VIEWER', 'PROJECT'
-),
-(
-    'ASSIGNEE', 'PROJECT'
-),
-(
-    'PARTICIPANT', 'PROJECT'
-),
-(
-    'CREATOR', 'GENERAL'
-),
-(
-    'PARTNER', 'GENERAL'
-)
-;
 
 INSERT INTO project
 (
@@ -204,26 +173,3 @@ VALUES
     7,
     2
 );
-
-
-INSERT INTO job_rank (name)
-VALUES ("사원"),
-       ("대리"),
-       ("과장"),
-       ("차장"),
-       ("부장"),
-       ("협력업체");
-
-INSERT INTO job_role (name)
-VALUES ("팀원"),
-       ("파트장"),
-       ("본부장"),
-       ("협력업체");
-
-
-INSERT INTO dept (name, dept_code)
-VALUES ("기획팀", "PM"),
-       ("디자인팀", "DES"),
-       ("소싱팀", "MD"),
-       ("생산팀", "MFG"),
-       ("협력업체", "PART");
