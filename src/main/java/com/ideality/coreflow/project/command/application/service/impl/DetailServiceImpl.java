@@ -93,6 +93,8 @@ public class DetailServiceImpl implements DetailService {
     @Transactional
     @Override
     public Long updateDetail(Long detailId, RequestDetailDTO requestDetailDTO) {
+
+        log.info(requestDetailDTO.toString());
         // 기존 세부 일정 조회
         Optional<Work> existingDetailOptional = workRepository.findById(detailId);
         if (existingDetailOptional.isEmpty()) {

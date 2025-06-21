@@ -32,6 +32,8 @@
         w.id AS work_id,
         w.name AS task_name,
         w.description AS task_description,
+        w.start_base,
+        w.end_base,
         w.start_expect,
         w.end_expect,
         w.start_real,
