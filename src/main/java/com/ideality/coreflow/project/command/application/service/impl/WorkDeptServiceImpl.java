@@ -43,7 +43,11 @@ public class WorkDeptServiceImpl implements WorkDeptService {
         log.info("부서 수정 완료, detailId: {}, newDeptId: {}", detailId, newDeptId);
     }
 
-
+    @Override
+    @Transactional
+    public void deleteAllByTaskId(Long taskId) {
+        workDeptRepository.deleteAllByWorkId(taskId);
+    }
 
 
 }

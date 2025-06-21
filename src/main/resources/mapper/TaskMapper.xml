@@ -5,8 +5,9 @@
 <mapper namespace="com.ideality.coreflow.project.query.mapper.TaskMapper">
 
     <resultMap id="TaskResultMap" type="com.ideality.coreflow.project.query.dto.SelectTaskDTO" >
-        <id property="id" column="id" />
+        <id property="taskId" column="id" />
         <result property="description" column="description"/>
+        <result property="taskName" column="task_name"/>
         <result property="startBaseLine" column="start_base"/>
         <result property="endBaseLine" column="end_base"/>
         <result property="expectStartDate" column="start_expect"/>
@@ -14,6 +15,9 @@
         <result property="progressRate" column="progress_rate"/>
         <result property="passedRate" column="passed_rate"/>
         <result property="delayDay" column="delay_days"/>
+        <result property="status" column="status"/>
+        <result property="projectName" column="project_name"/>
+        <result property="projectId" column="project_id"/>
     </resultMap>
 
     <resultMap id="TasksMap" type="com.ideality.coreflow.project.query.dto.ResponseTaskDTO">
@@ -27,18 +31,24 @@
 
     <select id="selectTaskInfo" parameterType="map" resultMap="TaskResultMap">
         SELECT
-               id
-             , description
-             , start_base
-             , end_base
-             , start_expect
-             , end_expect
-             , progress_rate
-             , passed_rate
-             , delay_days
-          FROM work
-         WHERE id = #{taskId}
-           AND status != 'DELETED'
+               a.id
+             , a.name AS task_name
+             , a.description
+             , a.start_base
+             , a.end_base
+             , a.start_expect
+             , a.end_expect
+             , a.progress_rate
+             , a.passed_rate
+             , a.delay_days
+             , a.status
+             , a.project_id
+             , b.name AS project_name
+          FROM work a
+          JOIN project b ON a.project_id = b.id
+         WHERE a.id = #{taskId}
+           AND a.status != 'DELETED'
+           AND a.parent_task_id IS NULL
     </select>
 
     <select id="selectTasks" parameterType="map" resultMap="TasksMap">

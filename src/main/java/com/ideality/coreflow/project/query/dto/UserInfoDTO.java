@@ -16,6 +16,7 @@ public class UserInfoDTO {
     private String name;
     private String deptName;
     private String jobRoleName;
+    private String jobRankName;
     private String profileImage;
     private String roleId;
 }

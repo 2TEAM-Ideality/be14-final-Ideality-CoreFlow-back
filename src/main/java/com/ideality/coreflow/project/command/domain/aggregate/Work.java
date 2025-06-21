@@ -91,5 +91,10 @@ public class Work {
 		this.status = Status.DELETED;
 	}
 
+    public void updateTaskDetail(String description, LocalDate startExpect, LocalDate endExpect) {
+		this.description = description;
+		this.startExpect = startExpect;
+		this.endExpect = endExpect;
+    }
 }
 

@@ -212,6 +212,7 @@
                u.id AS userId
              , u.name AS name
              , u.dept_name AS deptName
+             , u.job_rank_name AS jobRankName
              , u.job_role_name AS jobRoleName
              , u.profile_image AS profileImage
              , p.role_id AS roleId

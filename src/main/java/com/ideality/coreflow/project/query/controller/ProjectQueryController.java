@@ -60,6 +60,7 @@ public class ProjectQueryController {
         return ResponseEntity.ok(APIResponse.success(res, "초대 가능한 회원 리스트 조회 성공"));
     }
 
+    // 프로젝트 참여 부서 조회
     @GetMapping("/{projectId}/participants/department")
     public ResponseEntity<APIResponse<List<ParticipantDepartmentDTO>>> getParticipantDepartment(@PathVariable Long projectId) {
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());

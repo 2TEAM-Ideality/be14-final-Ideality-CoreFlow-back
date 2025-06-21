@@ -2,6 +2,7 @@ package com.ideality.coreflow.project.command.application.controller;
 
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.project.command.application.dto.DelayInfoDTO;
+import com.ideality.coreflow.project.command.application.dto.RequestModifyTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
@@ -92,6 +93,17 @@ public class TaskController {
         return ResponseEntity.ok(
                 APIResponse.success(response,
                         taskId + "번 태스크를 " + delayDays + "일 지연시킨 결과 " + response.getTaskCountByDelay() + "개의 태스크가 지연되었습니다.")
+        );
+    }
+
+    @PatchMapping("/modify/{taskId}")
+    public ResponseEntity<APIResponse<Map<String, Long>>>
+        updateTaskDetail(@PathVariable Long taskId, @RequestBody RequestModifyTaskDTO requestModifyTaskDTO) {
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+
+        Long modifyTaskId = projectFacadeService.updateTaskDetail(requestModifyTaskDTO, userId, taskId);
+        return ResponseEntity.ok(APIResponse.success(Map.of("taskId", modifyTaskId),
+                taskId + "가 업데이트 되었습니다.")
         );
     }
 }
