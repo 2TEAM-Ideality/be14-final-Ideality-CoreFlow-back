@@ -22,12 +22,18 @@ public class UserQueryController {
     @GetMapping("/name")
     public APIResponse<List<UserNameIdDto>> searchUsersByName(@RequestParam String name) {
         List<UserNameIdDto> users = userService.searchUsersByName(name);
-        return APIResponse.success(users,"@user이름으로 조회 완료");  // 성공 응답 생성
+        return APIResponse.success(users, "@user이름으로 조회 완료");  // 성공 응답 생성
     }
 
     // 구성원 목록 조회용
     @GetMapping("/find-all")
     public APIResponse<?> findAllUsers() {
         return APIResponse.success(userService.findAllUsers(), "유저 목록 조회");
+    }
+
+    @GetMapping("/dept")
+    public APIResponse<List<UserNameIdDto>> getUsersByDept(@RequestParam("deptName") String deptName) {
+        List<UserNameIdDto> users= userService.getUsersByDept(deptName);
+        return APIResponse.success(users, "부서명으로 유저 조회 완료");
     }
 }

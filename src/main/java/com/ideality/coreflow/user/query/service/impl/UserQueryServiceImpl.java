@@ -136,4 +136,9 @@ public class UserQueryServiceImpl implements UserQueryService {
             return userMapper.selectDeptNameByMentionInfo(mentionTarget, projectId);
         }
     }
+
+@Override
+public List<UserNameIdDto> getUsersByDept(String deptName){
+        return userMapper.getUsersByDept(deptName);
+}
 }
