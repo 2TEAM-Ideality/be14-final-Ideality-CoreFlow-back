@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# 설치 (Amazon Linux 2 기준)
-yum install -y redis
+# Amazon Linux 2용 Redis 설치
+sudo amazon-linux-extras enable redis6
+sudo yum clean metadata
+sudo yum install -y redis
 
-# Redis 시작 및 자동 실행 등록
-systemctl enable redis
-systemctl start redis
+# Redis 서비스 시작
+sudo systemctl enable redis
+sudo systemctl start redis
