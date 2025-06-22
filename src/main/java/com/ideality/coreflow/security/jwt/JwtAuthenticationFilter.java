@@ -48,7 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/auth/reissue",
             "/api/auth/reset-password/request",
             "/api/auth/reset-password/verify",
-            "/health"
+            "/api/health"
     );
 
     @Override
