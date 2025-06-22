@@ -87,6 +87,7 @@ jobs:
           cp Procfile deploy/Procfile
           cp -r .ebextensions deploy/.ebextensions
           cp -r .platform deploy/.platform
+          rm -f deploy/.platform/hooks/postdeploy/01-install-redis.sh
           cd deploy && zip -r deploy.zip .
 
       - name: Check contents of deploy.zip
