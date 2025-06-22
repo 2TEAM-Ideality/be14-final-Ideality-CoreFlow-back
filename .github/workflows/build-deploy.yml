@@ -42,6 +42,25 @@ jobs:
               url: jdbc:mariadb://\${RDS_HOSTNAME}:\${RDS_PORT}/master
               username: \${DB_USERNAME}
               password: \${DB_PASSWORD}
+          
+
+            master:
+              url: jdbc:mariadb://${RDS_HOSTNAME}:${RDS_PORT}/master
+              username: ${DB_USERNAME}
+              password: ${DB_PASSWORD}
+              driver-class-name: org.mariadb.jdbc.Driver
+              pool-name: master-pool
+
+            tenant:
+              url: jdbc:mariadb://${RDS_HOSTNAME}:${RDS_PORT}/
+              username: ${DB_USERNAME}
+              password: ${DB_PASSWORD}
+              driver-class-name: org.mariadb.jdbc.Driver
+              minimum-idle: 3
+              maximum-pool-size: 10
+              idle-timeout: 30000
+              connection-timeout: 30000
+              pool-name: tenant-pool
 
             data:
               redis:
