@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(new AntPathRequestMatcher("/api/admin/**")).hasAuthority("ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/api/auth/signup")).hasAuthority("ADMIN")
-                        .requestMatchers(new AntPathRequestMatcher("/health")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/health")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/dept/all")).authenticated()
                         .requestMatchers(new AntPathRequestMatcher("/api/projects/**")).permitAll()
