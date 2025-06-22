@@ -30,10 +30,10 @@ jobs:
       - name: Install envsubst
         run: sudo apt-get install -y gettext
 
-      - name: Create application.yml.template
+      - name: Create application-deploy.yml.template
         run: |
           mkdir -p src/main/resources
-          cat > src/main/resources/application.yml.template <<EOL
+          cat > src/main/resources/application-deploy.yml.template <<EOL
           server:
             port: 5000
             servlet:
@@ -44,9 +44,26 @@ jobs:
           spring:
             datasource:
               driver-class-name: org.mariadb.jdbc.Driver
-              url: jdbc:mariadb://\${RDS_HOSTNAME}:\${RDS_PORT}/\${RDS_DB_NAME}
-              username: \${RDS_USERNAME}
-              password: \${RDS_PASSWORD}
+              url: jdbc:mariadb://\${RDS_HOSTNAME}:\${RDS_PORT}/master
+              username: \${DB_USERNAME}
+              password: \${DB_PASSWORD}
+
+            data:
+              redis:
+                host: \${REDIS_HOST}
+                port: \${REDIS_PORT}
+
+            mail:
+              host: smtp.gmail.com
+              port: 587
+              username: \${EMAIL_USERNAME}
+              password: \${EMAIL_PASSWORD}
+              properties:
+                mail:
+                  smtp:
+                    auth: true
+                    starttls:
+                      enable: true
 
             jpa:
               generate-ddl: false
@@ -54,13 +71,38 @@ jobs:
               database: mysql
               properties:
                 hibernate:
-                  '[format_sql]': true
+                  format_sql: true
+
+          token:
+            secret: \${SECRET_KEY}
+            access_expiration_time: 36000000
+            refresh_expiration_time: 604800000
+
+          cloud:
+            aws:
+              credentials:
+                access-key: \${AWS_ACCESS_KEY_ID}
+                secret-key: \${AWS_SECRET_ACCESS_KEY}
+              region:
+                static: ap-northeast-2
+              s3:
+                bucket: \${AWS_S3_BUCKET}
+
+          mybatis:
+            mapper-locations: classpath:/mapper/**/*.xml
+            configuration:
+              map-underscore-to-camel-case: true
+
+          logging:
+            level:
+              com.ideality.coreflow: INFO
+              org.springframework.data.redis: DEBUG
           EOL
 
-      - name: Set application.yml
+      - name: Set application-deploy.yml
         run: |
-          envsubst < src/main/resources/application.yml.template > src/main/resources/application.yml
-          cat src/main/resources/application.yml
+          envsubst < src/main/resources/application-deploy.yml.template > src/main/resources/application-deploy.yml
+          cat src/main/resources/application-deploy.yml
         env:
           RDS_HOSTNAME: ${{ secrets.RDS_HOSTNAME }}
           RDS_PORT: ${{ secrets.RDS_PORT }}
@@ -78,6 +120,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+
 
 
       - name: Build with Gradle
