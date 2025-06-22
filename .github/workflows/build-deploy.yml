@@ -37,36 +37,36 @@ jobs:
                 force: true
 
           spring:
+            application:
+              name: coreflow
+
             datasource:
               master:
-                url: jdbc:mariadb://${RDS_HOSTNAME}:${RDS_PORT}/master
-                username: ${DB_USERNAME}
-                password: ${DB_PASSWORD}
+                url: jdbc:mariadb://\${RDS_HOSTNAME}:\${RDS_PORT}/master
+                username: \${DB_USERNAME}
+                password: \${DB_PASSWORD}
                 driver-class-name: org.mariadb.jdbc.Driver
                 pool-name: master-pool
-  
+
               tenant:
-                url: jdbc:mariadb://${RDS_HOSTNAME}:${RDS_PORT}/
-                username: ${DB_USERNAME}
-                password: ${DB_PASSWORD}
+                url: jdbc:mariadb://\${RDS_HOSTNAME}:\${RDS_PORT}/
+                username: \${DB_USERNAME}
+                password: \${DB_PASSWORD}
                 driver-class-name: org.mariadb.jdbc.Driver
                 minimum-idle: 3
                 maximum-pool-size: 10
                 idle-timeout: 30000
                 connection-timeout: 30000
                 pool-name: tenant-pool
-          
-             jpa:
-              hibernate:
-                ddl-auto: none
-              properties:
-                hibernate:
-                  dialect: org.hibernate.dialect.MariaDBDialect
-                  format_sql: true
+
+            jpa:
               generate-ddl: false
               show-sql: true
               database: mysql
-          
+              properties:
+                hibernate:
+                  format_sql: true
+
             data:
               redis:
                 host: \${REDIS_HOST}
@@ -84,13 +84,11 @@ jobs:
                     starttls:
                       enable: true
 
-            jpa:
-              generate-ddl: false
-              show-sql: true
-              database: mysql
-              properties:
-                hibernate:
-                  format_sql: true
+            servlet:
+              multipart:
+                enabled: true
+                max-file-size: 20MB
+                max-request-size: 25MB
 
           token:
             secret: \${SECRET_KEY}
@@ -117,6 +115,7 @@ jobs:
               com.ideality.coreflow: INFO
               org.springframework.data.redis: DEBUG
           EOL
+
 
       - name: Set application-deploy.yml
         run: |
