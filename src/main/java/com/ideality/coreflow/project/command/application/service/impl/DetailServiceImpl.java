@@ -14,6 +14,8 @@ import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
 import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +43,22 @@ public class DetailServiceImpl implements DetailService {
     @Override
     @Transactional
     public Long createDetail(RequestDetailDTO detailDTO) {
+        // 로그 객체 생성
+        Logger log = LoggerFactory.getLogger(getClass());
+
+        // RequestDetailDTO의 내용 로그 출력
+        log.info("Request received for creating detail: projectId={}, parentTaskId={}, name={}, description={}, startBase={}, endBase={}, source={}, target={}, assigneeId={}, participantIds={}",
+                detailDTO.getProjectId(),
+                detailDTO.getParentTaskId(),
+                detailDTO.getName(),
+                detailDTO.getDescription(),
+                detailDTO.getStartBase(),
+                detailDTO.getEndBase(),
+                detailDTO.getSource(),
+                detailDTO.getTarget(),
+                detailDTO.getAssigneeId(),
+                detailDTO.getParticipantIds());
+
         Work detailWork = Work.builder()
                 .name(detailDTO.getName())
                 .description(detailDTO.getDescription())

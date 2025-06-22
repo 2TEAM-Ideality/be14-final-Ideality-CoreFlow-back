@@ -7,6 +7,7 @@
         SELECT id, name
         FROM work
         WHERE parent_task_id = #{parentTaskId}
+        AND status != 'DELETED'
     </select>
 
 
@@ -18,6 +19,7 @@
         w.end_expect,                -- 예상 마감일
         w.delay_days,                -- 지연 일수
         w.progress_rate,             -- 진행률
+        w.status,
         wd.dept_id,                  -- 부서 ID
         d.name AS dept_name          -- 부서 이름
         FROM work w
@@ -32,6 +34,8 @@
         w.id AS work_id,
         w.name AS task_name,
         w.description AS task_description,
+        w.start_base,
+        w.end_base,
         w.start_expect,
         w.end_expect,
         w.start_real,

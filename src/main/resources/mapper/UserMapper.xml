@@ -226,4 +226,11 @@
         WHERE b.target_type = 'PROJECT'
         AND b.target_id = #{projectId}
     </select>
+
+    <!-- dept_name으로 사용자 id와 name을 가져오는 SQL 쿼리 -->
+    <select id="getUsersByDept" resultType="com.ideality.coreflow.user.query.dto.UserNameIdDto">
+        SELECT id, name
+        FROM user
+        WHERE dept_name = #{deptName}
+    </select>
 </mapper>
