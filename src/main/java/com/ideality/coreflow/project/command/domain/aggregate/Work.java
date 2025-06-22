@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 
 @Entity
@@ -33,6 +34,7 @@ public class Work {
 	private LocalDate startBase;
 
 	@Column(name = "end_base", nullable = false)
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate endBase;
 
 	@Column(name = "start_expect", nullable = false)
