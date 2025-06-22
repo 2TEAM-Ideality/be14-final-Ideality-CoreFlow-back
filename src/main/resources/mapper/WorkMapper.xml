@@ -18,6 +18,7 @@
         w.end_expect,                -- 예상 마감일
         w.delay_days,                -- 지연 일수
         w.progress_rate,             -- 진행률
+        w.status,
         wd.dept_id,                  -- 부서 ID
         d.name AS dept_name          -- 부서 이름
         FROM work w
