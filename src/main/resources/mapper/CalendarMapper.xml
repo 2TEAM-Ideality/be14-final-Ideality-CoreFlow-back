@@ -34,7 +34,7 @@
             p.start_at,
             p.end_at,
             p.is_repeat
-        FROM SCHEDULE as p
+        FROM schedule as p
             WHERE user_id = #{memberId}
     </select>
 
@@ -63,7 +63,7 @@
             p.start_at,
             p.end_at,
             p.is_repeat
-        FROM SCHEDULE as p
+        FROM schedule as p
             WHERE user_id = #{memberId} AND id = #{taskId}
     </select>
 

@@ -234,8 +234,8 @@
 <!--    </select>-->
 
     <select id="findProjectNameByProjectId" resultType="String">
-        SELECT NAME
-        FROM PROJECT
+        SELECT name
+        FROM project
         WHERE id = #{projectId}
     </select>
 
