@@ -179,7 +179,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     RequestResetPasswordVerify requestResetPasswordVerify = parseRequest(cachedRequest, RequestResetPasswordVerify.class);
                     TenantContext.setTenant(tenantService.findSchemaNameByCompanyCode(requestResetPasswordVerify.getCompanyCode()));
                 }
-                case "/health" -> {
+                case "/api/health" -> {
 
                 }
             }
