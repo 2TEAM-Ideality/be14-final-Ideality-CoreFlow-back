@@ -1,9 +1,5 @@
 name: Build and Deploy
 
-permissions:
-  contents: read
-  pull-requests: write
-
 on:
   pull_request:
     branches:
@@ -33,8 +29,69 @@ jobs:
         run: |
           mkdir -p src/main/resources
           cat > src/main/resources/application-deploy.yml.template <<EOL
-          # (여기에 기존 application-deploy.yml 템플릿 내용 동일)
-          # 줄여서 표시, 동한님이 위에 작성한 것 그대로 유지
+          server:
+            port: 5000
+            servlet:
+              encoding:
+                charset: UTF-8
+                force: true
+
+          spring:
+            datasource:
+              driver-class-name: org.mariadb.jdbc.Driver
+              url: jdbc:mariadb://\${RDS_HOSTNAME}:\${RDS_PORT}/master
+              username: \${DB_USERNAME}
+              password: \${DB_PASSWORD}
+
+            data:
+              redis:
+                host: \${REDIS_HOST}
+                port: \${REDIS_PORT}
+
+            mail:
+              host: smtp.gmail.com
+              port: 587
+              username: \${EMAIL_USERNAME}
+              password: \${EMAIL_PASSWORD}
+              properties:
+                mail:
+                  smtp:
+                    auth: true
+                    starttls:
+                      enable: true
+
+            jpa:
+              generate-ddl: false
+              show-sql: true
+              database: mysql
+              properties:
+                hibernate:
+                  format_sql: true
+
+          token:
+            secret: \${SECRET_KEY}
+            access_expiration_time: 36000000
+            refresh_expiration_time: 604800000
+
+          cloud:
+            aws:
+              credentials:
+                access-key: \${AWS_ACCESS_KEY_ID}
+                secret-key: \${AWS_SECRET_ACCESS_KEY}
+              region:
+                static: ap-northeast-2
+              s3:
+                bucket: \${AWS_S3_BUCKET}
+
+          mybatis:
+            mapper-locations: classpath:/mapper/**/*.xml
+            configuration:
+              map-underscore-to-camel-case: true
+
+          logging:
+            level:
+              com.ideality.coreflow: INFO
+              org.springframework.data.redis: DEBUG
           EOL
 
       - name: Set application-deploy.yml
@@ -68,40 +125,6 @@ jobs:
       - name: Show Current Time
         run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}"
 
-      # ✅ 여기 추가
-      - name: Generate environment.yaml from secrets
-        run: |
-          mkdir -p deploy/.platform
-          cat > deploy/.platform/environment.yaml <<EOL
-          option_settings:
-            aws:elasticbeanstalk:application:environment:
-              SECRET_KEY: $SECRET_KEY
-              DB_USERNAME: $DB_USERNAME
-              DB_PASSWORD: $DB_PASSWORD
-              RDS_HOSTNAME: $RDS_HOSTNAME
-              RDS_PORT: $RDS_PORT
-              REDIS_HOST: $REDIS_HOST
-              REDIS_PORT: $REDIS_PORT
-              EMAIL_USERNAME: $EMAIL_USERNAME
-              EMAIL_PASSWORD: $EMAIL_PASSWORD
-              AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
-              AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
-              AWS_S3_BUCKET: $AWS_S3_BUCKET
-          EOL
-        env:
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          RDS_HOSTNAME: ${{ secrets.RDS_HOSTNAME }}
-          RDS_PORT: ${{ secrets.RDS_PORT }}
-          REDIS_HOST: ${{ secrets.REDIS_HOST }}
-          REDIS_PORT: ${{ secrets.REDIS_PORT }}
-          EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
-          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-
       - name: Generate deployment package
         run: |
           mkdir -p deploy
@@ -109,7 +132,6 @@ jobs:
           cp Procfile deploy/Procfile
           cp -r .ebextensions deploy/.ebextensions
           cp -r .platform deploy/.platform
-          rm -f deploy/.platform/hooks/postdeploy/01-install-redis.sh
           cd deploy && zip -r deploy.zip .
 
       - name: Check contents of deploy.zip
