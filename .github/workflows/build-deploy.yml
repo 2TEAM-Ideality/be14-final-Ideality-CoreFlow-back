@@ -30,7 +30,7 @@ jobs:
           mkdir -p src/main/resources
           cat > src/main/resources/application-deploy.yml.template <<EOL
           server:
-            port: 80
+            port: 5000
             servlet:
               encoding:
                 charset: UTF-8
