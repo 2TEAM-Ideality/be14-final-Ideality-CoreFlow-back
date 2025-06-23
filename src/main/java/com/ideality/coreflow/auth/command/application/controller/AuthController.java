@@ -32,26 +32,16 @@ public class AuthController {
     public ResponseEntity<APIResponse<?>> loginEntry(@RequestBody RequestLogin requestLogin, HttpServletResponse response) {
         ResponseTokenAndUserInfo res = authFacadeService.login(requestLogin);
 
-        // 로컬 여부 판단 (개발환경에서는 도메인 null로 설정)
-        boolean isLocal = requestLogin.getCompanyCode().equalsIgnoreCase("local") // 또는 IP로 판단해도 됨
-                || "localhost".equalsIgnoreCase(request.getServerName());
-
-        // 도메인 설정: 로컬이면 생략, 운영이면 ".core-flow.site"
-        ResponseCookie.ResponseCookieBuilder refreshCookieBuilder = ResponseCookie.from("refreshToken", res.getRefreshToken())
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", res.getRefreshToken())
                 .httpOnly(true)
-                .secure(!isLocal) // 로컬 테스트에서는 secure false
+                .secure(true)
                 .path("/")
+                .domain(".core-flow.site")
                 .maxAge(Duration.ofDays(7))
-                .sameSite("None");
-
-        if (!isLocal) {
-            refreshCookieBuilder.domain(".core-flow.site");
-        }
-
-        ResponseCookie refreshCookie = refreshCookieBuilder.build();
+                .sameSite("None")
+                .build();
         response.setHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-
-        log.info("쿠키 세팅: {}", refreshCookie);
+        log.info("쿠키임" + response.getHeader(HttpHeaders.SET_COOKIE));
 
         res.deleteRefreshToken();
         return ResponseEntity.ok(APIResponse.success(res, "로그인 성공"));
