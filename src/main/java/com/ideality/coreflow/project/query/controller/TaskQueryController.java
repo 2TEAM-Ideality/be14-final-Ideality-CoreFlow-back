@@ -28,7 +28,8 @@ public class TaskQueryController {
     @GetMapping("/detail/{taskId}")
     public ResponseEntity<APIResponse<ResponseTaskInfoDTO>> getTaskInfo (@PathVariable Long taskId) {
 
-        Long userId = null;
+        log.info("들어는 왔음");
+        Long userId = 9L;
         log.info("Getting userId {}", userId);
         ResponseTaskInfoDTO selectTask = projectQueryFacadeService.selectTaskInfo(taskId, userId);
         return ResponseEntity.ok(
