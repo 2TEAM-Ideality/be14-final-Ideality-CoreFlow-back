@@ -2,36 +2,24 @@ package com.ideality.coreflow.project.command.application.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
-import com.ideality.coreflow.holiday.query.dto.HolidayQueryDto;
 import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
-import com.ideality.coreflow.project.command.application.dto.DelayInfoDTO;
-import com.ideality.coreflow.project.command.application.dto.DelayNodeDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestModifyTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.service.ProjectService;
 import com.ideality.coreflow.project.command.application.service.TaskService;
-import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
-import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
-import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
-import com.ideality.coreflow.project.command.domain.repository.RelationRepository;
-import com.ideality.coreflow.project.command.domain.repository.TaskRepository;
 import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
 import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
 import com.ideality.coreflow.project.query.mapper.ParticipantMapper;
 import com.ideality.coreflow.notification.command.domain.aggregate.TargetType;
-import com.ideality.coreflow.project.query.mapper.TaskMapper;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
-import com.ideality.coreflow.project.query.service.RelationQueryService;
 import com.ideality.coreflow.project.query.service.WorkQueryService;
-import com.ideality.coreflow.template.query.dto.NodeDTO;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -48,7 +36,6 @@ import static com.ideality.coreflow.common.exception.ErrorCode.*;
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
 
-    private final TaskRepository taskRepository;
     private final HolidayQueryService holidayQueryService;
 
     private final ParticipantMapper participantMapper;
@@ -57,10 +44,7 @@ public class TaskServiceImpl implements TaskService {
 
     private final ProjectService projectService;
     private final WorkQueryService workQueryService;
-    private final RelationQueryService relationQueryService;
     private final WorkRepository workRepository;
-    private final ProjectRepository projectRepository;
-    private final TaskMapper taskMapper;
 
     @PersistenceContext
     private EntityManager em;
@@ -80,7 +64,7 @@ public class TaskServiceImpl implements TaskService {
                 .projectId(taskDTO.getProjectId())
                 .delayDays(0)
                 .build();
-        taskRepository.saveAndFlush(taskWork);
+        workRepository.saveAndFlush(taskWork);
         log.info("Task created with id {}", taskWork.getId());
         return taskWork.getId();
     }
@@ -89,7 +73,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     public Long updateStatusProgress(Long taskId) {
-        Work updatedTask = taskRepository.findById(taskId)
+        Work updatedTask = workRepository.findById(taskId)
                 .orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
 
 
@@ -103,7 +87,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     public Long updateStatusComplete(Long taskId) {
-        Work updatedTask = taskRepository.findById(taskId)
+        Work updatedTask = workRepository.findById(taskId)
                 .orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
 
         if (updatedTask.getProgressRate() != 100) {
@@ -136,7 +120,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     public Long softDeleteTask(Long taskId) {
-        Work deleteTask = taskRepository.findById(taskId)
+        Work deleteTask = workRepository.findById(taskId)
                 .orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
 
         if (deleteTask.getStatus() == Status.DELETED) {
@@ -153,7 +137,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         for (Long sourceId : source) {
-            if (sourceId == null || !taskRepository.existsById(sourceId)) {
+            if (sourceId == null || !workRepository.existsById(sourceId)) {
                 throw new BaseException(TASK_NOT_FOUND);
             }
         }
@@ -161,7 +145,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void validateTask(Long taskId) {
-        if (!taskRepository.existsById(taskId)) {
+        if (!workRepository.existsById(taskId)) {
             throw new BaseException(TASK_NOT_FOUND);
         }
     }
@@ -169,7 +153,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Double updateTaskProgress(Long taskId) {
         List<TaskProgressDTO> workList = workQueryService.getDetailProgressByTaskId(taskId);
-        Work task = taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+        Work task = workRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
         Long totalDuration = 0L;
         Double totalProgress = 0.0;
         for (TaskProgressDTO work : workList) {
@@ -185,7 +169,7 @@ public class TaskServiceImpl implements TaskService {
         }
         System.out.println("Num to Save = " + Math.round(totalProgress/totalDuration*10000)/100.0);
         task.setProgressRate(Math.round(totalProgress/totalDuration*10000)/100.0);
-        taskRepository.saveAndFlush(task);
+        workRepository.saveAndFlush(task);
 
         // 프로젝트 진척률도 수정
         projectService.updateProjectProgress(task.getProjectId());
@@ -195,7 +179,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public String findTaskNameById(long taskId) {
-        return taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND)).getName();
+        return workRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND)).getName();
     }
 
 
@@ -216,7 +200,7 @@ public class TaskServiceImpl implements TaskService {
         }
         System.out.println("projectEndExpect = " + projectEndExpect);
         if (!isSimulate) {
-            taskRepository.save(task);
+            workRepository.save(task);
         }
 
         // 태스크 하위 세부일정들도 지연 처리
@@ -270,14 +254,14 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void taskSave(Work currentTask) {
-        taskRepository.save(currentTask);
+        workRepository.save(currentTask);
     }
 
     @Override
     @Transactional
     public Long modifyTaskDetail(RequestModifyTaskDTO requestModifyTaskDTO, Long taskId) {
         Work modifyTask =
-                taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+                workRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
 
         modifyTask.updateTaskDetail(requestModifyTaskDTO.getDescription(),
                 requestModifyTaskDTO.getStartExpect(),
@@ -287,6 +271,6 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Work findById(Long taskId) {
-        return taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+        return workRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
     }
 }

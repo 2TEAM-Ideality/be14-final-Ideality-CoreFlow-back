@@ -9,8 +9,12 @@ import com.ideality.coreflow.attachment.command.application.dto.AttachmentPrevie
 import com.ideality.coreflow.attachment.command.application.service.AttachmentCommandService;
 import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
 import com.ideality.coreflow.attachment.query.service.AttachmentQueryService;
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.project.command.application.dto.DelayInfoDTO;
+import com.ideality.coreflow.project.command.application.service.ParticipantService;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
+import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -30,6 +35,7 @@ public class ApprovalQueryFacadeService {
     private final AttachmentCommandService attachmentCommandService;
     private final DelayReasonService delayReasonService;
     private final ProjectFacadeService projectFacadeService;
+    private final ParticipantService participantService;
 
     public List<ResponsePreviewApproval> searchMyApprovalReceive(long id) {
         return approvalQueryService.searchMyApprovalReceive(id);
@@ -51,11 +57,20 @@ public class ApprovalQueryFacadeService {
         // 결재 참여자 조회
         List<ApprovalParticipantDTO> approvalParticipant = approvalQueryService.searchApprovalParticipantById(approvalId);
 
-        List<String> hasRole = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
+        // 결재 참여자인지 아닌지
+        boolean isParticipant = approvalParticipant.stream()
+                .anyMatch(participant -> Objects.equals(participant.getParticipantId(), userId));
 
-        log.info("회원의 역할: {}", hasRole);
+        log.info("참여자인지 아닌지: {}", isParticipant);
+
+        // 태스크 참여자인지 아닌지 확인 로직 추가?
+        boolean isTaskParticipant = participantService.isParticipant(approvalDetails.getTaskId(), userId, TargetType.TASK);
+
+        log.info("태스크 참여자인지 아닌지:{}", isTaskParticipant);
+
+        if (!isParticipant && !isTaskParticipant) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
 
 
         // 첨부파일 조회

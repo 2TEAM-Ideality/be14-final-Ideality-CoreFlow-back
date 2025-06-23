@@ -36,7 +36,6 @@ public class DetailServiceImpl implements DetailService {
 
     private final WorkRepository workRepository;
     private final ParticipantService participantService;
-    private final RelationService relationService;
     private final WorkDeptService workDeptService;
     private final TaskService taskService;
 

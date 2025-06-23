@@ -125,4 +125,9 @@ public class ParticipantServiceImpl implements ParticipantService {
             log.info("참여자 추가 완료: {}", participantId);
         }
     }
+
+    @Override
+    public boolean isParticipant(long targetId, long userId, TargetType targetType) {
+        return participantRepository.existsByTargetIdAndUserIdAndTargetType(targetId, userId, targetType);
+    }
 }

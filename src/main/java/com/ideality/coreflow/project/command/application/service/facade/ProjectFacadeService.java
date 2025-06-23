@@ -517,8 +517,7 @@ public class ProjectFacadeService {
         Long notificationId = notificationService.createInviteProject(projectId, content);
         notificationRecipientsService.createRecipients(participantUser, notificationId);
     }
-    
-    // 추후 퍼사드 의의에 맞게 리팩토링 필요
+
     @Transactional
     public DelayInfoDTO delayAndPropagate(Long taskId, Integer delayDays, boolean isSimulate) {
         log.info("taskID: " + taskId);
