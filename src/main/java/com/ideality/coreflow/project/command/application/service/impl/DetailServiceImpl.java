@@ -125,39 +125,11 @@ public class DetailServiceImpl implements DetailService {
         existingDetail.setEndExpect(requestDetailDTO.getExpectEnd());
         existingDetail.setProgressRate(requestDetailDTO.getProgress());
 
-        // 선행 일정 (source) 및 후행 일정 (target) 관계 수정
-        //relationService.updateRelations(detailId, requestDetailDTO.getSource(), requestDetailDTO.getTarget());
-
-        // 책임자DTO 생성해서 수정
-        if (requestDetailDTO.getAssigneeId() != null) {
-            ParticipantDTO assigneeDTO = ParticipantDTO.builder()
-                    .targetType(TargetType.DETAILED)
-                    .taskId(detailId)
-                    .userId(requestDetailDTO.getAssigneeId())
-                    .roleId(6L)  // 담당자 역할 ID
-                    .build();
-            participantService.updateAssignee(detailId, assigneeDTO);  // 담당자 수정
-        }
-
-        // 참여자 수정
-        if (requestDetailDTO.getParticipantIds() != null && !requestDetailDTO.getParticipantIds().isEmpty()) {
-            participantService.updateParticipants(detailId, requestDetailDTO.getParticipantIds());  // 참여자 수정
-        }
-
-        // 부서 수정
-        if (requestDetailDTO.getDeptId() != null) {
-            workDeptService.updateWorkDept(detailId, requestDetailDTO.getDeptId()); // 부서 수정
-        }
-
         // 세부 일정 저장
         workRepository.saveAndFlush(existingDetail);
         log.info("세부 일정 수정 완료");
 
-        //세부일정 진척률기반으로 태스크/프로젝트 진척률 자동업데이트
-        Long taskId = existingDetail.getParentTaskId();
-        taskService.updateTaskProgress(taskId);
-
-        return detailId;
+        return existingDetail.getParentTaskId();
     }
 
 

@@ -151,7 +151,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Double updateTaskProgress(Long taskId) {
+    public Long updateTaskProgress(Long taskId) {
         List<TaskProgressDTO> workList = workQueryService.getDetailProgressByTaskId(taskId);
         Work task = workRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
         Long totalDuration = 0L;
@@ -171,10 +171,7 @@ public class TaskServiceImpl implements TaskService {
         task.setProgressRate(Math.round(totalProgress/totalDuration*10000)/100.0);
         workRepository.saveAndFlush(task);
 
-        // 프로젝트 진척률도 수정
-        projectService.updateProjectProgress(task.getProjectId());
-
-        return task.getProgressRate();
+        return task.getProjectId();
     }
 
     @Override

@@ -29,6 +29,7 @@ import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
 import com.ideality.coreflow.template.query.dto.NodeDataDTO;
+import com.ideality.coreflow.user.command.application.service.RoleService;
 import com.ideality.coreflow.user.command.application.service.UserService;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import java.time.LocalDate;
@@ -78,6 +79,7 @@ public class ProjectFacadeService {
     private final WorkQueryService workQueryService;
     private final HolidayQueryService holidayQueryService;
     private final RelationQueryService relationQueryService;
+    private final RoleService roleService;
 
     @PersistenceContext
     private EntityManager em;
@@ -85,11 +87,13 @@ public class ProjectFacadeService {
 
     @Transactional
     public Double updateProgressRate(Long taskId) {
-        return taskService.updateTaskProgress(taskId);
+        long projectId = taskService.updateTaskProgress(taskId);
+        // 프로젝트 진척률도 수정
+        return updateProjectProgressRate(projectId);
     }
 
     @Transactional
-    public Double updateProjectProgressRate(Long projectId){
+    public Double updateProjectProgressRate(Long projectId) {
         return projectService.updateProjectProgress(projectId);
     }
 
@@ -425,7 +429,35 @@ public class ProjectFacadeService {
     @Transactional
     public Long updateDetail(Long detailId, RequestDetailDTO requestDetailDTO) {
         // DetailService에서 세부 일정 수정 로직 호출
-        return detailService.updateDetail(detailId, requestDetailDTO);
+        long taskId = detailService.updateDetail(detailId, requestDetailDTO);
+
+        long roleId = roleService.findRoleByName("ASSIGNEE");
+
+        // 책임자DTO 생성해서 수정
+        if (requestDetailDTO.getAssigneeId() != null) {
+            ParticipantDTO assigneeDTO = ParticipantDTO.builder()
+                    .targetType(TargetType.DETAILED)
+                    .taskId(detailId)
+                    .userId(requestDetailDTO.getAssigneeId())
+                    .roleId(roleId)  // 담당자 역할 ID
+                    .build();
+            participantService.updateAssignee(detailId, assigneeDTO);  // 담당자 수정
+        }
+
+        // 참여자 수정
+        if (requestDetailDTO.getParticipantIds() != null && !requestDetailDTO.getParticipantIds().isEmpty()) {
+            participantService.updateParticipants(detailId, requestDetailDTO.getParticipantIds());  // 참여자 수정
+        }
+
+        // 부서 수정
+        if (requestDetailDTO.getDeptId() != null) {
+            workDeptService.updateWorkDept(detailId, requestDetailDTO.getDeptId()); // 부서 수정
+        }
+
+        //세부일정 진척률기반으로 태스크/프로젝트 진척률 자동업데이트
+        taskService.updateTaskProgress(taskId);
+
+        return detailId;
     }
 
     // 1. 시작 버튼 (Status: PROGRESS, startReal: 현재 날짜)
