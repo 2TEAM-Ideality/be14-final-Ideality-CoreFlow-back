@@ -120,7 +120,7 @@ INSERT INTO delay_reason (id, reason) VALUES
 
 -- [1] 샘플 제작 (work_id = 10, delay_days = 3)
 INSERT INTO approval (id, user_id, title, type, status, content, created_at, approved_at, work_id)
-VALUES (1001, 1, '샘플 제작 지연 승인 요청', 'DELAY', 'APPROVED', '샘플 제작이 자재 수급 지연으로 인해 3일 지연되었습니다.', '2025-07-28 09:00:00', '2025-07-28 12:00:00', 10);
+VALUES (2000, 1, '샘플 제작 지연 승인 요청', 'DELAY', 'APPROVED', '샘플 제작이 자재 수급 지연으로 인해 3일 지연되었습니다.', '2025-07-28 09:00:00', '2025-07-28 12:00:00', 10);
 
 INSERT INTO approval_participant (id, approval_id, user_id, role, created_at)
 VALUES

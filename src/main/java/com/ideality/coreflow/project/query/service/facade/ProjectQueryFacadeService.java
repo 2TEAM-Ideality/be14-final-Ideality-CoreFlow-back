@@ -37,6 +37,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -148,6 +151,32 @@ public class ProjectQueryFacadeService {
         String deptName = userQueryService.getDeptNameByUserId(userId);
         Long deptId = deptQueryService.findDeptIdByName(deptName);
 		return workService.selectWorksByDeptId(deptId);
+    }
+
+    // 오늘의 부서 일정 조회
+    public List<DeptWorkDTO> selectTodayWorksByDeptId(Long userId) {
+        String deptName = userQueryService.getDeptNameByUserId(userId);
+        Long deptId = deptQueryService.findDeptIdByName(deptName);
+        List<DeptWorkDTO> totalWorks = workService.selectWorksByDeptId(deptId);
+
+        LocalDate today = LocalDate.now();
+
+        return totalWorks.stream()
+            .filter(work -> {
+                LocalDate start = toLocalDate(work.getStartExpect());
+                LocalDate end = toLocalDate(work.getEndExpect());
+
+                // 오늘이 시작일과 종료일 사이에 포함되는 일정만
+                return (start != null && end != null &&
+                    ( !today.isBefore(start) && !today.isAfter(end) ));
+            })
+            .collect(Collectors.toList());
+    }
+
+    // 날짜 파싱
+    private LocalDate toLocalDate(Date date) {
+        if (date == null) return null;
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     public PipelineResponseDTO getPipeline (Long projectId) {
