@@ -109,17 +109,23 @@ public class ProjectFacadeService {
 
     //
     @Transactional
-    public Double updatePassedRate(Long workId) {
-        DateInfoDTO dateInfo = workService.findDateInfoByWorkId(workId);
+    public Double updatePassedRate(Long targetId, TargetType type) {
+        DateInfoDTO dateInfo;
 
-        double passedRate = workDomainService.calculatePassedRate(dateInfo);
+        if (type == TargetType.PROJECT) {
+            dateInfo = projectService.findDateInfoByProjectId(targetId);
+        } else {
+            dateInfo = workService.findDateInfoByWorkId(targetId);
+        }
+
+        double passedRate = workDomainService.calculatePassedRate(dateInfo, type);
         log.info("passedRate: {}", passedRate);
-        return workService.updatePassedRate(workId, passedRate);
-    }
 
-    @Transactional
-    public Double updateProjectPassedRate(Long projectId){
-        return projectService.updateProjectPassedRate(projectId);
+        if (type == TargetType.PROJECT) {
+            return projectService.updateProjectPassedRate(targetId, passedRate);
+        } else {
+            return workService.updatePassedRate(targetId, passedRate);
+        }
     }
 
     @Transactional

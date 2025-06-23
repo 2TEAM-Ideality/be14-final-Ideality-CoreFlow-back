@@ -2,14 +2,17 @@ package com.ideality.coreflow.project.command.domain.service;
 
 import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.project.command.application.dto.DateInfoDTO;
+import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.query.dto.WorkProgressDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class WorkDomainServiceImpl implements WorkDomainService {
@@ -33,7 +36,7 @@ public class WorkDomainServiceImpl implements WorkDomainService {
     }
 
     @Override
-    public double calculatePassedRate(DateInfoDTO dateInfo) {
+    public double calculatePassedRate(DateInfoDTO dateInfo, TargetType type) {
         LocalDate now = LocalDate.now();
         LocalDate endBase = dateInfo.getEndBase();
         LocalDate startBase = dateInfo.getStartBase();
@@ -41,9 +44,17 @@ public class WorkDomainServiceImpl implements WorkDomainService {
 
         long totalDuration = ChronoUnit.DAYS.between(startBase, endBase) + 1
                 - holidayQueryService.countHolidaysBetween(startBase, endBase);
-        long passedDates = ChronoUnit.DAYS.between(startReal, now) + 1
-                - holidayQueryService.countHolidaysBetween(startReal, now);
-        Double passedRate = (double) passedDates / totalDuration * 100;
+        log.info("totalDuration = " + totalDuration);
+        long passedDates = 0;
+        if (type == TargetType.PROJECT) {
+            passedDates = ChronoUnit.DAYS.between(startReal, now) + 1
+                    - holidayQueryService.countHolidaysBetween(startBase, now);
+        } else {
+            passedDates = ChronoUnit.DAYS.between(startReal, now) + 1
+                    - holidayQueryService.countHolidaysBetween(startReal, now);
+        }
+        log.info("passedDates = " + passedDates);
+        double passedRate = (double) passedDates / totalDuration * 100;
         return passedRate > 100 ? 100 : Math.round(passedRate*100) / 100.0;
     }
 }

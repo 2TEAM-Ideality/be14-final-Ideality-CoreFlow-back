@@ -9,6 +9,8 @@ import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -64,7 +66,7 @@ public class ProjectController {
 
     @PatchMapping("/{projectId}/passed-rate")
     public ResponseEntity<APIResponse<Map<String,Object>>> updateProjectPassedRate(@PathVariable Long projectId){
-        Double updatedPassedRate = projectFacadeService.updateProjectPassedRate(projectId);
+        Double updatedPassedRate = projectFacadeService.updatePassedRate(projectId, TargetType.PROJECT);
         return ResponseEntity.ok(
                 APIResponse.success(Map.of("updatedPassedRate", updatedPassedRate),
                         projectId + "번 프로젝트의 경과율이 업데이트 되었습니다")

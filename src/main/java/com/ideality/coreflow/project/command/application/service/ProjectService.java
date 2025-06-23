@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.command.application.service;
 
+import com.ideality.coreflow.project.command.application.dto.DateInfoDTO;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
@@ -18,11 +19,13 @@ public interface ProjectService {
 
     Long updateProjectStatus(Long projectId, Status targetStatus);
 
-    Double updateProjectPassedRate(Long projectId);
+    Double updateProjectPassedRate(Long projectId, Double passedRate);
 
-    Double updateProjectProgress(Long projectId, double progress);
+    Double updateProjectProgress(Long projectId, Double progress);
 
     ProjectDateDTO findProjectDateById(Long projectId);
 
     void projectSave(Project project);
+
+    DateInfoDTO findDateInfoByProjectId(Long projectId);
 }

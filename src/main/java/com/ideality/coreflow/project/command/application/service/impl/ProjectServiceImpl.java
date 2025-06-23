@@ -3,6 +3,7 @@ package com.ideality.coreflow.project.command.application.service.impl;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
+import com.ideality.coreflow.project.command.application.dto.DateInfoDTO;
 import com.ideality.coreflow.project.command.application.service.ProjectService;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
@@ -99,26 +100,15 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Double updateProjectPassedRate(Long projectId) {
+    public Double updateProjectPassedRate(Long projectId, Double passedRate) {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
-        LocalDate endBase = project.getEndBase();
-        LocalDate startBase = project.getStartBase();
-        Long totalDuration = ChronoUnit.DAYS.between(startBase, endBase)+1-holidayQueryService.countHolidaysBetween(startBase, endBase);
-        log.info("totalDuration = " + totalDuration);
-
-        LocalDate now = LocalDate.now();
-        Long passedDates = ChronoUnit.DAYS.between(startBase, now)+1-holidayQueryService.countHolidaysBetween(startBase, now);
-        log.info("passedDates = " + passedDates);
-
-        Double passedRate =(double) passedDates/totalDuration*100;
-        passedRate = passedRate>100?100:Math.round(passedRate*100)/100.0;
-        project.setPassedRate(passedRate);
+        project.updatePassedRate(passedRate);
         projectRepository.saveAndFlush(project);
-        return passedRate;
+        return project.getPassedRate();
     }
 
     @Override
-    public Double updateProjectProgress(Long projectId, double progress) {
+    public Double updateProjectProgress(Long projectId, Double progress) {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         System.out.println("project = " + project);
 
@@ -140,5 +130,18 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void projectSave(Project project) {
         projectRepository.save(project);
+    }
+
+    @Override
+    public DateInfoDTO findDateInfoByProjectId(Long projectId) {
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+        return DateInfoDTO.builder()
+                .startBase(project.getStartBase())
+                .endBase(project.getEndBase())
+                .startReal(project.getStartReal())
+                .endReal(project.getEndReal())
+                .startExpect(project.getStartExpect())
+                .endExpect(project.getEndExpect())
+                .build();
     }
 }

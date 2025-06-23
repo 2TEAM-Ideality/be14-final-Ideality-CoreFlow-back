@@ -79,5 +79,9 @@ public class Project {
 	public void updateProgressRate(Double progressRate) {
 		this.progressRate = progressRate;
 	}
+
+	public void updatePassedRate(Double passedRate) {
+		this.passedRate = passedRate;
+	}
 }
 
