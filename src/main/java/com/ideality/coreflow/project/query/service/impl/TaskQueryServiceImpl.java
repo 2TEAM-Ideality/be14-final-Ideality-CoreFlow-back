@@ -14,6 +14,7 @@ import com.ideality.coreflow.project.query.mapper.WorkMapper;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +52,47 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     @Override
     public List<CompletedTaskDTO> selectCompletedTasks(Long projectId) {
         return taskMapper.selectCompletedTasks(projectId);
+    }
+
+    // 프로젝트별 납기준수율 계산하기
+    @Override
+    public List<ProjectOTD> calculateProjectDTO(List<CompletedProjectDTO> completedProjectList) {
+
+        List<ProjectOTD> OTDList = new ArrayList<>();
+        for(CompletedProjectDTO project : completedProjectList) {
+
+            int CompletedOnTime = 0;     // 기한 내 완료 태스크 개수
+            int NotCompletedOnTime = 0; // 기한 내 미완료 태스크 개수
+            // 특정 프로젝트의 완료된 태스크 목록 가져오기
+            List<CompletedTaskDTO> taskList = taskMapper.selectCompletedTasks(project.getId());
+            int taskLength = taskList.size();
+
+            for(CompletedTaskDTO task : taskList) {
+                if(task.getDelayDays() > 0){
+                    NotCompletedOnTime ++;
+                }else{
+                    CompletedOnTime ++;
+                }
+            }
+            System.out.println("프로젝트명 -----------" + project.getName());
+            System.out.println("전체 태스크 개수"  + taskLength);
+            System.out.println("CompletedOnTime = " + CompletedOnTime);
+            System.out.println("NotCompletedOnTime = " + NotCompletedOnTime);
+
+            double OTD = taskLength > 0 ? (CompletedOnTime * 100.0) / taskLength : 0.0;
+            System.out.println("OTD = " + OTD);
+            ProjectOTD newProjectOTD = ProjectOTD.builder()
+                    .projectId(project.getId())
+                    .projectName(project.getName())
+                    .otdRate(OTD)
+                    .totalTask(taskLength)
+                    .completedOnTime(CompletedOnTime)
+                    .notCompletedOnTime(NotCompletedOnTime)
+                    .build();
+            OTDList.add(newProjectOTD);
+        }
+
+        return OTDList;
     }
 
     @Override
@@ -101,7 +143,7 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     }
 
     @Override
-    public List<TaskProgressDTO> getTaskProgressByProjectId(Long projectId) {
+    public List<WorkProgressDTO> getTaskProgressByProjectId(Long projectId) {
         return taskMapper.selectTaskProgressByProjectId(projectId);
     }
 

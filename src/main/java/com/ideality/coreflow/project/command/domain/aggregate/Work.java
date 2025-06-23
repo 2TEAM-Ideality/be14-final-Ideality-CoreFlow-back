@@ -98,5 +98,9 @@ public class Work {
 		this.startExpect = startExpect;
 		this.endExpect = endExpect;
     }
+
+	public void updateProgressRate(double progressRate) {
+		this.progressRate = progressRate;
+	}
 }
 

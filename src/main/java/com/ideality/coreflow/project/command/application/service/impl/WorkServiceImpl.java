@@ -61,4 +61,14 @@ public class WorkServiceImpl implements WorkService {
                         )
                 ));
     }
+
+    @Override
+    public Work findById(Long workId) {
+        return workRepository.findById(workId).orElseThrow(()->new BaseException(WORK_NOT_FOUND));
+    }
+
+    @Override
+    public long findProjectIdByTaskId(Long taskId) {
+        return workRepository.findById(taskId).orElseThrow(()->new BaseException(WORK_NOT_FOUND)).getProjectId();
+    }
 }

@@ -6,7 +6,6 @@ import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.query.dto.*;
 
 import java.util.List;
-import org.apache.ibatis.javassist.NotFoundException;
 
 public interface ProjectService {
     void existsById(Long projectId);
@@ -17,13 +16,11 @@ public interface ProjectService {
 
     Project findById(Long projectId);
 
-    Long updateProjectStatus(Project project, Status targetStatus);
+    Long updateProjectStatus(Long projectId, Status targetStatus);
 
     Double updateProjectPassedRate(Long projectId);
 
-    Double updateProjectProgress(Long projectId);
-
-    List<ProjectOTD> calculateProjectOTD(List<CompletedProjectDTO> completedProjectList);
+    Double updateProjectProgress(Long projectId, double progress);
 
     ProjectDateDTO findProjectDateById(Long projectId);
 

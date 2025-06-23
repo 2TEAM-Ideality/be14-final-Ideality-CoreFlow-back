@@ -156,4 +156,9 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
         return projectMapper.selectProjectByDeptId(deptId);
     }
 
+    @Override
+    public String findProjectNameByProjectId(Long projectId) {
+        return findProjectNameByProjectId(projectId);
+    }
+
 }

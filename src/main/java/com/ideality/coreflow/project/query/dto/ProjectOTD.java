@@ -1,7 +1,5 @@
 package com.ideality.coreflow.project.query.dto;
 
-import com.ideality.coreflow.project.command.domain.aggregate.Status;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

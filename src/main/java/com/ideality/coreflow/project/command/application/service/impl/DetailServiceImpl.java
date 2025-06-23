@@ -35,9 +35,6 @@ import static com.ideality.coreflow.common.exception.ErrorCode.TASK_NOT_FOUND;
 public class DetailServiceImpl implements DetailService {
 
     private final WorkRepository workRepository;
-    private final ParticipantService participantService;
-    private final WorkDeptService workDeptService;
-    private final TaskService taskService;
 
     @Override
     @Transactional

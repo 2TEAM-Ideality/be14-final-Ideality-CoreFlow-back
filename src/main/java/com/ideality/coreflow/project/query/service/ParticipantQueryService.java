@@ -50,4 +50,6 @@ public interface ParticipantQueryService {
     List<Long> findParticipantsByTaskId(Long id);
 
     Long findDirectorByProjectId(Long id);
+
+    List<Long> findNextTaskUsersByTaskId(Long taskId);
 }

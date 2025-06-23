@@ -3,18 +3,13 @@ package com.ideality.coreflow.project.command.application.service.impl;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
-import com.ideality.coreflow.notification.command.application.service.NotificationService;
 import com.ideality.coreflow.project.command.application.dto.RequestModifyTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
-import com.ideality.coreflow.project.command.application.service.ProjectService;
 import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
-import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
-import com.ideality.coreflow.project.query.mapper.ParticipantMapper;
-import com.ideality.coreflow.notification.command.domain.aggregate.TargetType;
-import com.ideality.coreflow.project.query.service.TaskQueryService;
+import com.ideality.coreflow.project.query.dto.WorkProgressDTO;
 import com.ideality.coreflow.project.query.service.WorkQueryService;
 
 import java.time.LocalDate;
@@ -37,12 +32,6 @@ import static com.ideality.coreflow.common.exception.ErrorCode.*;
 public class TaskServiceImpl implements TaskService {
 
     private final HolidayQueryService holidayQueryService;
-
-    private final ParticipantMapper participantMapper;
-    private final NotificationService notificationService;
-    private final TaskQueryService taskQueryService;
-
-    private final ProjectService projectService;
     private final WorkQueryService workQueryService;
     private final WorkRepository workRepository;
 
@@ -104,16 +93,6 @@ public class TaskServiceImpl implements TaskService {
 
         updatedTask.endTask();
 
-        // 후행 태스크에 참여하는 사용자에게 알림 전송
-        List<Long> userIds = participantMapper.findNextTaskUsersByTaskId(taskId);
-
-        String taskName =  taskQueryService.getTaskName(taskId);
-
-        // 각 사용자에게 알림 전송
-        for (Long userId : userIds) {
-            notificationService.sendNotification(userId, "선행 태스크["+ taskName + "]가 완료되었습니다.", updatedTask.getId(), TargetType.WORK);
-        }
-
         return updatedTask.getId();
     }
 
@@ -151,27 +130,9 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Long updateTaskProgress(Long taskId) {
-        List<TaskProgressDTO> workList = workQueryService.getDetailProgressByTaskId(taskId);
-        Work task = workRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
-        Long totalDuration = 0L;
-        Double totalProgress = 0.0;
-        for (TaskProgressDTO work : workList) {
-            log.info(work.toString());
-            Long duration = (ChronoUnit.DAYS.between(work.getStartDate(), work.getEndDate()) + 1
-                    - holidayQueryService.countHolidaysBetween(work.getStartDate(), work.getEndDate()));
-            totalDuration += duration;
-            System.out.println("duration = " + duration);
-
-            Double progress = duration * (work.getProgressRate()/100);
-            System.out.println("progress = " + progress);
-            totalProgress += progress;
-        }
-        System.out.println("Num to Save = " + Math.round(totalProgress/totalDuration*10000)/100.0);
-        task.setProgressRate(Math.round(totalProgress/totalDuration*10000)/100.0);
-        workRepository.saveAndFlush(task);
-
-        return task.getProjectId();
+    public void updateProgressRate(Long taskId, double progress) {
+        Work work = findById(taskId);
+        work.updateProgressRate(progress);
     }
 
     @Override

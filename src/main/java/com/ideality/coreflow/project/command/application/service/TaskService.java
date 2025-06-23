@@ -23,7 +23,7 @@ public interface TaskService {
 
     void validateTask(Long taskId);
 
-    Long updateTaskProgress(Long taskId);
+    void updateProgressRate(Long taskId, double progress);
 
     String findTaskNameById(long taskId);
 

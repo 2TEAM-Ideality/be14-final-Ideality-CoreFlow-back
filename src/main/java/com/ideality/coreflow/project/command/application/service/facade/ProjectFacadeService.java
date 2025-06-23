@@ -13,17 +13,14 @@ import com.ideality.coreflow.notification.command.application.service.Notificati
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
 import com.ideality.coreflow.org.query.service.DeptQueryService;
 import com.ideality.coreflow.project.command.application.dto.*;
+import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
-import com.ideality.coreflow.project.query.dto.CompletedProjectDTO;
-import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
-import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
-import com.ideality.coreflow.project.query.dto.ProjectOTD;
-import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
-import com.ideality.coreflow.project.query.dto.ProjectParticipantDTO;
+import com.ideality.coreflow.project.command.domain.service.WorkDomainService;
+import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.project.query.service.*;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
@@ -41,14 +38,13 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.Collectors;
 
-import static com.ideality.coreflow.common.exception.ErrorCode.PROJECT_NOT_FOUND;
-import static com.ideality.coreflow.common.exception.ErrorCode.TASK_NOT_FOUND;
+import static com.ideality.coreflow.notification.command.domain.aggregate.TargetType.PROJECT;
+import static com.ideality.coreflow.notification.command.domain.aggregate.TargetType.WORK;
 
 
 @Service
@@ -80,21 +76,35 @@ public class ProjectFacadeService {
     private final HolidayQueryService holidayQueryService;
     private final RelationQueryService relationQueryService;
     private final RoleService roleService;
+    private final WorkDomainService workDomainService;
 
     @PersistenceContext
     private EntityManager em;
 
-
+    //
     @Transactional
     public Double updateProgressRate(Long taskId) {
-        long projectId = taskService.updateTaskProgress(taskId);
+
+        List<WorkProgressDTO> detailList = workQueryService.getDetailProgressByTaskId(taskId);
+
+        double progress = workDomainService.calculateProgressRate(detailList)
+        taskService.updateProgressRate(taskId, progress);
+        long projectId = workService.findProjectIdByTaskId(taskId);
+
         // 프로젝트 진척률도 수정
-        return updateProjectProgressRate(projectId);
+        updateProjectProgressRate(projectId);
+
+        return progress;
     }
 
+    //
     @Transactional
     public Double updateProjectProgressRate(Long projectId) {
-        return projectService.updateProjectProgress(projectId);
+        List<WorkProgressDTO> taskList = taskQueryService.getTaskProgressByProjectId(projectId);
+
+        double progress = workDomainService.calculateProgressRate(taskList);
+
+        return projectService.updateProjectProgress(projectId, progress);
     }
 
     @Transactional
@@ -108,33 +118,16 @@ public class ProjectFacadeService {
     }
 
     @Transactional
-    public Long updateProjectStatus(Long projectId, Long userId, Status targetStatus)
-            throws NotFoundException, IllegalAccessException {
-        Project project = projectService.findById(projectId);
-
-        if(project.getStatus()==targetStatus){
-            throw new IllegalStateException("이미 '" + targetStatus + "' 상태입니다.");
-        }
-
+    public Long updateProjectStatus(Long projectId, Long userId, Status targetStatus) {
         if(!participantQueryService.isProjectDirector(projectId, userId)){
-            throw new IllegalAccessException("이 프로젝트의 디렉터가 아닙니다");
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
         }
 
-        if (targetStatus == Status.COMPLETED) {
-            if (project.getStatus() != Status.PROGRESS) {
-                throw new IllegalStateException("진행중(PROGRESS) 상태의 프로젝트만 완료(COMPLETED)로 전환할 수 있습니다");
-            }
-            if (!taskQueryService.isAllTaskCompleted(projectId)) {
-                throw new IllegalStateException("모든 태스크가 완료되지 않았습니다");
-            }
+        if (targetStatus == Status.COMPLETED && !taskQueryService.isAllTaskCompleted(projectId)) {
+            throw new BaseException(ErrorCode.NOT_COMPLETED_TASK);
         }
 
-        if (targetStatus == Status.PENDING &&
-                !EnumSet.of(Status.DELETED, Status.CANCELLED).contains(project.getStatus())) {
-            throw new IllegalStateException(project.getStatus()+" 상태에서는 PENDING으로 전환할 수 없습니다");
-        }
-
-        return projectService.updateProjectStatus(project, targetStatus);
+        return projectService.updateProjectStatus(projectId, targetStatus);
     }
 
     @Transactional
@@ -177,7 +170,7 @@ public class ProjectFacadeService {
             if (taskDeptIds.contains(deptId)) {
                 matchedLeaders.add(
                         ParticipantDTO.builder()
-                                .taskId(taskId)
+                                .targetId(taskId)
                                 .userId(leader.getUserId())
                                 .targetType(TargetType.TASK)
                                 .roleId(2L)
@@ -186,7 +179,7 @@ public class ProjectFacadeService {
             }
         }
         if (!matchedLeaders.isEmpty()) {
-            participantService.createParticipants(matchedLeaders);
+            createParticipants(matchedLeaders);
         }
     }
 
@@ -218,24 +211,24 @@ public class ProjectFacadeService {
 
         List<ParticipantDTO> leaders = leaderIds.stream()
                 .map(userId -> ParticipantDTO.builder()
-                        .taskId(projectId)
+                        .targetId(projectId)
                         .userId(userId)
                         .targetType(TargetType.PROJECT)
                         .roleId(2L)
                         .build()
                 ).toList();
-        participantService.createParticipants(leaders);
+        createParticipants(leaders);
         return leaders;
     }
 
     private void registerProjectDirector(Long projectId, Long directorId) {
         ParticipantDTO participant = ParticipantDTO.builder()
-                .taskId(projectId)
+                .targetId(projectId)
                 .userId(directorId)
                 .targetType(TargetType.PROJECT)
                 .roleId(1L)
                 .build();
-        participantService.createParticipants(List.of(participant));
+        createParticipants(List.of(participant));
     }
 
     private Project registerProject(ProjectCreateRequest request) {
@@ -306,7 +299,7 @@ public class ProjectFacadeService {
             List<ParticipantDTO> leaderParticipants = leaderIds.stream()
                     .map(leaderId -> new ParticipantDTO(taskId, leaderId, TargetType.TASK, 2L))
                     .toList();
-            participantService.createParticipants(leaderParticipants);
+            createParticipants(leaderParticipants);
             log.info("팀장 등록 완료");
 
             // ✅ 2. 팀원 등록 (디렉터 & 팀장 제외)
@@ -315,7 +308,7 @@ public class ProjectFacadeService {
                     .filter(participantUserId -> !userId.equals(directorId))        // 디렉터 제외
                     .map(participantUserId -> new ParticipantDTO(taskId, userId, TargetType.TASK, 3L))
                     .toList();
-            participantService.createParticipants(teamParticipants);
+            createParticipants(teamParticipants);
             log.info("팀원 등록 완료");
 
         }
@@ -343,6 +336,16 @@ public class ProjectFacadeService {
             throw new BaseException(ErrorCode.ACCESS_DENIED_TEAMLEADER);
         }
         Long updateTaskId = taskService.updateStatusComplete(taskId);
+
+        // 후행 태스크에 참여하는 사용자에게 알림 전송
+        List<Long> userIds = participantQueryService.findNextTaskUsersByTaskId(taskId);
+
+        String taskName =  taskQueryService.getTaskName(taskId);
+
+        // 각 사용자에게 알림 전송
+        for (Long id : userIds) {
+            notificationService.sendNotification(userId, "선행 태스크["+ taskName + "]가 완료되었습니다.", updateTaskId, com.ideality.coreflow.notification.command.domain.aggregate.TargetType.WORK);
+        }
 
         return updateTaskId;
     }
@@ -401,7 +404,7 @@ public class ProjectFacadeService {
         //DTO로 담당자 정보 받아오기
         ParticipantDTO AssigneeDTO = ParticipantDTO.builder()
                 .targetType(TargetType.DETAILED)
-                .taskId(detailId)
+                .targetId(detailId)
                 .userId(requestDetailDTO.getAssigneeId())
                 .roleId(6L)
                 .build();
@@ -413,7 +416,7 @@ public class ProjectFacadeService {
             // 담당자 DTO 생성
             ParticipantDTO participants = ParticipantDTO.builder()
                     .targetType(TargetType.DETAILED)
-                    .taskId(detailId)  // 해당 세부일정의 ID
+                    .targetId(detailId)  // 해당 세부일정의 ID
                     .userId(participantId)  // 참여자 ID
                     .roleId(7L)  // 참여자임을 의미
                     .build();
@@ -437,7 +440,7 @@ public class ProjectFacadeService {
         if (requestDetailDTO.getAssigneeId() != null) {
             ParticipantDTO assigneeDTO = ParticipantDTO.builder()
                     .targetType(TargetType.DETAILED)
-                    .taskId(detailId)
+                    .targetId(detailId)
                     .userId(requestDetailDTO.getAssigneeId())
                     .roleId(roleId)  // 담당자 역할 ID
                     .build();
@@ -455,7 +458,7 @@ public class ProjectFacadeService {
         }
 
         //세부일정 진척률기반으로 태스크/프로젝트 진척률 자동업데이트
-        taskService.updateTaskProgress(taskId);
+        updateProgressRate(taskId);
 
         return detailId;
     }
@@ -496,13 +499,13 @@ public class ProjectFacadeService {
         // 리더 삽입 -> 기존 로직 활용
         List<ParticipantDTO> leaders = leaderUserIds.stream()
                 .map(leaderId -> ParticipantDTO.builder()
-                        .taskId(projectId)
+                        .targetId(projectId)
                         .userId(leaderId)
                         .targetType(TargetType.PROJECT)
                         .roleId(2L)
                         .build()
                 ).toList();
-        participantService.createParticipants(leaders);
+        createParticipants(leaders);
 
         // 초대 됐다는 알림 작성
         String writerName = userQueryService.getUserId(userId);
@@ -534,13 +537,13 @@ public class ProjectFacadeService {
         // 이제 참여자 초대
         List<ParticipantDTO> teamMember = participantUser.stream()
                 .map(leaderId -> ParticipantDTO.builder()
-                        .taskId(projectId)
+                        .targetId(projectId)
                         .userId(leaderId)
                         .targetType(TargetType.PROJECT)
                         .roleId(3L)
                         .build()
                 ).toList();
-        participantService.createParticipants(teamMember);
+        createParticipants(teamMember);
 
         // 초대 됐다는 알림 작성
         String writerName = userQueryService.getUserId(userId);
@@ -727,7 +730,7 @@ public class ProjectFacadeService {
         // 프로젝트별 태스크 리스트 가져오기
 
         // 각 프로젝트의 OTD 계산하기
-        List<ProjectOTD> projectOTDList = projectService.calculateProjectOTD(completedProjectList);
+        List<ProjectOTD> projectOTDList = taskQueryService.calculateProjectDTO(completedProjectList);
         for(ProjectOTD projectOTD : projectOTDList) {
             System.out.println(projectOTD.getProjectName() + " " + projectOTD.getOtdRate());
         }
@@ -788,5 +791,29 @@ public class ProjectFacadeService {
 
     public String findTaskNameById(long taskId) {
         return taskService.findTaskNameById(taskId);
+    }
+
+    private void createParticipants(List<ParticipantDTO> taskParticipants) {
+
+        long roleId = roleService.findRoleByName("TEAM_LEADER");
+
+        for (ParticipantDTO participant : taskParticipants) {
+            participantService.createParticipants(participant);
+            if (participant.getRoleId() == roleId) {
+                String content = "";
+                if (participant.getTargetType() == TargetType.TASK) { // TARGET TYPE이 TASK일 때
+                    // WORK 테이블에서 태스크 이름 조회
+                    String taskName = workQueryService.findTaskNameByTaskId(participant.getTargetId());
+                    content = "태스크 [" + taskName + "]에 팀장으로 초대되었습니다.";
+                    // 알림 전송
+                    notificationService.sendNotification(participant.getUserId(), content, participant.getTargetId(), WORK);
+                } else if (participant.getTargetType() == TargetType.PROJECT) { // TARGET TYPE이 PROJECT일 때
+                    // PROJECT 테이블에서 프로젝트 이름 조회
+                    String projectName = projectQueryService.findProjectNameByProjectId(participant.getTargetId());
+                    content = "프로젝트 [" + projectName + "]에 팀장으로 초대되었습니다.";
+                    notificationService.sendNotification(participant.getUserId(), content, participant.getTargetId(), PROJECT);
+                }
+            }
+        }
     }
 }
