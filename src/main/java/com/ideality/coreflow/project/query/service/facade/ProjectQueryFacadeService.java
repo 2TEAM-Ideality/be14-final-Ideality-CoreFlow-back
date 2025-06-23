@@ -109,7 +109,7 @@ public class ProjectQueryFacadeService {
         * */
 
         /* 설명. 프로젝트에 참여중인 사람만이 이 정보를 볼 수 있음(예외처리) */
-        Long projectId = taskQueryService.selectProjectIdByTaskId(taskId);
+//        Long projectId = taskQueryService.selectProjectIdByTaskId(taskId);
         log.info("여기까지 왔음");
 
 //        boolean isParticipant = participantQueryService.isParticipant(userId, projectId);
