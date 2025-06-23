@@ -40,6 +40,7 @@ public class AuthController {
                 .sameSite("None")
                 .build();
         response.setHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+        log.info("쿠키임" + response.getHeader(HttpHeaders.SET_COOKIE));
 
         res.deleteRefreshToken();
         return ResponseEntity.ok(APIResponse.success(res, "로그인 성공"));
