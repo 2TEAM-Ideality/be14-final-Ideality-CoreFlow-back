@@ -33,7 +33,7 @@
             a.size,
             a.target_type,
             a.target_id
-        FROM ATTACHMENT a
+        FROM attachment a
         WHERE a.target_id = #{targetId}
         AND a.target_type = #{targetType}
     </select>
