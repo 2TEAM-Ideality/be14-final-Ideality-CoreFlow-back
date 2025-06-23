@@ -87,7 +87,7 @@ public class ProjectFacadeService {
 
         List<WorkProgressDTO> detailList = workQueryService.getDetailProgressByTaskId(taskId);
 
-        double progress = workDomainService.calculateProgressRate(detailList)
+        double progress = workDomainService.calculateProgressRate(detailList);
         taskService.updateProgressRate(taskId, progress);
         long projectId = workService.findProjectIdByTaskId(taskId);
 
@@ -107,9 +107,14 @@ public class ProjectFacadeService {
         return projectService.updateProjectProgress(projectId, progress);
     }
 
+    //
     @Transactional
-    public Double updatePassedRate(Long workId){
-        return workService.updatePassedRate(workId);
+    public Double updatePassedRate(Long workId) {
+        DateInfoDTO dateInfo = workService.findDateInfoByWorkId(workId);
+
+        double passedRate = workDomainService.calculatePassedRate(dateInfo);
+        log.info("passedRate: {}", passedRate);
+        return workService.updatePassedRate(workId, passedRate);
     }
 
     @Transactional

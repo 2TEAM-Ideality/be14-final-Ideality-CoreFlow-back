@@ -4,6 +4,7 @@ import static com.ideality.coreflow.common.exception.ErrorCode.WORK_NOT_FOUND;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
+import com.ideality.coreflow.project.command.application.dto.DateInfoDTO;
 import com.ideality.coreflow.project.command.application.service.WorkService;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
@@ -27,21 +28,9 @@ public class WorkServiceImpl implements WorkService {
     private final HolidayQueryService holidayQueryService;
 
     @Override
-    @Transactional
-    public Double updatePassedRate(Long workId) {
+    public Double updatePassedRate(Long workId, double passedRate) {
         Work work = workRepository.findById(workId).orElseThrow(()->new BaseException(WORK_NOT_FOUND));
-        LocalDate now = LocalDate.now();
-        LocalDate endBase = work.getEndBase();
-        LocalDate startBase = work.getStartBase();
-        LocalDate startReal = work.getStartReal();
-
-        Long totalDuration = ChronoUnit.DAYS.between(startBase, endBase)+1
-                -holidayQueryService.countHolidaysBetween(startBase, endBase);
-        Long passedDates = ChronoUnit.DAYS.between(startReal, now)+1
-                -holidayQueryService.countHolidaysBetween(startReal, now);
-        Double passedRate = (double) passedDates / totalDuration * 100;
-        passedRate = passedRate>100?100:Math.round(passedRate*100)/100.0;
-        work.setPassedRate(passedRate);
+        work.updatePassedRate(passedRate);
         workRepository.saveAndFlush(work);
         return work.getPassedRate();
     }
@@ -70,5 +59,18 @@ public class WorkServiceImpl implements WorkService {
     @Override
     public long findProjectIdByTaskId(Long taskId) {
         return workRepository.findById(taskId).orElseThrow(()->new BaseException(WORK_NOT_FOUND)).getProjectId();
+    }
+
+    @Override
+    public DateInfoDTO findDateInfoByWorkId(Long workId) {
+        Work work = workRepository.findById(workId).orElseThrow(()->new BaseException(WORK_NOT_FOUND));
+        return DateInfoDTO.builder()
+                .startBase(work.getStartBase())
+                .endBase(work.getEndBase())
+                .startReal(work.getStartReal())
+                .endReal(work.getEndReal())
+                .startExpect(work.getStartExpect())
+                .endExpect(work.getEndExpect())
+                .build();
     }
 }

@@ -102,5 +102,9 @@ public class Work {
 	public void updateProgressRate(double progressRate) {
 		this.progressRate = progressRate;
 	}
+
+	public void updatePassedRate(double passedRate) {
+		this.passedRate = passedRate;
+	}
 }
 
