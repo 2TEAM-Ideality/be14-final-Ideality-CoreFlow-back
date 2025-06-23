@@ -46,4 +46,8 @@ public interface ParticipantQueryService {
     List<UserInfoDTO> getAllProjectParticipants(Long projectId);
 
     Set<String> extractDeptNamesFromParticipants(List<UserInfoDTO> allParticipants);
+
+    List<Long> findParticipantsByTaskId(Long id);
+
+    Long findDirectorByProjectId(Long id);
 }

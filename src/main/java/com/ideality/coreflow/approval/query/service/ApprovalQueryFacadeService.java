@@ -10,7 +10,7 @@ import com.ideality.coreflow.attachment.command.application.service.AttachmentCo
 import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
 import com.ideality.coreflow.attachment.query.service.AttachmentQueryService;
 import com.ideality.coreflow.project.command.application.dto.DelayInfoDTO;
-import com.ideality.coreflow.project.command.application.service.TaskService;
+import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
@@ -29,7 +29,7 @@ public class ApprovalQueryFacadeService {
     private final AttachmentQueryService attachmentQueryService;
     private final AttachmentCommandService attachmentCommandService;
     private final DelayReasonService delayReasonService;
-    private final TaskService taskService;
+    private final ProjectFacadeService projectFacadeService;
 
     public List<ResponsePreviewApproval> searchMyApprovalReceive(long id) {
         return approvalQueryService.searchMyApprovalReceive(id);
@@ -85,7 +85,7 @@ public class ApprovalQueryFacadeService {
 
         // 지연일 경우 지연 예상 정보 조회
         if (approvalDetails.getType() == ApprovalType.DELAY && approvalDetails.getStatus() == ApprovalStatus.PENDING) {
-            DelayInfoDTO delayInfoDTO = taskService.delayAndPropagate(approvalDetails.getTaskId(), approvalDetails.getDelayDays(), true);
+            DelayInfoDTO delayInfoDTO = projectFacadeService.delayAndPropagate(approvalDetails.getTaskId(), approvalDetails.getDelayDays(), true);
 
             Map<Long, DelayTaskNameDTO> result = new HashMap<>();
 
@@ -93,7 +93,7 @@ public class ApprovalQueryFacadeService {
                 long taskId = entry.getKey();
                 Integer delayDays = entry.getValue();
 
-                String taskName = taskService.findTaskNameById(taskId);
+                String taskName = projectFacadeService.findTaskNameById(taskId);
 
                 result.put(taskId, new DelayTaskNameDTO(taskName, delayDays));
             }

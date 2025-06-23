@@ -89,7 +89,7 @@ public class TaskController {
 
     @PatchMapping("{taskId}/delay")
     public ResponseEntity<APIResponse<?>> delayTaskPropagate(@PathVariable Long taskId, @RequestParam Integer delayDays) {
-        DelayInfoDTO response = projectFacadeService.delayAndPropagate(taskId, delayDays);
+        DelayInfoDTO response = projectFacadeService.delayAndPropagate(taskId, delayDays, false);
         return ResponseEntity.ok(
                 APIResponse.success(response,
                         taskId + "번 태스크를 " + delayDays + "일 지연시킨 결과 " + response.getTaskCountByDelay() + "개의 태스크가 지연되었습니다.")

@@ -7,6 +7,8 @@ import com.ideality.coreflow.attachment.query.dto.ReportAttachmentDTO;
 import com.ideality.coreflow.attachment.query.service.AttachmentQueryService;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.holiday.query.dto.HolidayQueryDto;
+import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.notification.command.application.service.NotificationRecipientsService;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
 import com.ideality.coreflow.org.query.service.DeptQueryService;
@@ -15,16 +17,14 @@ import com.ideality.coreflow.project.command.application.service.*;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
+import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.query.dto.CompletedProjectDTO;
 import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
 import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
 import com.ideality.coreflow.project.query.dto.ProjectOTD;
 import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
 import com.ideality.coreflow.project.query.dto.ProjectParticipantDTO;
-import com.ideality.coreflow.project.query.service.ParticipantQueryService;
-import com.ideality.coreflow.project.query.service.ProjectQueryService;
-import com.ideality.coreflow.project.query.service.TaskQueryService;
-import com.ideality.coreflow.project.query.service.WorkQueryService;
+import com.ideality.coreflow.project.query.service.*;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
@@ -32,19 +32,22 @@ import com.ideality.coreflow.template.query.dto.NodeDataDTO;
 import com.ideality.coreflow.user.command.application.service.UserService;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
-import java.util.Map;
+
 import java.util.stream.Collectors;
+
+import static com.ideality.coreflow.common.exception.ErrorCode.PROJECT_NOT_FOUND;
+import static com.ideality.coreflow.common.exception.ErrorCode.TASK_NOT_FOUND;
 
 
 @Service
@@ -73,6 +76,11 @@ public class ProjectFacadeService {
     private final ApprovalQueryService approvalQueryService;
     private final WorkService workService;
     private final WorkQueryService workQueryService;
+    private final HolidayQueryService holidayQueryService;
+    private final RelationQueryService relationQueryService;
+
+    @PersistenceContext
+    private EntityManager em;
 
 
     @Transactional
@@ -512,8 +520,155 @@ public class ProjectFacadeService {
     
     // 추후 퍼사드 의의에 맞게 리팩토링 필요
     @Transactional
-    public DelayInfoDTO delayAndPropagate(Long taskId, Integer delayDays) {
-        return taskService.delayAndPropagate(taskId, delayDays, false);
+    public DelayInfoDTO delayAndPropagate(Long taskId, Integer delayDays, boolean isSimulate) {
+        log.info("taskID: " + taskId);
+        Map<Long, Integer> visited = new HashMap<>();
+        Map<Long, Integer> realDelayed = new HashMap<>();
+        Queue<DelayNodeDTO> queue = new LinkedList<>();
+        Integer count = 0;
+
+        Set<LocalDate> holidays = holidayQueryService.getHolidays().stream()
+                .map(HolidayQueryDto::getDate).collect(Collectors.toSet());
+
+        // 지연된 태스크 ID를 추적할 Set
+        Set<Long> delayedTaskIds = new HashSet<>();
+
+        Work startTask = taskService.findById(taskId);
+        Project project = projectService.findById(startTask.getProjectId());
+
+        if (isSimulate) {
+            em.detach(startTask);
+            em.detach(project);
+        }
+
+        LocalDate projectEndExpect = project.getEndExpect();
+        LocalDate originProjectEndExpect = projectEndExpect;
+        System.out.println("projectEndExpect = " + projectEndExpect);
+
+        int delayDaysByTask = 0;
+
+        // 지연 전파
+        queue.offer(new DelayNodeDTO(taskId, delayDays));
+        int startTaskDelay = Math.abs(delayDays - startTask.getSlackTime());
+
+        while (!queue.isEmpty()) {
+            DelayNodeDTO currentNode = queue.poll();
+
+            // 현재 taskId에 대해 visited보다 작은 지연일일 경우 스킵
+            Integer visitedDelay = visited.get(currentNode.getTaskId());
+            if (visitedDelay != null && visitedDelay > currentNode.getDelayDays()) {
+                continue;
+            }
+
+            // 현재 태스크 지연 설정
+            Work currentTask = taskService.findById(currentNode.getTaskId());
+            if (isSimulate) {
+                em.detach(currentTask);
+            }
+
+            // 현재 태스크의 지연일
+            int delayToApply = currentNode.getDelayDays();
+
+            // 현재 태스크의 슬랙타임 및 지연일 설정
+            if (currentTask.getSlackTime() >= delayToApply) {
+                currentTask.setSlackTime(currentTask.getSlackTime() - delayToApply);
+                if (Objects.equals(currentTask.getId(), taskId)) {
+                    currentTask.setDelayDays(delayToApply);
+                }
+                currentTask.setEndExpect(currentTask.getEndExpect().plusDays(
+                        taskService.calculateDelayExcludingHolidays(currentTask.getEndExpect(), delayDays, holidays)
+                ));
+            } else {
+                log.info("슬랙타임 내에서 해결 실패");
+                count++;
+                int realDelay = delayToApply - currentTask.getSlackTime();
+                realDelayed.put(currentTask.getId(), realDelay);
+                System.out.println("delayToApply = " + delayToApply);
+                System.out.println("slackTime = " + currentTask.getSlackTime());
+                System.out.println("realDelay: " + realDelay);
+                System.out.println("taskId = " + currentTask.getId());
+                if (Objects.equals(currentTask.getId(), taskId)) {
+                    currentTask.setDelayDays(currentTask.getDelayDays() + realDelay);   // 지연일 업데이트는 초기노드만 수정 필요
+                }
+                currentTask.setSlackTime(0);
+
+                // 예상 마감일이 변경될 경우만 추적
+                LocalDate originalEndExpect = currentTask.getEndExpect();
+
+                // 현재 태스크와 세부일정 예상 마감일 미루기
+                projectEndExpect=taskService.delayTask(currentTask, realDelay, holidays, projectEndExpect, isSimulate);
+
+                // 예상 종료일이 변경된 경우에만 태스크ID 추가
+                if (!currentTask.getEndExpect().equals(originalEndExpect)) {
+                    delayedTaskIds.add(currentTask.getId());  // 실제로 마감일이 변경된 태스크만 추가
+                    // 지연된 태스크에 참여한 인원에게 알림 보내기
+                    List<Long> participants = participantQueryService.findParticipantsByTaskId(currentTask.getId());
+                    String contents = "태스크 [" + startTask.getName() + "]가 지연되어 ["+ currentTask.getName() +"]의 예상마감일이 변경되었습니다!";
+                    for (Long userId : participants) {
+                        notificationService.sendNotification(userId, contents, currentTask.getId(), com.ideality.coreflow.notification.command.domain.aggregate.TargetType.WORK);
+                    }
+                }
+
+                // 다음 노드에 realDelay를 전파
+                List<Long> nextTaskIds = relationQueryService.findNextTaskIds(currentNode.getTaskId());
+
+                for (Long nextTaskId  : nextTaskIds) {
+                    // 다음 노드에 저장된 지연일
+                    Integer storedDelay = visited.get(nextTaskId);
+                    if (storedDelay == null || realDelay > storedDelay) {
+                        visited.put(nextTaskId, realDelay);
+                        queue.offer(new DelayNodeDTO(nextTaskId, realDelay));
+                    }
+                }
+            }
+            if (!isSimulate) {
+                taskService.taskSave(currentTask);
+            }
+        }
+
+        // 프로젝트 예상 마감일 업데이트
+        if (project.getEndExpect().isBefore(projectEndExpect)) {
+            Long projectDelay = ChronoUnit.DAYS.between(project.getEndExpect(), projectEndExpect)
+                    -holidayQueryService.countHolidaysBetween(project.getEndExpect(), projectEndExpect);
+            // 프로젝트 지연일수 업데이트
+            // 해당 지연으로 밀린 프로젝트 지연일
+            delayDaysByTask = Math.toIntExact(projectDelay);
+            project.setEndExpect(projectEndExpect);
+            project.setDelayDays(project.getDelayDays() + delayDaysByTask);
+
+
+            if (!isSimulate) {
+                projectService.projectSave(project);
+            }
+
+            // 프로젝트 마감일이 변경되었으면, 프로젝트 디렉터에게 알림 보내기
+            Long directorUserId = participantQueryService.findDirectorByProjectId(project.getId());
+            String directorContent = "프로젝트 [" + project.getName() + "]의 예상 마감일이 지연되었습니다!";
+            notificationService.sendNotification(directorUserId, directorContent, project.getId(), com.ideality.coreflow.notification.command.domain.aggregate.TargetType.PROJECT);
+        }
+
+        visited.put(startTask.getId(), startTaskDelay);
+
+        // 지연된 태스크 ID 출력
+        System.out.println("지연된 태스크 ID들: " + delayedTaskIds);
+
+        // 반환할 값
+
+        log.info("기존 프로젝트 예상 마감일: {}", originProjectEndExpect);
+        log.info("전체 지연일: {}", delayDaysByTask);
+        log.info("지연 반영 된 프로젝트 마감일: {}", projectEndExpect);
+        log.info("결재 요청 온 현재 태스크 지연일:{}", startTaskDelay);
+        log.info("지연된 태스크 갯수:{}", count);
+        log.info("영향 받은 태스크 id별 지연일:{}", visited);
+
+
+        return DelayInfoDTO.builder()
+                .originProjectEndExpect(originProjectEndExpect)
+                .newProjectEndExpect(projectEndExpect)
+                .delayDaysByTask(delayDaysByTask)
+                .taskCountByDelay(count)
+                .delayDaysByTaskId(realDelayed)
+                .build();
     }
 
 
@@ -598,5 +753,9 @@ public class ProjectFacadeService {
         }
 
         return modifyTaskId;
+    }
+
+    public String findTaskNameById(long taskId) {
+        return taskService.findTaskNameById(taskId);
     }
 }

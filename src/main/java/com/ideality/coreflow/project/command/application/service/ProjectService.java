@@ -15,7 +15,7 @@ public interface ProjectService {
 
     boolean isCompleted(Long projectId);
 
-    Project findById(Long projectId) throws NotFoundException;
+    Project findById(Long projectId);
 
     Long updateProjectStatus(Project project, Status targetStatus);
 
@@ -26,4 +26,6 @@ public interface ProjectService {
     List<ProjectOTD> calculateProjectOTD(List<CompletedProjectDTO> completedProjectList);
 
     ProjectDateDTO findProjectDateById(Long projectId);
+
+    void projectSave(Project project);
 }

@@ -15,6 +15,7 @@ import com.ideality.coreflow.infra.s3.UploadFileResult;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
 import com.ideality.coreflow.notification.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.command.application.service.TaskService;
+import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class ApprovalFacadeService {
     private final NotificationService notificationService;
     private final S3Service s3Service;
     private final TaskService taskService;
+    private final ProjectFacadeService projectFacadeService;
 
     @Transactional
     public void approve(RequestApprove request, long userId) {
@@ -73,7 +75,7 @@ public class ApprovalFacadeService {
             throw new BaseException(ErrorCode.ACCESS_DENIED_APPROVAL);
         }
         // 지연 전파
-        taskService.delayAndPropagate(approval.getWorkId(), request.getDelayDays(), false);
+        projectFacadeService.delayAndPropagate(approval.getWorkId(), request.getDelayDays(), false);
     }
 
     @Transactional

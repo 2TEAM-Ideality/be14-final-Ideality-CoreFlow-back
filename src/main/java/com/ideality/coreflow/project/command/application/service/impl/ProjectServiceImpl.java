@@ -71,9 +71,9 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Project findById(Long projectId) throws NotFoundException {
+    public Project findById(Long projectId) {
         return projectRepository.findById(projectId)
-                                            .orElseThrow(()->new NotFoundException("프로젝트가 존재하지 않습니다"));
+                                            .orElseThrow(()->new BaseException(PROJECT_NOT_FOUND));
     }
 
     @Override
@@ -177,6 +177,11 @@ public class ProjectServiceImpl implements ProjectService {
                 .projectStartBase(project.getStartBase())
                 .projectEndBase(project.getEndBase())
                 .build();
+    }
+
+    @Override
+    public void projectSave(Project project) {
+        projectRepository.save(project);
     }
 
 }
