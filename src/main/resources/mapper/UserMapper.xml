@@ -34,9 +34,9 @@
              , MAX(CASE WHEN r.name = 'CREATOR' THEN TRUE ELSE FALSE END) AS IS_CREATION
              , u.is_resign AS IS_RESIGN
              , MAX(CASE WHEN r.name = 'PARTNER' THEN FALSE ELSE TRUE END) AS IS_INNER
-          FROM USER u
-          LEFT JOIN USER_OF_ROLE ur ON ur.user_id = u.id
-          LEFT JOIN ROLE r ON ur.role_id = r.id
+          FROM user u
+          LEFT JOIN user_of_role ur ON ur.user_id = u.id
+          LEFT JOIN role r ON ur.role_id = r.id
          GROUP BY
                u.id
              , u.name
@@ -63,23 +63,23 @@
                ur.user_id AS USER_ID,
                r.name AS ROLE_NAME,
                r.type AS TYPE
-          FROM USER u
-          LEFT JOIN USER_OF_ROLE ur ON u.id = ur.user_id
-          LEFT JOIN ROLE r ON ur.role_id = r.id
+          FROM user u
+          LEFT JOIN user_of_role ur ON u.id = ur.user_id
+          LEFT JOIN role r ON ur.role_id = r.id
          WHERE u.id = #{userId}
            AND r.type = 'GENERAL'
     </select>
 
     <select id="countByHireMonthAndDeptName" resultType="long">
         SELECT COUNT(*)
-          FROM USER
+          FROM user
          WHERE DATE_FORMAT(HIRE_DATE, '%y') = #{year}
            AND DEPT_NAME = #{deptName}
     </select>
 
     <select id="countByJobRoleName" resultType="long">
         SELECT COUNT(*)
-          FROM USER
+          FROM user
          WHERE JOB_ROLE_NAME = #{roleName}
     </select>
 
