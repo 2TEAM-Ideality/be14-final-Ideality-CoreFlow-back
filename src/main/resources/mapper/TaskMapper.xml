@@ -215,8 +215,23 @@
          ORDER BY start_base
     </select>
 
-    <select id="findWorksDueToday" resultType="com.ideality.coreflow.project.command.domain.aggregate.Work">
-        SELECT *
+<!--    <select id="findWorksDueToday" resultType="com.ideality.coreflow.project.command.domain.aggregate.Work">-->
+<!--        SELECT *-->
+<!--          FROM work-->
+<!--         WHERE project_id IN-->
+<!--                <foreach collection="projectIds" item="id" open="(" separator="," close=")">-->
+<!--                    #{id}-->
+<!--                </foreach>-->
+<!--           AND DATE(end_expect) = #{today}-->
+<!--    </select>-->
+    <select id="findWorksDueToday" resultType="com.ideality.coreflow.project.query.dto.WorkDueTodayDTO">
+        SELECT
+               id AS work_id
+             , name
+             , CASE
+               WHEN parent_task_id IS NULL THEN 'TASK'
+               ELSE 'SUBTASK'
+               END AS type
           FROM work
          WHERE project_id IN
                 <foreach collection="projectIds" item="id" open="(" separator="," close=")">
@@ -224,4 +239,5 @@
                 </foreach>
            AND DATE(end_expect) = #{today}
     </select>
+
 </mapper>

@@ -30,6 +30,7 @@ import com.ideality.coreflow.user.query.service.UserQueryService;
 
 import com.sun.jna.platform.win32.Netapi32Util.UserInfo;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -65,23 +66,55 @@ public class ProjectQueryFacadeService {
 
 
     public TaskSummaryResponse getTodayTaskSummary(Long userId) {
-        // 1. 진행중인 프로젝트 ID 목록
         List<Long> projectIds = projectQueryService.getProjectIdsInProgressByUser(userId);
 
-        // 2. 해당 프로젝트에서 오늘 마감인 모든 작업(work) 가져오기
-        List<Work> todayDueWorks = taskService.getWorksDueToday(projectIds);
-
-        // 3. 태스크 / 세부일정 분류
-        int taskCount = 0;
-        int detailCount = 0;
-
-        for (Work work : todayDueWorks) {
-            if (work.getParentTaskId() == null) taskCount++;
-            else detailCount++;
+        if (projectIds.isEmpty()) {
+            return TaskSummaryResponse.builder()
+                    .taskCount(0)
+                    .detailCount(0)
+                    .tasks(Collections.emptyList())
+                    .subtasks(Collections.emptyList())
+                    .build();
         }
 
-        return new TaskSummaryResponse(taskCount, detailCount);
+        LocalDate today = LocalDate.now();
+        List<WorkDueTodayDTO> works = taskService.getWorksDueToday(projectIds);
+
+        List<WorkSummaryDTO> tasks = works.stream()
+                .filter(w -> "TASK".equals(w.getType()))
+                .map(w -> new WorkSummaryDTO(w.getWorkId(), w.getName()))
+                .toList();
+
+        List<WorkSummaryDTO> subtasks = works.stream()
+                .filter(w -> "SUBTASK".equals(w.getType()))
+                .map(w -> new WorkSummaryDTO(w.getWorkId(), w.getName()))
+                .toList();
+
+        return TaskSummaryResponse.builder()
+                .taskCount(tasks.size())
+                .detailCount(subtasks.size())
+                .tasks(tasks)
+                .subtasks(subtasks)
+                .build();
     }
+//    public TaskSummaryResponse getTodayTaskSummary(Long userId) {
+//        // 1. 진행중인 프로젝트 ID 목록
+//        List<Long> projectIds = projectQueryService.getProjectIdsInProgressByUser(userId);
+//
+//        // 2. 해당 프로젝트에서 오늘 마감인 모든 작업(work) 가져오기
+//        List<Work> todayDueWorks = taskService.getWorksDueToday(projectIds);
+//
+//        // 3. 태스크 / 세부일정 분류
+//        int taskCount = 0;
+//        int detailCount = 0;
+//
+//        for (Work work : todayDueWorks) {
+//            if (work.getParentTaskId() == null) taskCount++;
+//            else detailCount++;
+//        }
+//
+//        return new TaskSummaryResponse(taskCount, detailCount);
+//    }
 
     public List<UserInfoDTO> getParticipants(Long projectId) {
         // 참여중인 모든 인원 호출

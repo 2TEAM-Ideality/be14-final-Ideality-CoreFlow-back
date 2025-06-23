@@ -6,6 +6,7 @@ import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 
 
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
+import com.ideality.coreflow.project.query.dto.WorkDueTodayDTO;
 import java.util.List;
 
 public interface TaskService {
@@ -31,5 +32,5 @@ public interface TaskService {
 
     Long modifyTaskDetail(RequestModifyTaskDTO requestModifyTaskDTO, Long taskId);
 
-    List<Work> getWorksDueToday(List<Long> projectIds);
+    List<WorkDueTodayDTO> getWorksDueToday(List<Long> projectIds);
 }
