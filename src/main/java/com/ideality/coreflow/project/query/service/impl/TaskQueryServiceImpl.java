@@ -175,6 +175,4 @@ public class TaskQueryServiceImpl implements TaskQueryService {
                 })
                 .collect(Collectors.toList());
     }
-
-
 }

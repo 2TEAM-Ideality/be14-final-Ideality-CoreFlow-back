@@ -1,10 +1,12 @@
 package com.ideality.coreflow.project.query.mapper;
 
+import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
 import com.ideality.coreflow.project.query.dto.GanttTaskResponse;
 import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
 import com.ideality.coreflow.project.query.dto.SelectTaskDTO;
 import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
+import java.time.LocalDate;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -29,4 +31,6 @@ public interface TaskMapper {
     List<GanttTaskResponse> selectRootTasksByProjectId(Long projectId);
 
     List<GanttTaskResponse> selectSubTasksByParentId(Long parentId);
+
+    List<Work> findWorksDueToday(List<Long> projectIds, LocalDate today);
 }

@@ -431,4 +431,10 @@ public class TaskServiceImpl implements TaskService {
                 requestModifyTaskDTO.getEndExpect());
         return modifyTask.getId();
     }
+
+    @Override
+    public List<Work> getWorksDueToday(List<Long> projectIds) {
+        if (projectIds.isEmpty()) return List.of();
+        return taskMapper.findWorksDueToday(projectIds, LocalDate.now());
+    }
 }

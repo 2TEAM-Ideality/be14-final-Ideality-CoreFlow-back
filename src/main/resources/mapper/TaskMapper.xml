@@ -214,4 +214,14 @@
            AND w.status NOT IN ('DELETED', 'CANCELLED')
          ORDER BY start_base
     </select>
+
+    <select id="findWorksDueToday" resultType="com.ideality.coreflow.project.command.domain.aggregate.Work">
+        SELECT *
+          FROM work
+         WHERE project_id IN
+                <foreach collection="projectIds" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+           AND DATE(end_expect) = #{today}
+    </select>
 </mapper>

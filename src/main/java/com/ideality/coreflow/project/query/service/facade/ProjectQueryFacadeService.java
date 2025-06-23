@@ -5,6 +5,7 @@ import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.project.command.application.service.ProjectService;
 import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.application.service.WorkService;
+import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.project.query.dto.CompletedProjectDTO;
 import com.ideality.coreflow.project.query.dto.DepartmentLeaderDTO;
@@ -61,6 +62,26 @@ public class ProjectQueryFacadeService {
     private final ParticipantQueryService participantQueryService;
     private final TaskService taskService;
     private final WorkService workCommandService;
+
+
+    public TaskSummaryResponse getTodayTaskSummary(Long userId) {
+        // 1. 진행중인 프로젝트 ID 목록
+        List<Long> projectIds = projectQueryService.getProjectIdsInProgressByUser(userId);
+
+        // 2. 해당 프로젝트에서 오늘 마감인 모든 작업(work) 가져오기
+        List<Work> todayDueWorks = taskService.getWorksDueToday(projectIds);
+
+        // 3. 태스크 / 세부일정 분류
+        int taskCount = 0;
+        int detailCount = 0;
+
+        for (Work work : todayDueWorks) {
+            if (work.getParentTaskId() == null) taskCount++;
+            else detailCount++;
+        }
+
+        return new TaskSummaryResponse(taskCount, detailCount);
+    }
 
     public List<UserInfoDTO> getParticipants(Long projectId) {
         // 참여중인 모든 인원 호출
