@@ -63,8 +63,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if ("Post".equalsIgnoreCase(method) && CUSTOM_SCHEMA_URIS.contains(uri)) {
             handleSchemaInitialization(request, response, filterChain, uri);
+            return;
         } else if ("GET".equalsIgnoreCase(method) && CUSTOM_SCHEMA_URIS.contains(uri)) {
             handleSchemaInitialization(request, response, filterChain, uri);
+            return;
         } else {
             handleJwtAuthentication(request, response, filterChain);
         }
