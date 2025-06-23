@@ -7,6 +7,7 @@ import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
 import com.ideality.coreflow.project.query.dto.ResponseTaskInfoDTO;
 import com.ideality.coreflow.project.query.service.facade.ProjectQueryFacadeService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/task")
 @RequiredArgsConstructor
+@Slf4j
 public class TaskQueryController {
     private final ProjectQueryFacadeService projectQueryFacadeService;
 
@@ -27,6 +29,7 @@ public class TaskQueryController {
     public ResponseEntity<APIResponse<ResponseTaskInfoDTO>> getTaskInfo (@PathVariable Long taskId) {
 
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        log.info("Getting userId {}", userId);
         ResponseTaskInfoDTO selectTask = projectQueryFacadeService.selectTaskInfo(taskId, userId);
         return ResponseEntity.ok(
                 APIResponse.success(selectTask, "태스크 상세 정보 조회 성공")
