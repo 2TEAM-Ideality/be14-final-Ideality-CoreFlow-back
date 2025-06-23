@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class TenantQueryFacadeService {
+public class TenantQueryService {
 
     private final TenantMapper tenantMapper;
 
