@@ -1,12 +1,13 @@
 package com.ideality.coreflow.project.command.application.controller;
 
 import com.ideality.coreflow.common.response.APIResponse;
-import com.ideality.coreflow.project.command.application.dto.DelayInfoDTO;
+import com.ideality.coreflow.approval.command.application.dto.DelayInfoDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestModifyTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
+import com.ideality.coreflow.project.command.domain.service.DelayDomainService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,7 +23,7 @@ import java.util.Map;
 @Slf4j
 public class TaskController {
     private final ProjectFacadeService projectFacadeService;
-    private final TaskService taskService;
+    private final DelayDomainService delayDomainService;    // 추후 삭제
 
     @PostMapping("")
     public ResponseEntity<APIResponse<Map<String, Long>>> createTaskWithFacade(
@@ -88,9 +89,10 @@ public class TaskController {
         );
     }
 
+    // test용 나중에 삭제 필요
     @PatchMapping("{taskId}/delay")
     public ResponseEntity<APIResponse<?>> delayTaskPropagate(@PathVariable Long taskId, @RequestParam Integer delayDays) {
-        DelayInfoDTO response = projectFacadeService.delayAndPropagate(taskId, delayDays, false);
+        DelayInfoDTO response = delayDomainService.delayAndPropagateLogic(taskId, delayDays, false);
         return ResponseEntity.ok(
                 APIResponse.success(response,
                         taskId + "번 태스크를 " + delayDays + "일 지연시킨 결과 " + response.getTaskCountByDelay() + "개의 태스크가 지연되었습니다.")

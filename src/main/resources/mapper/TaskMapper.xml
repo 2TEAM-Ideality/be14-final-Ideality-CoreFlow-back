@@ -123,6 +123,7 @@
           FROM work
          WHERE project_id = #{projectId}
            AND parent_task_id IS NULL
+           AND status != 'DELETED'
     </select>
 
     <resultMap id="GanttTaskWithPredecessorsMap" type="com.ideality.coreflow.project.query.dto.GanttTaskResponse">

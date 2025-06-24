@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.command.application.service.facade;
 
+import com.ideality.coreflow.approval.command.application.dto.DelayInfoDTO;
 import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalType;
 import com.ideality.coreflow.approval.query.dto.ProjectApprovalDTO;
 import com.ideality.coreflow.approval.query.service.ApprovalQueryService;
@@ -29,6 +30,7 @@ import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
 import com.ideality.coreflow.template.query.dto.NodeDataDTO;
 import com.ideality.coreflow.user.command.application.service.RoleService;
 import com.ideality.coreflow.user.command.application.service.UserService;
+import com.ideality.coreflow.user.command.domain.aggregate.RoleName;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -154,8 +156,8 @@ public class ProjectFacadeService {
     @Transactional
     public Project createProject(ProjectCreateRequest request) {
         Project project = projectService.createProject(request);
-        long roleDirectorId = roleService.findRoleByName("DIRECTOR");
-        long roleTeamLeaderId = roleService.findRoleByName("TEAM_LEADER");
+        long roleDirectorId = roleService.findRoleByName(RoleName.DIRECTOR.name());
+        long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER.name());
         long projectId = project.getId();
 
         // 참여자 리스트
@@ -202,8 +204,8 @@ public class ProjectFacadeService {
 
     // 참여자 초대 알림
     private void participantNotification(ParticipantDTO participant) {
-        long roleTeamLeaderId = roleService.findRoleByName("TEAM_LEADER");
-        long roleTeamMemberId = roleService.findRoleByName("TEAM_MEMBER");
+        long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER.name());
+        long roleTeamMemberId = roleService.findRoleByName(RoleName.TEAM_MEMBER.name());
 
         String roleLabel = null;
 
@@ -275,7 +277,7 @@ public class ProjectFacadeService {
         for(ParticipantDTO leader : projectLeaders){
             String deptName = userQueryService.getDeptNameByUserId(leader.getUserId());
             Long deptId = deptQueryService.findDeptIdByName(deptName);
-            long roleTeamLeaderId = roleService.findRoleByName("TEAM_LEADER");
+            long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER.name());
             if (taskDeptIds.contains(deptId)) {
                 matchedLeaders.add(
                         ParticipantDTO.builder()
@@ -371,8 +373,8 @@ public class ProjectFacadeService {
 
             List<Long> newParticipantsIds = deptUsersMaps.get(deptName);
             List<Long> leaderIds = deptLeaderMaps.get(deptName);
-            long roleTeamLeaderId = roleService.findRoleByName("TEAM_LEADER");
-            long roleTeamMemberId = roleService.findRoleByName("TEAM_MEMBER");
+            long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER.name());
+            long roleTeamMemberId = roleService.findRoleByName(RoleName.TEAM_MEMBER.name());
             // ✅ 1. 팀장 먼저 등록
             List<ParticipantDTO> leaderParticipants = leaderIds.stream()
                     .map(leaderId -> new ParticipantDTO(taskId, leaderId, TargetType.TASK, roleTeamLeaderId))
@@ -398,6 +400,7 @@ public class ProjectFacadeService {
         return taskId;
     }
 
+    //
     @Transactional
     public Long updateStatusProgress(Long taskId, Long userId) {
 
@@ -411,6 +414,7 @@ public class ProjectFacadeService {
         return updateTaskId;
     }
 
+    //
     @Transactional
     public Long updateStatusComplete(Long taskId, Long userId) {
         Long projectId = taskQueryService.getProjectId(taskId);
@@ -433,6 +437,7 @@ public class ProjectFacadeService {
         return updateTaskId;
     }
 
+    //
     @Transactional
     public Long deleteTaskBySoft(Long taskId, Long userId) {
         Long projectId = taskQueryService.getProjectId(taskId);
@@ -444,7 +449,7 @@ public class ProjectFacadeService {
         return deleteTaskId;
     }
 
-
+    //
     @Transactional
     public Long createDetail(RequestDetailDTO requestDetailDTO, Long userId) {
 
@@ -460,22 +465,6 @@ public class ProjectFacadeService {
                 (requestDetailDTO.getTarget() == null || requestDetailDTO.getTarget().isEmpty())) {
             log.info("source와 target 모두 null이므로 관계 설정을 생략합니다.");
         } else {
-
-//            if (requestDetailDTO.getSource() == null || requestDetailDTO.getSource().isEmpty()) {
-//                //2. source가 없고, target만 있을 때 관계 설정
-//                if (requestDetailDTO.getTarget() != null && !requestDetailDTO.getTarget().isEmpty()) {
-//                    relationService.appendTargetRelation(requestDetailDTO.getTarget(), detailId); // target에 대한 관계 설정
-//                }
-//            } else {
-//                if (requestDetailDTO.getTarget() == null || requestDetailDTO.getTarget().isEmpty()) {
-//                    // 3.source는 있고 target이 없을 때
-//                    relationService.appendRelation(requestDetailDTO.getSource(), detailId);
-//                } else {
-//                    //4.source와 target 둘 다 있을 때
-//
-//                    relationService.appendMiddleRelation(requestDetailDTO.getSource(), requestDetailDTO.getTarget(), detailId);
-//                }
-//            }
             relationService.appendRelation(detailId, requestDetailDTO.getSource(), requestDetailDTO.getTarget());
             log.info("세부 일정 관계 설정");
         }
@@ -489,7 +478,7 @@ public class ProjectFacadeService {
                 .targetType(TargetType.DETAILED)
                 .targetId(detailId)
                 .userId(requestDetailDTO.getAssigneeId())
-                .roleId(6L)
+                .roleId(roleService.findRoleByName(RoleName.ASSIGNEE.name()))
                 .build();
         participantService.createAssignee(AssigneeDTO);
         log.info("책임자 설정 완료");
@@ -501,7 +490,7 @@ public class ProjectFacadeService {
                     .targetType(TargetType.DETAILED)
                     .targetId(detailId)  // 해당 세부일정의 ID
                     .userId(participantId)  // 참여자 ID
-                    .roleId(7L)  // 참여자임을 의미
+                    .roleId(roleService.findRoleByName(RoleName.PARTICIPANT.name()))  // 참여자임을 의미
                     .build();
 
             // 서비스 메서드에 DTO 전달
@@ -512,12 +501,13 @@ public class ProjectFacadeService {
         return detailId;
     }
 
+    //
     @Transactional
     public Long updateDetail(Long detailId, RequestDetailDTO requestDetailDTO) {
         // DetailService에서 세부 일정 수정 로직 호출
         long taskId = detailService.updateDetail(detailId, requestDetailDTO);
 
-        long roleId = roleService.findRoleByName("ASSIGNEE");
+        long roleId = roleService.findRoleByName(RoleName.ASSIGNEE.name());
 
         // 책임자DTO 생성해서 수정
         if (requestDetailDTO.getAssigneeId() != null) {
@@ -547,20 +537,24 @@ public class ProjectFacadeService {
     }
 
     // 1. 시작 버튼 (Status: PROGRESS, startReal: 현재 날짜)
+    @Transactional
     public void startDetail(Long workId) {
         detailService.startDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
     }
 
     // 2. 완료 버튼 (Status: COMPLETED, endReal: 현재 날짜, progressRate가 100일 경우)
+    @Transactional
     public void completeDetail(Long workId) {
         detailService.completeDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
     }
 
     // 3. 삭제 버튼 (Status: DELETED)
+    @Transactional
     public void deleteDetail(Long workId) {
         detailService.deleteDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
     }
 
+    //
     @Transactional
     public void createParticipantsLeader(Long userId, Long projectId, List<RequestInviteUserDTO> reqLeaderDTO) {
 
@@ -580,15 +574,18 @@ public class ProjectFacadeService {
         participantQueryService.findTeamLedaer(projectId, reqLeaderDTO);
 
         // 리더 삽입 -> 기존 로직 활용
+        long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER.name());
         List<ParticipantDTO> leaders = leaderUserIds.stream()
                 .map(leaderId -> ParticipantDTO.builder()
                         .targetId(projectId)
                         .userId(leaderId)
                         .targetType(TargetType.PROJECT)
-                        .roleId(2L)
+                        .roleId(roleTeamLeaderId)
                         .build()
                 ).toList();
-        createParticipants(leaders);
+        for (ParticipantDTO leader : leaders) {
+            participantService.createParticipants(leader);
+        }
 
         // 초대 됐다는 알림 작성
         String writerName = userQueryService.getUserId(userId);
@@ -596,9 +593,9 @@ public class ProjectFacadeService {
         String content = String.format("%s 님이 회원님을 %s에 초대하였습니다.", writerName, projectName);
         Long notificationId = notificationService.createInviteProject(projectId, content);
         notificationRecipientsService.createRecipients(leaderUserIds, notificationId);
-
     }
 
+    //
     @Transactional
     public void createParticipantsTeamLeader(Long userId, Long projectId, List<RequestInviteUserDTO> reqMemberDTO) {
         projectService.existsById(projectId);
@@ -618,15 +615,18 @@ public class ProjectFacadeService {
         participantQueryService.alreadyExistsMember(projectId, reqMemberDTO);
 
         // 이제 참여자 초대
-        List<ParticipantDTO> teamMember = participantUser.stream()
+        long roleTeamMemberId = roleService.findRoleByName(RoleName.TEAM_MEMBER.name());
+        List<ParticipantDTO> teamMembers = participantUser.stream()
                 .map(leaderId -> ParticipantDTO.builder()
                         .targetId(projectId)
                         .userId(leaderId)
                         .targetType(TargetType.PROJECT)
-                        .roleId(3L)
+                        .roleId(roleTeamMemberId)
                         .build()
                 ).toList();
-        createParticipants(teamMember);
+        for (ParticipantDTO teamMember : teamMembers) {
+            participantService.createParticipants(teamMember);
+        }
 
         // 초대 됐다는 알림 작성
         String writerName = userQueryService.getUserId(userId);
@@ -635,159 +635,6 @@ public class ProjectFacadeService {
         Long notificationId = notificationService.createInviteProject(projectId, content);
         notificationRecipientsService.createRecipients(participantUser, notificationId);
     }
-
-    @Transactional
-    public DelayInfoDTO delayAndPropagate(Long taskId, Integer delayDays, boolean isSimulate) {
-        log.info("taskID: " + taskId);
-        Map<Long, Integer> visited = new HashMap<>();
-        Map<Long, Integer> realDelayed = new HashMap<>();
-        Queue<DelayNodeDTO> queue = new LinkedList<>();
-        Integer count = 0;
-
-        Set<LocalDate> holidays = holidayQueryService.getHolidays().stream()
-                .map(HolidayQueryDto::getDate).collect(Collectors.toSet());
-
-        // 지연된 태스크 ID를 추적할 Set
-        Set<Long> delayedTaskIds = new HashSet<>();
-
-        Work startTask = taskService.findById(taskId);
-        Project project = projectService.findById(startTask.getProjectId());
-
-        if (isSimulate) {
-            em.detach(startTask);
-            em.detach(project);
-        }
-
-        LocalDate projectEndExpect = project.getEndExpect();
-        LocalDate originProjectEndExpect = projectEndExpect;
-        System.out.println("projectEndExpect = " + projectEndExpect);
-
-        int delayDaysByTask = 0;
-
-        // 지연 전파
-        queue.offer(new DelayNodeDTO(taskId, delayDays));
-        int startTaskDelay = Math.abs(delayDays - startTask.getSlackTime());
-
-        while (!queue.isEmpty()) {
-            DelayNodeDTO currentNode = queue.poll();
-
-            // 현재 taskId에 대해 visited보다 작은 지연일일 경우 스킵
-            Integer visitedDelay = visited.get(currentNode.getTaskId());
-            if (visitedDelay != null && visitedDelay > currentNode.getDelayDays()) {
-                continue;
-            }
-
-            // 현재 태스크 지연 설정
-            Work currentTask = taskService.findById(currentNode.getTaskId());
-            if (isSimulate) {
-                em.detach(currentTask);
-            }
-
-            // 현재 태스크의 지연일
-            int delayToApply = currentNode.getDelayDays();
-
-            // 현재 태스크의 슬랙타임 및 지연일 설정
-            if (currentTask.getSlackTime() >= delayToApply) {
-                currentTask.setSlackTime(currentTask.getSlackTime() - delayToApply);
-                if (Objects.equals(currentTask.getId(), taskId)) {
-                    currentTask.setDelayDays(delayToApply);
-                }
-                currentTask.setEndExpect(currentTask.getEndExpect().plusDays(
-                        taskService.calculateDelayExcludingHolidays(currentTask.getEndExpect(), delayDays, holidays)
-                ));
-            } else {
-                log.info("슬랙타임 내에서 해결 실패");
-                count++;
-                int realDelay = delayToApply - currentTask.getSlackTime();
-                realDelayed.put(currentTask.getId(), realDelay);
-                System.out.println("delayToApply = " + delayToApply);
-                System.out.println("slackTime = " + currentTask.getSlackTime());
-                System.out.println("realDelay: " + realDelay);
-                System.out.println("taskId = " + currentTask.getId());
-                if (Objects.equals(currentTask.getId(), taskId)) {
-                    currentTask.setDelayDays(currentTask.getDelayDays() + realDelay);   // 지연일 업데이트는 초기노드만 수정 필요
-                }
-                currentTask.setSlackTime(0);
-
-                // 예상 마감일이 변경될 경우만 추적
-                LocalDate originalEndExpect = currentTask.getEndExpect();
-
-                // 현재 태스크와 세부일정 예상 마감일 미루기
-                projectEndExpect=taskService.delayTask(currentTask, realDelay, holidays, projectEndExpect, isSimulate);
-
-                // 예상 종료일이 변경된 경우에만 태스크ID 추가
-                if (!currentTask.getEndExpect().equals(originalEndExpect)) {
-                    delayedTaskIds.add(currentTask.getId());  // 실제로 마감일이 변경된 태스크만 추가
-                    // 지연된 태스크에 참여한 인원에게 알림 보내기
-                    List<Long> participants = participantQueryService.findParticipantsByTaskId(currentTask.getId());
-                    String contents = "태스크 [" + startTask.getName() + "]가 지연되어 ["+ currentTask.getName() +"]의 예상마감일이 변경되었습니다!";
-                    for (Long userId : participants) {
-                        notificationService.sendNotification(userId, contents, currentTask.getId(), NotificationTargetType.WORK);
-                    }
-                }
-
-                // 다음 노드에 realDelay를 전파
-                List<Long> nextTaskIds = relationQueryService.findNextTaskIds(currentNode.getTaskId());
-
-                for (Long nextTaskId  : nextTaskIds) {
-                    // 다음 노드에 저장된 지연일
-                    Integer storedDelay = visited.get(nextTaskId);
-                    if (storedDelay == null || realDelay > storedDelay) {
-                        visited.put(nextTaskId, realDelay);
-                        queue.offer(new DelayNodeDTO(nextTaskId, realDelay));
-                    }
-                }
-            }
-            if (!isSimulate) {
-                taskService.taskSave(currentTask);
-            }
-        }
-
-        // 프로젝트 예상 마감일 업데이트
-        if (project.getEndExpect().isBefore(projectEndExpect)) {
-            Long projectDelay = ChronoUnit.DAYS.between(project.getEndExpect(), projectEndExpect)
-                    -holidayQueryService.countHolidaysBetween(project.getEndExpect(), projectEndExpect);
-            // 프로젝트 지연일수 업데이트
-            // 해당 지연으로 밀린 프로젝트 지연일
-            delayDaysByTask = Math.toIntExact(projectDelay);
-            project.setEndExpect(projectEndExpect);
-            project.setDelayDays(project.getDelayDays() + delayDaysByTask);
-
-
-            if (!isSimulate) {
-                projectService.projectSave(project);
-            }
-
-            // 프로젝트 마감일이 변경되었으면, 프로젝트 디렉터에게 알림 보내기
-            Long directorUserId = participantQueryService.findDirectorByProjectId(project.getId());
-            String directorContent = "프로젝트 [" + project.getName() + "]의 예상 마감일이 지연되었습니다!";
-            notificationService.sendNotification(directorUserId, directorContent, project.getId(), NotificationTargetType.PROJECT);
-        }
-
-        visited.put(startTask.getId(), startTaskDelay);
-
-        // 지연된 태스크 ID 출력
-        System.out.println("지연된 태스크 ID들: " + delayedTaskIds);
-
-        // 반환할 값
-
-        log.info("기존 프로젝트 예상 마감일: {}", originProjectEndExpect);
-        log.info("전체 지연일: {}", delayDaysByTask);
-        log.info("지연 반영 된 프로젝트 마감일: {}", projectEndExpect);
-        log.info("결재 요청 온 현재 태스크 지연일:{}", startTaskDelay);
-        log.info("지연된 태스크 갯수:{}", count);
-        log.info("영향 받은 태스크 id별 지연일:{}", visited);
-
-
-        return DelayInfoDTO.builder()
-                .originProjectEndExpect(originProjectEndExpect)
-                .newProjectEndExpect(projectEndExpect)
-                .delayDaysByTask(delayDaysByTask)
-                .taskCountByDelay(count)
-                .delayDaysByTaskId(realDelayed)
-                .build();
-    }
-
 
     // 프로젝트 분석 리포트 다운로드
     @Transactional
@@ -870,10 +717,6 @@ public class ProjectFacadeService {
         }
 
         return modifyTaskId;
-    }
-
-    public String findTaskNameById(long taskId) {
-        return taskService.findTaskNameById(taskId);
     }
 
     private void createParticipants(List<ParticipantDTO> taskParticipants) {

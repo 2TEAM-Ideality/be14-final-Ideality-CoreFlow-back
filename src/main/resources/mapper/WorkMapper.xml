@@ -179,6 +179,7 @@
              , progress_rate AS progressRate
           FROM work
          WHERE parent_task_id = #{taskId}
+           AND status != 'DELETED'
     </select>
     <!-- 오늘 마감일인 진행 중인 작업 조회 -->
     <select id="findTasksDueToday" resultType="com.ideality.coreflow.project.command.domain.aggregate.Work">
