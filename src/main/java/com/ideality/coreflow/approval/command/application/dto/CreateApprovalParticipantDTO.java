@@ -12,4 +12,5 @@ public class CreateApprovalParticipantDTO {
     long approvalId;
     long approverId;
     List<Long> viewerIds;
+
 }
