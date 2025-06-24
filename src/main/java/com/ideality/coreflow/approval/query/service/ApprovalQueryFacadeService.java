@@ -68,7 +68,7 @@ public class ApprovalQueryFacadeService {
 
         log.info("태스크 참여자인지 아닌지:{}", isTaskParticipant);
 
-        if (!isParticipant && !isTaskParticipant) {
+        if (!isParticipant && !isTaskParticipant && approvalDetails.getRequesterId() != userId) {
             throw new BaseException(ErrorCode.ACCESS_DENIED);
         }
 
