@@ -335,7 +335,7 @@ public class ProjectFacadeService {
 
         /* 설명. “읽기-쓰기 분리 전략”
          *  중복 select를 방지하기 위해 읽기부터
-        * */
+         * */
 
         boolean isParticipant = participantQueryService.isParticipant(userId, requestTaskDTO.getProjectId());
 
@@ -344,7 +344,7 @@ public class ProjectFacadeService {
         }
 
         Map<Long, String> deptIdMap = requestTaskDTO.getDeptList().stream()
-                        .collect
+                .collect
                         (Collectors.toMap(id -> id, deptQueryService::findNameById));
         log.info("부서 조회 끝");
         List<String> deptNames = deptIdMap.values().stream().distinct().toList();
@@ -760,5 +760,21 @@ public class ProjectFacadeService {
         Boolean warning = taskQueryService.checkTaskWarning(taskId);    // task 예상 마감일과 하위 세부일정 예상 마감일 비교
         taskService.setTaskWarning(taskId, warning);                    // task warning 상태 저장
         return warning?"warning 설정됨":"warning 해제됨";
+    }
+
+    public void updateTaskRelation(Long userId, List<RequestRelationUpdateDTO> requestRelationUpdateDTO) {
+
+        /* 설명. 공통 프로젝트 Id 추출 */
+        Long projectId = requestRelationUpdateDTO.get(0).getProjectId();
+
+
+        /* 설명. 해당 프로젝트의 권한이 있는지 검사를 수행 */
+        boolean isAboveTeamLeader = participantQueryService.isAboveTeamLeader(userId, projectId);
+        if (!isAboveTeamLeader) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED_TEAMLEADER);
+        }
+
+        /* 설명. 선행 일정, 후행 일정 삭제를 한번에 위임 */
+        relationService.updateRelationList(requestRelationUpdateDTO);
     }
 }

@@ -3,6 +3,7 @@ package com.ideality.coreflow.project.command.application.controller;
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.approval.command.application.dto.DelayInfoDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestModifyTaskDTO;
+import com.ideality.coreflow.project.command.application.dto.RequestRelationUpdateDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -102,7 +104,7 @@ public class TaskController {
 
     @PatchMapping("/modify/{taskId}")
     public ResponseEntity<APIResponse<Map<String, Long>>>
-        updateTaskDetail(@PathVariable Long taskId, @RequestBody RequestModifyTaskDTO requestModifyTaskDTO) {
+    updateTaskDetail(@PathVariable Long taskId, @RequestBody RequestModifyTaskDTO requestModifyTaskDTO) {
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
 
         Long modifyTaskId = projectFacadeService.updateTaskDetail(requestModifyTaskDTO, userId, taskId);
@@ -115,5 +117,14 @@ public class TaskController {
     public ResponseEntity<APIResponse<Map<String, Object>>> updateTaskWarning(@PathVariable Long taskId) {
         String result = projectFacadeService.updateTaskWarning(taskId);
         return ResponseEntity.ok(APIResponse.success(Map.of("result", result), taskId + "warning 업데이트 완료"));
+    }
+
+    @PatchMapping("/modify/relation")
+    public ResponseEntity<APIResponse<?>>
+    updateTaskRelation(@RequestBody List<RequestRelationUpdateDTO> requestRelationUpdateDTO) {
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+
+        projectFacadeService.updateTaskRelation(userId, requestRelationUpdateDTO);
+        return ResponseEntity.ok(APIResponse.success(null, "관계가 업데이트 되었습니다!"));
     }
 }
