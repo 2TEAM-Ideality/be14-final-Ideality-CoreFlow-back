@@ -1,8 +1,3 @@
-DROP DATABASE IF EXISTS company_a;
-
-CREATE DATABASE company_a;
-USE company_a;
-
 -- 회원
 CREATE TABLE user (
                       id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -172,6 +167,7 @@ CREATE TABLE work (
                       slack_time INT NOT NULL DEFAULT 0,
                       parent_task_id BIGINT,
                       project_id BIGINT NOT NULL,
+                      warning BOOLEAN NOT NULL DEFAULT FALSE,
                       CONSTRAINT FOREIGN KEY (parent_task_id) REFERENCES work(id) ON DELETE CASCADE,
                       CONSTRAINT FOREIGN KEY (project_id) REFERENCES project(id) ON DELETE CASCADE,
                       CHECK (progress_rate BETWEEN 0 AND 100),

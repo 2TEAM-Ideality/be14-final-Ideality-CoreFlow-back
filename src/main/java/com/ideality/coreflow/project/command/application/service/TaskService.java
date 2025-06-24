@@ -4,8 +4,8 @@ import com.ideality.coreflow.project.command.application.dto.RequestModifyTaskDT
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 
-
 import java.time.LocalDate;
+import com.ideality.coreflow.project.query.dto.WorkDueTodayDTO;
 import java.util.List;
 import java.util.Set;
 
@@ -35,4 +35,6 @@ public interface TaskService {
     void delayWork(Work work, Integer delayDays, Set<LocalDate> holidays, boolean isSimulate);
 
     int calculateDelayExcludingHolidays(LocalDate startDate, Integer delayDays, Set<LocalDate> holidays);
+
+    void setTaskWarning(Long taskId, Boolean warning);
 }

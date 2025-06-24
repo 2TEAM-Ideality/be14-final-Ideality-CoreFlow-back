@@ -24,4 +24,6 @@ public interface ProjectQueryService {
 	List<ProjectSummaryDTO> selectProjectByDeptId(Long deptId);
 
     String findProjectNameByProjectId(Long projectId);
+
+    List<Long> getProjectIdsInProgressByUser(Long userId);
 }

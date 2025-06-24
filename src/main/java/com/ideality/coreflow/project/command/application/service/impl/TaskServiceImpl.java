@@ -9,11 +9,10 @@ import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
-import com.ideality.coreflow.project.query.dto.WorkProgressDTO;
+import com.ideality.coreflow.project.query.dto.WorkDueTodayDTO;
 import com.ideality.coreflow.project.query.service.WorkQueryService;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import jakarta.persistence.EntityManager;
@@ -31,8 +30,6 @@ import static com.ideality.coreflow.common.exception.ErrorCode.*;
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
 
-    private final HolidayQueryService holidayQueryService;
-    private final WorkQueryService workQueryService;
     private final WorkRepository workRepository;
 
     @PersistenceContext
@@ -188,5 +185,12 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Work findById(Long taskId) {
         return workRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+    }
+
+    @Override
+    public void setTaskWarning(Long taskId, Boolean warning) {
+        Work task = workRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+        task.setWarning(warning);
+        workRepository.save(task);
     }
 }

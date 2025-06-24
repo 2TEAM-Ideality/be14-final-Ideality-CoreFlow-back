@@ -42,4 +42,6 @@ public interface WorkMapper {
     List<Long> selectWorkIdsByParentTaskId(Long parentTaskId);
 
     List<Work> selectTaskByParentTaskId(Long parentTaskId);
+
+    Long selectParentTaskId(Long subTaskId);
 }

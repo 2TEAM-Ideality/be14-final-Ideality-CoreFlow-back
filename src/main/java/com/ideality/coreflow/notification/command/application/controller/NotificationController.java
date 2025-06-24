@@ -7,6 +7,7 @@ import com.ideality.coreflow.notification.command.application.service.Notificati
 import com.ideality.coreflow.notification.command.domain.aggregate.Notification;
 import com.ideality.coreflow.notification.query.service.NotificationQueryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -47,4 +48,18 @@ public class NotificationController {
         return ResponseEntity.ok(APIResponse.success(null, "알림이 삭제되었습니다."));
     }
 
+    // 알림 읽기 API
+    @PatchMapping("/api/notifications/{notificationId}/read")
+    public ResponseEntity<APIResponse<Void>> markAsRead(@PathVariable Long notificationId) {
+        try {
+            boolean isUpdated = notificationService.markNotificationAsRead(notificationId);
+            if (isUpdated) {
+                return ResponseEntity.ok(APIResponse.success(null, "알림 읽기 성공"));
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(APIResponse.fail("알림을 찾을 수 없습니다."));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(APIResponse.error("알림 읽기 처리 중 오류 발생: " + e.getMessage()));
+        }
+    }
 }

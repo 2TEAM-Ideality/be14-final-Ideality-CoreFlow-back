@@ -15,4 +15,6 @@ public interface NotificationService {
     void save(Notification notification);
 
     Long createInviteProject(Long projectId, String content);
+
+    boolean markNotificationAsRead(Long notificationId);
 }

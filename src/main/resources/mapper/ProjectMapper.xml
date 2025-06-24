@@ -356,4 +356,15 @@
         WHERE d.id = #{deptId}
     </select>
 
+    <select id="findOngoingProjectIdsByUser" parameterType="long" resultType="long">
+        SELECT
+               pj.id
+          FROM participant p
+          JOIN project pj
+            ON p.target_type = 'PROJECT'
+           AND p.target_id = pj.id
+         WHERE p.user_id = #{userId}
+           AND pj.status = 'PROGRESS'
+    </select>
+
 </mapper>

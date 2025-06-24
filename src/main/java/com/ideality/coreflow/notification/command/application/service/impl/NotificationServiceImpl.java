@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
@@ -100,6 +101,20 @@ public class NotificationServiceImpl implements NotificationService {
 
         notificationRepository.save(notification);
         return notification.getId();
+    }
+
+    // 알림을 'READ'로 변경하는 메소드
+    @Override
+    @Transactional
+    public boolean markNotificationAsRead(Long notificationId) {
+        Optional<Notification> notificationOpt = notificationRepository.findById(notificationId);
+        if (notificationOpt.isPresent()) {
+            Notification notification = notificationOpt.get();
+            notification.setStatus(Status.READ);  // 상태를 'READ'로 변경
+            notificationRepository.save(notification);  // 업데이트된 상태 저장
+            return true;
+        }
+        return false;
     }
 
     // 알림 상태 저장

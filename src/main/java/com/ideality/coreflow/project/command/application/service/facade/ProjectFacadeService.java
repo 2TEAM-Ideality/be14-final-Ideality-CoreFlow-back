@@ -754,4 +754,11 @@ public class ProjectFacadeService {
             }
         }
     }
+
+    // task warning 처리: 태스크 예상 마감일과 하위 세부일정 예상 마감일을 비교 후 비교 결과 저장
+    public String updateTaskWarning(Long taskId){
+        Boolean warning = taskQueryService.checkTaskWarning(taskId);    // task 예상 마감일과 하위 세부일정 예상 마감일 비교
+        taskService.setTaskWarning(taskId, warning);                    // task warning 상태 저장
+        return warning?"warning 설정됨":"warning 해제됨";
+    }
 }
