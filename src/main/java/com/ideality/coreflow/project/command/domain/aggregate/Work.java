@@ -75,6 +75,9 @@ public class Work {
 	@Column(name = "project_id")
 	private Long projectId;
 
+	@Column(name = "warning")
+	private Boolean warning;
+
 	public void startTask() {
 		this.status = Status.PROGRESS;
 		this.startReal = LocalDate.now();

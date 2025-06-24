@@ -431,4 +431,11 @@ public class TaskServiceImpl implements TaskService {
                 requestModifyTaskDTO.getEndExpect());
         return modifyTask.getId();
     }
+
+    @Override
+    public void setTaskWarning(Long taskId, Boolean warning) {
+        Work task = taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+        task.setWarning(warning);
+        taskRepository.save(task);
+    }
 }

@@ -29,4 +29,6 @@ public interface TaskService {
 //    Double updateTaskProgress(Long taskId, List<TaskProgressDTO> workList);
 
     Long modifyTaskDetail(RequestModifyTaskDTO requestModifyTaskDTO, Long taskId);
+
+    void setTaskWarning(Long taskId, Boolean warning);
 }
