@@ -138,6 +138,21 @@ public class ProjectFacadeService {
         }
     }
 
+    @Transactional
+    public void updateAllPassedRates() {
+        List<Project> projects = projectService.findAllByStatusNotIn(List.of(Status.COMPLETED, Status.DELETED));
+        log.info("프로젝트:{}", projects);
+        for (Project project : projects) {
+            updatePassedRate(project.getId(), TargetType.PROJECT);
+        }
+
+        List<Work> works = workService.findAllByStatusNotIn(List.of(Status.COMPLETED, Status.DELETED));
+        log.info("works:{}", works);
+        for (Work work : works) {
+            updatePassedRate(work.getId(), TargetType.TASK); // TASK가 TargetType에 정의되어 있어야 함
+        }
+    }
+
     //
     @Transactional
     public Long updateProjectStatus(Long projectId, Long userId, Status targetStatus) {

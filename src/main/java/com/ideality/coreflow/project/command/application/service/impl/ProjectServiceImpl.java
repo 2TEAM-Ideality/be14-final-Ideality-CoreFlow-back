@@ -144,4 +144,9 @@ public class ProjectServiceImpl implements ProjectService {
                 .endExpect(project.getEndExpect())
                 .build();
     }
+
+    @Override
+    public List<Project> findAllByStatusNotIn(List<Status> statuses) {
+        return projectRepository.findAllByStatusNotIn(statuses);
+    }
 }

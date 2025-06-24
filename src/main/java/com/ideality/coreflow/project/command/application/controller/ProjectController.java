@@ -64,11 +64,11 @@ public class ProjectController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/{projectId}/passed-rate")
+    @PatchMapping("/passed-rate")
     public ResponseEntity<APIResponse<Map<String,Object>>> updateProjectPassedRate(@PathVariable Long projectId){
-        Double updatedPassedRate = projectFacadeService.updatePassedRate(projectId, TargetType.PROJECT);
+        projectFacadeService.updateAllPassedRates();
         return ResponseEntity.ok(
-                APIResponse.success(Map.of("updatedPassedRate", updatedPassedRate),
+                APIResponse.success(null,
                         projectId + "번 프로젝트의 경과율이 업데이트 되었습니다")
         );
     }

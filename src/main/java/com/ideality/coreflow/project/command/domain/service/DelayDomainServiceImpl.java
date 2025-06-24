@@ -144,11 +144,6 @@ public class DelayDomainServiceImpl implements DelayDomainService {
             if (!isSimulate) {
                 projectService.projectSave(project);
             }
-
-            // 프로젝트 마감일이 변경되었으면, 프로젝트 디렉터에게 알림 보내기, 시뮬레이션이 아니면
-//            Long directorUserId = participantQueryService.findDirectorByProjectId(project.getId());
-//            String directorContent = "프로젝트 [" + project.getName() + "]의 예상 마감일이 지연되었습니다!";
-//            notificationService.sendNotification(directorUserId, directorContent, project.getId(), NotificationTargetType.PROJECT);
         }
 
         visited.put(startTask.getId(), startTaskDelay);

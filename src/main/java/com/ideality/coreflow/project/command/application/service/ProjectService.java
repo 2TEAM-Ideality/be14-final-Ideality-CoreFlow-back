@@ -28,4 +28,7 @@ public interface ProjectService {
     void projectSave(Project project);
 
     DateInfoDTO findDateInfoByProjectId(Long projectId);
+
+    List<Project> findAllByStatusNotIn(List<Status> statuses);
+
 }

@@ -140,43 +140,6 @@ public class TaskServiceImpl implements TaskService {
         return workRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND)).getName();
     }
 
-
-    @Override
-    public LocalDate delayTask(Work task, Integer delayDays, Set<LocalDate> holidays, LocalDate projectEndExpect, boolean isSimulate) {
-        if (task.getStatus() == Status.PENDING) {
-            task.setStartExpect(task.getStartExpect().plusDays(
-                    calculateDelayExcludingHolidays(task.getStartExpect(), delayDays, holidays)
-            ));
-        }
-        task.setEndExpect(task.getEndExpect().plusDays(
-                calculateDelayExcludingHolidays(task.getEndExpect(), delayDays, holidays)
-        ));
-        System.out.println("task.getId() = " + task.getId());
-        System.out.println("task.getEndExpect() = " + task.getEndExpect());
-        if(projectEndExpect.isBefore(task.getEndExpect())) {
-            projectEndExpect = task.getEndExpect();
-        }
-        System.out.println("projectEndExpect = " + projectEndExpect);
-        if (!isSimulate) {
-            workRepository.save(task);
-        }
-
-        // 태스크 하위 세부일정들도 지연 처리
-        // 하위 세부일정들 불러오기
-        List<Long> detailIds = workQueryService.selectWorkIdsByParentTaskId(task.getId());
-        // 하위 세부일정 지연 처리
-        if (detailIds != null) {
-            for (Long detailId : detailIds) {
-                Work detailWork = workRepository.findById(detailId).orElseThrow(() -> new BaseException(WORK_NOT_FOUND));
-                if (isSimulate) {
-                    em.detach(detailWork);
-                }
-                delayWork(detailWork, delayDays, holidays, isSimulate);
-            }
-        }
-        return projectEndExpect;
-    }
-
     @Override
     public void delayWork(Work work, Integer delayDays, Set<LocalDate> holidays, boolean isSimulate) {
         if (work.getStatus() == Status.PENDING) {
@@ -208,11 +171,6 @@ public class TaskServiceImpl implements TaskService {
             addedDays++;
         }
         return addedDays;
-    }
-
-    @Override
-    public void taskSave(Work currentTask) {
-        workRepository.save(currentTask);
     }
 
     @Override

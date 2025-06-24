@@ -6,6 +6,7 @@ import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.project.command.application.dto.DateInfoDTO;
 import com.ideality.coreflow.project.command.application.service.WorkService;
+import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
 import java.time.LocalDate;
@@ -67,5 +68,10 @@ public class WorkServiceImpl implements WorkService {
                 .startExpect(work.getStartExpect())
                 .endExpect(work.getEndExpect())
                 .build();
+    }
+
+    @Override
+    public List<Work> findAllByStatusNotIn(List<Status> statuses) {
+        return workRepository.findAllByStatusNotIn(statuses);
     }
 }

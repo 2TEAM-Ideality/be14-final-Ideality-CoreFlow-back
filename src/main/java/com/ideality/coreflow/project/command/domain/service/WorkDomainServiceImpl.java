@@ -40,19 +40,22 @@ public class WorkDomainServiceImpl implements WorkDomainService {
         LocalDate now = LocalDate.now();
         LocalDate endBase = dateInfo.getEndBase();
         LocalDate startBase = dateInfo.getStartBase();
-        LocalDate startReal = dateInfo.getStartReal();
+        LocalDate startExpect = dateInfo.getStartExpect();
 
         long totalDuration = ChronoUnit.DAYS.between(startBase, endBase) + 1
                 - holidayQueryService.countHolidaysBetween(startBase, endBase);
         log.info("totalDuration = " + totalDuration);
         long passedDates = 0;
         if (type == TargetType.PROJECT) {
-            passedDates = ChronoUnit.DAYS.between(startReal, now) + 1
-                    - holidayQueryService.countHolidaysBetween(startBase, now);
+            passedDates = ChronoUnit.DAYS.between(startBase, now);
+            passedDates = Math.max(0, passedDates) + 1;
+            passedDates -= holidayQueryService.countHolidaysBetween(startBase, now);
         } else {
-            passedDates = ChronoUnit.DAYS.between(startReal, now) + 1
-                    - holidayQueryService.countHolidaysBetween(startReal, now);
+            passedDates = ChronoUnit.DAYS.between(startExpect, now);
+            passedDates = Math.max(0, passedDates) + 1;
+            passedDates -= holidayQueryService.countHolidaysBetween(startExpect, now);
         }
+        passedDates = Math.max(passedDates, 0); // 최종 음수 방지
         log.info("passedDates = " + passedDates);
         double passedRate = (double) passedDates / totalDuration * 100;
         return passedRate > 100 ? 100 : Math.round(passedRate*100) / 100.0;

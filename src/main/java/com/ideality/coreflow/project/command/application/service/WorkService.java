@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.command.application.service;
 
 import com.ideality.coreflow.project.command.application.dto.DateInfoDTO;
+import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.query.dto.TaskPreviewDTO;
 
@@ -15,4 +16,6 @@ public interface WorkService {
     long findProjectIdByTaskId(Long taskId);
 
     DateInfoDTO findDateInfoByWorkId(Long workId);
+
+    List<Work> findAllByStatusNotIn(List<Status> statuses);
 }

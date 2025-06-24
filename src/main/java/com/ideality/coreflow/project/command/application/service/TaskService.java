@@ -32,11 +32,7 @@ public interface TaskService {
 
     Work findById(Long taskId);
 
-    LocalDate delayTask(Work task, Integer delayDays, Set<LocalDate> holidays, LocalDate projectEndExpect, boolean isSimulate);
-
     void delayWork(Work work, Integer delayDays, Set<LocalDate> holidays, boolean isSimulate);
 
     int calculateDelayExcludingHolidays(LocalDate startDate, Integer delayDays, Set<LocalDate> holidays);
-
-    void taskSave(Work currentTask);
 }
