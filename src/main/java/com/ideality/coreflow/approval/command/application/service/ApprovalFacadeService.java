@@ -13,7 +13,7 @@ import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.s3.S3Service;
 import com.ideality.coreflow.infra.s3.UploadFileResult;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
-import com.ideality.coreflow.notification.command.domain.aggregate.TargetType;
+import com.ideality.coreflow.notification.command.domain.aggregate.NotificationTargetType;
 import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
 import lombok.RequiredArgsConstructor;
@@ -61,7 +61,7 @@ public class ApprovalFacadeService {
                     approval.getUserId(),    // 결재 요청자 ID
                     notificationContent,     // 알림 내용
                     approval.getId(),        // 대상 ID (결재 ID)
-                    TargetType.APPROVAL      // 대상 타입 (결재)
+                    NotificationTargetType.APPROVAL      // 대상 타입 (결재)
             );
 
             // 추가적인 열람자 설정
@@ -118,7 +118,7 @@ public class ApprovalFacadeService {
                 request.getApproverId(),    // 결재자 ID
                 notificationContent,        // 알림 내용
                 approvalId,                 // 대상 ID (결재 ID)
-                TargetType.APPROVAL         // 대상 타입 (결재)
+                NotificationTargetType.APPROVAL         // 대상 타입 (결재)
         );
         log.info("결재 요청자에게 알림 전송");
 

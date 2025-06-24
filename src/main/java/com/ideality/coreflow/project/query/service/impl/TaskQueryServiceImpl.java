@@ -4,7 +4,7 @@ import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
-import com.ideality.coreflow.notification.command.domain.aggregate.TargetType;
+import com.ideality.coreflow.notification.command.domain.aggregate.NotificationTargetType;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.project.query.mapper.ParticipantMapper;
@@ -179,7 +179,7 @@ public class TaskQueryServiceImpl implements TaskQueryService {
                 notificationService.sendNotification(userId,
                         "오늘은 태스크 ["+taskName+"]의 예상 마감일입니다!",
                         task.getId(),
-                        TargetType.WORK);
+                        NotificationTargetType.WORK);
             }
         }
 
@@ -195,7 +195,7 @@ public class TaskQueryServiceImpl implements TaskQueryService {
                 notificationService.sendNotification(userId,
                         "내일은 태스크 ["+taskName+"]의 예상 마감일입니다!",
                         task.getId(),
-                        TargetType.WORK);
+                        NotificationTargetType.WORK);
             }
         }
     }

@@ -1,13 +1,10 @@
 package com.ideality.coreflow.project.command.application.service.impl;
 
-import com.ideality.coreflow.notification.command.application.service.NotificationService;
 import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.ParticipantService;
 import com.ideality.coreflow.project.command.domain.aggregate.Participant;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.command.domain.repository.ParticipantRepository;
-import com.ideality.coreflow.project.query.mapper.ProjectMapper;
-import com.ideality.coreflow.project.query.mapper.WorkMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,9 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-
-import static com.ideality.coreflow.notification.command.domain.aggregate.TargetType.PROJECT;
-import static com.ideality.coreflow.notification.command.domain.aggregate.TargetType.WORK;
 
 
 @Service

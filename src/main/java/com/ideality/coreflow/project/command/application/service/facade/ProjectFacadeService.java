@@ -11,6 +11,7 @@ import com.ideality.coreflow.holiday.query.dto.HolidayQueryDto;
 import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.notification.command.application.service.NotificationRecipientsService;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
+import com.ideality.coreflow.notification.command.domain.aggregate.NotificationTargetType;
 import com.ideality.coreflow.org.query.service.DeptQueryService;
 import com.ideality.coreflow.project.command.application.dto.*;
 import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
@@ -43,8 +44,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.Collectors;
 
-import static com.ideality.coreflow.notification.command.domain.aggregate.TargetType.PROJECT;
-import static com.ideality.coreflow.notification.command.domain.aggregate.TargetType.WORK;
+import static com.ideality.coreflow.notification.command.domain.aggregate.NotificationTargetType.PROJECT;
+import static com.ideality.coreflow.notification.command.domain.aggregate.NotificationTargetType.WORK;
 
 
 @Service
@@ -179,8 +180,22 @@ public class ProjectFacadeService {
             participantNotification(participant);
         }
 
-        if (request.getTemplateData() != null){
+        TemplateDataDTO templateData = request.getTemplateData();
+        if (templateData != null){
             applyTemplate(projectId, request.getTemplateData(), participantList);
+//            Map<String, Long> nodeIdToTaskId = new HashMap<>();
+
+//            for(NodeDTO node : templateData.getNodeList()){
+//                Long taskId = createTaskWithDepts(projectId, node);
+//                nodeIdToTaskId.put(node.getId(), taskId);
+//                assignTaskLeaders(taskId, node.getData().getDeptList(), projectLeaders);
+//            }
+//
+//            for (EdgeDTO edge : templateData.getEdgeList()) {
+//                Long sourceId = nodeIdToTaskId.get(edge.getSource());
+//                Long targetId = nodeIdToTaskId.get(edge.getTarget());
+//                relationService.createRelation(sourceId, targetId);
+//            }
         }
         return project;
     }
@@ -188,21 +203,41 @@ public class ProjectFacadeService {
     // 참여자 초대 알림
     private void participantNotification(ParticipantDTO participant) {
         long roleTeamLeaderId = roleService.findRoleByName("TEAM_LEADER");
+        long roleTeamMemberId = roleService.findRoleByName("TEAM_MEMBER");
+
+        String roleLabel = null;
+
         if (participant.getRoleId() == roleTeamLeaderId) {
-            String content = "";
-            if (participant.getTargetType() == TargetType.TASK) { // TARGET TYPE이 TASK일 때
-                // WORK 테이블에서 태스크 이름 조회
-                String taskName = workQueryService.findTaskNameByTaskId(participant.getTargetId());
-                content = "태스크 [" + taskName + "]에 팀장으로 초대되었습니다.";
-                // 알림 전송
-                notificationService.sendNotification(participant.getUserId(), content, participant.getTargetId(), WORK);
-            } else if (participant.getTargetType() == TargetType.PROJECT) { // TARGET TYPE이 PROJECT일 때
-                // PROJECT 테이블에서 프로젝트 이름 조회
-                String projectName = projectQueryService.findProjectNameByProjectId(participant.getTargetId());
-                content = "프로젝트 [" + projectName + "]에 팀장으로 초대되었습니다.";
-                notificationService.sendNotification(participant.getUserId(), content, participant.getTargetId(), PROJECT);
-            }
+            roleLabel = "팀장";
+        } else if (participant.getRoleId() == roleTeamMemberId) {
+            roleLabel = "팀원";
         }
+
+        if (roleLabel == null) return;
+        String targetName = getTargetName(participant.getTargetType(), participant.getTargetId());
+        String content = targetName != null
+                ? targetName + "에 " + roleLabel + "으로 초대되었습니다."
+                : null;
+
+        if (content != null) {
+            NotificationTargetType type = getNotificationType(participant.getTargetType());
+            notificationService.sendNotification(participant.getUserId(), content, participant.getTargetId(), type);
+        }
+    }
+
+    private NotificationTargetType getNotificationType(TargetType targetType) {
+        return targetType == TargetType.TASK ? NotificationTargetType.WORK : NotificationTargetType.PROJECT;
+    }
+
+    private String getTargetName(TargetType targetType, Long targetId) {
+        if (targetType == TargetType.TASK) {
+            String taskName = workQueryService.findTaskNameByTaskId(targetId);
+            return "태스크 [" + taskName + "]";
+        } else if (targetType == TargetType.PROJECT) {
+            String projectName = projectQueryService.findProjectNameByProjectId(targetId);
+            return "프로젝트 [" + projectName + "]";
+        }
+        return null;
     }
 
     private ParticipantDTO createProjectParticipantDTO(long projectId, Long userId, long roleId) {
@@ -217,7 +252,7 @@ public class ProjectFacadeService {
     private void applyTemplate(Long projectId, TemplateDataDTO templateData, List<ParticipantDTO> projectLeaders) {
         Map<String, Long> nodeIdToTaskId = new HashMap<>();
 
-        for(NodeDTO node:templateData.getNodeList()){
+        for(NodeDTO node : templateData.getNodeList()){
             Long taskId = createTaskWithDepts(projectId, node);
             nodeIdToTaskId.put(node.getId(), taskId);
             assignTaskLeaders(taskId, node.getData().getDeptList(), projectLeaders);
@@ -237,16 +272,17 @@ public class ProjectFacadeService {
 
         List<ParticipantDTO> matchedLeaders = new ArrayList<>();
 
-        for(ParticipantDTO leader:projectLeaders){
+        for(ParticipantDTO leader : projectLeaders){
             String deptName = userQueryService.getDeptNameByUserId(leader.getUserId());
             Long deptId = deptQueryService.findDeptIdByName(deptName);
+            long roleTeamLeaderId = roleService.findRoleByName("TEAM_LEADER");
             if (taskDeptIds.contains(deptId)) {
                 matchedLeaders.add(
                         ParticipantDTO.builder()
                                 .targetId(taskId)
                                 .userId(leader.getUserId())
                                 .targetType(TargetType.TASK)
-                                .roleId(2L)
+                                .roleId(roleTeamLeaderId)
                                 .build()
                 );
             }
@@ -273,27 +309,13 @@ public class ProjectFacadeService {
                 .map(TaskDeptDTO::getId)
                 .toList();
 
-        for(Long deptId:deptIds){
+        for(Long deptId : deptIds){
             workDeptService.createWorkDept(taskId, deptId);
         }
         return taskId;
     }
 
-//    private List<ParticipantDTO> registerProjectLeaders(Long projectId, List<Long> leaderIds) {
-//        if(leaderIds == null || leaderIds.isEmpty()) return List.of();
-//
-//        List<ParticipantDTO> leaders = leaderIds.stream()
-//                .map(userId -> ParticipantDTO.builder()
-//                        .targetId(projectId)
-//                        .userId(userId)
-//                        .targetType(TargetType.PROJECT)
-//                        .roleId(2L)
-//                        .build()
-//                ).toList();
-//        createParticipants(leaders);
-//        return leaders;
-//    }
-
+    //
     @Transactional
     public Long createTask(RequestTaskDTO requestTaskDTO, Long userId) {
 
@@ -337,11 +359,6 @@ public class ProjectFacadeService {
         } else {
             log.info("둘 다 null이라 값을 넣지 않음");
         }
-//        if (requestTaskDTO.getTarget() == null || requestTaskDTO.getTarget().isEmpty()) {
-//            // target이 없으면
-//        } else {
-//            relationService.appendMiddleRelation(requestTaskDTO.getSource(), requestTaskDTO.getTarget(), taskId);
-//        }
         log.info("태스크 및 태스트별 관계 설정 완료");
 
 
@@ -354,22 +371,29 @@ public class ProjectFacadeService {
 
             List<Long> newParticipantsIds = deptUsersMaps.get(deptName);
             List<Long> leaderIds = deptLeaderMaps.get(deptName);
+            long roleTeamLeaderId = roleService.findRoleByName("TEAM_LEADER");
+            long roleTeamMemberId = roleService.findRoleByName("TEAM_MEMBER");
             // ✅ 1. 팀장 먼저 등록
             List<ParticipantDTO> leaderParticipants = leaderIds.stream()
-                    .map(leaderId -> new ParticipantDTO(taskId, leaderId, TargetType.TASK, 2L))
+                    .map(leaderId -> new ParticipantDTO(taskId, leaderId, TargetType.TASK, roleTeamLeaderId))
                     .toList();
-            createParticipants(leaderParticipants);
+            for (ParticipantDTO leader : leaderParticipants) {
+                participantService.createParticipants(leader);
+                participantNotification(leader);
+            }
             log.info("팀장 등록 완료");
 
             // ✅ 2. 팀원 등록 (디렉터 & 팀장 제외)
             List<ParticipantDTO> teamParticipants = newParticipantsIds.stream()
                     .filter(participantUserId -> !leaderIds.contains(userId))       // 팀장 제외
                     .filter(participantUserId -> !userId.equals(directorId))        // 디렉터 제외
-                    .map(participantUserId -> new ParticipantDTO(taskId, userId, TargetType.TASK, 3L))
+                    .map(participantUserId -> new ParticipantDTO(taskId, userId, TargetType.TASK, roleTeamMemberId))
                     .toList();
-            createParticipants(teamParticipants);
+            for (ParticipantDTO teamParticipant : teamParticipants) {
+                participantService.createParticipants(teamParticipant);
+                participantNotification(teamParticipant);
+            }
             log.info("팀원 등록 완료");
-
         }
         return taskId;
     }
@@ -403,7 +427,7 @@ public class ProjectFacadeService {
 
         // 각 사용자에게 알림 전송
         for (Long id : userIds) {
-            notificationService.sendNotification(userId, "선행 태스크["+ taskName + "]가 완료되었습니다.", updateTaskId, com.ideality.coreflow.notification.command.domain.aggregate.TargetType.WORK);
+            notificationService.sendNotification(userId, "선행 태스크["+ taskName + "]가 완료되었습니다.", updateTaskId, NotificationTargetType.WORK);
         }
 
         return updateTaskId;
@@ -698,7 +722,7 @@ public class ProjectFacadeService {
                     List<Long> participants = participantQueryService.findParticipantsByTaskId(currentTask.getId());
                     String contents = "태스크 [" + startTask.getName() + "]가 지연되어 ["+ currentTask.getName() +"]의 예상마감일이 변경되었습니다!";
                     for (Long userId : participants) {
-                        notificationService.sendNotification(userId, contents, currentTask.getId(), com.ideality.coreflow.notification.command.domain.aggregate.TargetType.WORK);
+                        notificationService.sendNotification(userId, contents, currentTask.getId(), NotificationTargetType.WORK);
                     }
                 }
 
@@ -737,7 +761,7 @@ public class ProjectFacadeService {
             // 프로젝트 마감일이 변경되었으면, 프로젝트 디렉터에게 알림 보내기
             Long directorUserId = participantQueryService.findDirectorByProjectId(project.getId());
             String directorContent = "프로젝트 [" + project.getName() + "]의 예상 마감일이 지연되었습니다!";
-            notificationService.sendNotification(directorUserId, directorContent, project.getId(), com.ideality.coreflow.notification.command.domain.aggregate.TargetType.PROJECT);
+            notificationService.sendNotification(directorUserId, directorContent, project.getId(), NotificationTargetType.PROJECT);
         }
 
         visited.put(startTask.getId(), startTaskDelay);
