@@ -20,9 +20,7 @@ application.yml
 # AWS User-specific
 .idea/**/aws.xml
 
-application.yml
 application-*.yml
-application.yml
 
 # Generated files
 .idea/**/contentModel.xml
