@@ -60,6 +60,13 @@ public class ProjectQueryController {
         return ResponseEntity.ok(APIResponse.success(res, "초대 가능한 회원 리스트 조회 성공"));
     }
 
+    @GetMapping("/mainPage")
+    public ResponseEntity<APIResponse<TaskSummaryResponse>> getMainPage() {
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        TaskSummaryResponse res = projectQueryFacadeService.getTodayTaskSummary(userId);
+        return ResponseEntity.ok(APIResponse.success(res, "오늘 요약 조회 성공"));
+    }
+
     // 프로젝트 참여 부서 조회
     @GetMapping("/{projectId}/participants/department")
     public ResponseEntity<APIResponse<List<ParticipantDepartmentDTO>>> getParticipantDepartment(@PathVariable Long projectId) {

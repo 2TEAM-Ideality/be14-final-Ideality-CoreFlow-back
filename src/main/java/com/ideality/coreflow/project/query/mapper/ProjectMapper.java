@@ -40,4 +40,6 @@ public interface ProjectMapper {
     String selectProjectNameByProjectId(Long projectId);
 
 	List<ProjectSummaryDTO> selectProjectByDeptId(Long deptId);
+
+    List<Long> findOngoingProjectIdsByUser(Long userId);
 }
