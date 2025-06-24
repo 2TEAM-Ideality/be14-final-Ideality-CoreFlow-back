@@ -434,6 +434,13 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public void setTaskWarning(Long taskId, Boolean warning) {
+        Work task = taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+        task.setWarning(warning);
+        taskRepository.save(task);
+    }
+
+    @Override
     public List<WorkDueTodayDTO> getWorksDueToday(List<Long> projectIds) {
         if (projectIds.isEmpty()) return List.of();
         return taskMapper.findWorksDueToday(projectIds, LocalDate.now());

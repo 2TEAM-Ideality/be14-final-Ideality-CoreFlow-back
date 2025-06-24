@@ -175,4 +175,18 @@ public class TaskQueryServiceImpl implements TaskQueryService {
                 })
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public Boolean checkTaskWarning(Long taskId) {
+        CheckTaskWarningDTO endExpect = taskMapper.findTaskEndExpect(taskId);       // (1)자기 자신의 예상 종료일, (2)세부일정중 예상일이 가장 늦은 예상 종료일을 가져옴
+        System.out.println("endExpect = " + endExpect);                             // log 출력용
+        // 태스크의 예상 종료일이 세부일정의 예상 종료일보다 빠르면 warning
+        // 태스크의 예상 종료일이 세부일정의 예상 종료일과 같거나 이후라면 warning false
+        if(endExpect.getSubTaskEndExpect()==null){
+            return false;
+        }
+        return endExpect.getTaskEndExpect().isBefore(endExpect.getSubTaskEndExpect());
+    }
+
+
 }

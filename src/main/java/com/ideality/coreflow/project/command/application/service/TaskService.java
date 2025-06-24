@@ -32,5 +32,7 @@ public interface TaskService {
 
     Long modifyTaskDetail(RequestModifyTaskDTO requestModifyTaskDTO, Long taskId);
 
+    void setTaskWarning(Long taskId, Boolean warning);
+
     List<WorkDueTodayDTO> getWorksDueToday(List<Long> projectIds);
 }
