@@ -182,6 +182,9 @@ public class TaskQueryServiceImpl implements TaskQueryService {
         System.out.println("endExpect = " + endExpect);                             // log 출력용
         // 태스크의 예상 종료일이 세부일정의 예상 종료일보다 빠르면 warning
         // 태스크의 예상 종료일이 세부일정의 예상 종료일과 같거나 이후라면 warning false
+        if(endExpect.getSubTaskEndExpect()==null){
+            return false;
+        }
         return endExpect.getTaskEndExpect().isBefore(endExpect.getSubTaskEndExpect());
     }
 
