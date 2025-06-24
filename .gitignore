@@ -19,6 +19,7 @@
 # AWS User-specific
 .idea/**/aws.xml
 
+application.yml
 application-*.yml
 
 # Generated files

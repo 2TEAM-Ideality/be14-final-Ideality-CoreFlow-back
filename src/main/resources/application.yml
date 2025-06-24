@@ -1,3 +1,4 @@
 spring:
   profiles:
-    active: deploy
+    active : dev
+#    active: deploy
