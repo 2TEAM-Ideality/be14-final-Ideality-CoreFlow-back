@@ -12,6 +12,7 @@ import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.application.service.RoleService;
 import com.ideality.coreflow.user.command.application.service.UserOfRoleService;
 import com.ideality.coreflow.user.command.application.service.UserService;
+import com.ideality.coreflow.user.command.domain.aggregate.RoleName;
 import com.ideality.coreflow.user.query.dto.DeptNameAndYearDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import jakarta.servlet.http.Cookie;
@@ -128,10 +129,10 @@ public class AuthFacadeService {
 
         // 생성 권한 넣기
         // 프로젝트 생성 역할 id 가져오기
-        long roleId = roleService.findRoleByName("CREATOR");
+        long roleId = roleService.findRoleByName(RoleName.CREATOR);
 
         // 해당 회원에게 권한 넣기 (false면 안들어감)
-        userOfRoleService.updateAuthorities(requestSignUp.isCreation(), userId, roleId);
+        userOfRoleService.updateAuthorities(requestSignUp.getIsCreation(), userId, roleId);
 
         log.info("메일 발송");
         log.info("메일 발송");
@@ -148,7 +149,7 @@ public class AuthFacadeService {
                 .deptName(requestSignUp.getDeptName())
                 .jobRankName(requestSignUp.getJobRankName())
                 .jobRoleName(requestSignUp.getJobRoleName())
-                .isCreation(requestSignUp.isCreation())
+                .isCreation(requestSignUp.getIsCreation())
                 .isResign(false)
                 .build();
     }
@@ -231,7 +232,7 @@ public class AuthFacadeService {
 
         // 생성 권한 넣기
         // 협력업체 역할 id 가져오기
-        long roleId = roleService.findRoleByName("PARTNER");
+        long roleId = roleService.findRoleByName(RoleName.PARTNER);
 
         // 해당 회원에게 외부 역할 넣기 (false면 안들어감)
         userOfRoleService.updateAuthorities(true, userId, roleId);

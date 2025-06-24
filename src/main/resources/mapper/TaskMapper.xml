@@ -115,7 +115,7 @@
         AND status = 'COMPLETED'
     </select>
 
-    <select id="selectTaskProgressByProjectId" resultType="com.ideality.coreflow.project.query.dto.TaskProgressDTO">
+    <select id="selectTaskProgressByProjectId" resultType="com.ideality.coreflow.project.query.dto.WorkProgressDTO">
         SELECT
                start_base    AS startDate
              , end_base      AS endDate
@@ -123,6 +123,7 @@
           FROM work
          WHERE project_id = #{projectId}
            AND parent_task_id IS NULL
+           AND status != 'DELETED'
     </select>
 
     <resultMap id="GanttTaskWithPredecessorsMap" type="com.ideality.coreflow.project.query.dto.GanttTaskResponse">

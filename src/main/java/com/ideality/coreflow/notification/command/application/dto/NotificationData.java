@@ -1,11 +1,9 @@
 package com.ideality.coreflow.notification.command.application.dto;
 
 import com.ideality.coreflow.notification.command.domain.aggregate.Status;
-import com.ideality.coreflow.notification.command.domain.aggregate.TargetType;
-import lombok.AllArgsConstructor;
+import com.ideality.coreflow.notification.command.domain.aggregate.NotificationTargetType;
 import lombok.Data;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -19,11 +17,11 @@ public class NotificationData {
     private final Long id;  // ID 필드 추가
     private final Boolean isAutoDelete;
     private final Long targetId;
-    private final TargetType targetType;
+    private final NotificationTargetType targetType;
 
     // 생성자
     // 생성자: LocalDateTime과 Status를 String으로 변환
-    public NotificationData(String content, LocalDateTime date, Status status, Long id, Boolean isAutoDelete,Long targetId,TargetType targetType) {
+    public NotificationData(String content, LocalDateTime date, Status status, Long id, Boolean isAutoDelete,Long targetId,NotificationTargetType targetType) {
         this.content = content;
         this.date = date.toString();  // LocalDateTime을 String으로 변환
         this.status = status.toString();  // Status를 String으로 변환

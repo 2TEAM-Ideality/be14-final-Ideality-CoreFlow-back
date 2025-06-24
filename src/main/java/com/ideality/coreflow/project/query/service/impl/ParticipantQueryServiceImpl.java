@@ -97,6 +97,21 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
     }
 
     @Override
+    public List<Long> findParticipantsByTaskId(Long id) {
+        return participantMapper.findParticipantsByTaskId(id);
+    }
+
+    @Override
+    public Long findDirectorByProjectId(Long id) {
+        return participantMapper.findDirectorByProjectId(id);
+    }
+
+    @Override
+    public List<Long> findNextTaskUsersByTaskId(Long taskId) {
+        return participantMapper.findNextTaskUsersByTaskId(taskId);
+    }
+
+    @Override
     public void findTeamLedaer(Long projectId, List<RequestInviteUserDTO> reqLeaderDTO) {
         for (RequestInviteUserDTO leaderDTO : reqLeaderDTO) {
             boolean isLeaderAlreadyExists = participantMapper.isTeamLeader

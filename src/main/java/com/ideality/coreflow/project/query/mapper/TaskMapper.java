@@ -5,7 +5,7 @@ import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
 import com.ideality.coreflow.project.query.dto.GanttTaskResponse;
 import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
 import com.ideality.coreflow.project.query.dto.SelectTaskDTO;
-import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
+import com.ideality.coreflow.project.query.dto.WorkProgressDTO;
 import com.ideality.coreflow.project.query.dto.WorkDueTodayDTO;
 import java.time.LocalDate;
 import org.apache.ibatis.annotations.Mapper;
@@ -28,7 +28,7 @@ public interface TaskMapper {
 
 	List<CompletedTaskDTO> selectCompletedTasks(Long projectId);
 
-    List<TaskProgressDTO> selectTaskProgressByProjectId(Long projectId);
+    List<WorkProgressDTO> selectTaskProgressByProjectId(Long projectId);
 
     List<GanttTaskResponse> selectRootTasksByProjectId(Long projectId);
 

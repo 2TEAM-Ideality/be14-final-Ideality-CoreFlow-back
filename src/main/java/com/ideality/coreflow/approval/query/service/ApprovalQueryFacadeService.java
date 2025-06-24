@@ -9,27 +9,33 @@ import com.ideality.coreflow.attachment.command.application.dto.AttachmentPrevie
 import com.ideality.coreflow.attachment.command.application.service.AttachmentCommandService;
 import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
 import com.ideality.coreflow.attachment.query.service.AttachmentQueryService;
-import com.ideality.coreflow.project.command.application.dto.DelayInfoDTO;
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.approval.command.application.dto.DelayInfoDTO;
+import com.ideality.coreflow.project.command.application.service.ParticipantService;
 import com.ideality.coreflow.project.command.application.service.TaskService;
+import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
+import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
+import com.ideality.coreflow.project.command.domain.service.DelayDomainService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ApprovalQueryFacadeService {
     private final ApprovalQueryService approvalQueryService;
-    private final AttachmentQueryService attachmentQueryService;
     private final AttachmentCommandService attachmentCommandService;
     private final DelayReasonService delayReasonService;
+    private final ParticipantService participantService;
     private final TaskService taskService;
+    private final DelayDomainService delayDomainService;
 
     public List<ResponsePreviewApproval> searchMyApprovalReceive(long id) {
         return approvalQueryService.searchMyApprovalReceive(id);
@@ -51,11 +57,20 @@ public class ApprovalQueryFacadeService {
         // 결재 참여자 조회
         List<ApprovalParticipantDTO> approvalParticipant = approvalQueryService.searchApprovalParticipantById(approvalId);
 
-        List<String> hasRole = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
+        // 결재 참여자인지 아닌지
+        boolean isParticipant = approvalParticipant.stream()
+                .anyMatch(participant -> Objects.equals(participant.getParticipantId(), userId));
 
-        log.info("회원의 역할: {}", hasRole);
+        log.info("참여자인지 아닌지: {}", isParticipant);
+
+        // 태스크 참여자인지 아닌지 확인 로직 추가?
+        boolean isTaskParticipant = participantService.isParticipant(approvalDetails.getTaskId(), userId, TargetType.TASK);
+
+        log.info("태스크 참여자인지 아닌지:{}", isTaskParticipant);
+
+        if (!isParticipant && !isTaskParticipant) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
 
 
         // 첨부파일 조회
@@ -85,7 +100,7 @@ public class ApprovalQueryFacadeService {
 
         // 지연일 경우 지연 예상 정보 조회
         if (approvalDetails.getType() == ApprovalType.DELAY && approvalDetails.getStatus() == ApprovalStatus.PENDING) {
-            DelayInfoDTO delayInfoDTO = taskService.delayAndPropagate(approvalDetails.getTaskId(), approvalDetails.getDelayDays(), true);
+            DelayInfoDTO delayInfoDTO =  delayDomainService.delayAndPropagateLogic(approvalDetails.getTaskId(), approvalDetails.getDelayDays(), true);
 
             Map<Long, DelayTaskNameDTO> result = new HashMap<>();
 

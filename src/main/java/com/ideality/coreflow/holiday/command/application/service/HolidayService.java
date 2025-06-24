@@ -3,6 +3,7 @@ package com.ideality.coreflow.holiday.command.application.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ideality.coreflow.holiday.command.application.dto.HolidayApiResponse;
+import com.ideality.coreflow.holiday.command.application.dto.RequestInsertHoliday;
 import com.ideality.coreflow.holiday.command.domain.aggregate.Holiday;
 import com.ideality.coreflow.holiday.command.domain.aggregate.HolidayType;
 import com.ideality.coreflow.holiday.command.domain.aggregate.RepeatType;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import org.springframework.web.util.UriComponentsBuilder;
@@ -96,19 +98,14 @@ public class HolidayService {
         }
     }
 
-    public void insertDummyHoliday() {
+    @Transactional
+    public void insertDummyHoliday(RequestInsertHoliday request) {
         Holiday dummy = Holiday.builder()
-                .name("민수 탄신일")
-                .date(LocalDate.parse("1997-09-18"))
-                .type(HolidayType.NATIONAL)
-                .isRepeat(RepeatType.ONCE)
+                .name(request.getName())
+                .date(request.getDate())
+                .type(request.getHolidayType())
+                .isRepeat(request.getRepeatType())
                 .build();
         Holiday saved=holidayRepository.save(dummy);
-        if (saved==null) {
-            System.out.println("더미데이터 1개 저장 성공");
-        }
-        else{
-            System.out.println("무언가 잘못됨");
-        }
     }
 }
