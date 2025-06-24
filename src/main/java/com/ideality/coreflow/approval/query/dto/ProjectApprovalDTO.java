@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class ProjectApprovalDTO {
     long id;                    // 결재 id
     String taskName;            // 태스크명
+    long taskId;                // 태스크 아이디
     LocalDateTime createdDate;  // 생성일
     String approverName;        // 결재자 명
     String approverJobRank;     // 결재자 직위

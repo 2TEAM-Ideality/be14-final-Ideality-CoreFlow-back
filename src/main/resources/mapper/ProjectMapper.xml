@@ -234,8 +234,8 @@
 <!--    </select>-->
 
     <select id="findProjectNameByProjectId" resultType="String">
-        SELECT NAME
-        FROM PROJECT
+        SELECT name
+        FROM project
         WHERE id = #{projectId}
     </select>
 
@@ -354,6 +354,17 @@
             JOIN dept d ON u.dept_name = d.name
             JOIN project p ON part.target_type = 'PROJECT' AND part.target_id = p.id
         WHERE d.id = #{deptId}
+    </select>
+
+    <select id="findOngoingProjectIdsByUser" parameterType="long" resultType="long">
+        SELECT
+               pj.id
+          FROM participant p
+          JOIN project pj
+            ON p.target_type = 'PROJECT'
+           AND p.target_id = pj.id
+         WHERE p.user_id = #{userId}
+           AND pj.status = 'PROGRESS'
     </select>
 
 </mapper>

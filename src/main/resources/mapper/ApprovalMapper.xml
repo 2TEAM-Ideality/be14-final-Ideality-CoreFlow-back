@@ -59,6 +59,7 @@
         SELECT
                a.id AS ID
              , w.name AS TASK_NAME
+             , w.id AS TASK_ID
              , a.created_at AS CREATED_AT
              , u.name AS APPROVER_NAME
              , u.job_rank_name AS APPROVER_JOB_RANK

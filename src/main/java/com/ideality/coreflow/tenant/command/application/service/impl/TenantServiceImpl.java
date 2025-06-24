@@ -54,28 +54,23 @@ public class TenantServiceImpl implements TenantService {
             log.info("stmt.execute");
             stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + tenantName);
 
-            new Thread(() -> {
-                //DB 접속후 테이블 초기화
-                log.info("새 스레드");
-                TenantContext.setTenant(tenantName);
-                try (Connection newDbConnection = DriverManager.getConnection(
-                        env.getProperty("spring.datasource.tenant.url") + tenantName, env.getProperty("spring.datasource.tenant.username"), env.getProperty("spring.datasource.tenant.password")
-                )) {
-                    try (Statement initStmt = newDbConnection.createStatement()) {
-                        String ddl = loadInitScript(); // 테이블 생성 SQL
-                        for (String sql : ddl.split(";")) {
-                            if (!sql.trim().isEmpty()) {
-                                initStmt.execute(sql);
-                            }
+            //DB 접속후 테이블 초기화
+            TenantContext.setTenant(tenantName);
+            try (Connection newDbConnection = DriverManager.getConnection(
+                    env.getProperty("spring.datasource.tenant.url") + tenantName, env.getProperty("spring.datasource.tenant.username"), env.getProperty("spring.datasource.tenant.password")
+            )) {
+                try (Statement initStmt = newDbConnection.createStatement()) {
+                    String ddl = loadInitScript(); // 테이블 생성 SQL
+                    for (String sql : ddl.split(";")) {
+                        if (!sql.trim().isEmpty()) {
+                            initStmt.execute(sql);
                         }
                     }
-                } catch (SQLException e) {
-                    throw new BaseException(ErrorCode.TENANT_CREATE_FAILED);
                 }
-
-            }).start();
-
-        } catch (SQLException e) {
+            } catch (SQLException | RuntimeException e) {
+                throw new BaseException(ErrorCode.TENANT_CREATE_FAILED);
+            }
+        } catch (SQLException | RuntimeException e) {
             throw new BaseException(ErrorCode.TENANT_CREATE_FAILED);
         }
     }

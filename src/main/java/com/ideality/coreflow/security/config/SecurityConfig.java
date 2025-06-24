@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(new AntPathRequestMatcher("/api/admin/**")).hasAuthority("ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/api/auth/signup")).hasAuthority("ADMIN")
+                        .requestMatchers(new AntPathRequestMatcher("/api/health")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/dept/all")).authenticated()
                         .requestMatchers(new AntPathRequestMatcher("/api/projects/**")).permitAll()
@@ -48,7 +49,12 @@ public class SecurityConfig {
                 .cors(cors -> cors
                         .configurationSource(request -> {
                             CorsConfiguration config = new CorsConfiguration();
-                            config.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost"));
+                            config.setAllowedOrigins(Arrays.asList("http://localhost:5173",
+                                    "http://localhost",
+                                    "https://core-flow.site",
+                                    "https://www.core-flow.site",         // ← ✅ www 붙은 도메인 대응
+                                    "https://api.core-flow.site"       // ← 백엔드 API 도메인 자체를 호출하는 경우 (Swagger나 Postman용)
+                            ));
                             config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                             config.setAllowedHeaders(Arrays.asList("*"));
                             config.setAllowCredentials(true);
