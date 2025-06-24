@@ -40,7 +40,7 @@ public class TenantFacadeService {
 
             long roleId = roleService.findRoleByName("ADMIN");
 
-            userOfRoleService.updateAuthorities(false, initialAdmin.getId(), roleId);
+            userOfRoleService.updateAuthorities(true, initialAdmin.getId(), roleId);
 
         }).start();
 
