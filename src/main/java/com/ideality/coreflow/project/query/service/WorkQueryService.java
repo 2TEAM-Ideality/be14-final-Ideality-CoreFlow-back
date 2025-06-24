@@ -31,4 +31,9 @@ public interface WorkQueryService {
     List<Long> selectWorkIdsByParentTaskId(Long parentTaskId);
 
     List<Work> getSubTasksByParentTaskId(Long id);
+
+    // 세부 일정 id가 주어졌을 때 부모 태스크의 id를 반환
+    Long getParentTaskId(Long subTaskId);
+
+    Boolean checkTaskWarning(Long subTaskId);
 }

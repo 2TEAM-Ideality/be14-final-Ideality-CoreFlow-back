@@ -1,5 +1,6 @@
 package com.ideality.coreflow.project.query.mapper;
 
+import com.ideality.coreflow.project.query.dto.CheckTaskWarningDTO;
 import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
 import com.ideality.coreflow.project.query.dto.GanttTaskResponse;
 import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
@@ -29,4 +30,6 @@ public interface TaskMapper {
     List<GanttTaskResponse> selectRootTasksByProjectId(Long projectId);
 
     List<GanttTaskResponse> selectSubTasksByParentId(Long parentId);
+
+    CheckTaskWarningDTO findTaskEndExpect(Long taskId);
 }

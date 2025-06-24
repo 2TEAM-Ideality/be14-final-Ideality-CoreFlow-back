@@ -32,6 +32,7 @@ public interface TaskQueryService {
 
     void sendTaskDueReminder();
 
-
     List<GanttTaskResponse> getGanttTasksByProjectId(Long projectId);
+
+    Boolean checkTaskWarning(Long taskId);
 }

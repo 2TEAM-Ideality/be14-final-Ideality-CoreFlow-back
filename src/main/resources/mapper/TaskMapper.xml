@@ -214,4 +214,18 @@
            AND w.status NOT IN ('DELETED', 'CANCELLED')
          ORDER BY start_base
     </select>
+
+    <select id="findTaskEndExpect" resultType="com.ideality.coreflow.project.query.dto.CheckTaskWarningDTO">
+        SELECT
+               w.end_expect AS taskEndExpect
+             , {
+                SELECT
+                       MAX(child.end_expect)
+                  FROM work child
+                 WHERE child.parent_task_id = #{taskId}
+               } AS subTaskEndExpect
+          FROM work w
+         WHERE w.id = #{taskId}
+
+    </select>
 </mapper>
