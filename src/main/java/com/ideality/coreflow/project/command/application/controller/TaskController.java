@@ -106,4 +106,10 @@ public class TaskController {
                 taskId + "가 업데이트 되었습니다.")
         );
     }
+
+    @PatchMapping("{taskId}/warning")
+    public ResponseEntity<APIResponse<Map<String, Object>>> updateTaskWarning(@PathVariable Long taskId) {
+        String result = projectFacadeService.updateTaskWarning(taskId);
+        return ResponseEntity.ok(APIResponse.success(Map.of("result", result), taskId + "warning 업데이트 완료"));
+    }
 }

@@ -1,6 +1,6 @@
 package com.ideality.coreflow.project.query.mapper;
 
-import com.ideality.coreflow.project.command.domain.aggregate.Work;
+import com.ideality.coreflow.project.query.dto.CheckTaskWarningDTO;
 import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
 import com.ideality.coreflow.project.query.dto.GanttTaskResponse;
 import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
@@ -36,4 +36,6 @@ public interface TaskMapper {
 
     List<WorkDueTodayDTO> findWorksDueToday(@Param("projectIds") List<Long> projectIds,
                                             @Param("today") LocalDate today);
+
+    CheckTaskWarningDTO findTaskEndExpect(Long taskId);
 }

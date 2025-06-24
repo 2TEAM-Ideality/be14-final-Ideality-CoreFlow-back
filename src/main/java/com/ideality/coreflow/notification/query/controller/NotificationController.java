@@ -49,7 +49,7 @@ public class NotificationController {
 
         // 알림 데이터를 DTO로 변환
         List<NotificationData> notificationDataList = notifications.stream()
-                .map(notification -> new NotificationData(notification.getContent(), notification.getDispatchAt(), notification.getStatus(), notification.getId(),notification.getIsAutoDelete()))
+                .map(notification -> new NotificationData(notification.getContent(), notification.getDispatchAt(), notification.getStatus(), notification.getId(),notification.getIsAutoDelete(), notification.getTargetId(),notification.getTargetType()))
                 .collect(Collectors.toList());
 
         // 조회된 알림을 반환
@@ -111,7 +111,7 @@ public class NotificationController {
                     // 알림이 있을 경우, 클라이언트로 전송
                     if (!notifications.isEmpty()) {
                         List<NotificationData> notificationDataList = notifications.stream()
-                                .map(notification -> new NotificationData(notification.getContent(), notification.getDispatchAt(), notification.getStatus(), notification.getId(),notification.getIsAutoDelete()))
+                                .map(notification -> new NotificationData(notification.getContent(), notification.getDispatchAt(), notification.getStatus(), notification.getId(),notification.getIsAutoDelete(), notification.getTargetId(),notification.getTargetType()))
                                 .collect(Collectors.toList());
 
                         emitter.send(SseEmitter.event().name("notification").data(notificationDataList).reconnectTime(3000));

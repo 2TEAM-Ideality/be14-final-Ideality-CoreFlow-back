@@ -215,6 +215,20 @@
          ORDER BY start_base
     </select>
 
+    <select id="findTaskEndExpect" resultType="com.ideality.coreflow.project.query.dto.CheckTaskWarningDTO">
+        SELECT
+               w.end_expect AS taskEndExpect
+             , (
+                SELECT
+                       MAX(child.end_expect)
+                  FROM work child
+                 WHERE child.parent_task_id = #{taskId}
+               ) AS subTaskEndExpect
+          FROM work w
+         WHERE w.id = #{taskId}
+
+    </select>
+
 <!--    <select id="findWorksDueToday" resultType="com.ideality.coreflow.project.command.domain.aggregate.Work">-->
 <!--        SELECT *-->
 <!--          FROM work-->
