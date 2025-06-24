@@ -85,9 +85,13 @@ public class ProjectFacadeService {
     @Transactional
     public Double updateProgressRate(Long taskId) {
 
+        // 태스크에 종속된 세부일정 조회
         List<WorkProgressDTO> detailList = workQueryService.getDetailProgressByTaskId(taskId);
 
+        // 세부일정을 이용하여 태스크 진척률 계산
         double progress = workDomainService.calculateProgressRate(detailList);
+
+        //태스크 진척률 업데이트
         taskService.updateProgressRate(taskId, progress);
         long projectId = workService.findProjectIdByTaskId(taskId);
 
@@ -100,8 +104,11 @@ public class ProjectFacadeService {
     //
     @Transactional
     public Double updateProjectProgressRate(Long projectId) {
+
+        // 프로젝트에 종속된 태스크 조회
         List<WorkProgressDTO> taskList = taskQueryService.getTaskProgressByProjectId(projectId);
 
+        // 태스크를 이용하여 프로젝트 진척률 계산
         double progress = workDomainService.calculateProgressRate(taskList);
 
         return projectService.updateProjectProgress(projectId, progress);
@@ -128,6 +135,7 @@ public class ProjectFacadeService {
         }
     }
 
+    //
     @Transactional
     public Long updateProjectStatus(Long projectId, Long userId, Status targetStatus) {
         if(!participantQueryService.isProjectDirector(projectId, userId)){
@@ -141,15 +149,69 @@ public class ProjectFacadeService {
         return projectService.updateProjectStatus(projectId, targetStatus);
     }
 
+    //
     @Transactional
     public Project createProject(ProjectCreateRequest request) {
-        Project project = registerProject(request);
-        registerProjectDirector(project.getId(), request.getDirectorId());
-        List<ParticipantDTO> leaders = registerProjectLeaders(project.getId(), request.getLeaderIds());
+        Project project = projectService.createProject(request);
+        long roleDirectorId = roleService.findRoleByName("DIRECTOR");
+        long roleTeamLeaderId = roleService.findRoleByName("TEAM_LEADER");
+        long projectId = project.getId();
+
+        // 참여자 리스트
+        List<ParticipantDTO> participantList = new ArrayList<>();
+
+        // 디렉터
+        ParticipantDTO director = createProjectParticipantDTO(projectId, request.getDirectorId(), roleDirectorId);
+        participantList.add(director);
+
+        // 팀장 리스트
+        if (request.getLeaderIds() != null) {
+            for (Long leaderId : request.getLeaderIds()) {
+                ParticipantDTO leader = createProjectParticipantDTO(projectId, leaderId, roleTeamLeaderId);
+                participantList.add(leader);
+            }
+        }
+
+        // 참여자 테이블 삽입
+        for (ParticipantDTO participant : participantList) {
+            participantService.createParticipants(participant);
+            // 알림
+            participantNotification(participant);
+        }
+
         if (request.getTemplateData() != null){
-            applyTemplate(project.getId(), request.getTemplateData(), leaders);
+            applyTemplate(projectId, request.getTemplateData(), participantList);
         }
         return project;
+    }
+
+    // 참여자 초대 알림
+    private void participantNotification(ParticipantDTO participant) {
+        long roleTeamLeaderId = roleService.findRoleByName("TEAM_LEADER");
+        if (participant.getRoleId() == roleTeamLeaderId) {
+            String content = "";
+            if (participant.getTargetType() == TargetType.TASK) { // TARGET TYPE이 TASK일 때
+                // WORK 테이블에서 태스크 이름 조회
+                String taskName = workQueryService.findTaskNameByTaskId(participant.getTargetId());
+                content = "태스크 [" + taskName + "]에 팀장으로 초대되었습니다.";
+                // 알림 전송
+                notificationService.sendNotification(participant.getUserId(), content, participant.getTargetId(), WORK);
+            } else if (participant.getTargetType() == TargetType.PROJECT) { // TARGET TYPE이 PROJECT일 때
+                // PROJECT 테이블에서 프로젝트 이름 조회
+                String projectName = projectQueryService.findProjectNameByProjectId(participant.getTargetId());
+                content = "프로젝트 [" + projectName + "]에 팀장으로 초대되었습니다.";
+                notificationService.sendNotification(participant.getUserId(), content, participant.getTargetId(), PROJECT);
+            }
+        }
+    }
+
+    private ParticipantDTO createProjectParticipantDTO(long projectId, Long userId, long roleId) {
+        return ParticipantDTO.builder()
+                .targetId(projectId)
+                .userId(userId)
+                .targetType(TargetType.PROJECT)
+                .roleId(roleId)
+                .build();
     }
 
     private void applyTemplate(Long projectId, TemplateDataDTO templateData, List<ParticipantDTO> projectLeaders) {
@@ -217,34 +279,20 @@ public class ProjectFacadeService {
         return taskId;
     }
 
-    private List<ParticipantDTO> registerProjectLeaders(Long projectId, List<Long> leaderIds) {
-        if(leaderIds == null || leaderIds.isEmpty()) return List.of();
-
-        List<ParticipantDTO> leaders = leaderIds.stream()
-                .map(userId -> ParticipantDTO.builder()
-                        .targetId(projectId)
-                        .userId(userId)
-                        .targetType(TargetType.PROJECT)
-                        .roleId(2L)
-                        .build()
-                ).toList();
-        createParticipants(leaders);
-        return leaders;
-    }
-
-    private void registerProjectDirector(Long projectId, Long directorId) {
-        ParticipantDTO participant = ParticipantDTO.builder()
-                .targetId(projectId)
-                .userId(directorId)
-                .targetType(TargetType.PROJECT)
-                .roleId(1L)
-                .build();
-        createParticipants(List.of(participant));
-    }
-
-    private Project registerProject(ProjectCreateRequest request) {
-        return projectService.createProject(request);
-    }
+//    private List<ParticipantDTO> registerProjectLeaders(Long projectId, List<Long> leaderIds) {
+//        if(leaderIds == null || leaderIds.isEmpty()) return List.of();
+//
+//        List<ParticipantDTO> leaders = leaderIds.stream()
+//                .map(userId -> ParticipantDTO.builder()
+//                        .targetId(projectId)
+//                        .userId(userId)
+//                        .targetType(TargetType.PROJECT)
+//                        .roleId(2L)
+//                        .build()
+//                ).toList();
+//        createParticipants(leaders);
+//        return leaders;
+//    }
 
     @Transactional
     public Long createTask(RequestTaskDTO requestTaskDTO, Long userId) {

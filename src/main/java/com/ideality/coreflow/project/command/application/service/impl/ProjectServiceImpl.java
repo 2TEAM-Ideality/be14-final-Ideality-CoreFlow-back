@@ -48,7 +48,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .startBase(request.getStartBase())
                 .endBase(request.getEndBase())
                 .startExpect(request.getStartBase())
-                .endExpect(request.getEndExpect()!=null?request.getEndExpect():request.getEndBase())
+                .endExpect(request.getEndExpect() != null ? request.getEndExpect() : request.getEndBase())
                 .progressRate(0.0)
                 .passedRate(0.0)
                 .delayDays(0)

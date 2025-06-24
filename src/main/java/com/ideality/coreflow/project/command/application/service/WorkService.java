@@ -12,8 +12,6 @@ public interface WorkService {
 
     Map<Long, List<TaskPreviewDTO>> findByProjectIdIn(List<Long> projectIds);
 
-    Work findById(Long workId);
-
     long findProjectIdByTaskId(Long taskId);
 
     DateInfoDTO findDateInfoByWorkId(Long workId);
