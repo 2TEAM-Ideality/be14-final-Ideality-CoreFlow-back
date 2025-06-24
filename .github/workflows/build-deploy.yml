@@ -164,7 +164,7 @@ jobs:
       - name: Get current deploy status from S3
         id: get-status
         run: |
-          aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/deploy-status.txt current_status.txt
+          aws s3 cp s3://${{ secrets.S3_DEPLOY_BUCKET_NAME }}/deploy-status.txt current_status.txt
           STATUS=$(cat current_status.txt)
           echo "Current deploy status: $STATUS"
           echo "status=$STATUS" >> $GITHUB_OUTPUT
@@ -203,7 +203,7 @@ jobs:
             --default-actions Type=forward,TargetGroupArn=$NEW_TG
 
           echo "$NEW_STATUS" > updated_status.txt
-          aws s3 cp updated_status.txt s3://${{ secrets.S3_BUCKET_NAME }}/deploy-status.txt
+          aws s3 cp updated_status.txt s3://${{ secrets.S3_DEPLOY_BUCKET_NAME }}/deploy-status.txt
 
       # 🔁 배포 실패 시: 롤백 트래픽 & S3 상태 복원
       - name: Rollback on failure
@@ -224,7 +224,7 @@ jobs:
 
           # S3 상태 복원
           echo "${{ steps.get-status.outputs.status }}" > rollback_status.txt
-          aws s3 cp rollback_status.txt s3://${{ secrets.S3_BUCKET_NAME }}/deploy-status.txt
+          aws s3 cp rollback_status.txt s3://${{ secrets.S3_DEPLOY_BUCKET_NAME }}/deploy-status.txt
 
           echo "롤백 완료"
 
