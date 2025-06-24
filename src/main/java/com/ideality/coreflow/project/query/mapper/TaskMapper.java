@@ -6,9 +6,12 @@ import com.ideality.coreflow.project.query.dto.GanttTaskResponse;
 import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
 import com.ideality.coreflow.project.query.dto.SelectTaskDTO;
 import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
+import com.ideality.coreflow.project.query.dto.WorkDueTodayDTO;
+import java.time.LocalDate;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface TaskMapper {
@@ -30,6 +33,9 @@ public interface TaskMapper {
     List<GanttTaskResponse> selectRootTasksByProjectId(Long projectId);
 
     List<GanttTaskResponse> selectSubTasksByParentId(Long parentId);
+
+    List<WorkDueTodayDTO> findWorksDueToday(@Param("projectIds") List<Long> projectIds,
+                                            @Param("today") LocalDate today);
 
     CheckTaskWarningDTO findTaskEndExpect(Long taskId);
 }

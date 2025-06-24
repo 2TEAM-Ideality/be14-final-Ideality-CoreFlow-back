@@ -20,6 +20,7 @@ import com.ideality.coreflow.project.command.domain.repository.RelationRepositor
 import com.ideality.coreflow.project.command.domain.repository.TaskRepository;
 import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
 import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
+import com.ideality.coreflow.project.query.dto.WorkDueTodayDTO;
 import com.ideality.coreflow.project.query.mapper.ParticipantMapper;
 import com.ideality.coreflow.notification.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.query.mapper.TaskMapper;
@@ -437,5 +438,11 @@ public class TaskServiceImpl implements TaskService {
         Work task = taskRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
         task.setWarning(warning);
         taskRepository.save(task);
+    }
+
+    @Override
+    public List<WorkDueTodayDTO> getWorksDueToday(List<Long> projectIds) {
+        if (projectIds.isEmpty()) return List.of();
+        return taskMapper.findWorksDueToday(projectIds, LocalDate.now());
     }
 }
