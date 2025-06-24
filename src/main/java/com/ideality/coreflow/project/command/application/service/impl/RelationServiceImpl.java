@@ -4,7 +4,7 @@ import com.ideality.coreflow.project.command.application.service.RelationService
 import com.ideality.coreflow.project.command.domain.aggregate.Relation;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.command.domain.repository.RelationRepository;
-import com.ideality.coreflow.project.command.domain.repository.TaskRepository;
+import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import java.util.List;
 public class RelationServiceImpl implements RelationService {
 
     private final RelationRepository relationRepository;
-    private final TaskRepository taskRepository;
+    private final WorkRepository taskRepository;
 
     @Override
     @Transactional
@@ -70,25 +70,7 @@ public class RelationServiceImpl implements RelationService {
             appendMiddleRelation(source, target, workId);
         }
     }
-
-
-//    @Override
-//    @Transactional
-//    public void appendRelation(List<Long> prevWorkId, Long nextWorkId) {
-//
-//        for (Long workId : prevWorkId) {
-//
-//            Work prevWork = taskRepository.getReferenceById(workId);
-//            Work nextWork = taskRepository.getReferenceById(nextWorkId);
-//            Relation relation = Relation
-//                    .builder()
-//                    .prevWork(prevWork)
-//                    .nextWork(nextWork)
-//                    .build();
-//
-//            relationRepository.save(relation);
-//        }
-//    }
+    
     @Override
     @Transactional
     public void appendMiddleRelation(List<Long> source, List<Long> target, Long taskId) {

@@ -1,11 +1,11 @@
 package com.ideality.coreflow.project.query.mapper;
 
-import com.ideality.coreflow.project.command.domain.aggregate.Work;
+import com.ideality.coreflow.project.query.dto.CheckTaskWarningDTO;
 import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
 import com.ideality.coreflow.project.query.dto.GanttTaskResponse;
 import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
 import com.ideality.coreflow.project.query.dto.SelectTaskDTO;
-import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
+import com.ideality.coreflow.project.query.dto.WorkProgressDTO;
 import com.ideality.coreflow.project.query.dto.WorkDueTodayDTO;
 import java.time.LocalDate;
 import org.apache.ibatis.annotations.Mapper;
@@ -28,7 +28,7 @@ public interface TaskMapper {
 
 	List<CompletedTaskDTO> selectCompletedTasks(Long projectId);
 
-    List<TaskProgressDTO> selectTaskProgressByProjectId(Long projectId);
+    List<WorkProgressDTO> selectTaskProgressByProjectId(Long projectId);
 
     List<GanttTaskResponse> selectRootTasksByProjectId(Long projectId);
 
@@ -36,4 +36,6 @@ public interface TaskMapper {
 
     List<WorkDueTodayDTO> findWorksDueToday(@Param("projectIds") List<Long> projectIds,
                                             @Param("today") LocalDate today);
+
+    CheckTaskWarningDTO findTaskEndExpect(Long taskId);
 }

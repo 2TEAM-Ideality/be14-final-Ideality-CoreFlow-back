@@ -6,6 +6,7 @@ import com.ideality.coreflow.tenant.command.application.dto.ResponseInitialAdmin
 import com.ideality.coreflow.user.command.application.service.RoleService;
 import com.ideality.coreflow.user.command.application.service.UserOfRoleService;
 import com.ideality.coreflow.user.command.application.service.UserService;
+import com.ideality.coreflow.user.command.domain.aggregate.RoleName;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,7 @@ public class TenantFacadeService {
 
             ResponseInitialAdmin initialAdmin = userService.createInitialAdmin(schemaName);
 
-            long roleId = roleService.findRoleByName("ADMIN");
+            long roleId = roleService.findRoleByName(RoleName.ADMIN);
 
             userOfRoleService.updateAuthorities(true, initialAdmin.getId(), roleId);
 

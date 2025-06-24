@@ -3,6 +3,7 @@ package com.ideality.coreflow.project.command.application.controller;
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
+import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +81,7 @@ public class DetailController {
 
     @PatchMapping("{workId}/passed-rate")
     public ResponseEntity<APIResponse<Map<String, Object>>> updateDetailPassedRate(@PathVariable Long workId){
-        Double updatedPassedRate = projectFacadeService.updatePassedRate(workId);
+        Double updatedPassedRate = projectFacadeService.updatePassedRate(workId, TargetType.DETAILED);
         return ResponseEntity.ok(
                 APIResponse.success(Map.of("updatedPassedRate", updatedPassedRate),
                         workId +"번 세부일정의 경과율이 업데이트 되었습니다.")

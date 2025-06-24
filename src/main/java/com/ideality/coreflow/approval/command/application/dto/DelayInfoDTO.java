@@ -1,4 +1,4 @@
-package com.ideality.coreflow.project.command.application.dto;
+package com.ideality.coreflow.approval.command.application.dto;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -1,14 +1,12 @@
 package com.ideality.coreflow.holiday.command.application.controller;
 
+import com.ideality.coreflow.holiday.command.application.dto.RequestInsertHoliday;
 import com.ideality.coreflow.holiday.command.application.service.HolidayService;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,9 +31,9 @@ public class HolidayController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/test")
-    public ResponseEntity<String> insertDummyHoliday() {
-        holidayService.insertDummyHoliday();
+    @PostMapping("/insert")
+    public ResponseEntity<String> insertDummyHoliday(@RequestBody RequestInsertHoliday request) {
+        holidayService.insertDummyHoliday(request);
         return ResponseEntity.ok("더미 공휴일 저장 완료");
     }
 }

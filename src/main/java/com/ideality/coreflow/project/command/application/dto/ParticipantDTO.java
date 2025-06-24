@@ -10,7 +10,7 @@ import lombok.*;
 @ToString
 @Builder
 public class ParticipantDTO {
-    private Long taskId;   // targetId
+    private Long targetId;   // targetId
     private Long userId;
     private TargetType targetType;
     private Long roleId;

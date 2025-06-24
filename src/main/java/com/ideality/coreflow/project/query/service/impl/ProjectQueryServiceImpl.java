@@ -2,6 +2,7 @@ package com.ideality.coreflow.project.query.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.query.dto.CompletedProjectDTO;
 import com.ideality.coreflow.project.query.dto.DetailDTO;
@@ -93,7 +94,7 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
                         .passedRate(node.getPassedRate())
                         .delayDays(node.getDelayDays())
                         .status(node.getStatus())
-                        .warning(checkTaskWarning(node))
+                        .warning(node.getWarning())
                         .deptList(workIdToDeptList.getOrDefault(node.getId(), List.of()))
                         .build())
                 .toList();
@@ -116,18 +117,18 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
                 .build();
     }
 
-    private Boolean checkTaskWarning(NodeDTO task) {
-        LocalDate taskEndExpect = task.getEndExpect();
-        System.out.println("task.getName() = " + task.getName());
-        System.out.println("taskEndExpect = " + taskEndExpect);
-        List<Work> subTasks = workQueryService.getSubTasksByParentTaskId(task.getId());
-        for (Work subTask : subTasks) {
-            if (taskEndExpect.isBefore(subTask.getEndExpect())) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    private Boolean checkTaskWarning(NodeDTO task) {
+//        LocalDate taskEndExpect = task.getEndExpect();
+//        System.out.println("task.getName() = " + task.getName());
+//        System.out.println("taskEndExpect = " + taskEndExpect);
+//        List<Work> subTasks = workQueryService.getSubTasksByParentTaskId(task.getId());
+//        for (Work subTask : subTasks) {
+//            if (taskEndExpect.isBefore(subTask.getEndExpect())) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     // 완료 상태 프로젝트 가져오기
     @Override
@@ -157,8 +158,12 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
     }
 
     @Override
+    public String findProjectNameByProjectId(Long projectId) {
+        return projectMapper.findProjectNameByProjectId(projectId);
+    }
+
+    @Override
     public List<Long> getProjectIdsInProgressByUser(Long userId) {
         return projectMapper.findOngoingProjectIdsByUser(userId);
     }
-
 }
