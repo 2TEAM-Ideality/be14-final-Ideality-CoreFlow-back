@@ -76,8 +76,9 @@ public class Work {
 	@Column(name = "project_id")
 	private Long projectId;
 
+	@Builder.Default
 	@Column(name = "warning", nullable = false)
-	private Boolean warning;
+	private Boolean warning = false;
 
 	public void startTask() {
 		this.status = Status.PROGRESS;
