@@ -7,6 +7,7 @@
         SELECT id, name
         FROM work
         WHERE parent_task_id = #{parentTaskId}
+        AND status != 'DELETED'
     </select>
 
 
@@ -18,6 +19,7 @@
         w.end_expect,                -- 예상 마감일
         w.delay_days,                -- 지연 일수
         w.progress_rate,             -- 진행률
+        w.status,
         wd.dept_id,                  -- 부서 ID
         d.name AS dept_name          -- 부서 이름
         FROM work w
@@ -32,6 +34,8 @@
         w.id AS work_id,
         w.name AS task_name,
         w.description AS task_description,
+        w.start_base,
+        w.end_base,
         w.start_expect,
         w.end_expect,
         w.start_real,
@@ -77,11 +81,20 @@
     <select id="findWorkNamesByIds" resultType="java.lang.String">
         SELECT w.name
         FROM work w
-        WHERE w.id IN
-        <foreach item="item" index="index" collection="workIds" open="(" separator="," close=")">
-            #{item}
-        </foreach>
+        WHERE
+        <choose>
+            <when test="workIds != null and workIds.size() > 0">
+                w.id IN
+                <foreach item="item" index="index" collection="workIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </when>
+            <otherwise>
+                1 = 1  <!-- workIds가 비어있을 경우, 조건을 항상 true로 설정하여 WHERE 절을 우회 -->
+            </otherwise>
+        </choose>
     </select>
+
 
     <!-- 부서별 세부일정 조회 -->
     <resultMap id="deptWorkMap" type="com.ideality.coreflow.project.query.dto.DeptWorkDTO">
@@ -145,8 +158,8 @@
 
        <!-- Id로 태스크 이름 조회 -->
         <select id="findTaskNameByTaskId" resultType="String">
-            SELECT NAME
-            FROM WORK
+            SELECT name
+            FROM work
             WHERE id = #{taskId}
         </select>
     <select id="selectWorkIdByName" resultType="long">
@@ -183,13 +196,12 @@
         AND end_expect = #{tomorrow}
     </select>
 
-
-
     <select id="selectWorkIdsByParentTaskId" resultType="long">
         SELECT id
           FROM work
          WHERE parent_task_id = #{taskId}
     </select>
+    
 
     <select id="selectTaskByParentTaskId" resultType="com.ideality.coreflow.project.command.domain.aggregate.Work">
         SELECT

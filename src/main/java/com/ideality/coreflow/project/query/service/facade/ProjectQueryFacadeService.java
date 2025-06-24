@@ -5,6 +5,7 @@ import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.project.command.application.service.ProjectService;
 import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.application.service.WorkService;
+import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.project.query.dto.CompletedProjectDTO;
 import com.ideality.coreflow.project.query.dto.DepartmentLeaderDTO;
@@ -29,6 +30,7 @@ import com.ideality.coreflow.user.query.service.UserQueryService;
 
 import com.sun.jna.platform.win32.Netapi32Util.UserInfo;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -37,6 +39,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -58,6 +63,58 @@ public class ProjectQueryFacadeService {
     private final ParticipantQueryService participantQueryService;
     private final TaskService taskService;
     private final WorkService workCommandService;
+
+
+    public TaskSummaryResponse getTodayTaskSummary(Long userId) {
+        List<Long> projectIds = projectQueryService.getProjectIdsInProgressByUser(userId);
+
+        if (projectIds.isEmpty()) {
+            return TaskSummaryResponse.builder()
+                    .taskCount(0)
+                    .detailCount(0)
+                    .tasks(Collections.emptyList())
+                    .subtasks(Collections.emptyList())
+                    .build();
+        }
+
+        LocalDate today = LocalDate.now();
+        List<WorkDueTodayDTO> works = taskService.getWorksDueToday(projectIds);
+
+        List<WorkSummaryDTO> tasks = works.stream()
+                .filter(w -> "TASK".equals(w.getType()))
+                .map(w -> new WorkSummaryDTO(w.getWorkId(), w.getName()))
+                .toList();
+
+        List<WorkSummaryDTO> subtasks = works.stream()
+                .filter(w -> "SUBTASK".equals(w.getType()))
+                .map(w -> new WorkSummaryDTO(w.getWorkId(), w.getName()))
+                .toList();
+
+        return TaskSummaryResponse.builder()
+                .taskCount(tasks.size())
+                .detailCount(subtasks.size())
+                .tasks(tasks)
+                .subtasks(subtasks)
+                .build();
+    }
+//    public TaskSummaryResponse getTodayTaskSummary(Long userId) {
+//        // 1. 진행중인 프로젝트 ID 목록
+//        List<Long> projectIds = projectQueryService.getProjectIdsInProgressByUser(userId);
+//
+//        // 2. 해당 프로젝트에서 오늘 마감인 모든 작업(work) 가져오기
+//        List<Work> todayDueWorks = taskService.getWorksDueToday(projectIds);
+//
+//        // 3. 태스크 / 세부일정 분류
+//        int taskCount = 0;
+//        int detailCount = 0;
+//
+//        for (Work work : todayDueWorks) {
+//            if (work.getParentTaskId() == null) taskCount++;
+//            else detailCount++;
+//        }
+//
+//        return new TaskSummaryResponse(taskCount, detailCount);
+//    }
 
     public List<UserInfoDTO> getParticipants(Long projectId) {
         // 참여중인 모든 인원 호출
@@ -148,6 +205,32 @@ public class ProjectQueryFacadeService {
         String deptName = userQueryService.getDeptNameByUserId(userId);
         Long deptId = deptQueryService.findDeptIdByName(deptName);
 		return workService.selectWorksByDeptId(deptId);
+    }
+
+    // 오늘의 부서 일정 조회
+    public List<DeptWorkDTO> selectTodayWorksByDeptId(Long userId) {
+        String deptName = userQueryService.getDeptNameByUserId(userId);
+        Long deptId = deptQueryService.findDeptIdByName(deptName);
+        List<DeptWorkDTO> totalWorks = workService.selectWorksByDeptId(deptId);
+
+        LocalDate today = LocalDate.now();
+
+        return totalWorks.stream()
+            .filter(work -> {
+                LocalDate start = toLocalDate(work.getStartExpect());
+                LocalDate end = toLocalDate(work.getEndExpect());
+
+                // 오늘이 시작일과 종료일 사이에 포함되는 일정만
+                return (start != null && end != null &&
+                    ( !today.isBefore(start) && !today.isAfter(end) ));
+            })
+            .collect(Collectors.toList());
+    }
+
+    // 날짜 파싱
+    private LocalDate toLocalDate(Date date) {
+        if (date == null) return null;
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     public PipelineResponseDTO getPipeline (Long projectId) {

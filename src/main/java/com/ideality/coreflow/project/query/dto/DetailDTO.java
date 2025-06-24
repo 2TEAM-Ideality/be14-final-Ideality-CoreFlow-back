@@ -18,4 +18,5 @@ public class DetailDTO {
 
     private Long deptId;
     private String deptName;
+    private String status;
 }

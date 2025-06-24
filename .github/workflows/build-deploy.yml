@@ -1,0 +1,175 @@
+name: Build and Deploy
+
+on:
+  pull_request:
+    branches:
+      - develop
+    types: [opened, reopened, synchronize]
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Install envsubst
+        run: sudo apt-get install -y gettext
+
+      - name: Create application-deploy.yml.template
+        run: |
+          mkdir -p src/main/resources
+          cat > src/main/resources/application-deploy.yml.template <<EOL
+          server:
+            port: 5000
+            servlet:
+              encoding:
+                charset: UTF-8
+                force: true
+
+          spring:
+            application:
+              name: coreflow
+
+            datasource:
+              master:
+                url: jdbc:mariadb://\${RDS_HOSTNAME}:\${RDS_PORT}/master
+                username: \${DB_USERNAME}
+                password: \${DB_PASSWORD}
+                driver-class-name: org.mariadb.jdbc.Driver
+                pool-name: master-pool
+
+              tenant:
+                url: jdbc:mariadb://\${RDS_HOSTNAME}:\${RDS_PORT}/
+                username: \${DB_USERNAME}
+                password: \${DB_PASSWORD}
+                driver-class-name: org.mariadb.jdbc.Driver
+                minimum-idle: 3
+                maximum-pool-size: 10
+                idle-timeout: 30000
+                connection-timeout: 30000
+                pool-name: tenant-pool
+
+            jpa:
+              generate-ddl: false
+              show-sql: true
+              database: mysql
+              properties:
+                hibernate:
+                  format_sql: true
+
+            data:
+              redis:
+                host: \${REDIS_HOST}
+                port: \${REDIS_PORT}
+
+            mail:
+              host: smtp.gmail.com
+              port: 587
+              username: \${EMAIL_USERNAME}
+              password: \${EMAIL_PASSWORD}
+              properties:
+                mail:
+                  smtp:
+                    auth: true
+                    starttls:
+                      enable: true
+
+            servlet:
+              multipart:
+                enabled: true
+                max-file-size: 20MB
+                max-request-size: 25MB
+
+          token:
+            secret: \${SECRET_KEY}
+            access_expiration_time: 36000000
+            refresh_expiration_time: 604800000
+
+          cloud:
+            aws:
+              credentials:
+                access-key: \${AWS_ACCESS_KEY_ID}
+                secret-key: \${AWS_SECRET_ACCESS_KEY}
+              region:
+                static: ap-northeast-2
+              s3:
+                bucket: \${AWS_S3_BUCKET}
+
+          mybatis:
+            mapper-locations: classpath:/mapper/**/*.xml
+            configuration:
+              map-underscore-to-camel-case: true
+
+          logging:
+            level:
+              com.ideality.coreflow: INFO
+              org.springframework.data.redis: DEBUG
+          EOL
+
+
+      - name: Set application-deploy.yml
+        run: |
+          envsubst < src/main/resources/application-deploy.yml.template > src/main/resources/application-deploy.yml
+          cat src/main/resources/application-deploy.yml
+        env:
+          RDS_HOSTNAME: ${{ secrets.RDS_HOSTNAME }}
+          RDS_PORT: ${{ secrets.RDS_PORT }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          REDIS_PORT: ${{ secrets.REDIS_PORT }}
+          EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+
+      - name: Build with Gradle
+        run: ./gradlew clean build -x test
+
+      - name: Get current time
+        uses: 1466587594/get-current-time@v2
+        id: current-time
+        with:
+          format: YYYY-MM-DDTHH-mm-ss
+          utcOffset: "+09:00"
+
+      - name: Show Current Time
+        run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}"
+
+      - name: Generate deployment package
+        run: |
+          mkdir -p deploy
+          cp build/libs/*.jar deploy/application.jar
+          cp Procfile deploy/Procfile
+          cp -r .ebextensions deploy/.ebextensions
+          cp -r .platform deploy/.platform
+          cd deploy && zip -r deploy.zip .
+
+      - name: Check contents of deploy.zip
+        run: unzip -l deploy/deploy.zip
+
+      - name: Beanstalk Deploy
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: coreflow-be
+          environment_name: Coreflow-be-env
+          version_label: github-action-${{ steps.current-time.outputs.formattedTime }}
+          region: ap-northeast-2
+          deployment_package: deploy/deploy.zip
+          use_existing_version_if_available: false
+          wait_for_deployment: true
+          wait_for_environment_recovery: 300

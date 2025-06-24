@@ -14,6 +14,8 @@ import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
 import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +43,22 @@ public class DetailServiceImpl implements DetailService {
     @Override
     @Transactional
     public Long createDetail(RequestDetailDTO detailDTO) {
+        // 로그 객체 생성
+        Logger log = LoggerFactory.getLogger(getClass());
+
+        // RequestDetailDTO의 내용 로그 출력
+        log.info("Request received for creating detail: projectId={}, parentTaskId={}, name={}, description={}, startBase={}, endBase={}, source={}, target={}, assigneeId={}, participantIds={}",
+                detailDTO.getProjectId(),
+                detailDTO.getParentTaskId(),
+                detailDTO.getName(),
+                detailDTO.getDescription(),
+                detailDTO.getStartBase(),
+                detailDTO.getEndBase(),
+                detailDTO.getSource(),
+                detailDTO.getTarget(),
+                detailDTO.getAssigneeId(),
+                detailDTO.getParticipantIds());
+
         Work detailWork = Work.builder()
                 .name(detailDTO.getName())
                 .description(detailDTO.getDescription())
@@ -93,6 +111,8 @@ public class DetailServiceImpl implements DetailService {
     @Transactional
     @Override
     public Long updateDetail(Long detailId, RequestDetailDTO requestDetailDTO) {
+
+        log.info(requestDetailDTO.toString());
         // 기존 세부 일정 조회
         Optional<Work> existingDetailOptional = workRepository.findById(detailId);
         if (existingDetailOptional.isEmpty()) {
@@ -105,10 +125,6 @@ public class DetailServiceImpl implements DetailService {
         existingDetail.setDescription(requestDetailDTO.getDescription());
         existingDetail.setEndExpect(requestDetailDTO.getExpectEnd());
         existingDetail.setProgressRate(requestDetailDTO.getProgress());
-
-        //세부일정 진척률기반으로 태스크/프로젝트 진척률 자동업데이트
-        Long taskId = existingDetail.getParentTaskId();
-        taskService.updateTaskProgress(taskId);
 
         // 선행 일정 (source) 및 후행 일정 (target) 관계 수정
         //relationService.updateRelations(detailId, requestDetailDTO.getSource(), requestDetailDTO.getTarget());
@@ -135,8 +151,12 @@ public class DetailServiceImpl implements DetailService {
         }
 
         // 세부 일정 저장
-        workRepository.save(existingDetail);
+        workRepository.saveAndFlush(existingDetail);
         log.info("세부 일정 수정 완료");
+
+        //세부일정 진척률기반으로 태스크/프로젝트 진척률 자동업데이트
+        Long taskId = existingDetail.getParentTaskId();
+        taskService.updateTaskProgress(taskId);
 
         return detailId;
     }

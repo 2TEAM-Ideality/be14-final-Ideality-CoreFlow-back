@@ -52,26 +52,70 @@ public class CalendarQueryFacadeService {
 	}
 
 	// 오늘의 개인 일정 목록 조회
+	// TODO. 반복일정 적용시키기
 	public List<TodayScheduleDTO> getTodayPersonal(Long userId) {
-		if(!userQueryService.selectUserById(userId)){
+		if (!userQueryService.selectUserById(userId)) {
 			throw new BaseException(ErrorCode.USER_NOT_FOUND);
 		}
 
-		// 오늘의 날짜. 및 시간
-		LocalDateTime now = LocalDateTime.now();    // 2019-11-12T16:34:30.388
+		LocalDateTime now = LocalDateTime.now();
+		LocalDate today = now.toLocalDate();
 
-		// 오늘 일정 목록 가져오기
+		// 오늘의 개인 일정 (기존에 등록된 일반 일정)
+
 		List<TodayScheduleDTO> scheduleList = calendarService.getTodayPersonal(userId, now);
 
-		// leftDateTime, isToday 계산해서 DTO에 추가
+		// ⏬ 오늘 날짜 기준 반복 일정 확장 (추가)
+		List<ScheduleDetailDTO> repeatingSchedules = calendarService.selectRepeatingSchedulesWithRules(userId);
+		for (ScheduleDetailDTO repeat : repeatingSchedules) {
+			List<ResponseScheduleDTO> expanded = expandSchedule(repeat, today.atStartOfDay(), today.atTime(23, 59, 59), true);
+			// List<ResponseScheduleDTO> expanded = expandSchedule(repeat, today.atStartOfDay(), today.atTime(23, 59, 59));
+			log.info("🔁 [{}] 반복 일정에서 오늘 생성된 일정 수: {}", repeat.getName(), expanded.size());
+			for (ResponseScheduleDTO dto : expanded) {
+				log.info("  📅 생성된 일정 시작시간: {}", dto.getStartAt());
+
+				TodayScheduleDTO repeatToday = new TodayScheduleDTO();
+				repeatToday.setId(dto.getOriginalScheduleId());
+				repeatToday.setName(dto.getName());
+				repeatToday.setContent(dto.getContent());
+				repeatToday.setStartAt(dto.getStartAt());
+				repeatToday.setEndAt(dto.getEndAt());
+				repeatToday.setIsRepeat(true);
+				scheduleList.add(repeatToday);
+			}
+		}
+
+		// 🔄 공통 처리
 		return scheduleList.stream().peek(schedule -> {
 			schedule.setIsToday(
-					!now.toLocalDate().isBefore(schedule.getStartAt().toLocalDate()) &&
-							!now.toLocalDate().isAfter(schedule.getEndAt().toLocalDate())
+				!now.toLocalDate().isBefore(schedule.getStartAt().toLocalDate()) &&
+					!now.toLocalDate().isAfter(schedule.getEndAt().toLocalDate())
 			);
 			schedule.setLeftDateTime(Math.abs(Duration.between(now, schedule.getStartAt()).toMinutes()));
 		}).toList();
 	}
+
+	// public List<TodayScheduleDTO> getTodayPersonal(Long userId) {
+	// 	if(!userQueryService.selectUserById(userId)){
+	// 		throw new BaseException(ErrorCode.USER_NOT_FOUND);
+	// 	}
+	//
+	// 	// 오늘의 날짜. 및 시간
+	// 	LocalDateTime now = LocalDateTime.now();    // 2019-11-12T16:34:30.388
+	//
+	// 	// 오늘 일정 목록 가져오기
+	// 	List<TodayScheduleDTO> scheduleList = calendarService.getTodayPersonal(userId, now);
+	//
+	//
+	// 	// leftDateTime, isToday 계산해서 DTO에 추가
+	// 	return scheduleList.stream().peek(schedule -> {
+	// 		schedule.setIsToday(
+	// 				!now.toLocalDate().isBefore(schedule.getStartAt().toLocalDate()) &&
+	// 						!now.toLocalDate().isAfter(schedule.getEndAt().toLocalDate())
+	// 		);
+	// 		schedule.setLeftDateTime(Math.abs(Duration.between(now, schedule.getStartAt()).toMinutes()));
+	// 	}).toList();
+	// }
 
 	// TODO. 해당 월에 대한 개인 일정 목록 조회
 	public List<ResponseScheduleDTO> getScheduleByMonth(Long userId, int year, int month){
@@ -92,12 +136,12 @@ public class CalendarQueryFacadeService {
 
 		// 해당 반복 규칙에 따라 월별 반복 일정들을 생성하여 반환
 		for (ScheduleDetailDTO repeat : repeatingSchedules) {
-			schedules.addAll(expandSchedule(repeat, startOfMonth, endOfMonth));
+			schedules.addAll(expandSchedule(repeat, startOfMonth, endOfMonth, false));
 		}
 		return schedules;
 	}
 
-	private List<ResponseScheduleDTO> expandSchedule(ScheduleDetailDTO originSchedule, LocalDateTime startOfMonth, LocalDateTime endOfMonth) {
+	private List<ResponseScheduleDTO> expandSchedule(ScheduleDetailDTO originSchedule, LocalDateTime startOfMonth, LocalDateTime endOfMonth, boolean isTodayMode) {
 		log.info("해당 범위의 반복 일정 만들기: {}, {}", startOfMonth, endOfMonth);
 		// 반복 규칙을 가진 특정 일정으로 -> 해당 범위의 반복 일정 만들기
 		List<ResponseScheduleDTO> result = new ArrayList<>();
@@ -115,7 +159,10 @@ public class CalendarQueryFacadeService {
 
 		// 반복 종료일 계산 - 반복의 종료일이 지정되어 있다면, 그 날짜까지만 확장함.
 		// 없으면 그냥 해당 달의 말일까지 확장
-		LocalDateTime repeatUntil = rule.getEndDate() ;
+		// LocalDateTime repeatUntil = rule.getEndDate() ;
+		// 반복 종료일 없으면 endOfMonth로 설정
+		LocalDateTime repeatUntil = rule.getEndDate() != null ? rule.getEndDate() : endOfMonth;
+
 		log.info("반복 종료일: {}", rule.getEndDate());
 
 		// 설명. 반복 유형별 일정 확장
@@ -156,8 +203,15 @@ public class CalendarQueryFacadeService {
 					for (DayOfWeek day : dayList) {
 						LocalDate targetDate = firstRepeatDate.with(TemporalAdjusters.nextOrSame(day));
 						LocalDateTime targetDateTime = targetDate.atTime(time);
+
 						if (isSameDate(targetDateTime, originalStart)) continue;
-						if (shouldSkip(targetDateTime, originalStart, repeatUntil, startOfMonth, endOfMonth)) continue;
+
+						if (isTodayMode) {
+							if (shouldSkipToday(targetDateTime, repeatUntil, startOfMonth, endOfMonth)) continue;
+						} else {
+							if (shouldSkip(targetDateTime, originalStart, repeatUntil, startOfMonth, endOfMonth)) continue;
+						}
+
 						targetDateTime = moveIfHoliday(targetDateTime);
 						result.add(toResponse(originSchedule, targetDateTime, duration));
 					}
@@ -268,12 +322,19 @@ public class CalendarQueryFacadeService {
 		return a.toLocalDate().equals(b.toLocalDate());
 	}
 
-	private boolean shouldSkip(LocalDateTime target, LocalDateTime original, LocalDateTime repeatUntil, LocalDateTime startOfMonth, LocalDateTime endOfMonth) {
+	// 오늘 조회 전용 - original과 오늘 날짜 같아도 포함
+	private boolean shouldSkipToday(LocalDateTime target, LocalDateTime repeatUntil, LocalDateTime startOfDay, LocalDateTime endOfDay) {
+		return target.isBefore(startOfDay) ||
+			target.isAfter(endOfDay) ||
+			target.isAfter(repeatUntil);
+	}
+
+	private boolean shouldSkip(LocalDateTime target, LocalDateTime original, LocalDateTime repeatUntil, LocalDateTime start, LocalDateTime end) {
 		return isSameDate(target, original) ||
-				target.isBefore(original) ||
-				target.isBefore(startOfMonth) ||
-				target.isAfter(repeatUntil) ||
-				target.isAfter(endOfMonth);
+			target.isBefore(original) ||
+			target.isBefore(start) ||
+			target.isAfter(end) ||
+			target.isAfter(repeatUntil);
 	}
 
 }

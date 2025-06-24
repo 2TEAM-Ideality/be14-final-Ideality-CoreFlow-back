@@ -39,8 +39,8 @@
              , u.dept_name AS DEPT_NAME
              , u.job_rank_name AS JOB_RANK_NAME
              , u.job_role_name AS JOB_ROLE_NAME
-          FROM PARTICIPANT p
-          LEFT JOIN USER u ON p.user_id = u.id
+          FROM participant p
+          LEFT JOIN user u ON p.user_id = u.id
          WHERE p.target_type = 'PROJECT'
            AND p.target_id IN
                <foreach collection="projectIds" item="id" open="(" separator="," close=")">
@@ -212,6 +212,7 @@
                u.id AS userId
              , u.name AS name
              , u.dept_name AS deptName
+             , u.job_rank_name AS jobRankName
              , u.job_role_name AS jobRoleName
              , u.profile_image AS profileImage
              , p.role_id AS roleId

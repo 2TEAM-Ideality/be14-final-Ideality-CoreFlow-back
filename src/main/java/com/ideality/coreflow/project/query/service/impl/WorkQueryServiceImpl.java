@@ -33,6 +33,7 @@ public class WorkQueryServiceImpl implements WorkQueryService {
         return workMapper.findSubTaskDetailsByParentTaskId(parentTaskId);
     }
 
+
     // 작업 상세 정보 조회
     @Override
     public WorkDetailDTO getWorkDetailById(Long workId) {

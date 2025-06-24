@@ -4,6 +4,8 @@ import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,10 @@ public class DetailController {
     @PostMapping("/create")
     public ResponseEntity<APIResponse<Map<String, Long>>> createDetailWithFacade(
             @RequestBody RequestDetailDTO requestDetailDTO) {
+
+        Logger log = LoggerFactory.getLogger(getClass());
+        // 이때 RequestBody가 제대로 바인딩되는지 확인
+        log.info("Request received: {}", requestDetailDTO);
 
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
         Long detailId = projectFacadeService.createDetail(requestDetailDTO, userId);

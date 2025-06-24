@@ -156,4 +156,9 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
         return projectMapper.selectProjectByDeptId(deptId);
     }
 
+    @Override
+    public List<Long> getProjectIdsInProgressByUser(Long userId) {
+        return projectMapper.findOngoingProjectIdsByUser(userId);
+    }
+
 }

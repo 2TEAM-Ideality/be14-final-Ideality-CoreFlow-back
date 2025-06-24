@@ -13,7 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TodayScheduleDTO {
 	private Long id;
-	private String scheduleName;
+	private String name;
 	private String content;
 
 	private LocalDateTime startAt;
