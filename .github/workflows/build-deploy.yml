@@ -160,16 +160,71 @@ jobs:
       - name: Check contents of deploy.zip
         run: unzip -l deploy/deploy.zip
 
+      # ALB 상태 읽기 (현재 BLUE인지 GREEN인지)
+      - name: Get current deploy status from S3
+        id: get-status
+        run: |
+          aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/deploy-status.txt current_status.txt
+          STATUS=$(cat current_status.txt)
+          echo "Current deploy status: $STATUS"
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+
+      # Beanstalk 배포
       - name: Beanstalk Deploy
+        id: deploy
         uses: einaregilsson/beanstalk-deploy@v22
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           application_name: coreflow-be
-          environment_name: Coreflow-be-env
+          environment_name: ${{ steps.get-status.outputs.status == 'blue' && 'Coreflow-be-env-green' || 'Coreflow-be-env' }}
           version_label: github-action-${{ steps.current-time.outputs.formattedTime }}
           region: ap-northeast-2
           deployment_package: deploy/deploy.zip
           use_existing_version_if_available: false
           wait_for_deployment: true
           wait_for_environment_recovery: 300
+
+      # ✅ 배포 성공 시: 트래픽 스위칭 & 상태 파일 업데이트
+      - name: Switch ALB target group on success
+        if: success()
+        run: |
+          echo "Previous status was: ${{ steps.get-status.outputs.status }}"
+          if [ "${{ steps.get-status.outputs.status }}" = "blue" ]; then
+            NEW_TG="${{ secrets.GREEN_TG_ARN }}"
+            NEW_STATUS="green"
+          else
+            NEW_TG="${{ secrets.BLUE_TG_ARN }}"
+            NEW_STATUS="blue"
+          fi
+
+          aws elbv2 modify-listener \
+            --listener-arn ${{ secrets.ALB_LISTENER_ARN }} \
+            --default-actions Type=forward,TargetGroupArn=$NEW_TG
+
+          echo "$NEW_STATUS" > updated_status.txt
+          aws s3 cp updated_status.txt s3://${{ secrets.S3_BUCKET_NAME }}/deploy-status.txt
+
+      # 🔁 배포 실패 시: 롤백 트래픽 & S3 상태 복원
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          echo "배포 실패 감지, 트래픽 및 상태 복구 진행"
+
+          if [ "${{ steps.get-status.outputs.status }}" = "blue" ]; then
+            PREV_TG="${{ secrets.BLUE_TG_ARN }}"
+          else
+            PREV_TG="${{ secrets.GREEN_TG_ARN }}"
+          fi
+
+          # ALB 트래픽 롤백
+          aws elbv2 modify-listener \
+            --listener-arn ${{ secrets.ALB_LISTENER_ARN }} \
+            --default-actions Type=forward,TargetGroupArn=$PREV_TG
+
+          # S3 상태 복원
+          echo "${{ steps.get-status.outputs.status }}" > rollback_status.txt
+          aws s3 cp rollback_status.txt s3://${{ secrets.S3_BUCKET_NAME }}/deploy-status.txt
+
+          echo "롤백 완료"
+
