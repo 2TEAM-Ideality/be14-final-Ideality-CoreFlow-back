@@ -38,4 +38,5 @@ public interface WorkQueryService {
     Long getParentTaskId(Long subTaskId);
 
     Boolean checkTaskWarning(Long subTaskId);
+
 }

@@ -124,4 +124,5 @@ public class WorkQueryServiceImpl implements WorkQueryService {
         Long parentTaskId = getParentTaskId(subTaskId);
         return taskQueryService.checkTaskWarning(parentTaskId);
     }
+
 }

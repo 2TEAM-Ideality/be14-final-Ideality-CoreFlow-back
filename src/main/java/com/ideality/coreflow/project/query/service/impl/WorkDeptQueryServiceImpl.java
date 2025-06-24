@@ -1,9 +1,6 @@
 package com.ideality.coreflow.project.query.service.impl;
 
-import com.ideality.coreflow.project.query.dto.ResponseTaskDTO;
-import com.ideality.coreflow.project.query.dto.ResponseTaskInfoDTO;
-import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
-import com.ideality.coreflow.project.query.dto.WorkDeptDTO;
+import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.project.query.mapper.WorkDeptMapper;
 import com.ideality.coreflow.project.query.service.WorkDeptQueryService;
 import lombok.RequiredArgsConstructor;
