@@ -164,10 +164,14 @@ jobs:
       - name: Get current deploy status from S3
         id: get-status
         run: |
-          aws s3 cp s3://${{ secrets.S3_DEPLOY_BUCKET_NAME }}/deploy-status.txt current_status.txt
+          aws s3 cp s3://${{ secrets.S3_DEPLOY_BUCKET_NAME }}/deploy-status.txt current_status.txt --region ap-northeast-2
           STATUS=$(cat current_status.txt)
           echo "Current deploy status: $STATUS"
           echo "status=$STATUS" >> $GITHUB_OUTPUT
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ap-northeast-2
 
       # Beanstalk 배포
       - name: Beanstalk Deploy
@@ -197,13 +201,18 @@ jobs:
             NEW_TG="${{ secrets.BLUE_TG_ARN }}"
             NEW_STATUS="blue"
           fi
-
+          
           aws elbv2 modify-listener \
             --listener-arn ${{ secrets.ALB_LISTENER_ARN }} \
-            --default-actions Type=forward,TargetGroupArn=$NEW_TG
-
+            --default-actions Type=forward,TargetGroupArn=$NEW_TG \
+            --region ap-northeast-2
+          
           echo "$NEW_STATUS" > updated_status.txt
-          aws s3 cp updated_status.txt s3://${{ secrets.S3_DEPLOY_BUCKET_NAME }}/deploy-status.txt
+          aws s3 cp updated_status.txt s3://${{ secrets.S3_DEPLOY_BUCKET_NAME }}/deploy-status.txt --region ap-northeast-2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ap-northeast-2
 
       # 🔁 배포 실패 시: 롤백 트래픽 & S3 상태 복원
       - name: Rollback on failure
@@ -217,14 +226,17 @@ jobs:
             PREV_TG="${{ secrets.GREEN_TG_ARN }}"
           fi
 
-          # ALB 트래픽 롤백
           aws elbv2 modify-listener \
             --listener-arn ${{ secrets.ALB_LISTENER_ARN }} \
-            --default-actions Type=forward,TargetGroupArn=$PREV_TG
+            --default-actions Type=forward,TargetGroupArn=$PREV_TG \
+            --region ap-northeast-2
 
-          # S3 상태 복원
           echo "${{ steps.get-status.outputs.status }}" > rollback_status.txt
-          aws s3 cp rollback_status.txt s3://${{ secrets.S3_DEPLOY_BUCKET_NAME }}/deploy-status.txt
+          aws s3 cp rollback_status.txt s3://${{ secrets.S3_DEPLOY_BUCKET_NAME }}/deploy-status.txt --region ap-northeast-2
 
           echo "롤백 완료"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ap-northeast-2
 
