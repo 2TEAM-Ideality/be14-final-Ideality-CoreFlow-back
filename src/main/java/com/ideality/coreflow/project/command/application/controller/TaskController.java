@@ -26,17 +26,18 @@ public class TaskController {
     private final DelayDomainService delayDomainService;    // 추후 삭제
 
     @PostMapping("")
-    public ResponseEntity<APIResponse<Map<String, Long>>> createTaskWithFacade(
+    public ResponseEntity<APIResponse<?>> createTaskWithFacade(
             @RequestBody RequestTaskDTO requestTaskDTO) {
         log.info("태스크 생성 요청 들어옴");
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
         Long taskId = projectFacadeService.createTask(requestTaskDTO, userId);
         return ResponseEntity.ok(
-                APIResponse.success(Map.of("taskId", taskId),
+                APIResponse.success(taskId,
                         "태스크가 성공적으로 생성되었습니다.")
         );
     }
 
+    // 삭제 예정
     @PatchMapping("/progress/{taskId}")
     public ResponseEntity<APIResponse<Map<String, Long>>> updateTaskByProgress(
             @PathVariable Long taskId) {
@@ -72,19 +73,19 @@ public class TaskController {
     }
 
     @PatchMapping("/{taskId}/passed-rate")
-    public ResponseEntity<APIResponse<Map<String, Double>>> updateTaskPassedRate(@PathVariable Long taskId) {
+    public ResponseEntity<APIResponse<?>> updateTaskPassedRate(@PathVariable Long taskId) {
         Double passedRate = projectFacadeService.updatePassedRate(taskId, TargetType.TASK);
         return ResponseEntity.ok(
-                APIResponse.success(Map.of("passedRate", passedRate),
+                APIResponse.success(passedRate,
                         taskId + " 번 태스크의 경과율이 업데이트 되었습니다.")
         );
     }
 
     @PatchMapping("/{taskId}/progress-rate")
-    public ResponseEntity<APIResponse<Map<String,Object>>> updateTaskProgressRate(@PathVariable Long taskId) {
+    public ResponseEntity<APIResponse<?>> updateTaskProgressRate(@PathVariable Long taskId) {
         Double progressRate = projectFacadeService.updateProgressRate(taskId);
         return ResponseEntity.ok(
-                APIResponse.success(Map.of("progressRate", progressRate),
+                APIResponse.success(progressRate,
                         taskId + "번 태스크의 진척률이 업데이트 되었습니다.")
         );
     }

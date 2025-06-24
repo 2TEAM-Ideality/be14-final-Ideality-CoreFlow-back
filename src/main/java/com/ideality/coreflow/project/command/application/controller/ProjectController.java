@@ -33,19 +33,15 @@ public class ProjectController {
     private final ProjectFacadeService projectFacadeService;
 
     @PostMapping
-    public ResponseEntity<Map<String, Object>> createProject(@RequestBody ProjectCreateRequest request) {
+    public ResponseEntity<APIResponse<?>> createProject(@RequestBody ProjectCreateRequest request) {
         Project result = projectFacadeService.createProject(request);
         Map<String, Object> response = new HashMap<>();
-        response.put("status", "success");
-        response.put("message", result.getId()+"번 프로젝트 생성 완료");
-        response.put("data", result);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(APIResponse.success(result, result.getId()+"번 프로젝트 생성 완료"));
     }
 
     @PatchMapping("/{projectId}/status/{status}")
-    public ResponseEntity<Map<String, Object>> updateProjectStatus(@PathVariable Long projectId,
-                                                                   @PathVariable String status)
-            throws NotFoundException, IllegalAccessException {
+    public ResponseEntity<APIResponse<?>> updateProjectStatus(@PathVariable Long projectId,
+                                                                   @PathVariable String status) {
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
 
         Status targetStatus;
@@ -57,15 +53,11 @@ public class ProjectController {
 
         Long updatedProjectId = projectFacadeService.updateProjectStatus(projectId, userId, targetStatus);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", "success");
-        response.put("message", updatedProjectId + "번 프로젝트 상태가 '" + targetStatus + "'로 변경되었습니다");
-        response.put("data", updatedProjectId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(APIResponse.success(updatedProjectId, updatedProjectId + "번 프로젝트 상태가 '" + targetStatus + "'로 변경되었습니다"));
     }
 
     @PatchMapping("/passed-rate")
-    public ResponseEntity<APIResponse<Map<String,Object>>> updateProjectPassedRate(@PathVariable Long projectId){
+    public ResponseEntity<APIResponse<?>> updateProjectPassedRate(@PathVariable Long projectId){
         projectFacadeService.updateAllPassedRates();
         return ResponseEntity.ok(
                 APIResponse.success(null,
@@ -74,10 +66,10 @@ public class ProjectController {
     }
 
     @PatchMapping("/{projectId}/progress-rate")
-    public ResponseEntity<APIResponse<Map<String,Object>>> updateProjectProgressRate(@PathVariable Long projectId){
+    public ResponseEntity<APIResponse<?>> updateProjectProgressRate(@PathVariable Long projectId){
         Double updatedProgressRate = projectFacadeService.updateProjectProgressRate(projectId);
         return ResponseEntity.ok(
-                APIResponse.success(Map.of("updatedProgressRate", updatedProgressRate),
+                APIResponse.success(updatedProgressRate,
                         projectId + "번 프로젝트의 진척률이 업데이트 되었습니다")
         );
     }
