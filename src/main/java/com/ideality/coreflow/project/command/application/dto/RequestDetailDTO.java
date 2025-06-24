@@ -35,5 +35,5 @@ public class RequestDetailDTO {
     private List<Long> participantIds;
 
     private LocalDate expectEnd; //여기서부턴 수정용 속성
-    private double progress;
+    private Double progress;
 }

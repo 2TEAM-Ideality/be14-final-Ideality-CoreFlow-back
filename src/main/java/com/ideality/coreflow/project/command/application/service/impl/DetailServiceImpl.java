@@ -117,10 +117,7 @@ public class DetailServiceImpl implements DetailService {
         Work existingDetail = existingDetailOptional.get();
 
         // 세부 일정 수정 (name, description, deptId 등)
-        existingDetail.setName(requestDetailDTO.getName());
-        existingDetail.setDescription(requestDetailDTO.getDescription());
-        existingDetail.setEndExpect(requestDetailDTO.getExpectEnd());
-        existingDetail.setProgressRate(requestDetailDTO.getProgress());
+        existingDetail.updateDetail(requestDetailDTO);
 
         // 세부 일정 저장
         workRepository.saveAndFlush(existingDetail);

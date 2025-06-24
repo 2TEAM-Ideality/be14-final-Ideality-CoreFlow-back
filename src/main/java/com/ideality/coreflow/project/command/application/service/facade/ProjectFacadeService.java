@@ -84,36 +84,33 @@ public class ProjectFacadeService {
     @PersistenceContext
     private EntityManager em;
 
-    //
+
     @Transactional
-    public Double updateProgressRate(Long taskId) {
+    public Double updateProgressRateCascade(Long taskId) {
+        // 태스크 진척률 계산 및 업데이트
+        double taskProgress = updateProgressRate(taskId);
 
-        // 태스크에 종속된 세부일정 조회
-        List<WorkProgressDTO> detailList = workQueryService.getDetailProgressByTaskId(taskId);
-
-        // 세부일정을 이용하여 태스크 진척률 계산
-        double progress = workDomainService.calculateProgressRate(detailList);
-
-        //태스크 진척률 업데이트
-        taskService.updateProgressRate(taskId, progress);
+        // 해당 태스크가 속한 프로젝트의 진척률도 함께 갱신
         long projectId = workService.findProjectIdByTaskId(taskId);
-
-        // 프로젝트 진척률도 수정
         updateProjectProgressRate(projectId);
 
+        return taskProgress;
+    }
+
+    // 추후 private로
+    @Transactional
+    public double updateProgressRate(Long taskId) {
+        List<WorkProgressDTO> detailList = workQueryService.getDetailProgressByTaskId(taskId);
+        double progress = workDomainService.calculateProgressRate(detailList);
+        taskService.updateProgressRate(taskId, progress);
         return progress;
     }
 
-    //
+    // 추후 private
     @Transactional
-    public Double updateProjectProgressRate(Long projectId) {
-
-        // 프로젝트에 종속된 태스크 조회
+    public double updateProjectProgressRate(Long projectId) {
         List<WorkProgressDTO> taskList = taskQueryService.getTaskProgressByProjectId(projectId);
-
-        // 태스크를 이용하여 프로젝트 진척률 계산
         double progress = workDomainService.calculateProgressRate(taskList);
-
         return projectService.updateProjectProgress(projectId, progress);
     }
 
@@ -171,8 +168,8 @@ public class ProjectFacadeService {
     @Transactional
     public Project createProject(ProjectCreateRequest request) {
         Project project = projectService.createProject(request);
-        long roleDirectorId = roleService.findRoleByName(RoleName.DIRECTOR.name());
-        long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER.name());
+        long roleDirectorId = roleService.findRoleByName(RoleName.DIRECTOR);
+        long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER);
         long projectId = project.getId();
 
         // 참여자 리스트
@@ -219,8 +216,8 @@ public class ProjectFacadeService {
 
     // 참여자 초대 알림
     private void participantNotification(ParticipantDTO participant) {
-        long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER.name());
-        long roleTeamMemberId = roleService.findRoleByName(RoleName.TEAM_MEMBER.name());
+        long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER);
+        long roleTeamMemberId = roleService.findRoleByName(RoleName.TEAM_MEMBER);
 
         String roleLabel = null;
 
@@ -292,7 +289,7 @@ public class ProjectFacadeService {
         for(ParticipantDTO leader : projectLeaders){
             String deptName = userQueryService.getDeptNameByUserId(leader.getUserId());
             Long deptId = deptQueryService.findDeptIdByName(deptName);
-            long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER.name());
+            long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER);
             if (taskDeptIds.contains(deptId)) {
                 matchedLeaders.add(
                         ParticipantDTO.builder()
@@ -388,8 +385,8 @@ public class ProjectFacadeService {
 
             List<Long> newParticipantsIds = deptUsersMaps.get(deptName);
             List<Long> leaderIds = deptLeaderMaps.get(deptName);
-            long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER.name());
-            long roleTeamMemberId = roleService.findRoleByName(RoleName.TEAM_MEMBER.name());
+            long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER);
+            long roleTeamMemberId = roleService.findRoleByName(RoleName.TEAM_MEMBER);
             // ✅ 1. 팀장 먼저 등록
             List<ParticipantDTO> leaderParticipants = leaderIds.stream()
                     .map(leaderId -> new ParticipantDTO(taskId, leaderId, TargetType.TASK, roleTeamLeaderId))
@@ -493,7 +490,7 @@ public class ProjectFacadeService {
                 .targetType(TargetType.DETAILED)
                 .targetId(detailId)
                 .userId(requestDetailDTO.getAssigneeId())
-                .roleId(roleService.findRoleByName(RoleName.ASSIGNEE.name()))
+                .roleId(roleService.findRoleByName(RoleName.ASSIGNEE))
                 .build();
         participantService.createAssignee(AssigneeDTO);
         log.info("책임자 설정 완료");
@@ -505,7 +502,7 @@ public class ProjectFacadeService {
                     .targetType(TargetType.DETAILED)
                     .targetId(detailId)  // 해당 세부일정의 ID
                     .userId(participantId)  // 참여자 ID
-                    .roleId(roleService.findRoleByName(RoleName.PARTICIPANT.name()))  // 참여자임을 의미
+                    .roleId(roleService.findRoleByName(RoleName.PARTICIPANT))  // 참여자임을 의미
                     .build();
 
             // 서비스 메서드에 DTO 전달
@@ -522,7 +519,7 @@ public class ProjectFacadeService {
         // DetailService에서 세부 일정 수정 로직 호출
         long taskId = detailService.updateDetail(detailId, requestDetailDTO);
 
-        long roleId = roleService.findRoleByName(RoleName.ASSIGNEE.name());
+        long roleId = roleService.findRoleByName(RoleName.ASSIGNEE);
 
         // 책임자DTO 생성해서 수정
         if (requestDetailDTO.getAssigneeId() != null) {
@@ -546,7 +543,7 @@ public class ProjectFacadeService {
         }
 
         //세부일정 진척률기반으로 태스크/프로젝트 진척률 자동업데이트
-        updateProgressRate(taskId);
+        updateProgressRateCascade(taskId);
 
         return detailId;
     }
@@ -589,7 +586,7 @@ public class ProjectFacadeService {
         participantQueryService.findTeamLedaer(projectId, reqLeaderDTO);
 
         // 리더 삽입 -> 기존 로직 활용
-        long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER.name());
+        long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER);
         List<ParticipantDTO> leaders = leaderUserIds.stream()
                 .map(leaderId -> ParticipantDTO.builder()
                         .targetId(projectId)
@@ -630,7 +627,7 @@ public class ProjectFacadeService {
         participantQueryService.alreadyExistsMember(projectId, reqMemberDTO);
 
         // 이제 참여자 초대
-        long roleTeamMemberId = roleService.findRoleByName(RoleName.TEAM_MEMBER.name());
+        long roleTeamMemberId = roleService.findRoleByName(RoleName.TEAM_MEMBER);
         List<ParticipantDTO> teamMembers = participantUser.stream()
                 .map(leaderId -> ParticipantDTO.builder()
                         .targetId(projectId)
@@ -736,7 +733,7 @@ public class ProjectFacadeService {
 
     private void createParticipants(List<ParticipantDTO> taskParticipants) {
 
-        long roleId = roleService.findRoleByName("TEAM_LEADER");
+        long roleId = roleService.findRoleByName(RoleName.TEAM_LEADER);
 
         for (ParticipantDTO participant : taskParticipants) {
             participantService.createParticipants(participant);
