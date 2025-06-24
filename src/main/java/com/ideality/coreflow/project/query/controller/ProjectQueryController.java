@@ -60,6 +60,7 @@ public class ProjectQueryController {
         return ResponseEntity.ok(APIResponse.success(res, "초대 가능한 회원 리스트 조회 성공"));
     }
 
+    // 마감 임박 태스크 수, 마감 임박 세부일정 수 조회
     @GetMapping("/mainPage")
     public ResponseEntity<APIResponse<TaskSummaryResponse>> getMainPage() {
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
@@ -130,7 +131,7 @@ public class ProjectQueryController {
         return ResponseEntity.ok(APIResponse.success(responseData, "부서별 참여 프로젝트 목록 조회 성공"));
     }
 
-    // 프로젝트 참여인원 조회
+    // 프로젝트 참여 인원 조회
     @GetMapping("/{projectId}/participants")
     public ResponseEntity<APIResponse<Map<String, Object>>> getProjectParticipants(@PathVariable Long projectId) {
         System.out.println("요청은 들어옴");
