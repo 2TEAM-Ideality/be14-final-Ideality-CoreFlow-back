@@ -15,6 +15,7 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
     Optional<Participant> findByTargetIdAndRoleId(Long targetId, Long roleId); // taskId와 roleId로 담당자 조회
     void deleteByTargetIdAndRoleId(Long targetId, Long roleId); // taskId와 roleId로 특정 참여자 삭제 taskId에 해당하는 모든 참여자 삭제
 
+    boolean existsByTargetIdAndUserIdAndTargetType(long targetId, long userId, TargetType targetType);
 }
 
 

@@ -21,7 +21,7 @@ public class Notification {
 
     @Column(name = "target_type")
     @Enumerated(EnumType.STRING)
-    private TargetType targetType;
+    private NotificationTargetType targetType;
 
 
     @Column(name = "target_id", nullable = false)

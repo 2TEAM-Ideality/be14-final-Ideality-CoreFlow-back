@@ -1,5 +1,5 @@
 package com.ideality.coreflow.notification.command.domain.aggregate;
 
-public enum TargetType {
+public enum NotificationTargetType {
     APPROVAL, PROJECT, WORK, SCHEDULE
 }

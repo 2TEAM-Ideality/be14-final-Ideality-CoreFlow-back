@@ -2,6 +2,7 @@ package com.ideality.coreflow.project.query.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.query.dto.CompletedProjectDTO;
 import com.ideality.coreflow.project.query.dto.DetailDTO;
@@ -157,8 +158,12 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
     }
 
     @Override
+    public String findProjectNameByProjectId(Long projectId) {
+        return projectMapper.findProjectNameByProjectId(projectId);
+    }
+
+    @Override
     public List<Long> getProjectIdsInProgressByUser(Long userId) {
         return projectMapper.findOngoingProjectIdsByUser(userId);
     }
-
 }

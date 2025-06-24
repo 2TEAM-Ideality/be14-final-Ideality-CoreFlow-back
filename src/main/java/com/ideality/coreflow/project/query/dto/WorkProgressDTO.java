@@ -8,7 +8,7 @@ import lombok.ToString;
 @RequiredArgsConstructor
 @Getter
 @ToString
-public class TaskProgressDTO {
+public class WorkProgressDTO {
     private LocalDate startDate;
     private LocalDate endDate;
     private Double progressRate;

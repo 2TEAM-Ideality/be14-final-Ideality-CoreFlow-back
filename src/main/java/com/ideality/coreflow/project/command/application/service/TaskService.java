@@ -1,13 +1,13 @@
 package com.ideality.coreflow.project.command.application.service;
 
-import com.ideality.coreflow.project.command.application.dto.DelayInfoDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestModifyTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
-
-
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
+
+import java.time.LocalDate;
 import com.ideality.coreflow.project.query.dto.WorkDueTodayDTO;
 import java.util.List;
+import java.util.Set;
 
 public interface TaskService {
     Long createTask(RequestTaskDTO taskDTO);
@@ -22,9 +22,7 @@ public interface TaskService {
 
     void validateTask(Long taskId);
 
-    Double updateTaskProgress(Long taskId);
-
-    DelayInfoDTO delayAndPropagate(Long taskId, Integer delayDays, boolean isSimulate);
+    void updateProgressRate(Long taskId, double progress);
 
     String findTaskNameById(long taskId);
 
@@ -32,7 +30,11 @@ public interface TaskService {
 
     Long modifyTaskDetail(RequestModifyTaskDTO requestModifyTaskDTO, Long taskId);
 
-    void setTaskWarning(Long taskId, Boolean warning);
+    Work findById(Long taskId);
 
-    List<WorkDueTodayDTO> getWorksDueToday(List<Long> projectIds);
+    void delayWork(Work work, Integer delayDays, Set<LocalDate> holidays, boolean isSimulate);
+
+    int calculateDelayExcludingHolidays(LocalDate startDate, Integer delayDays, Set<LocalDate> holidays);
+
+    void setTaskWarning(Long taskId, Boolean warning);
 }

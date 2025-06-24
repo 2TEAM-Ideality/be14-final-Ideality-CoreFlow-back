@@ -1,29 +1,26 @@
 package com.ideality.coreflow.project.command.application.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
+import com.ideality.coreflow.project.command.application.dto.DateInfoDTO;
 import com.ideality.coreflow.project.command.application.service.ProjectService;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
+
 import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import com.ideality.coreflow.project.query.dto.*;
-import com.ideality.coreflow.project.query.service.ProjectQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
 
-import com.ideality.coreflow.project.query.service.TaskQueryService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.javassist.NotFoundException;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.stereotype.Service;
 import static com.ideality.coreflow.common.exception.ErrorCode.PROJECT_NOT_FOUND;
 
@@ -51,7 +48,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .startBase(request.getStartBase())
                 .endBase(request.getEndBase())
                 .startExpect(request.getStartBase())
-                .endExpect(request.getEndExpect()!=null?request.getEndExpect():request.getEndBase())
+                .endExpect(request.getEndExpect() != null ? request.getEndExpect() : request.getEndBase())
                 .progressRate(0.0)
                 .passedRate(0.0)
                 .delayDays(0)
@@ -71,103 +68,54 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Project findById(Long projectId) throws NotFoundException {
+    public Project findById(Long projectId) {
         return projectRepository.findById(projectId)
-                                            .orElseThrow(()->new NotFoundException("프로젝트가 존재하지 않습니다"));
+                                            .orElseThrow(()->new BaseException(PROJECT_NOT_FOUND));
     }
 
     @Override
-    public Long updateProjectStatus(Project project, Status status) {
-        project.setStatus(status);
-        if(status.equals(Status.COMPLETED)) {
-            project.setEndReal(LocalDate.now());
+    public Long updateProjectStatus(Long projectId, Status targetStatus) {
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+
+        if (project.getStatus() == targetStatus){
+            throw new BaseException(ErrorCode.EQUAL_STATUS);
         }
+
+        if (targetStatus == Status.PENDING &&
+                !EnumSet.of(Status.DELETED, Status.CANCELLED).contains(project.getStatus())) {
+            throw new BaseException(ErrorCode.IMPOSSIBLE_CHANGE_PENDING);
+        }
+
+        if (targetStatus == Status.COMPLETED) {
+            if (project.getStatus() != Status.PROGRESS) {
+                throw new BaseException(ErrorCode.NOT_PROGRESS_STATUS);
+            } else {
+                project.updateEndReal(LocalDate.now());
+            }
+        }
+        project.updateStatus(targetStatus);
+
         projectRepository.save(project);
         return project.getId();
     }
 
     @Override
-    public Double updateProjectPassedRate(Long projectId) {
+    public Double updateProjectPassedRate(Long projectId, Double passedRate) {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
-        LocalDate endBase = project.getEndBase();
-        LocalDate startBase = project.getStartBase();
-        Long totalDuration = ChronoUnit.DAYS.between(startBase, endBase)+1-holidayQueryService.countHolidaysBetween(startBase, endBase);
-        log.info("totalDuration = " + totalDuration);
-
-        LocalDate now = LocalDate.now();
-        Long passedDates = ChronoUnit.DAYS.between(startBase, now)+1-holidayQueryService.countHolidaysBetween(startBase, now);
-        log.info("passedDates = " + passedDates);
-
-        Double passedRate =(double) passedDates/totalDuration*100;
-        passedRate = passedRate>100?100:Math.round(passedRate*100)/100.0;
-        project.setPassedRate(passedRate);
+        project.updatePassedRate(passedRate);
         projectRepository.saveAndFlush(project);
-        return passedRate;
+        return project.getPassedRate();
     }
 
     @Override
-    public Double updateProjectProgress(Long projectId) {
-        List<TaskProgressDTO> taskList = taskQueryService.getTaskProgressByProjectId(projectId);
+    public Double updateProjectProgress(Long projectId, Double progress) {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         System.out.println("project = " + project);
-        Long totalDuration = 0L;
-        Double totalProgress = 0.0;
-        for (TaskProgressDTO task : taskList) {
-            System.out.println("task = " + task);
-            Long duration = (ChronoUnit.DAYS.between(task.getStartDate(), task.getEndDate()) + 1
-                    - holidayQueryService.countHolidaysBetween(task.getStartDate(), task.getEndDate()));
-            totalDuration += duration;
-            System.out.println("duration = " + duration);
 
-            Double progress = duration * (task.getProgressRate()/100);
-            System.out.println("progress = " + progress);
-            totalProgress += progress;
-        }
-        System.out.println("Num to Save = " + Math.round(totalProgress/totalDuration*10000)/100.0);
-        project.setProgressRate(Math.round(totalProgress/totalDuration*10000)/100.0);
+        log.info("progress = " + progress);
+        project.updateProgressRate(progress);
         projectRepository.saveAndFlush(project);
         return project.getProgressRate();
-    }
-
-    // 프로젝트별 납기준수율 계산하기
-    @Override
-    public List<ProjectOTD> calculateProjectOTD(List<CompletedProjectDTO> completedProjectList) {
-
-        List<ProjectOTD> OTDList = new ArrayList<>();
-        for(CompletedProjectDTO project : completedProjectList) {
-
-            int CompletedOnTime = 0;     // 기한 내 완료 태스크 개수
-            int NotCompletedOnTime = 0; // 기한 내 미완료 태스크 개수
-            // 특정 프로젝트의 완료된 태스크 목록 가져오기
-            List<CompletedTaskDTO> taskList = taskQueryService.selectCompletedTasks(project.getId());
-            int taskLength = taskList.size();
-
-            for(CompletedTaskDTO task : taskList) {
-                if(task.getDelayDays() > 0){
-                    NotCompletedOnTime ++;
-                }else{
-                    CompletedOnTime ++;
-                }
-            }
-            System.out.println("프로젝트명 -----------" + project.getName());
-            System.out.println("전체 태스크 개수"  + taskLength);
-            System.out.println("CompletedOnTime = " + CompletedOnTime);
-            System.out.println("NotCompletedOnTime = " + NotCompletedOnTime);
-
-            double OTD = taskLength > 0 ? (CompletedOnTime * 100.0) / taskLength : 0.0;
-            System.out.println("OTD = " + OTD);
-            ProjectOTD newProjectOTD = ProjectOTD.builder()
-                .projectId(project.getId())
-                .projectName(project.getName())
-                .otdRate(OTD)
-                .totalTask(taskLength)
-                .completedOnTime(CompletedOnTime)
-                .notCompletedOnTime(NotCompletedOnTime)
-                .build();
-            OTDList.add(newProjectOTD);
-        }
-
-        return OTDList;
     }
 
     @Override
@@ -179,4 +127,26 @@ public class ProjectServiceImpl implements ProjectService {
                 .build();
     }
 
+    @Override
+    public void projectSave(Project project) {
+        projectRepository.save(project);
+    }
+
+    @Override
+    public DateInfoDTO findDateInfoByProjectId(Long projectId) {
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+        return DateInfoDTO.builder()
+                .startBase(project.getStartBase())
+                .endBase(project.getEndBase())
+                .startReal(project.getStartReal())
+                .endReal(project.getEndReal())
+                .startExpect(project.getStartExpect())
+                .endExpect(project.getEndExpect())
+                .build();
+    }
+
+    @Override
+    public List<Project> findAllByStatusNotIn(List<Status> statuses) {
+        return projectRepository.findAllByStatusNotIn(statuses);
+    }
 }

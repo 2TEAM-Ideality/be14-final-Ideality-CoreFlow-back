@@ -1,24 +1,17 @@
 package com.ideality.coreflow.project.command.application.service.impl;
 
-import com.ideality.coreflow.notification.command.application.service.NotificationService;
 import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
 import com.ideality.coreflow.project.command.application.service.ParticipantService;
 import com.ideality.coreflow.project.command.domain.aggregate.Participant;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.command.domain.repository.ParticipantRepository;
-import com.ideality.coreflow.project.query.mapper.ProjectMapper;
-import com.ideality.coreflow.project.query.mapper.WorkMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import static com.ideality.coreflow.notification.command.domain.aggregate.TargetType.PROJECT;
-import static com.ideality.coreflow.notification.command.domain.aggregate.TargetType.WORK;
 
 
 @Service
@@ -26,41 +19,17 @@ import static com.ideality.coreflow.notification.command.domain.aggregate.Target
 @RequiredArgsConstructor
 public class ParticipantServiceImpl implements ParticipantService {
     private final ParticipantRepository participantRepository;
-    private final NotificationService notificationService;
-    private final WorkMapper workMapper;
-    private final ProjectMapper projectMapper;
 
     @Override
-    @Transactional
-    public void createParticipants(List<ParticipantDTO> taskParticipants) {
-        for (ParticipantDTO taskParticipant : taskParticipants) {
-            Participant participant = Participant.builder()
-                    .targetType(taskParticipant.getTargetType())
-                    .targetId(taskParticipant.getTaskId())
-                    .userId(taskParticipant.getUserId())
-                    .roleId(taskParticipant.getRoleId())
-                    .build();
+    public void createParticipants(ParticipantDTO taskParticipant) {
+        Participant participant = Participant.builder()
+                .targetType(taskParticipant.getTargetType())
+                .targetId(taskParticipant.getTargetId())
+                .userId(taskParticipant.getUserId())
+                .roleId(taskParticipant.getRoleId())
+                .build();
 
-            participantRepository.save(participant);
-
-            // taskParticipant.getTargetType()에 따라 알림 내용 설정
-            if (taskParticipant.getRoleId() == 2L) { // roleId가 2L이면 팀장
-                String content = "";
-
-                if (taskParticipant.getTargetType() == TargetType.TASK) { // TARGET TYPE이 TASK일 때
-                    // WORK 테이블에서 태스크 이름 조회
-                    String taskName = workMapper.findTaskNameByTaskId(taskParticipant.getTaskId());
-                    content = "태스크 [" + taskName + "]에 팀장으로 초대되었습니다.";
-                    // 알림 전송
-                    notificationService.sendNotification(taskParticipant.getUserId(), content, taskParticipant.getTaskId(), WORK);
-                } else if (taskParticipant.getTargetType() == TargetType.PROJECT) { // TARGET TYPE이 PROJECT일 때
-                    // PROJECT 테이블에서 프로젝트 이름 조회
-                    String projectName = projectMapper.findProjectNameByProjectId(taskParticipant.getTaskId());
-                    content = "프로젝트 [" + projectName + "]에 팀장으로 초대되었습니다.";
-                    notificationService.sendNotification(taskParticipant.getUserId(), content, taskParticipant.getTaskId(), PROJECT);
-                }
-            }
-        }
+        participantRepository.save(participant);
     }
 
 
@@ -69,7 +38,7 @@ public class ParticipantServiceImpl implements ParticipantService {
     public void createAssignee(ParticipantDTO assigneeDTO) {
         Participant participant = Participant.builder()
                 .targetType(assigneeDTO.getTargetType())
-                .targetId(assigneeDTO.getTaskId())
+                .targetId(assigneeDTO.getTargetId())
                 .userId(assigneeDTO.getUserId())
                 .roleId(assigneeDTO.getRoleId())
                 .build();
@@ -93,7 +62,7 @@ public class ParticipantServiceImpl implements ParticipantService {
             existingAssignee.setUserId(assigneeDTO.getUserId());
             existingAssignee.setRoleId(assigneeDTO.getRoleId());
             existingAssignee.setTargetType(assigneeDTO.getTargetType());
-            existingAssignee.setTargetId(assigneeDTO.getTaskId());
+            existingAssignee.setTargetId(assigneeDTO.getTargetId());
 
             // 저장
             participantRepository.save(existingAssignee);
@@ -116,7 +85,7 @@ public class ParticipantServiceImpl implements ParticipantService {
         for (Long participantId : participantIds) {
             ParticipantDTO participantDTO = ParticipantDTO.builder()
                     .targetType(TargetType.DETAILED)
-                    .taskId(taskId)
+                    .targetId(taskId)
                     .userId(participantId)
                     .roleId(7L)  // 참여자 역할 ID
                     .build();
@@ -124,5 +93,10 @@ public class ParticipantServiceImpl implements ParticipantService {
             createAssignee(participantDTO);  // 참여자를 새로 추가하는 로직 사용
             log.info("참여자 추가 완료: {}", participantId);
         }
+    }
+
+    @Override
+    public boolean isParticipant(long targetId, long userId, TargetType targetType) {
+        return participantRepository.existsByTargetIdAndUserIdAndTargetType(targetId, userId, targetType);
     }
 }

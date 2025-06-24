@@ -6,6 +6,11 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
 
+    EQUAL_STATUS("EQUAL_STATUS", "현재 상태와 동일한 요청입니다.", HttpStatus.BAD_REQUEST),
+    NOT_PROGRESS_STATUS("NOT_PROGRESS_STATUS", "진행중(PROGRESS) 상태의 프로젝트만 완료(COMPLETED)로 전환할 수 있습니다", HttpStatus.BAD_REQUEST),
+    NOT_COMPLETED_TASK("NOT_COMPLETED_TASK", "완료되지 않은 태스크가 존재합니다.", HttpStatus.BAD_REQUEST),
+    IMPOSSIBLE_CHANGE_PENDING("IMPOSSIBLE_CHANGE_PENDING", "현재 상태에서는 PENDING 상태로 전환할 수 없습니다.", HttpStatus.BAD_REQUEST),
+
     // 이미 등록된 이메일
     EMAIL_ALREADY_EXISTS("EMAIL_ALREADY_EXISTS", "이미 등록된 이메일입니다.", HttpStatus.BAD_REQUEST),
 
