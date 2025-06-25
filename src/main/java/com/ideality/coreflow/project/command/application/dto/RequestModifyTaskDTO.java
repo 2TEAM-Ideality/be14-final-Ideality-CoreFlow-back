@@ -17,6 +17,7 @@ import java.util.List;
 public class RequestModifyTaskDTO {
     private Long taskId;
     private Long projectId;
+    private String taskName;
     private String description;
     private List<String> deptLists;
     private List<Long> prevTaskList;
