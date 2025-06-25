@@ -256,6 +256,7 @@
                 </foreach>
            AND DATE(end_expect) = #{today}
            AND p.user_id = #{userId}
+           AND p.target_type IN ('TASK', 'DETAILED')
     </select>
 
 </mapper>
