@@ -37,5 +37,5 @@ public interface TaskQueryService {
 
     Boolean checkTaskWarning(Long taskId);
 
-    List<WorkDueTodayDTO> getWorksDueToday(List<Long> projectIds);
+    List<WorkDueTodayDTO> getWorksDueToday(List<Long> projectIds, Long userId);
 }
