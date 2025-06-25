@@ -104,6 +104,8 @@
          WHERE a.dept_name = #{deptName}
            AND b.role_id = 2
            AND b.target_type = 'PROJECT'
+           AND b.target_id = #{projectId}
+         GROUP BY a.id
     </select>
     <select id="selectDeptNameByUserId" resultType="string" parameterType="_long">
         SELECT

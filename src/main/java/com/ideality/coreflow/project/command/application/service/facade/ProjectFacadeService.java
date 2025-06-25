@@ -352,14 +352,20 @@ public class ProjectFacadeService {
             throw new BaseException(ErrorCode.ACCESS_DENIED);
         }
 
+        Long projectId = requestTaskDTO.getProjectId();
+
         Map<Long, String> deptIdMap = requestTaskDTO.getDeptList().stream()
                 .collect
                         (Collectors.toMap(id -> id, deptQueryService::findNameById));
-        log.info("부서 조회 끝");
+        log.info("부서 조회 끝{}", deptIdMap);
         List<String> deptNames = deptIdMap.values().stream().distinct().toList();
+        log.info("deptNames: {}", deptNames);
 
-        Map<String, List<Long>> deptLeaderMaps = deptNames.stream()
-                .collect(Collectors.toMap(name -> name, userQueryService::selectLeadersByDeptName));
+        // deptName으로 해당 프로젝트에 참여한 팀의 팀장 id를 가져옴
+        List<Long> deptLeaderIds = deptNames.stream()
+                .flatMap(deptName -> userQueryService.selectLeadersByDeptName(projectId, deptName).stream())
+                .toList();
+
 
         Long directorId = participantQueryService.selectDirectorByProjectId(requestTaskDTO.getProjectId());
 
@@ -387,37 +393,41 @@ public class ProjectFacadeService {
 
         // ✅ 5. 쓰기 작업 (deptId 기준)
         for (Long deptId : requestTaskDTO.getDeptList()) {
-            String deptName = deptIdMap.get(deptId);
+//            String deptName = deptIdMap.get(deptId);
 
             workDeptService.createWorkDept(taskId, deptId);
             log.info("작업 별 참여 부서 생성 완료");
-
-            List<Long> newParticipantsIds = deptUsersMaps.get(deptName);
-            List<Long> leaderIds = deptLeaderMaps.get(deptName);
-            long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER);
-            long roleTeamMemberId = roleService.findRoleByName(RoleName.TEAM_MEMBER);
-            // ✅ 1. 팀장 먼저 등록
-            List<ParticipantDTO> leaderParticipants = leaderIds.stream()
-                    .map(leaderId -> new ParticipantDTO(taskId, leaderId, TargetType.TASK, roleTeamLeaderId))
-                    .toList();
-            for (ParticipantDTO leader : leaderParticipants) {
-                participantService.createParticipants(leader);
-                participantNotification(leader);
-            }
-            log.info("팀장 등록 완료");
-
-            // ✅ 2. 팀원 등록 (디렉터 & 팀장 제외)
-            List<ParticipantDTO> teamParticipants = newParticipantsIds.stream()
-                    .filter(participantUserId -> !leaderIds.contains(userId))       // 팀장 제외
-                    .filter(participantUserId -> !userId.equals(directorId))        // 디렉터 제외
-                    .map(participantUserId -> new ParticipantDTO(taskId, userId, TargetType.TASK, roleTeamMemberId))
-                    .toList();
-            for (ParticipantDTO teamParticipant : teamParticipants) {
-                participantService.createParticipants(teamParticipant);
-                participantNotification(teamParticipant);
-            }
-            log.info("팀원 등록 완료");
         }
+
+//            List<Long> newParticipantsIds = deptUsersMaps.get(deptName);
+
+        log.info("팀장 ids: {}", deptLeaderIds);
+        long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER);
+        long roleTeamMemberId = roleService.findRoleByName(RoleName.TEAM_MEMBER);
+        // ✅ 1. 팀장 먼저 등록
+        List<ParticipantDTO> leaderParticipants = deptLeaderIds.stream()
+                .map(leaderId -> new ParticipantDTO(taskId, leaderId, TargetType.TASK, roleTeamLeaderId))
+                .toList();
+        log.info("팀장 목록: {}", leaderParticipants);
+        for (ParticipantDTO leader : leaderParticipants) {
+            participantService.createParticipants(leader);
+            participantNotification(leader);
+        }
+        log.info("팀장 등록 완료");
+
+//            // ✅ 2. 팀원 등록 (디렉터 & 팀장 제외)
+//            List<ParticipantDTO> teamParticipants = newParticipantsIds.stream()
+//                    .filter(participantUserId -> !leaderIds.contains(userId))       // 팀장 제외
+//                    .filter(participantUserId -> !userId.equals(directorId))        // 디렉터 제외
+//                    .map(participantUserId -> new ParticipantDTO(taskId, userId, TargetType.TASK, roleTeamMemberId))
+//                    .toList();
+//            log.info("팀원 목록: {}", teamParticipants);
+//            for (ParticipantDTO teamParticipant : teamParticipants) {
+//                participantService.createParticipants(teamParticipant);
+//                participantNotification(teamParticipant);
+//            }
+//            log.info("팀원 등록 완료");
+//        }
         return taskId;
     }
 
