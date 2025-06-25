@@ -15,6 +15,7 @@ public class UserOfRoleServiceImpl implements UserOfRoleService {
 
     private final UserOfRoleRepository userOfRoleRepository;
 
+    @Transactional
     @Override
     public void updateAuthorities(boolean isCreation, long userId, long roleId) {
 

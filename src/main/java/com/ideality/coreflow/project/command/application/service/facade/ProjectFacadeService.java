@@ -1,6 +1,5 @@
 package com.ideality.coreflow.project.command.application.service.facade;
 
-import com.ideality.coreflow.approval.command.application.dto.DelayInfoDTO;
 import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalType;
 import com.ideality.coreflow.approval.query.dto.ProjectApprovalDTO;
 import com.ideality.coreflow.approval.query.service.ApprovalQueryService;
@@ -10,6 +9,7 @@ import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.holiday.query.dto.HolidayQueryDto;
 import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
+import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.notification.command.application.service.NotificationRecipientsService;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
 import com.ideality.coreflow.notification.command.domain.aggregate.NotificationTargetType;
@@ -28,6 +28,8 @@ import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
 import com.ideality.coreflow.template.query.dto.NodeDataDTO;
+import com.ideality.coreflow.tenant.query.dto.ResponseSchemaInfo;
+import com.ideality.coreflow.tenant.query.service.TenantQueryService;
 import com.ideality.coreflow.user.command.application.service.RoleService;
 import com.ideality.coreflow.user.command.application.service.UserService;
 import com.ideality.coreflow.user.command.domain.aggregate.RoleName;
@@ -41,6 +43,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,14 +79,9 @@ public class ProjectFacadeService {
     private final ApprovalQueryService approvalQueryService;
     private final WorkService workService;
     private final WorkQueryService workQueryService;
-    private final HolidayQueryService holidayQueryService;
-    private final RelationQueryService relationQueryService;
     private final RoleService roleService;
     private final WorkDomainService workDomainService;
-
-    @PersistenceContext
-    private EntityManager em;
-
+    private final TenantQueryService tenantQueryService;
 
     @Transactional
     public Double updateProgressRateCascade(Long taskId) {
@@ -114,9 +112,9 @@ public class ProjectFacadeService {
         return projectService.updateProjectProgress(projectId, progress);
     }
 
-    //
     @Transactional
     public Double updatePassedRate(Long targetId, TargetType type) {
+        log.info("경과율 업데이트");
         DateInfoDTO dateInfo;
 
         if (type == TargetType.PROJECT) {
@@ -133,6 +131,27 @@ public class ProjectFacadeService {
         } else {
             return workService.updatePassedRate(targetId, passedRate);
         }
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void runUpdatePassedRateForAllTenants() {
+        List<String> schemaNames = tenantQueryService.findAllTenant().stream().map(ResponseSchemaInfo::getSchemaName).filter(schema -> !"master".equalsIgnoreCase(schema)) .toList();
+        log.info("schemaNames: {}", schemaNames);
+
+        for (String schemaName : schemaNames) {
+            try {
+                TenantContext.setTenant(schemaName); // <- 현재 테넌트 설정
+                log.info("▶ 테넌트 전환: {}", schemaName);
+
+                updateAllPassedRates(); // 내부에서 프로젝트/작업 경과율 업데이트
+            } catch (Exception e) {
+                log.error("❌ 테넌트 {} 처리 중 오류: {}", schemaName, e.getMessage(), e);
+            } finally {
+                TenantContext.clear(); // 반드시 클리어
+            }
+        }
+
+        log.info("✅ 모든 테넌트에 대해 스케줄 작업 완료");
     }
 
     @Transactional
