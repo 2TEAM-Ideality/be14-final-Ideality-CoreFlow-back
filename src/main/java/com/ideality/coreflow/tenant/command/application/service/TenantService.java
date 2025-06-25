@@ -9,4 +9,8 @@ public interface TenantService {
     void createNewTenant(String tenantName);
 
     Long registTenant(RequestCreateTenant request);
+
+    void deleteTenantById(Long schemaId);
+
+    void dropTenantSchema(String schemaName);
 }

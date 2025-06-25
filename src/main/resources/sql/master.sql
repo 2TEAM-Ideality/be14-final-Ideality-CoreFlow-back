@@ -33,4 +33,4 @@ CREATE TABLE user (
 ) ENGINE=INNODB CHARACTER SET utf8;
 
 INSERT INTO user (id, employee_num, password, name, email)
-VALUES ('1234', '1234', '$2a$12$dD0aS4kIMvZnWIWxVXr.3us3W97791wgVLi2gyY4kuCU6/KQMHrcG', 'master', 'test@master.com');
+VALUES ('0', 'master', '$2a$12$dD0aS4kIMvZnWIWxVXr.3us3W97791wgVLi2gyY4kuCU6/KQMHrcG', 'master', 'test@master.com');

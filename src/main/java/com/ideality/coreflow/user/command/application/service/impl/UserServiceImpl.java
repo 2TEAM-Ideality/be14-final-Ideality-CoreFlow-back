@@ -182,9 +182,13 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    @Transactional
     @Override
     public ResponseInitialAdmin createInitialAdmin(String schemaName) {
+        log.info("관리자 생성");
+        log.info("테넌트:{}", TenantContext.getTenant());
+        TenantContext.setTenant(schemaName);
+        log.info("테넌트:{}", TenantContext.getTenant());
+
 
         User user = User.builder()
                 .employeeNum("admin_"+schemaName)
@@ -199,10 +203,10 @@ public class UserServiceImpl implements UserService {
                 .jobRoleName("admin")
                 .build();
 
-        long userId = userRepository.save(user).getId();
+        userRepository.save(user);
 
         return ResponseInitialAdmin.builder()
-                .id(userId)
+                .id(user.getId())
                 .employeeNum(user.getEmployeeNum())
                 .password(user.getPassword())
                 .schemaName(schemaName)
