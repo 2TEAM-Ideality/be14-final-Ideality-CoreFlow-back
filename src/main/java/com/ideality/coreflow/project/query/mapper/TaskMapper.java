@@ -35,7 +35,10 @@ public interface TaskMapper {
     List<GanttTaskResponse> selectSubTasksByParentId(Long parentId);
 
     List<WorkDueTodayDTO> findWorksDueToday(@Param("projectIds") List<Long> projectIds,
-                                            @Param("today") LocalDate today);
+                                            @Param("today") LocalDate today,
+                                            @Param("userId") Long userId);
 
     CheckTaskWarningDTO findTaskEndExpect(Long taskId);
+
+    Long getNearDueSubtaskCount(Long taskId, LocalDate now);
 }

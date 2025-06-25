@@ -1,5 +1,3 @@
-USE company_a;
-
 INSERT INTO work
 (name, description, created_at, start_base, end_base, start_expect, end_expect, project_id)
 VALUES
