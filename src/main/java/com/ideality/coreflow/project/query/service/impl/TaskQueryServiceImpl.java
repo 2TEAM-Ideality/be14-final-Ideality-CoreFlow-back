@@ -230,9 +230,9 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     }
 
     @Override
-    public List<WorkDueTodayDTO> getWorksDueToday(List<Long> projectIds) {
+    public List<WorkDueTodayDTO> getWorksDueToday(List<Long> projectIds, Long userId) {
         if (projectIds.isEmpty()) return List.of();
-        return taskMapper.findWorksDueToday(projectIds, LocalDate.now());
+        return taskMapper.findWorksDueToday(projectIds, LocalDate.now(), userId);
     }
 
     @Override

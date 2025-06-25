@@ -241,18 +241,22 @@
 <!--    </select>-->
     <select id="findWorksDueToday" resultType="com.ideality.coreflow.project.query.dto.WorkDueTodayDTO">
         SELECT
-               id AS work_id
-             , name
+               w.id AS work_id
+             , w.name
              , CASE
-               WHEN parent_task_id IS NULL THEN 'TASK'
+               WHEN w.parent_task_id IS NULL THEN 'TASK'
                ELSE 'SUBTASK'
                END AS type
-          FROM work
+          FROM work w
+          JOIN participant p
+            ON w.id = p.target_id
          WHERE project_id IN
                 <foreach collection="projectIds" item="id" open="(" separator="," close=")">
                     #{id}
                 </foreach>
            AND DATE(end_expect) = #{today}
+           AND p.user_id = #{userId}
+           AND p.target_type IN ('TASK', 'DETAILED')
     </select>
 
     <select id="getNearDueSubtaskCount" resultType="long">

@@ -77,8 +77,7 @@ public class ProjectQueryFacadeService {
                     .build();
         }
 
-        LocalDate today = LocalDate.now();
-        List<WorkDueTodayDTO> works = taskQueryService.getWorksDueToday(projectIds);
+        List<WorkDueTodayDTO> works = taskQueryService.getWorksDueToday(projectIds, userId);
 
         List<WorkSummaryDTO> tasks = works.stream()
                 .filter(w -> "TASK".equals(w.getType()))
