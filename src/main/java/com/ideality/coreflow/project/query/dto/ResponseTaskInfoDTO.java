@@ -15,4 +15,8 @@ public class ResponseTaskInfoDTO {
     private List<String> deptNames;
     private List<PrevTaskDTO> prevTasks;
     private List<NextTaskDTO> nextTasks;
+
+    public void setNearDueSubtaskCount(Long nearDueSubtaskCount) {
+        this.selectTask.setNearDueSubtasks(nearDueSubtaskCount);
+    }
 }
