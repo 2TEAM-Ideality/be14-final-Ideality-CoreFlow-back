@@ -11,5 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class WorkSummaryDTO {
     private Long workId;
+    private Long parentTaskId;
     private String name;
 }
