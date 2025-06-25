@@ -38,4 +38,6 @@ public interface TaskMapper {
                                             @Param("today") LocalDate today);
 
     CheckTaskWarningDTO findTaskEndExpect(Long taskId);
+
+    Long getNearDueSubtaskCount(Long taskId, LocalDate now);
 }

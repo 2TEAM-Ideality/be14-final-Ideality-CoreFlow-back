@@ -255,4 +255,12 @@
            AND DATE(end_expect) = #{today}
     </select>
 
+    <select id="getNearDueSubtaskCount" resultType="long">
+        SELECT
+               COUNT(*)
+          FROM work
+         WHERE parent_task_id = #{taskId}
+           AND end_expect = #{now}
+    </select>
+
 </mapper>
