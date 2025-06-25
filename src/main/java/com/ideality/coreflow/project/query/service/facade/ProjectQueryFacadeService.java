@@ -326,4 +326,9 @@ public class ProjectQueryFacadeService {
     public ProjectDateDTO getGanttProjectDate(Long projectId) {
         return projectService.findProjectDateById(projectId);
     }
+
+    // 태스크별 참여자 조회
+    public List<ParticipantUserDTO> getTaskParticipant(Long taskId) {
+        return participantQueryService.selectParticipantByTaskId(taskId);
+    }
 }
