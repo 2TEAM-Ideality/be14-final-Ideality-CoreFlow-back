@@ -112,6 +112,11 @@ public class TenantServiceImpl implements TenantService {
         }
     }
 
+    @Override
+    public String findSchemaNameById(Long tenantId) {
+        return tenantRepository.findById(tenantId).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND)).getCompanySchema();
+    }
+
     private void validateName(String name) {
         if (!name.matches("[a-zA-Z0-9_]+")) {
             throw new BaseException(ErrorCode.ILLEGAL_TENANT_NAME);

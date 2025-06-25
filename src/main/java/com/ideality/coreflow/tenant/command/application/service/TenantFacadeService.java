@@ -36,6 +36,7 @@ public class TenantFacadeService {
         } catch (Exception e) {
             log.error("테넌트 정보 등록 실패");
             rollbackTenantCreation(schemaName, schemaId);
+            throw new BaseException(ErrorCode.TENANT_CREATE_FAILED);
         }
 
         // 2. 새 테넌트 생성
@@ -103,5 +104,11 @@ public class TenantFacadeService {
         } catch (Exception schemaDropError) {
             log.error("스키마 삭제 실패: {}", schemaDropError.getMessage(), schemaDropError);
         }
+    }
+
+    public void deleteTenant(Long tenantId) {
+        String tenantName = tenantService.findSchemaNameById(tenantId);
+        tenantService.deleteTenantById(tenantId);
+        rollbackSchemaCreation(tenantName);
     }
 }

@@ -13,4 +13,6 @@ public interface TenantService {
     void deleteTenantById(Long schemaId);
 
     void dropTenantSchema(String schemaName);
+
+    String findSchemaNameById(Long tenantId);
 }
