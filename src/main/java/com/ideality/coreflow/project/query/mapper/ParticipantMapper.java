@@ -48,4 +48,6 @@ public interface ParticipantMapper {
 
     //  프로젝트 id로 해당 프로젝트에 참여하는 모든 인원들 정보 가져옴(유저아이디, 유저이름, 부서이름, 직책, 프로필사진)
     List<UserInfoDTO> selectAllUserByProjectId(Long projectId);
+
+    List<ParticipantUserDTO> selectParticipantByTaskId(Long taskId);
 }
