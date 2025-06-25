@@ -234,4 +234,9 @@ public class TaskQueryServiceImpl implements TaskQueryService {
         if (projectIds.isEmpty()) return List.of();
         return taskMapper.findWorksDueToday(projectIds, LocalDate.now(), userId);
     }
+
+    @Override
+    public Long getNearDueSubtaskCount(Long taskId) {
+        return taskMapper.getNearDueSubtaskCount(taskId, LocalDate.now());
+    }
 }

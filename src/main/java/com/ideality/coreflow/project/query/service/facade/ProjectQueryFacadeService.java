@@ -175,6 +175,10 @@ public class ProjectQueryFacadeService {
 
         log.info("selectTaskInfo: {}", selectTask);
 
+        /* 설명: 마감 임박 세부일정 갯수 조회*/
+        Long nearDueSubtaskCount = taskQueryService.getNearDueSubtaskCount(taskId);
+        selectTask.setNearDueSubtaskCount(nearDueSubtaskCount);
+
         /* 설명. 관계 조회 */
         relationQueryService.selectPrevRelation(taskId, selectTask);
         relationQueryService.selectNextRelation(taskId, selectTask);

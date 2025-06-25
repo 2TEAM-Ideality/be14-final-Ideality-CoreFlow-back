@@ -30,4 +30,5 @@ public class SelectTaskDTO {
     private String status;
     private String projectName;
     private Long projectId;
+    private Long nearDueSubtasks;
 }

@@ -259,4 +259,12 @@
            AND p.target_type IN ('TASK', 'DETAILED')
     </select>
 
+    <select id="getNearDueSubtaskCount" resultType="long">
+        SELECT
+               COUNT(*)
+          FROM work
+         WHERE parent_task_id = #{taskId}
+           AND end_expect = #{now}
+    </select>
+
 </mapper>
