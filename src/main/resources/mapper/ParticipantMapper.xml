@@ -221,4 +221,20 @@
          WHERE p.target_id = #{projectId}
            AND p.target_type = 'PROJECT'
     </select>
+    <select id="selectParticipantByTaskId" parameterType="long" resultType="com.ideality.coreflow.project.query.dto.ParticipantUserDTO">
+        SELECT
+            u.id AS userId,
+            u.name AS name,
+            w.project_id AS projectId,
+            u.dept_name AS deptName,
+            u.job_rank_name AS jobRankName,
+            u.job_role_name AS jobRoleName
+        FROM participant p
+            JOIN user u ON p.user_id = u.id
+            JOIN work w ON p.target_id = w.id
+        WHERE p.target_type = 'TASK'
+          AND p.target_id = #{taskId}
+    </select>
+
+
 </mapper>

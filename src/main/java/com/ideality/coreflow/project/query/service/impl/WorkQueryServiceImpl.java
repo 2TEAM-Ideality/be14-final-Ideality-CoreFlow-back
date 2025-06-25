@@ -5,9 +5,10 @@ import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.query.dto.DeptWorkDTO;
 import com.ideality.coreflow.project.query.dto.DetailDTO;
 import com.ideality.coreflow.project.query.dto.ParticipantDTO;
-import com.ideality.coreflow.project.query.dto.TaskProgressDTO;
+import com.ideality.coreflow.project.query.dto.WorkProgressDTO;
 import com.ideality.coreflow.project.query.dto.WorkDetailDTO;
 import com.ideality.coreflow.project.query.mapper.WorkMapper;
+import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.project.query.service.WorkQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.util.List;
 public class WorkQueryServiceImpl implements WorkQueryService {
 
     private final WorkMapper workMapper;
+    private final TaskQueryService taskQueryService;
 
     // parent_task_id가 동일한 세부일정 이름 목록을 반환
     @Override
@@ -93,7 +95,7 @@ public class WorkQueryServiceImpl implements WorkQueryService {
     }
 
     @Override
-    public List<TaskProgressDTO> getDetailProgressByTaskId(Long taskId) {
+    public List<WorkProgressDTO> getDetailProgressByTaskId(Long taskId) {
         return workMapper.selectDetailProgressByTaskId(taskId);
     }
 
@@ -106,4 +108,21 @@ public class WorkQueryServiceImpl implements WorkQueryService {
     public List<Work> getSubTasksByParentTaskId(Long parentTaskId) {
         return workMapper.selectTaskByParentTaskId(parentTaskId);
     }
+
+    @Override
+    public String findTaskNameByTaskId(Long taskId) {
+        return workMapper.findTaskNameByTaskId(taskId);
+    }
+
+    @Override
+    public Long getParentTaskId(Long subTaskId) {
+        return workMapper.selectParentTaskId(subTaskId);
+    }
+
+    @Override
+    public Boolean checkTaskWarning(Long subTaskId) {
+        Long parentTaskId = getParentTaskId(subTaskId);
+        return taskQueryService.checkTaskWarning(parentTaskId);
+    }
+
 }

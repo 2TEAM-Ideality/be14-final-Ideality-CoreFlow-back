@@ -10,16 +10,35 @@ import com.ideality.coreflow.attachment.command.application.service.AttachmentCo
 import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.holiday.query.dto.HolidayQueryDto;
+import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.infra.s3.S3Service;
 import com.ideality.coreflow.infra.s3.UploadFileResult;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
-import com.ideality.coreflow.notification.command.domain.aggregate.TargetType;
+import com.ideality.coreflow.notification.command.domain.aggregate.NotificationTargetType;
+import com.ideality.coreflow.approval.command.application.dto.DelayInfoDTO;
+import com.ideality.coreflow.project.command.application.service.ProjectService;
 import com.ideality.coreflow.project.command.application.service.TaskService;
+import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
+import com.ideality.coreflow.project.command.domain.aggregate.Project;
+import com.ideality.coreflow.project.command.domain.aggregate.Work;
+import com.ideality.coreflow.project.command.domain.service.DelayDomainService;
+import com.ideality.coreflow.project.query.service.ParticipantQueryService;
+import com.ideality.coreflow.project.query.service.ProjectQueryService;
+import com.ideality.coreflow.project.query.service.TaskQueryService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -34,7 +53,16 @@ public class ApprovalFacadeService {
     private final AttachmentCommandService attachmentCommandService;
     private final NotificationService notificationService;
     private final S3Service s3Service;
+    private final DelayDomainService delayDomainService;
+    private final ParticipantQueryService participantQueryService;
     private final TaskService taskService;
+    private final TaskQueryService taskQueryService;
+    private final ProjectQueryService projectQueryService;
+
+    @PersistenceContext
+    private EntityManager em;
+
+    private final ProjectFacadeService projectFacadeService;
 
     @Transactional
     public void approve(RequestApprove request, long userId) {
@@ -59,7 +87,7 @@ public class ApprovalFacadeService {
                     approval.getUserId(),    // 결재 요청자 ID
                     notificationContent,     // 알림 내용
                     approval.getId(),        // 대상 ID (결재 ID)
-                    TargetType.APPROVAL      // 대상 타입 (결재)
+                    NotificationTargetType.APPROVAL      // 대상 타입 (결재)
             );
 
             // 추가적인 열람자 설정
@@ -73,7 +101,7 @@ public class ApprovalFacadeService {
             throw new BaseException(ErrorCode.ACCESS_DENIED_APPROVAL);
         }
         // 지연 전파
-        taskService.delayAndPropagate(approval.getWorkId(), request.getDelayDays(), false);
+        delayAndPropagate(approval.getWorkId(), request.getDelayDays(), false);
     }
 
     @Transactional
@@ -116,7 +144,7 @@ public class ApprovalFacadeService {
                 request.getApproverId(),    // 결재자 ID
                 notificationContent,        // 알림 내용
                 approvalId,                 // 대상 ID (결재 ID)
-                TargetType.APPROVAL         // 대상 타입 (결재)
+                NotificationTargetType.APPROVAL         // 대상 타입 (결재)
         );
         log.info("결재 요청자에게 알림 전송");
 
@@ -177,5 +205,41 @@ public class ApprovalFacadeService {
             throw new BaseException(ErrorCode.ACCESS_DENIED_APPROVAL);
         }
         approvalService.updateStatus(approval, ApprovalStatus.CANCELLED);
+    }
+
+    @Transactional
+    DelayInfoDTO delayAndPropagate(Long taskId, Integer delayDays, boolean isSimulate) {
+
+        String startTaskName = taskService.findTaskNameById(taskId);
+        DelayInfoDTO delayInfo = delayDomainService.delayAndPropagateLogic(taskId, delayDays, isSimulate);
+
+        // simulate가 아니고 실제로 지연된 태스크가 있다면 알림 처리
+        if (!isSimulate) {
+            Map<Long, Integer> delayedTaskMap = delayInfo.getDelayDaysByTaskId();
+
+            for (Long delayedTaskId : delayedTaskMap.keySet()) {
+
+                String delayedTaskName = taskService.findTaskNameById(delayedTaskId);
+
+                List<Long> participantIds = participantQueryService.findParticipantsByTaskId(delayedTaskId);
+                String content = "태스크 [" + startTaskName + "]가 지연되어 ["+ delayedTaskName +"]의 예상마감일이 변경되었습니다!";
+
+                for (Long userId : participantIds) {
+                    notificationService.sendNotification(userId, content, delayedTaskId, NotificationTargetType.WORK);
+                }
+            }
+        }
+
+        // 프로젝트 마감일이 바뀐 경우에만 디렉터에게 알림
+        if (!delayInfo.getOriginProjectEndExpect().isEqual(delayInfo.getNewProjectEndExpect())) {
+            long projectId = taskQueryService.getProjectId(taskId);
+            String projectName = projectQueryService.getProjectName(projectId);
+
+            Long directorId = participantQueryService.findDirectorByProjectId(projectId);
+            String directorContent = "프로젝트 [" + projectName + "]의 예상 마감일이" + delayInfo.getDelayDaysByTask() + "일 지연되었습니다!";
+            notificationService.sendNotification(directorId, directorContent, projectId, NotificationTargetType.PROJECT);
+        }
+
+        return delayInfo;
     }
 }

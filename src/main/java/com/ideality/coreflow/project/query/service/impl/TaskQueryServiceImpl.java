@@ -4,9 +4,8 @@ import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
-import com.ideality.coreflow.notification.command.domain.aggregate.TargetType;
+import com.ideality.coreflow.notification.command.domain.aggregate.NotificationTargetType;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
-import com.ideality.coreflow.project.command.domain.repository.TaskRepository;
 import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.project.query.mapper.ParticipantMapper;
 import com.ideality.coreflow.project.query.mapper.RelationMapper;
@@ -15,6 +14,7 @@ import com.ideality.coreflow.project.query.mapper.WorkMapper;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +52,47 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     @Override
     public List<CompletedTaskDTO> selectCompletedTasks(Long projectId) {
         return taskMapper.selectCompletedTasks(projectId);
+    }
+
+    // 프로젝트별 납기준수율 계산하기
+    @Override
+    public List<ProjectOTD> calculateProjectDTO(List<CompletedProjectDTO> completedProjectList) {
+
+        List<ProjectOTD> OTDList = new ArrayList<>();
+        for(CompletedProjectDTO project : completedProjectList) {
+
+            int CompletedOnTime = 0;     // 기한 내 완료 태스크 개수
+            int NotCompletedOnTime = 0; // 기한 내 미완료 태스크 개수
+            // 특정 프로젝트의 완료된 태스크 목록 가져오기
+            List<CompletedTaskDTO> taskList = taskMapper.selectCompletedTasks(project.getId());
+            int taskLength = taskList.size();
+
+            for(CompletedTaskDTO task : taskList) {
+                if(task.getDelayDays() > 0){
+                    NotCompletedOnTime ++;
+                }else{
+                    CompletedOnTime ++;
+                }
+            }
+            System.out.println("프로젝트명 -----------" + project.getName());
+            System.out.println("전체 태스크 개수"  + taskLength);
+            System.out.println("CompletedOnTime = " + CompletedOnTime);
+            System.out.println("NotCompletedOnTime = " + NotCompletedOnTime);
+
+            double OTD = taskLength > 0 ? (CompletedOnTime * 100.0) / taskLength : 0.0;
+            System.out.println("OTD = " + OTD);
+            ProjectOTD newProjectOTD = ProjectOTD.builder()
+                    .projectId(project.getId())
+                    .projectName(project.getName())
+                    .otdRate(OTD)
+                    .totalTask(taskLength)
+                    .completedOnTime(CompletedOnTime)
+                    .notCompletedOnTime(NotCompletedOnTime)
+                    .build();
+            OTDList.add(newProjectOTD);
+        }
+
+        return OTDList;
     }
 
     @Override
@@ -102,7 +143,7 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     }
 
     @Override
-    public List<TaskProgressDTO> getTaskProgressByProjectId(Long projectId) {
+    public List<WorkProgressDTO> getTaskProgressByProjectId(Long projectId) {
         return taskMapper.selectTaskProgressByProjectId(projectId);
     }
 
@@ -138,7 +179,7 @@ public class TaskQueryServiceImpl implements TaskQueryService {
                 notificationService.sendNotification(userId,
                         "오늘은 태스크 ["+taskName+"]의 예상 마감일입니다!",
                         task.getId(),
-                        TargetType.WORK);
+                        NotificationTargetType.WORK);
             }
         }
 
@@ -154,7 +195,7 @@ public class TaskQueryServiceImpl implements TaskQueryService {
                 notificationService.sendNotification(userId,
                         "내일은 태스크 ["+taskName+"]의 예상 마감일입니다!",
                         task.getId(),
-                        TargetType.WORK);
+                        NotificationTargetType.WORK);
             }
         }
     }
@@ -174,5 +215,28 @@ public class TaskQueryServiceImpl implements TaskQueryService {
                             .build();
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Boolean checkTaskWarning(Long taskId) {
+        CheckTaskWarningDTO endExpect = taskMapper.findTaskEndExpect(taskId);       // (1)자기 자신의 예상 종료일, (2)세부일정중 예상일이 가장 늦은 예상 종료일을 가져옴
+        System.out.println("endExpect = " + endExpect);                             // log 출력용
+        // 태스크의 예상 종료일이 세부일정의 예상 종료일보다 빠르면 warning
+        // 태스크의 예상 종료일이 세부일정의 예상 종료일과 같거나 이후라면 warning false
+        if(endExpect.getSubTaskEndExpect()==null){
+            return false;
+        }
+        return endExpect.getTaskEndExpect().isBefore(endExpect.getSubTaskEndExpect());
+    }
+
+    @Override
+    public List<WorkDueTodayDTO> getWorksDueToday(List<Long> projectIds, Long userId) {
+        if (projectIds.isEmpty()) return List.of();
+        return taskMapper.findWorksDueToday(projectIds, LocalDate.now(), userId);
+    }
+
+    @Override
+    public Long getNearDueSubtaskCount(Long taskId) {
+        return taskMapper.getNearDueSubtaskCount(taskId, LocalDate.now());
     }
 }

@@ -10,6 +10,7 @@ import com.ideality.coreflow.user.command.application.service.RoleService;
 import com.ideality.coreflow.user.command.application.service.UserOfRoleService;
 import com.ideality.coreflow.user.command.application.service.UserService;
 import com.ideality.coreflow.user.command.domain.aggregate.OrgType;
+import com.ideality.coreflow.user.command.domain.aggregate.RoleName;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +46,7 @@ public class AdminFacadeService {
         userService.updateUser(updateUserInfo);
 
         if (request.getIsCreation() != null) {
-            long roleId = roleService.findRoleByName("Creator");
+            long roleId = roleService.findRoleByName(RoleName.CREATOR);
 
             userOfRoleService.updateAuthorities(request.getIsCreation(), userId, roleId);
         }

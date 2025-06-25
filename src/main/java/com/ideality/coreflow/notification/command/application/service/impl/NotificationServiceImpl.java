@@ -5,7 +5,7 @@ import com.ideality.coreflow.notification.command.application.service.Notificati
 import com.ideality.coreflow.notification.command.domain.aggregate.Notification;
 import com.ideality.coreflow.notification.command.domain.aggregate.NotificationRecipient;
 import com.ideality.coreflow.notification.command.domain.aggregate.Status;
-import com.ideality.coreflow.notification.command.domain.aggregate.TargetType;
+import com.ideality.coreflow.notification.command.domain.aggregate.NotificationTargetType;
 import com.ideality.coreflow.notification.command.domain.repository.NotificationRecipientRepository;
 import com.ideality.coreflow.notification.command.domain.repository.NotificationRepository;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendNotification(Long userId, String content, Long targetId, TargetType targetType) {
+    public void sendNotification(Long userId, String content, Long targetId, NotificationTargetType targetType) {
         // 알림 객체 생성
         Notification notification = Notification.builder()
                 .targetType(targetType)  // 동적으로 전달받은 targetType 사용
@@ -56,7 +56,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     public Long createDetailNotification(Long detailId, String content) {
         Notification notification = Notification.builder()
-                .targetType(TargetType.WORK)
+                .targetType(NotificationTargetType.WORK)
                 .targetId(detailId)
                 .content(content)
                 .status(Status.SENT)
@@ -73,7 +73,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     public Long createMentionNotification(Long taskId, String content) {
         Notification notification = Notification.builder()
-                .targetType(TargetType.WORK)
+                .targetType(NotificationTargetType.WORK)
                 .targetId(taskId)
                 .content(content)
                 .status(Status.SENT)
@@ -90,7 +90,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     public Long createInviteProject(Long projectId, String content) {
         Notification notification = Notification.builder()
-                .targetType(TargetType.PROJECT)
+                .targetType(NotificationTargetType.PROJECT)
                 .targetId(projectId)
                 .content(content)
                 .status(Status.SENT)

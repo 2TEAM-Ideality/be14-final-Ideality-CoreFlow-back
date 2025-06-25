@@ -141,6 +141,7 @@
             LEFT JOIN user u ON p.user_id = u.id
         WHERE wd.dept_id = #{deptId}
             AND w.parent_task_id IS NOT NULL
+            AND w.status != 'DELETED'
             AND wd.is_deleted = FALSE
     </select>
 
@@ -172,13 +173,14 @@
         AND parent_task_id IS NOT NULL
     </select>
 
-    <select id="selectDetailProgressByTaskId" resultType="com.ideality.coreflow.project.query.dto.TaskProgressDTO">
+    <select id="selectDetailProgressByTaskId" resultType="com.ideality.coreflow.project.query.dto.WorkProgressDTO">
         SELECT
                start_base    AS startDate
              , end_base      AS endDate
              , progress_rate AS progressRate
           FROM work
          WHERE parent_task_id = #{taskId}
+           AND status != 'DELETED'
     </select>
     <!-- 오늘 마감일인 진행 중인 작업 조회 -->
     <select id="findTasksDueToday" resultType="com.ideality.coreflow.project.command.domain.aggregate.Work">
@@ -224,6 +226,12 @@
              , project_id
           FROM work
          WHERE parent_task_id = #{parentTaskId}
+    </select>
+
+    <select id="selectParentTaskId" resultType="long">
+        SELECT parent_task_id
+          FROM work
+         WHERE id = #{subTaskId}
     </select>
 
 </mapper>

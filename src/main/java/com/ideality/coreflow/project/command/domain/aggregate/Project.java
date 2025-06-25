@@ -68,5 +68,20 @@ public class Project {
 	@Column(name = "template_id")
 	private Long templateId;
 
+	public void updateStatus(Status status) {
+		this.status = status;
+	}
+
+	public void updateEndReal(LocalDate endReal) {
+		this.endReal = endReal;
+	}
+
+	public void updateProgressRate(Double progressRate) {
+		this.progressRate = progressRate;
+	}
+
+	public void updatePassedRate(Double passedRate) {
+		this.passedRate = passedRate;
+	}
 }
 

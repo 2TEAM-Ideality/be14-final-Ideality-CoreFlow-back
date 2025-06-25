@@ -31,7 +31,7 @@ public interface WorkMapper {
 
     List<Long> selectWorkIdByName(List<String> details);
 
-    List<TaskProgressDTO> selectDetailProgressByTaskId(Long taskId);
+    List<WorkProgressDTO> selectDetailProgressByTaskId(Long taskId);
 
     // 오늘 마감일인 진행 중인 작업 조회
     List<Work> findTasksDueToday(LocalDate today);
@@ -42,4 +42,7 @@ public interface WorkMapper {
     List<Long> selectWorkIdsByParentTaskId(Long parentTaskId);
 
     List<Work> selectTaskByParentTaskId(Long parentTaskId);
+
+    Long selectParentTaskId(Long subTaskId);
+
 }

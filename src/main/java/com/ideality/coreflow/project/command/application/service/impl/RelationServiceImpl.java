@@ -1,10 +1,11 @@
 package com.ideality.coreflow.project.command.application.service.impl;
 
+import com.ideality.coreflow.project.command.application.dto.RequestRelationUpdateDTO;
 import com.ideality.coreflow.project.command.application.service.RelationService;
 import com.ideality.coreflow.project.command.domain.aggregate.Relation;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.command.domain.repository.RelationRepository;
-import com.ideality.coreflow.project.command.domain.repository.TaskRepository;
+import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ import java.util.List;
 public class RelationServiceImpl implements RelationService {
 
     private final RelationRepository relationRepository;
-    private final TaskRepository taskRepository;
+    private final WorkRepository taskRepository;
 
     @Override
     @Transactional
@@ -38,6 +39,7 @@ public class RelationServiceImpl implements RelationService {
     @Transactional
     public void appendRelation(Long workId, List<Long> source, List<Long> target) {
         // source가 null -> 맨 앞에 넣을 것이지만, target과 관계를 이어간다.
+        log.info("현재 들어온 값 {} {} {}",  workId, source, target);
         if (source == null) {
             for (Long targetWorkId : target) {
 
@@ -53,7 +55,7 @@ public class RelationServiceImpl implements RelationService {
             }
             // target이 null 앞에 관계가 있고 지금 생성한 작업을 넣는다 -> 수행한 작업을
         } else if (target == null) {
-            for (Long sourceWorkId : target) {
+            for (Long sourceWorkId : source) {
 
                 Work prevWork = taskRepository.getReferenceById(sourceWorkId);
                 Work nextWork = taskRepository.getReferenceById(workId);
@@ -70,25 +72,7 @@ public class RelationServiceImpl implements RelationService {
             appendMiddleRelation(source, target, workId);
         }
     }
-
-
-//    @Override
-//    @Transactional
-//    public void appendRelation(List<Long> prevWorkId, Long nextWorkId) {
-//
-//        for (Long workId : prevWorkId) {
-//
-//            Work prevWork = taskRepository.getReferenceById(workId);
-//            Work nextWork = taskRepository.getReferenceById(nextWorkId);
-//            Relation relation = Relation
-//                    .builder()
-//                    .prevWork(prevWork)
-//                    .nextWork(nextWork)
-//                    .build();
-//
-//            relationRepository.save(relation);
-//        }
-//    }
+    
     @Override
     @Transactional
     public void appendMiddleRelation(List<Long> source, List<Long> target, Long taskId) {
@@ -140,47 +124,37 @@ public class RelationServiceImpl implements RelationService {
         }
     }
 
-    @Transactional
-    public void updateRelations(Long detailId, List<Long> source, List<Long> target) {
-        // 선행 일정 (source) 수정
-        if (source != null && !source.isEmpty()) {
-            // 기존 선행 일정 삭제
-            deleteRelationsByDetailId(detailId);
-            // 새로운 선행 일정 추가
-            appendRelation(detailId, source, target);
-        }
 
-        // 후행 일정 (target) 수정
-        if (target != null && !target.isEmpty()) {
-            // 기존 후행 일정 삭제
-            deleteTargetRelationsByDetailId((detailId));
-            // 새로운 후행 일정 추가
-            appendTargetRelation(target, detailId);
-        }
-    }
-
-    // 선행 일정 삭제
-
-    @Transactional
-    public void deleteRelationsByDetailId(Long detailId) {
-        relationRepository.deleteByPrevWorkId(detailId);
-    }
-    // 후행 일정 삭제
-
-    @Transactional
-    public void deleteTargetRelationsByDetailId(Long detailId) {
-        relationRepository.deleteByNextWorkId(detailId);
-    }
-
+    /* 설명. 선행 일정이 해당 work 인거 삭제 -> Task, Detail 둘 다 사용 가능*/
     @Override
     @Transactional
-    public void deleteByNextWorkId(Long taskId) {
-        relationRepository.deleteByNextWorkId(taskId);
+    public void deleteByNextWorkId(Long workId) {
+        relationRepository.deleteByNextWorkId(workId);
     }
 
+    /* 설명. 선행 일정이 해당 work 인거 삭제 -> Task, Detail 둘 다 사용 가능*/
     @Override
     @Transactional
-    public void deleteByPrevWorkId(Long taskId) {
-        relationRepository.deleteByPrevWorkId(taskId);
+    public void deleteByPrevWorkId(Long workId) {
+        relationRepository.deleteByPrevWorkId(workId);
     }
+
+
+    /* 설명. 해당 태스크 별 삭제 + 처리까지 한번에 */
+    @Override
+    @Transactional
+    public void updateRelationList(List<RequestRelationUpdateDTO> requestRelationUpdateDTO) {
+        for (RequestRelationUpdateDTO updateDTO : requestRelationUpdateDTO) {
+            Long taskId = updateDTO.getTaskId();
+            List<Long> source = updateDTO.getSource();
+            List<Long> target = updateDTO.getTarget();
+
+            /* 설명. 반복해서 기존 태스크 id가 가진 선행 관계 + 후행 관계 삭제 */
+            deleteByPrevWorkId(taskId);
+            deleteByNextWorkId(taskId);
+
+            appendRelation(taskId, source, target);
+        }
+    }
+
 }

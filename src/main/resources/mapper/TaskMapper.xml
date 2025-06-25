@@ -115,7 +115,7 @@
         AND status = 'COMPLETED'
     </select>
 
-    <select id="selectTaskProgressByProjectId" resultType="com.ideality.coreflow.project.query.dto.TaskProgressDTO">
+    <select id="selectTaskProgressByProjectId" resultType="com.ideality.coreflow.project.query.dto.WorkProgressDTO">
         SELECT
                start_base    AS startDate
              , end_base      AS endDate
@@ -123,6 +123,7 @@
           FROM work
          WHERE project_id = #{projectId}
            AND parent_task_id IS NULL
+           AND status != 'DELETED'
     </select>
 
     <resultMap id="GanttTaskWithPredecessorsMap" type="com.ideality.coreflow.project.query.dto.GanttTaskResponse">
@@ -215,6 +216,20 @@
          ORDER BY start_base
     </select>
 
+    <select id="findTaskEndExpect" resultType="com.ideality.coreflow.project.query.dto.CheckTaskWarningDTO">
+        SELECT
+               w.end_expect AS taskEndExpect
+             , (
+                SELECT
+                       MAX(child.end_expect)
+                  FROM work child
+                 WHERE child.parent_task_id = #{taskId}
+               ) AS subTaskEndExpect
+          FROM work w
+         WHERE w.id = #{taskId}
+
+    </select>
+
 <!--    <select id="findWorksDueToday" resultType="com.ideality.coreflow.project.command.domain.aggregate.Work">-->
 <!--        SELECT *-->
 <!--          FROM work-->
@@ -226,18 +241,31 @@
 <!--    </select>-->
     <select id="findWorksDueToday" resultType="com.ideality.coreflow.project.query.dto.WorkDueTodayDTO">
         SELECT
-               id AS work_id
-             , name
+               w.id AS work_id
+             , w.name
+             , w.parent_task_id
              , CASE
-               WHEN parent_task_id IS NULL THEN 'TASK'
+               WHEN w.parent_task_id IS NULL THEN 'TASK'
                ELSE 'SUBTASK'
                END AS type
-          FROM work
+          FROM work w
+          JOIN participant p
+            ON w.id = p.target_id
          WHERE project_id IN
                 <foreach collection="projectIds" item="id" open="(" separator="," close=")">
                     #{id}
                 </foreach>
            AND DATE(end_expect) = #{today}
+           AND p.user_id = #{userId}
+           AND p.target_type IN ('TASK', 'DETAILED')
+    </select>
+
+    <select id="getNearDueSubtaskCount" resultType="long">
+        SELECT
+               COUNT(*)
+          FROM work
+         WHERE parent_task_id = #{taskId}
+           AND end_expect = #{now}
     </select>
 
 </mapper>

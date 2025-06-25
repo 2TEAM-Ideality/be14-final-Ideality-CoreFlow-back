@@ -2,17 +2,12 @@ package com.ideality.coreflow.project.query.service;
 
 import com.ideality.coreflow.project.command.application.dto.RequestInviteUserDTO;
 
-import com.ideality.coreflow.project.query.dto.DepartmentLeaderDTO;
-import com.ideality.coreflow.project.query.dto.ParticipantDepartmentDTO;
-import com.ideality.coreflow.project.query.dto.ResponseParticipantDTO;
-import com.ideality.coreflow.project.query.dto.ResponseParticipantUser;
-import com.ideality.coreflow.project.query.dto.UserInfoDTO;
+import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.user.query.dto.UserNameIdDto;
 
 import java.util.List;
 import java.util.Map;
 
-import com.ideality.coreflow.project.query.dto.ProjectParticipantDTO;
 import java.util.Set;
 
 public interface ParticipantQueryService {
@@ -46,4 +41,12 @@ public interface ParticipantQueryService {
     List<UserInfoDTO> getAllProjectParticipants(Long projectId);
 
     Set<String> extractDeptNamesFromParticipants(List<UserInfoDTO> allParticipants);
+
+    List<Long> findParticipantsByTaskId(Long id);
+
+    Long findDirectorByProjectId(Long id);
+
+    List<Long> findNextTaskUsersByTaskId(Long taskId);
+
+    List<ParticipantUserDTO> selectParticipantByTaskId(Long taskId);
 }
