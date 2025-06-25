@@ -7,8 +7,6 @@ import com.ideality.coreflow.attachment.query.dto.ReportAttachmentDTO;
 import com.ideality.coreflow.attachment.query.service.AttachmentQueryService;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
-import com.ideality.coreflow.holiday.query.dto.HolidayQueryDto;
-import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.notification.command.application.service.NotificationRecipientsService;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
@@ -35,11 +33,8 @@ import com.ideality.coreflow.user.command.application.service.UserService;
 import com.ideality.coreflow.user.command.domain.aggregate.RoleName;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -84,32 +79,27 @@ public class ProjectFacadeService {
     private final TenantQueryService tenantQueryService;
 
     @Transactional
-    public Double updateProgressRateCascade(Long taskId) {
+    public void updateProgressRateCascade(Long taskId) {
         // 태스크 진척률 계산 및 업데이트
-        double taskProgress = updateProgressRate(taskId);
+        updateProgressRate(taskId);
 
         // 해당 태스크가 속한 프로젝트의 진척률도 함께 갱신
         long projectId = workService.findProjectIdByTaskId(taskId);
         updateProjectProgressRate(projectId);
-
-        return taskProgress;
     }
 
     // 추후 private로
-    @Transactional
-    public double updateProgressRate(Long taskId) {
+    private void updateProgressRate(Long taskId) {
         List<WorkProgressDTO> detailList = workQueryService.getDetailProgressByTaskId(taskId);
         double progress = workDomainService.calculateProgressRate(detailList);
         taskService.updateProgressRate(taskId, progress);
-        return progress;
     }
 
     // 추후 private
-    @Transactional
-    public double updateProjectProgressRate(Long projectId) {
+    private void updateProjectProgressRate(Long projectId) {
         List<WorkProgressDTO> taskList = taskQueryService.getTaskProgressByProjectId(projectId);
         double progress = workDomainService.calculateProgressRate(taskList);
-        return projectService.updateProjectProgress(projectId, progress);
+        projectService.updateProjectProgress(projectId, progress);
     }
 
     @Transactional
