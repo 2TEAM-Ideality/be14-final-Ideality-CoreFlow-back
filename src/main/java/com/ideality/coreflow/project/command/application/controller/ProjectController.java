@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/projects")
 @RestController
@@ -34,8 +36,8 @@ public class ProjectController {
 
     @PostMapping
     public ResponseEntity<APIResponse<?>> createProject(@RequestBody ProjectCreateRequest request) {
+        log.info("Create project request: {}", request.toString());
         Project result = projectFacadeService.createProject(request);
-        Map<String, Object> response = new HashMap<>();
         return ResponseEntity.ok(APIResponse.success(result, result.getId()+"번 프로젝트 생성 완료"));
     }
 
@@ -65,14 +67,6 @@ public class ProjectController {
         );
     }
 
-    @PatchMapping("/{projectId}/progress-rate")
-    public ResponseEntity<APIResponse<?>> updateProjectProgressRate(@PathVariable Long projectId){
-        Double updatedProgressRate = projectFacadeService.updateProjectProgressRate(projectId);
-        return ResponseEntity.ok(
-                APIResponse.success(updatedProgressRate,
-                        projectId + "번 프로젝트의 진척률이 업데이트 되었습니다")
-        );
-    }
     @PostMapping("/{projectId}/participants/team-leader")
     public ResponseEntity<APIResponse<?>>
     createTeamLeader(@PathVariable Long projectId,
