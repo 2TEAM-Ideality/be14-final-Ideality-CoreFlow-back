@@ -4,17 +4,14 @@ import java.util.List;
 
 import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class NodeDataDTO {
 	private String label; 			// 태스크명
 	private String description; 	// 설명

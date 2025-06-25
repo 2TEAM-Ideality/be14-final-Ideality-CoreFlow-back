@@ -16,7 +16,7 @@ public interface UserQueryService {
 
     long countByJobRoleName(String roleName);
 
-    List<Long> selectLeadersByDeptName(String deptName);
+    List<Long> selectLeadersByDeptName(Long projectId, String deptName);
 
     String getDeptNameByUserId(Long userId);
 

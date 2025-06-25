@@ -21,6 +21,7 @@ public class ParticipantServiceImpl implements ParticipantService {
     private final ParticipantRepository participantRepository;
 
     @Override
+
     public void createParticipants(ParticipantDTO taskParticipant) {
         Participant participant = Participant.builder()
                 .targetType(taskParticipant.getTargetType())
