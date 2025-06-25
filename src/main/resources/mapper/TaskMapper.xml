@@ -243,6 +243,7 @@
         SELECT
                w.id AS work_id
              , w.name
+             , w.parent_task_id
              , CASE
                WHEN w.parent_task_id IS NULL THEN 'TASK'
                ELSE 'SUBTASK'

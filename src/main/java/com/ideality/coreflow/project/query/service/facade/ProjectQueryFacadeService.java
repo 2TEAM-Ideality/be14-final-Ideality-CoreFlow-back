@@ -81,12 +81,12 @@ public class ProjectQueryFacadeService {
 
         List<WorkSummaryDTO> tasks = works.stream()
                 .filter(w -> "TASK".equals(w.getType()))
-                .map(w -> new WorkSummaryDTO(w.getWorkId(), w.getName()))
+                .map(w -> new WorkSummaryDTO(w.getWorkId(), null,w.getName()))
                 .toList();
 
         List<WorkSummaryDTO> subtasks = works.stream()
                 .filter(w -> "SUBTASK".equals(w.getType()))
-                .map(w -> new WorkSummaryDTO(w.getWorkId(), w.getName()))
+                .map(w -> new WorkSummaryDTO(w.getWorkId(), w.getParentTaskId(),w.getName()))
                 .toList();
 
         return TaskSummaryResponse.builder()
