@@ -687,6 +687,7 @@ public class ProjectFacadeService {
     }
 
     /* 설명. 디테일 수정 -> 읽기부터 하고 그 다음부터 수정 하나씩 */
+    @Transactional
     public Long updateTaskDetail(RequestModifyTaskDTO requestModifyTaskDTO, Long userId, Long taskId) {
         log.info(requestModifyTaskDTO.toString());
         Long projectId = requestModifyTaskDTO.getProjectId();
