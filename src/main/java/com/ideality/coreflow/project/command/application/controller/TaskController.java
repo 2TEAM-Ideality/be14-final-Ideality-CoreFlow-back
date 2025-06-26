@@ -36,7 +36,6 @@ public class TaskController {
         );
     }
 
-    // 삭제 예정
     @PatchMapping("/progress/{taskId}")
     public ResponseEntity<APIResponse<Map<String, Long>>> updateTaskByProgress(
             @PathVariable Long taskId) {

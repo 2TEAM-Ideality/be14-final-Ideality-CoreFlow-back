@@ -59,11 +59,10 @@ public class ProjectController {
     }
 
     @PatchMapping("/passed-rate")
-    public ResponseEntity<APIResponse<?>> updateProjectPassedRate(@PathVariable Long projectId){
+    public ResponseEntity<APIResponse<?>> updateProjectPassedRate(){
         projectFacadeService.updateAllPassedRates();
         return ResponseEntity.ok(
-                APIResponse.success(null,
-                        projectId + "번 프로젝트의 경과율이 업데이트 되었습니다")
+                APIResponse.success(null, "경과율이 업데이트 되었습니다")
         );
     }
 

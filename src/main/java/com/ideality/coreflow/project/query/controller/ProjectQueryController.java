@@ -76,6 +76,12 @@ public class ProjectQueryController {
         return ResponseEntity.ok(APIResponse.success(reqDTO, "부서 조회 완료"));
     }
 
+    // 팀장 소속 부서 조회
+    @GetMapping("/{projectId}/participants/leaderDept")
+    public ResponseEntity<APIResponse<?>> getLeaderDept(@PathVariable Long projectId) {
+        return ResponseEntity.ok(APIResponse.success(projectQueryFacadeService.getLeaderDept(projectId), "팀장 소속 부서 조회"));
+    }
+
     @GetMapping("/{projectId}/participants/department/team-leader")
     public ResponseEntity<APIResponse<List<DepartmentLeaderDTO>>>
     getTeamLeaderByDepartment(@PathVariable Long projectId) {
