@@ -90,8 +90,8 @@ public class WorkQueryServiceImpl implements WorkQueryService {
     }
 
     @Override
-    public List<Long> selectWorkIdByName(List<String> details) {
-        return workMapper.selectWorkIdByName(details);
+    public List<Long> selectWorkIdByName(List<String> details, Long taskId) {
+        return workMapper.selectWorkIdByName(details, taskId);
     }
 
     @Override

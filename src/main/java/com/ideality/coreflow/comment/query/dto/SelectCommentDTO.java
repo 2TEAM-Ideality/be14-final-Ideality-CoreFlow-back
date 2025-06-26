@@ -14,6 +14,7 @@ public class SelectCommentDTO {
     private Long commentId;
     private Long parentCommentId;
     private Long userId;
+    private String profileImage;
     private String name;
     private String deptName;
     private String content;

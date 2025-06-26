@@ -24,7 +24,7 @@ public interface WorkQueryService {
 
     List<DetailMentionDTO> getDetailList(Long projectId, Long taskId, String detailTarget);
 
-    List<Long> selectWorkIdByName(List<String> details);
+    List<Long> selectWorkIdByName(List<String> details, Long taskId);
 
     List<WorkProgressDTO> getDetailProgressByTaskId(Long taskId);
 
