@@ -55,9 +55,7 @@ public class ProjectQueryFacadeService {
     private final WorkDeptQueryService workDeptQueryService;
     private final ProjectQueryService projectQueryService;
     private final ParticipantQueryService participantQueryService;
-    private final TaskService taskService;
     private final WorkService workCommandService;
-    private final DeptService deptService;
 
 
     public TaskSummaryResponse getTodayTaskSummary(Long userId) {
