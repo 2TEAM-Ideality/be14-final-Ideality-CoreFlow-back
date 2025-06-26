@@ -108,7 +108,6 @@ public enum ErrorCode {
 
     SCHEDULE_NOT_FOUND("SCHEDULE_NOT_FOUND", "존재하지 않는 일정입니다.", HttpStatus.NOT_FOUND),
     NOTIFICATION_NOT_FOUND("NOTIFICATION_NOT_FOUND", "존재하지 않는 알림입니다.", HttpStatus.NOT_FOUND),
-    COMMENT_ACCESS_DENIED("COMMENT_ACCESS_DENIED", "댓글에 접근할 수 없는 권합입니다.", HttpStatus.FORBIDDEN),
     COMMENT_ALREADY_DELETED("COMMENT_ALREADY_DELETED", "이미 삭제된 댓글입니다." , HttpStatus.CONFLICT),
     REPEATRULE_NOT_FOUND("REPEATRULE_NOT_FOUND", "존재하지 않는 반복규칙입니다.", HttpStatus.NOT_FOUND ),
     NOT_FOUND_NOTIFICATION("NOT_FOUND_NOTIFICATION","알림을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
@@ -124,6 +123,8 @@ public enum ErrorCode {
     COMMENT_ALREADY_NOTICE("COMMENT_ALREADY_NOTICE", "이미 공지인 댓글입니다." , HttpStatus.CONFLICT),
     INVALID_STATUS_PENDING("INVALID_STATUS_PENDING", "진행중인 프로젝트가 아닙니다." , HttpStatus.BAD_REQUEST),
     ACCESS_DENIED_TEAMLEADER("ACCESS_DENIED_TEAMLEADER", "팀 리더 이상만 이용할 수 있는 권한입니다.",  HttpStatus.FORBIDDEN),
+    ACCESS_DENIED_PROJECT("ACCESS_DENIED_PROJECT", "프로젝트 참여자가 이용할 수 있는 권한입니다.", HttpStatus.FORBIDDEN),
+    NOT_COMMENT_WRITER("NOT_COMMENT_WRITER", "댓글 작성자가 아닙니다.", HttpStatus.FORBIDDEN),
     ;
     private final String code;
     private final String message;

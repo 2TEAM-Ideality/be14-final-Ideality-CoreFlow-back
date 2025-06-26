@@ -7,13 +7,13 @@ import com.ideality.coreflow.comment.command.domain.aggregate.Comment;
 import com.ideality.coreflow.comment.command.domain.aggregate.CommentType;
 import com.ideality.coreflow.comment.command.domain.repository.CommentRepository;
 import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import static com.ideality.coreflow.common.exception.ErrorCode.*;
 
@@ -54,12 +54,11 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public Long updateByDelete(Long userId, Long commentId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new BaseException(COMMENT_NOT_FOUND));
+    public Long updateByDelete(Long userId, Comment comment) {
 
-        if (!comment.getUserId().equals(userId)) {
-            throw new BaseException(COMMENT_ACCESS_DENIED);
+        /* 설명. 이미 삭제되었다는 예외는 도메인 내부 로직에서 */
+        if (comment.isDeleted()) {
+            throw new BaseException(COMMENT_ALREADY_DELETED);
         }
 
         comment.updateDeleted();
@@ -69,13 +68,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public Long updateComment(RequestModifyCommentDTO reqModify, Long userId, Long commentId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new BaseException(COMMENT_NOT_FOUND));
-
-        if (!comment.getUserId().equals(userId)) {
-            throw new BaseException(COMMENT_ACCESS_DENIED);
-        }
+    public Long updateComment(RequestModifyCommentDTO reqModify, Long userId, Comment comment) {
 
         if(comment.isDeleted()) {
             throw new BaseException(COMMENT_ALREADY_DELETED);
@@ -88,13 +81,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public Long updateByNotice(Long userId, Long commentId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new BaseException(COMMENT_NOT_FOUND));
-
-        if (!comment.getUserId().equals(userId)) {
-            throw new BaseException(COMMENT_ACCESS_DENIED);
-        }
+    public Long updateByNotice(Long userId, Comment comment) {
 
         if(comment.isDeleted()) {
             throw new BaseException(COMMENT_ALREADY_DELETED);

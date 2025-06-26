@@ -10,6 +10,7 @@
         <result property="parentCommentId" column="parent_comment_id"/>
         <result property="userId" column="user_id"/>
         <result property="name" column="name"/>
+        <result property="profileImage" column="profile_image"/>
         <result property="deptName" column="dept_name"/>
         <result property="content" column="content"/>
         <result property="createdAt" column="created_at"/>
@@ -29,6 +30,7 @@
              , a.parent_comment_id
              , a.user_id
              , b.name
+             , b.profile_image
              , b.dept_name
              , a.content
              , a.created_at
@@ -58,6 +60,7 @@
         , a.parent_comment_id
         , a.user_id
         , b.name
+        , b.profile_image
         , b.dept_name
         , a.content
         , a.created_at

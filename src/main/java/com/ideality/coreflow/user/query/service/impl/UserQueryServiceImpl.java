@@ -72,47 +72,38 @@ public class UserQueryServiceImpl implements UserQueryService {
     }
 
 
+    /* 설명. 댓글에서 입력값에 따른 유저 리스트 반환하는 코드 */
     @Override
     public List<UserMentionDTO> selectMentionUserByMentionInfo(List<String> mentionParse, Long projectId) {
-        List<UserMentionDTO> resultSet;
+        MentionSearchParamDTO dto = new MentionSearchParamDTO();
+        dto.setProjectId(projectId);
 
-        if (mentionParse == null || mentionParse.isEmpty()) {
-            // @만 입력된 경우, 프로젝트 참여자 전체 조회
-            resultSet = userMapper.selectMentionUserByProjectId(projectId);
-        } else if (mentionParse.size() == 1) {
-            // 여기가 keyword 검색?
-            String keyword = mentionParse.get(0);
-            resultSet = userMapper.selectMentionUserByKeyword(keyword, projectId);
-        } else {
-            // 정확하게 파싱 조회
-            String deptName = null;
-            String name = null;
-
-            if (mentionParse.size() >= 1) deptName = mentionParse.get(0);
-            if (mentionParse.size() >= 2) name = mentionParse.get(1);
-
-            resultSet = userMapper.selectMentionUserByMentionInfo(deptName, name, projectId);
+        if (mentionParse != null && mentionParse.size() == 2) {
+            dto.setDeptName(mentionParse.get(0)); // ex: "생산팀"
+            dto.setName(mentionParse.get(1));     // ex: "한"
+        } else if (mentionParse != null && !mentionParse.isEmpty()) {
+            dto.setKeyword(mentionParse.get(0));  // ex: "생산팀_한" or "한"
         }
-
-        return resultSet;
+        return userMapper.selectMentionUserByKeyword(dto);
     }
 
+    /* 설명. 댓글 작성에서 멘션에서 들어온 댓글 내용이 존재하는가 */
     @Override
-    public List<Long> selectIdByMentionList(List<String> mentions) {
+    public List<Long> selectIdByMentionList(List<String> mentions, Long projectId) {
 
         List<MentionConditionDTO> mentionConditionDTOS = new ArrayList<>();
         for (String mention : mentions) {
             String[] parse = mention.split("_");
             String dept = parse[0];
-            String user = parse.length > 1 ? parse[1] : "";
+            String user = parse.length > 1 ? parse[1] : null; // null로 구분 -> 태그가 디자인 팀일 경우
 
-            mentionConditionDTOS.add(new MentionConditionDTO(dept,user));
+            mentionConditionDTOS.add(new MentionConditionDTO(projectId, dept, user));
         }
         return userMapper.selectUserListByMention(mentionConditionDTOS);
     }
 
     @Override
-    public String getUserId(Long userId) {
+    public String getUserName(Long userId) {
         return userMapper.selectUserNameById(userId);
     }
 
@@ -128,13 +119,8 @@ public class UserQueryServiceImpl implements UserQueryService {
 
     @Override
     public List<String> selectTeamByMentionInfo(List<String> mentionParse, Long projectId) {
-        if (mentionParse == null || mentionParse.isEmpty()) {
-            // 전체 참여자의 부서명 조회
-            return userMapper.selectDeptNamesByProjectId(projectId);
-        } else {
-            String mentionTarget = mentionParse.get(0); // 키워드 기반 검색
-            return userMapper.selectDeptNameByMentionInfo(mentionTarget, projectId);
-        }
+        String mentionTarget = (mentionParse == null || mentionParse.isEmpty()) ? null : mentionParse.get(0);
+        return userMapper.selectDeptNameByMentionInfo(mentionTarget, projectId);
     }
 
 @Override

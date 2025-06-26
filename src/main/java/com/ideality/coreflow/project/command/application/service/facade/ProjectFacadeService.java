@@ -1,6 +1,5 @@
 package com.ideality.coreflow.project.command.application.service.facade;
 
-import com.ideality.coreflow.approval.command.application.dto.DelayInfoDTO;
 import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalType;
 import com.ideality.coreflow.approval.query.dto.ProjectApprovalDTO;
 import com.ideality.coreflow.approval.query.service.ApprovalQueryService;
@@ -8,7 +7,6 @@ import com.ideality.coreflow.attachment.query.dto.ReportAttachmentDTO;
 import com.ideality.coreflow.attachment.query.service.AttachmentQueryService;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
-import com.ideality.coreflow.holiday.query.dto.HolidayQueryDto;
 import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.notification.command.application.service.NotificationRecipientsService;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
@@ -33,7 +31,6 @@ import com.ideality.coreflow.user.command.application.service.UserService;
 import com.ideality.coreflow.user.command.domain.aggregate.RoleName;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import jakarta.persistence.EntityManager;
@@ -600,7 +597,7 @@ public class ProjectFacadeService {
         }
 
         // 초대 됐다는 알림 작성
-        String writerName = userQueryService.getUserId(userId);
+        String writerName = userQueryService.getUserName(userId);
         String projectName = projectQueryService.getProjectName(projectId);
         String content = String.format("%s 님이 회원님을 %s에 초대하였습니다.", writerName, projectName);
         Long notificationId = notificationService.createInviteProject(projectId, content);
@@ -641,7 +638,7 @@ public class ProjectFacadeService {
         }
 
         // 초대 됐다는 알림 작성
-        String writerName = userQueryService.getUserId(userId);
+        String writerName = userQueryService.getUserName(userId);
         String projectName = projectQueryService.getProjectName(projectId);
         String content = String.format("%s 님이 회원님을 %s에 초대하였습니다.", writerName, projectName);
         Long notificationId = notificationService.createInviteProject(projectId, content);

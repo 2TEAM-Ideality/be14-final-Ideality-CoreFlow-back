@@ -35,7 +35,7 @@ public class CommentController {
             (@ModelAttribute RequestModifyCommentDTO reqModify,
              @PathVariable Long commentId) {
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
-        Long returnCommentId = commentFacadeService.modifyComment(reqModify, userId, commentId);
+        Long returnCommentId = commentFacadeService.updateComment(reqModify, userId, commentId);
         return ResponseEntity.ok(APIResponse.success(Map.of("commentId", returnCommentId),
                 "댓글이 수정되었습니다."));
     }
