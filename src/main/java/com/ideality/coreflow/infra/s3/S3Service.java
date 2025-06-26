@@ -120,4 +120,16 @@ public class S3Service {
             throw new RuntimeException("파일 업로드 실패", e);
         }
     }
+
+    // url로 버킷안에 있는 실제 프로필 사진을 삭제하는 메소드
+    public void deleteFileByUrl(String url) {
+        try {
+            String key = extractS3KeyFromUrl(url);
+            amazonS3Client.deleteObject(bucketName, key);
+            log.info("S3 파일 삭제 완료: {}", key);
+        } catch (Exception e) {
+            log.error("S3 파일 삭제 실패: {}", url, e);
+            throw new RuntimeException("S3 파일 삭제 실패", e);
+        }
+    }
 }

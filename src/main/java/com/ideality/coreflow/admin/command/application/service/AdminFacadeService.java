@@ -5,6 +5,7 @@ import com.ideality.coreflow.admin.command.application.dto.RequestModifyJobRank;
 import com.ideality.coreflow.admin.command.application.dto.RequestUserUpdateByAdmin;
 import com.ideality.coreflow.org.command.application.service.JobRankService;
 import com.ideality.coreflow.org.command.application.service.JobRoleService;
+import com.ideality.coreflow.user.command.application.dto.RequestUpdateProfile;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.application.service.RoleService;
 import com.ideality.coreflow.user.command.application.service.UserOfRoleService;
@@ -28,22 +29,22 @@ public class AdminFacadeService {
     @Transactional
     public void modifyUserInfoByAdmin(Long userId, RequestUserUpdateByAdmin request) {
 
-        UserInfoDTO updateUserInfo = UserInfoDTO.builder()
-                .id(userId)
-                .name(request.getName())
-                .email(request.getEmail())
-                .birth(request.getBirth())
-                .hireDate(request.getHireDate())
-                .isResign(request.getIsResign())
-                .resignDate(request.getResignDate())
-                .profileImage(request.getProfileImage())
-                .deptName(request.getDeptName())
-                .jobRankName(request.getJobRankName())
-                .jobRoleName(request.getJobRoleName())
-                .build();
+//        UserInfoDTO updateUserInfo = UserInfoDTO.builder()
+//                .id(userId)
+//                .name(request.getName())
+//                .email(request.getEmail())
+//                .birth(request.getBirth())
+//                .hireDate(request.getHireDate())
+//                .isResign(request.getIsResign())
+//                .resignDate(request.getResignDate())
+//                .profileImage(request.getProfileImage())
+//                .deptName(request.getDeptName())
+//                .jobRankName(request.getJobRankName())
+//                .jobRoleName(request.getJobRoleName())
+//                .build();
 
         // 유저 정보 수정
-        userService.updateUser(updateUserInfo);
+//        userService.updateUser(new RequestUpdateProfile(updateUserInfo.getId(), ));
 
         if (request.getIsCreation() != null) {
             long roleId = roleService.findRoleByName(RoleName.CREATOR);

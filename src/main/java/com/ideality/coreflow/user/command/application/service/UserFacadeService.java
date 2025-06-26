@@ -1,5 +1,6 @@
 package com.ideality.coreflow.user.command.application.service;
 
+import com.ideality.coreflow.user.command.application.dto.RequestUpdateProfile;
 import com.ideality.coreflow.user.command.application.dto.ResponseUserInfo;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
@@ -17,8 +18,8 @@ public class UserFacadeService {
     private final UserQueryService userQueryService;
 
     @Transactional
-    public void modifyUserProfileImg(UserInfoDTO userInfoDTO) {
-        userService.updateUser(userInfoDTO);
+    public void modifyUserProfileImg(RequestUpdateProfile req) {
+        userService.updateUser(req);
     }
 
     @Transactional
