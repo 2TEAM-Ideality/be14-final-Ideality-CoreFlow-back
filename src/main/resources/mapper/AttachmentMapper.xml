@@ -17,7 +17,6 @@
     <resultMap id="AttachmentCommentResultMap" type="com.ideality.coreflow.attachment.query.dto.ResponseCommentAttachmentDTO">
         <id property="attachmentId" column="id"/>
         <result property="originName" column="origin_name"/>
-        <result property="url" column="url"/>
         <result property="fileType" column="file_type"/>
         <result property="uploadAt" column="upload_at"/>
         <result property="userId" column="uploader_id"/>
@@ -28,6 +27,12 @@
     <resultMap id="AttachmentDownloadMap" type="com.ideality.coreflow.attachment.query.dto.AttachmentDownloadDTO">
         <result property="url" column="url"/>
         <result property="originName" column="origin_name"/>
+    </resultMap>
+
+    <resultMap id="AttachForCommentMap" type="com.ideality.coreflow.attachment.query.dto.AttachmentForCommentDTO">
+        <id property="attachmentId" column="id"/>
+        <result property="originName" column="origin_name"/>
+        <result property="commentId" column="target_id"/>
     </resultMap>
 
     <select id="selectUrl" parameterType="map" resultMap="AttachmentResultMap">
@@ -65,28 +70,42 @@
           AND a.is_deleted = FALSE
     </select>
 
-    <select id="selectAttachmentsByTaskId" parameterType="long" resultMap="AttachmentCommentResultMap">
-        SELECT
-               a.id
-             , a.origin_name
-             , a.url
-             , a.file_type
-             , a.upload_at
-             , a.uploader_id
-             , b.name
-             , b.dept_name
-          FROM attachment a
-          JOIN user b ON a.uploader_id = b.id
-         WHERE a.target_id = #{taskId}
-           AND a.target_type = 'COMMENT'
-    </select>
-
-
     <select id="selectAttachmentInfoForDownload" parameterType="long" resultMap="AttachmentDownloadMap">
         SELECT
                url
              , origin_name
           FROM attachment
          WHERE id = #{attachmentId}
+    </select>
+
+    <select id="selectAttachmentsForComments" parameterType="long" resultMap="AttachForCommentMap">
+        SELECT
+               id
+             , origin_name
+             , target_id
+          FROM attachment
+         WHERE target_type = 'COMMENT'
+           AND target_id = #{commentId}
+    </select>
+
+    <select id="selectAttachmentsByCommentId"
+            parameterType="list"
+            resultMap="AttachmentCommentResultMap">
+        SELECT
+        a.id
+        , a.origin_name
+        , a.url
+        , a.file_type
+        , a.upload_at
+        , a.uploader_id
+        , b.name
+        , b.dept_name
+        FROM attachment a
+        JOIN user b ON a.uploader_id = b.id
+        WHERE a.target_id IN
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND a.target_type = 'COMMENT'
     </select>
 </mapper>

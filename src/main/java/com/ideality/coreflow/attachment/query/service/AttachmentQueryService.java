@@ -1,17 +1,15 @@
 package com.ideality.coreflow.attachment.query.service;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.ideality.coreflow.attachment.query.dto.AttachmentDownloadDTO;
-import com.ideality.coreflow.attachment.query.dto.ResponseCommentAttachmentDTO;
+import com.ideality.coreflow.attachment.query.dto.*;
 import com.ideality.coreflow.infra.s3.S3Service;
 import org.springframework.stereotype.Service;
 
 import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
-import com.ideality.coreflow.attachment.query.dto.ReportAttachmentDTO;
-import com.ideality.coreflow.attachment.query.dto.ResponseAttachmentDTO;
 import com.ideality.coreflow.attachment.query.mapper.AttachmentMapper;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
@@ -56,19 +54,31 @@ public class AttachmentQueryService {
 		return response;
 	}
 
-	/* 설명. 댓글에 올라온 첨부 파일 조회 */
-	public List<ResponseCommentAttachmentDTO> getAttachmentsByTaskId(Long taskId, Long userId) {
-		List<ResponseCommentAttachmentDTO> response = attachmentMapper.selectAttachmentsByTaskId(taskId);
 
-		if (response == null) {
-			log.warn("첨부파일 조회 실패");
-			throw new BaseException(ErrorCode.ATTCHMENT_NOT_FOUND);
+	public AttachmentDownloadDTO getAttachmentDownload(Long attachmentId) {
+		return attachmentMapper.selectAttachmentInfoForDownload(attachmentId);
+	}
+
+	/* 설명. 댓글에 필요한 첨부 파일 가져오기 */
+	public List<AttachmentForCommentDTO> selectAttachments(List<Long> commentIds) {
+		List<AttachmentForCommentDTO> response = new ArrayList<>();
+
+		for (Long commentId : commentIds) {
+			AttachmentForCommentDTO attachment = attachmentMapper.selectAttachmentsForComments(commentId);
+			response.add(attachment);
 		}
 
 		return response;
 	}
 
-	public AttachmentDownloadDTO getAttachmentDownload(Long attachmentId) {
-		return attachmentMapper.selectAttachmentInfoForDownload(attachmentId);
+	/* 설명. 태스크에 모든 댓글에 따라서 조회를 해오기 */
+	public List<ResponseCommentAttachmentDTO> getAttachmentsByCommentId(List<Long> commentIds) {
+		return attachmentMapper.selectAttachmentsByCommentId(commentIds);
+	}
+
+
+	/* 설명. 댓글 수정에서 사용 */
+	public AttachmentForCommentDTO selectBycommentId(Long commentId) {
+		return attachmentMapper.selectAttachmentsForComments(commentId);
 	}
 }
