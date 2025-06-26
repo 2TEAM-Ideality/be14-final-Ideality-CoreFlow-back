@@ -613,7 +613,7 @@ public class ProjectFacadeService {
         }
 
         // 초대 됐다는 알림 작성
-        String writerName = userQueryService.getUserId(userId);
+        String writerName = userQueryService.getUserName(userId);
         String projectName = projectQueryService.getProjectName(projectId);
         String content = String.format("%s 님이 회원님을 %s에 초대하였습니다.", writerName, projectName);
         Long notificationId = notificationService.createInviteProject(projectId, content);
@@ -654,7 +654,7 @@ public class ProjectFacadeService {
         }
 
         // 초대 됐다는 알림 작성
-        String writerName = userQueryService.getUserId(userId);
+        String writerName = userQueryService.getUserName(userId);
         String projectName = projectQueryService.getProjectName(projectId);
         String content = String.format("%s 님이 회원님을 %s에 초대하였습니다.", writerName, projectName);
         Long notificationId = notificationService.createInviteProject(projectId, content);

@@ -7,6 +7,7 @@ import com.ideality.coreflow.comment.command.application.dto.RequestModifyCommen
 import com.ideality.coreflow.comment.command.application.service.CommentService;
 import com.ideality.coreflow.comment.command.domain.aggregate.Comment;
 import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.s3.S3Service;
 import com.ideality.coreflow.infra.s3.UploadFileResult;
 import com.ideality.coreflow.notification.command.application.service.NotificationRecipientsService;
@@ -20,12 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
-import static com.ideality.coreflow.common.exception.ErrorCode.COMMENT_ACCESS_DENIED;
 import static com.ideality.coreflow.common.exception.ErrorCode.TASK_NOT_FOUND;
 
 @Service
@@ -47,66 +44,62 @@ public class CommentFacadeService {
 
         /* 설명. 댓글 작성 순서 -> 댓글 작성, 첨부 파일 업로드, 알림에 추가 */
         Long projectId = taskQueryService.getProjectId(taskId);
-        log.info("project created with id: " + projectId);
 
+        /* 설명. 잘못된 접근에 대한 예외처리 */
         if (projectId == null) {
             throw new BaseException(TASK_NOT_FOUND);
         }
 
+        /* 설명. 프로젝트 참여자 -> 댓글을 작성할 수 있는 권한이 있는가 */
         boolean isParticipant = participantQueryService.isParticipant(userId, projectId);
 
         if (!isParticipant) {
-            throw new BaseException(COMMENT_ACCESS_DENIED);
+            throw new BaseException(ErrorCode.NOT_COMMENT_WRITER);
         }
 
         Long commentId = commentService.createComment(commentDTO, taskId, userId);
-        log.info("comment created with id: " + commentId);
+        Long notificationId = null;
+        boolean hasMentions = commentDTO.getMentions() != null && !commentDTO.getMentions().isEmpty();
+        boolean hasDetails = commentDTO.getDetails() != null && !commentDTO.getDetails().isEmpty();
 
-        // 공통 데이터 조회
-        String writerName = userQueryService.getUserId(userId);
-        String taskTitle = taskQueryService.getTaskName(taskId);
-
-        if (commentDTO.getMentions() != null) {
-            // 팀명만 태그했을 때
-            // 전체 이름으로 태그했을 때 -> 파싱할 필요 없이 마이바티스 동적 쿼리로 사용
-            // 어차피 회원 테이블에는 반정규화로 인해 부서명이 들어가있음
-            log.info("mentions 목록입니다." + commentDTO.getMentions());
-            List<Long> userIdByMention = userQueryService.selectIdByMentionList(commentDTO.getMentions());
-            log.info("mentions created with id: " + userIdByMention);
-            log.info("사용자 조회 완료");
+        Set<Long> totalRecipients = new HashSet<>();
+        if (hasMentions || hasDetails) {
+            // 공통 데이터 조회 -> 이름 + 태스크 이름 조회 -> 알림을 위해
+            String writerName = userQueryService.getUserName(userId);
+            String taskTitle = taskQueryService.getTaskName(taskId);
+            // 알림 생성
             String content = String.format("%s TASK에서 '%s'님이 회원님을 언급하였습니다.", taskTitle, writerName);
-            Long notificationId = notificationService.createMentionNotification(taskId, content);
-            log.info("알림 생성 완료");
-            notificationRecipientsService.createRecipients(userIdByMention, notificationId);
-            log.info("알림 전달할 사람에게 전달 완료");
+            notificationId = notificationService.createMentionNotification(taskId, content);
         }
 
-        if (commentDTO.getDetails() != null) {
-            log.info(commentDTO.getDetails().toString());
+        if (hasMentions) {
+            List<String> uniqueMentions = commentDTO.getMentions().stream()
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .toList();
 
-            List<Long> detailIdList = workService.selectWorkIdByName(commentDTO.getDetails());
-            log.info("detailId: {}", detailIdList);
+            List<Long> userIdByMention = userQueryService.selectIdByMentionList(uniqueMentions, projectId);
+            totalRecipients.addAll(userIdByMention);
+        }
 
-            // 최종 목적에 맞는 구조: 알림 ID → 수신자 ID 리스트
-            Map<Long, List<Long>> notificationIdToUserIds = new HashMap<>();
-            String content = String.format("%s TASK에서 %s님이 회원님을 언급하였습니다.", taskTitle, writerName);
+        if (hasDetails) {
+            List<String> uniqueDetails = commentDTO.getDetails().stream()
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .toList();
+
+            List<Long> detailIdList = workService.selectWorkIdByName(uniqueDetails, taskId);
+            log.info("detailIdList: {}", detailIdList);
             for (Long detailId : detailIdList) {
-                log.info("loop 반복");
-                // 알림 생성
-                Long notificationId = notificationService.createDetailNotification(detailId, content);
-
-                // detailId에 참여 중인 유저 목록 조회
-                List<Long> participantIds = participantQueryService.selectParticipantsList(detailId);
-                log.info("detailId={}, participants={}", detailId, participantIds);
-
-                // 알림 ID와 해당 수신자 리스트를 매핑
-                notificationIdToUserIds.put(notificationId, participantIds);
+                List<Long> participants = participantQueryService.selectParticipantsList(detailId);
+                totalRecipients.addAll(participants);
             }
-
-            // 알림 수신자 등록
-            notificationRecipientsService.createRecipients(notificationIdToUserIds);
         }
 
+        if (notificationId != null && !totalRecipients.isEmpty()) {
+            totalRecipients.remove(userId);
+            notificationRecipientsService.createRecipients(new ArrayList<>(totalRecipients), notificationId);
+        }
 
         /* 설명. 첨부 파일이 있을 때만 로직을 수행하게끔 흐름 조정 */
         if (commentDTO.getAttachmentFile() != null) {
@@ -125,34 +118,37 @@ public class CommentFacadeService {
     public Long deleteComment(Long userId, Long commentId) {;
         Comment comment = commentService.findById(commentId);
 
-        if (comment.getWorkId() == null){
-            throw new BaseException(TASK_NOT_FOUND);
+        /* 설명. 예외처리 순서 -> 본인이 맞는지, 프로젝트에 혹시 이제 참여를 하는지 */
+        if (!comment.getUserId().equals(userId)) {
+            throw new BaseException(ErrorCode.NOT_COMMENT_WRITER);
         }
 
         Long projectId = taskQueryService.getProjectId(comment.getWorkId());
+
         boolean isParticipant = participantQueryService.isParticipant(userId, projectId);
         if (!isParticipant) {
-            throw new BaseException(COMMENT_ACCESS_DENIED);
+            throw new BaseException(ErrorCode.ACCESS_DENIED_PROJECT);
         }
 
-        Long returnCommentId = commentService.updateByDelete(userId, commentId);
-
-        return returnCommentId;
+        return commentService.updateByDelete(userId, comment);
     }
 
     @Transactional
-    public Long modifyComment(RequestModifyCommentDTO reqModify, Long userId, Long commentId) {
+    public Long updateComment(RequestModifyCommentDTO reqModify, Long userId, Long commentId) {
 
         Comment comment = commentService.findById(commentId);
 
-        if (comment.getWorkId() == null){
-            throw new BaseException(TASK_NOT_FOUND);
+
+        /* 설명. 예외처리 순서 -> 본인이 맞는지, 프로젝트에 혹시 이제 참여를 하는지 */
+        if (!comment.getUserId().equals(userId)) {
+            throw new BaseException(ErrorCode.NOT_COMMENT_WRITER);
         }
 
         Long projectId = taskQueryService.getProjectId(comment.getWorkId());
+
         boolean isParticipant = participantQueryService.isParticipant(userId, projectId);
         if (!isParticipant) {
-            throw new BaseException(COMMENT_ACCESS_DENIED);
+            throw new BaseException(ErrorCode.ACCESS_DENIED_PROJECT);
         }
 
         /* 설명. 첨부 파일이 있을 때만 로직을 수행하게끔 흐름 조정 */
@@ -164,22 +160,29 @@ public class CommentFacadeService {
             attachmentCommandService.createAttachmentForComment(attachmentDTO,
                     comment.getWorkId(),
                     userId);
+
+            log.info("첨부파일 업로드 완료");
         }
-        return commentService.updateComment(reqModify, userId, commentId);
+        return commentService.updateComment(reqModify, userId, comment);
     }
 
     @Transactional
     public Long updateCommentByNotice(Long userId, Long commentId) {
         Comment comment = commentService.findById(commentId);
 
-        if (comment.getWorkId() == null){
-            throw new BaseException(TASK_NOT_FOUND);
+        /* 설명. 예외처리 순서 -> 본인이 맞는지, 프로젝트에 혹시 이제 참여를 하는지 */
+
+        if (!comment.getUserId().equals(userId)) {
+            throw new BaseException(ErrorCode.NOT_COMMENT_WRITER);
         }
 
-        boolean isParticipant = participantQueryService.isParticipant(userId, comment.getWorkId());
+        Long projectId = taskQueryService.getProjectId(comment.getWorkId());
+
+        boolean isParticipant = participantQueryService.isParticipant(userId, projectId);
         if (!isParticipant) {
-            throw new BaseException(COMMENT_ACCESS_DENIED);
+            throw new BaseException(ErrorCode.ACCESS_DENIED_PROJECT);
         }
-        return commentService.updateByNotice(userId, commentId);
+
+        return commentService.updateByNotice(userId, comment);
     }
 }
