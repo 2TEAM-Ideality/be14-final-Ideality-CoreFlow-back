@@ -6,10 +6,7 @@ import com.ideality.coreflow.tenant.command.application.service.TenantFacadeServ
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -23,5 +20,11 @@ public class TenantController {
         String schemaName = request.getSchemaName();
         log.info("schemaName={}", schemaName);
         return ResponseEntity.ok(APIResponse.success(tenantFacadeService.createNewTenant(request), schemaName + " 테넌트 생성 완료"));
+    }
+
+    @PostMapping("/delete/{tenantId}")
+    public ResponseEntity<APIResponse<?>> deleteTenant(@PathVariable("tenantId") Long tenantId) {
+        tenantFacadeService.deleteTenant(tenantId);
+        return ResponseEntity.ok(APIResponse.success(null, "테넌트 삭제 완료"));
     }
 }

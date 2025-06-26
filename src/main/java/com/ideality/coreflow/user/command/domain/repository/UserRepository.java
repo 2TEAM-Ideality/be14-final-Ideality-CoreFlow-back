@@ -19,4 +19,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByJobRankNameAndIsResign(String prevName, boolean b);
 
     List<User> findByJobRoleNameAndIsResign(String prevName, boolean b);
+
+    boolean existsByEmployeeNum(String employeeNum);
 }

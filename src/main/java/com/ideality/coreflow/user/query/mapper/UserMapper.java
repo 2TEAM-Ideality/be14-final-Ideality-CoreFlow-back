@@ -19,7 +19,7 @@ public interface UserMapper {
     // 이름으로 회원 조회 (id와 name만 반환)
     List<UserNameIdDto> searchUsersByName(String name);
 
-    List<Long> selectLeadersByDeptName(String deptName);
+    List<Long> selectLeadersByDeptName(Long projectId, String deptName);
 
     String selectDeptNameByUserId(Long userId);
 
