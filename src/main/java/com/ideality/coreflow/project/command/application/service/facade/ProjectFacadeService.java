@@ -206,19 +206,6 @@ public class ProjectFacadeService {
         TemplateDataDTO templateData = request.getTemplateData();
         if (templateData != null){
             applyTemplate(projectId, request.getTemplateData(), participantList);
-//            Map<String, Long> nodeIdToTaskId = new HashMap<>();
-
-//            for(NodeDTO node : templateData.getNodeList()){
-//                Long taskId = createTaskWithDepts(projectId, node);
-//                nodeIdToTaskId.put(node.getId(), taskId);
-//                assignTaskLeaders(taskId, node.getData().getDeptList(), projectLeaders);
-//            }
-//
-//            for (EdgeDTO edge : templateData.getEdgeList()) {
-//                Long sourceId = nodeIdToTaskId.get(edge.getSource());
-//                Long targetId = nodeIdToTaskId.get(edge.getTarget());
-//                relationService.createRelation(sourceId, targetId);
-//            }
         }
         return project;
     }
