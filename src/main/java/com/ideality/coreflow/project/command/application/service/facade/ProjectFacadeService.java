@@ -1,6 +1,5 @@
 package com.ideality.coreflow.project.command.application.service.facade;
 
-import com.ideality.coreflow.approval.command.application.dto.DelayInfoDTO;
 import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalType;
 import com.ideality.coreflow.approval.query.dto.ProjectApprovalDTO;
 import com.ideality.coreflow.approval.query.service.ApprovalQueryService;
@@ -8,7 +7,6 @@ import com.ideality.coreflow.attachment.query.dto.ReportAttachmentDTO;
 import com.ideality.coreflow.attachment.query.service.AttachmentQueryService;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
-import com.ideality.coreflow.holiday.query.dto.HolidayQueryDto;
 import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.notification.command.application.service.NotificationRecipientsService;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
@@ -33,7 +31,6 @@ import com.ideality.coreflow.user.command.application.service.UserService;
 import com.ideality.coreflow.user.command.domain.aggregate.RoleName;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import jakarta.persistence.EntityManager;
@@ -508,6 +505,12 @@ public class ProjectFacadeService {
             // 서비스 메서드에 DTO 전달
             participantService.createAssignee(participants);
             log.info("참여자 설정 완료: {}", participantId);
+        }
+
+        // 참여자들을 태스크와 프로젝트에 등록
+        for (Long participantId : requestDetailDTO.getParticipantIds()) {
+            participantService.addMemberToProject(participantId, requestDetailDTO.getProjectId());
+            participantService.addMemberToTask(participantId, requestDetailDTO.getParentTaskId());
         }
 
         return detailId;
