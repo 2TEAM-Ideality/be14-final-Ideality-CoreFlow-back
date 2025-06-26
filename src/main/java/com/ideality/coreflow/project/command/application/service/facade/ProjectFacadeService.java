@@ -177,6 +177,7 @@ public class ProjectFacadeService {
     //
     @Transactional
     public Project createProject(ProjectCreateRequest request) {
+
         Project project = projectService.createProject(request);
         long roleDirectorId = roleService.findRoleByName(RoleName.DIRECTOR);
         long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER);
