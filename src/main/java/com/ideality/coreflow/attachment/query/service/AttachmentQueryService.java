@@ -1,9 +1,12 @@
 package com.ideality.coreflow.attachment.query.service;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
+import com.ideality.coreflow.attachment.query.dto.AttachmentDownloadDTO;
 import com.ideality.coreflow.attachment.query.dto.ResponseCommentAttachmentDTO;
+import com.ideality.coreflow.infra.s3.S3Service;
 import org.springframework.stereotype.Service;
 
 import com.ideality.coreflow.attachment.command.domain.aggregate.FileTargetType;
@@ -23,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AttachmentQueryService {
 
 	private final AttachmentMapper attachmentMapper;
+	private final S3Service s3Service;
 
 	// TARGET TYPE, TARGET ID 로 URL 가져오기
 	public String getUrl(Long templateId, FileTargetType targetType) {
@@ -52,6 +56,7 @@ public class AttachmentQueryService {
 		return response;
 	}
 
+	/* 설명. 댓글에 올라온 첨부 파일 조회 */
 	public List<ResponseCommentAttachmentDTO> getAttachmentsByTaskId(Long taskId, Long userId) {
 		List<ResponseCommentAttachmentDTO> response = attachmentMapper.selectAttachmentsByTaskId(taskId);
 
@@ -59,6 +64,11 @@ public class AttachmentQueryService {
 			log.warn("첨부파일 조회 실패");
 			throw new BaseException(ErrorCode.ATTCHMENT_NOT_FOUND);
 		}
+
 		return response;
+	}
+
+	public AttachmentDownloadDTO getAttachmentDownload(Long attachmentId) {
+		return attachmentMapper.selectAttachmentInfoForDownload(attachmentId);
 	}
 }

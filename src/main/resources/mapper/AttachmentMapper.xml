@@ -25,6 +25,11 @@
         <result property="deptName" column="dept_name"/>
     </resultMap>
 
+    <resultMap id="AttachmentDownloadMap" type="com.ideality.coreflow.attachment.query.dto.AttachmentDownloadDTO">
+        <result property="url" column="url"/>
+        <result property="originName" column="origin_name"/>
+    </resultMap>
+
     <select id="selectUrl" parameterType="map" resultMap="AttachmentResultMap">
         SELECT
             a.id,
@@ -76,4 +81,12 @@
            AND a.target_type = 'COMMENT'
     </select>
 
+
+    <select id="selectAttachmentInfoForDownload" parameterType="long" resultMap="AttachmentDownloadMap">
+        SELECT
+               url
+             , origin_name
+          FROM attachment
+         WHERE id = #{attachmentId}
+    </select>
 </mapper>
