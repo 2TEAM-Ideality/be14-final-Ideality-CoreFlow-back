@@ -249,8 +249,8 @@ public class ProjectQueryFacadeService {
                 .map(user -> new ResponseInvitableUserDTO(
                         user.getId(),
                         user.getName(),
-                        user.getDeptName(),
                         user.getJobRank(),
+                        user.getDeptName(),
                         user.getProfileImage(),
                         alreadyParticipantUser.contains(user.getId())
                 ))
