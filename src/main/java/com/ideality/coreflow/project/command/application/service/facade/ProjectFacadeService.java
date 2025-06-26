@@ -7,6 +7,7 @@ import com.ideality.coreflow.attachment.query.dto.ReportAttachmentDTO;
 import com.ideality.coreflow.attachment.query.service.AttachmentQueryService;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.notification.command.application.service.NotificationRecipientsService;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
@@ -529,6 +530,12 @@ public class ProjectFacadeService {
             log.info("참여자 설정 완료: {}", participantId);
         }
 
+        // 참여자들을 태스크와 프로젝트에 등록
+        for (Long participantId : requestDetailDTO.getParticipantIds()) {
+            participantService.addMemberToProject(participantId, requestDetailDTO.getProjectId());
+            participantService.addMemberToTask(participantId, requestDetailDTO.getParentTaskId());
+        }
+
         return detailId;
     }
 
@@ -706,7 +713,6 @@ public class ProjectFacadeService {
     }
 
     /* 설명. 디테일 수정 -> 읽기부터 하고 그 다음부터 수정 하나씩 */
-    @Transactional
     public Long updateTaskDetail(RequestModifyTaskDTO requestModifyTaskDTO, Long userId, Long taskId) {
         log.info(requestModifyTaskDTO.toString());
         Long projectId = requestModifyTaskDTO.getProjectId();
