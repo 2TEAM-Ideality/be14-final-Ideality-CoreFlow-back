@@ -2,10 +2,10 @@ package com.ideality.coreflow.project.query.service.facade;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.org.command.application.service.DeptService;
 import com.ideality.coreflow.project.command.application.service.ProjectService;
 import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.application.service.WorkService;
-import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.project.query.dto.CompletedProjectDTO;
 import com.ideality.coreflow.project.query.dto.DepartmentLeaderDTO;
@@ -25,15 +25,12 @@ import com.ideality.coreflow.project.query.service.RelationQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.project.query.service.WorkDeptQueryService;
 import com.ideality.coreflow.project.query.service.WorkQueryService;
+import com.ideality.coreflow.template.query.dto.DeptDTO;
 import com.ideality.coreflow.user.query.dto.AllUserDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 
-import com.sun.jna.platform.win32.Netapi32Util.UserInfo;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,9 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -61,7 +55,6 @@ public class ProjectQueryFacadeService {
     private final WorkDeptQueryService workDeptQueryService;
     private final ProjectQueryService projectQueryService;
     private final ParticipantQueryService participantQueryService;
-    private final TaskService taskService;
     private final WorkService workCommandService;
 
 
@@ -333,5 +326,17 @@ public class ProjectQueryFacadeService {
     // 태스크별 참여자 조회
     public List<ParticipantUserDTO> getTaskParticipant(Long taskId) {
         return participantQueryService.selectParticipantByTaskId(taskId);
+    }
+
+    public List<DeptDTO> getLeaderDept(Long projectId) {
+        List<DepartmentLeaderDTO> leaderList = participantQueryService.selectTeamLeaderByDepartment(projectId);
+        List<String> leaderDeptNames = leaderList.stream().map(DepartmentLeaderDTO::getDeptName).distinct().toList();
+
+        List<DeptDTO> leaderDeptList = new ArrayList<>();
+        for (String deptName : leaderDeptNames) {
+            long deptId = deptQueryService.findDeptIdByName(deptName);
+            leaderDeptList.add(new DeptDTO(deptId, deptName));
+        }
+        return leaderDeptList;
     }
 }

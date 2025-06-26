@@ -340,13 +340,13 @@
 
     <!-- 부서별 참여 프로젝트 목록 조회   -->
     <select id="selectProjectByDeptId" parameterType="long" resultType="com.ideality.coreflow.project.query.dto.ProjectSummaryDTO">
-        SELECT DISTINCT
+        SELECT
             p.id AS id,
             p.name AS name,
             p.status AS status,
             p.start_base AS startDate,
             p.end_base AS endDate,
-            u.name AS director,
+            MAX(u.name) AS director,
             p.progress_rate AS progressRate,
             p.passed_rate AS passedRate,
             p.delay_days AS delayDays
@@ -355,6 +355,7 @@
             JOIN dept d ON u.dept_name = d.name
             JOIN project p ON part.target_type = 'PROJECT' AND part.target_id = p.id
         WHERE d.id = #{deptId}
+        GROUP BY p.id, p.name, p.status, p.start_base, p.end_base, p.progress_rate, p.passed_rate, p.delay_days
     </select>
 
     <select id="findOngoingProjectIdsByUser" parameterType="long" resultType="long">

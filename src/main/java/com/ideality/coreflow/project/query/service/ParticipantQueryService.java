@@ -3,7 +3,7 @@ package com.ideality.coreflow.project.query.service;
 import com.ideality.coreflow.project.command.application.dto.RequestInviteUserDTO;
 
 import com.ideality.coreflow.project.query.dto.*;
-import com.ideality.coreflow.user.query.dto.UserNameIdDto;
+import com.ideality.coreflow.template.query.dto.DeptDTO;
 
 import java.util.List;
 import java.util.Map;
