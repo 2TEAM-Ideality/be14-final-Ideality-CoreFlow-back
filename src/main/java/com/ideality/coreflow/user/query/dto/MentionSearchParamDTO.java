@@ -8,8 +8,9 @@ import lombok.*;
 @Setter
 @ToString
 @EqualsAndHashCode
-public class MentionConditionDTO {
+public class MentionSearchParamDTO {
     private Long projectId;
+    private String keyword;
     private String deptName;
     private String name;
 }

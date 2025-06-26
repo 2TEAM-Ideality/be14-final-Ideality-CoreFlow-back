@@ -25,11 +25,7 @@ public interface UserMapper {
 
     Boolean selectUserById(Long userId);
 
-    List<UserMentionDTO> selectMentionUserByProjectId(Long projectId);
-
-    List<UserMentionDTO> selectMentionUserByMentionInfo(String deptName, String name, Long projectId);
-
-    List<UserMentionDTO> selectMentionUserByKeyword(String keyword, Long projectId);
+//    List<UserMentionDTO> selectMentionUserByKeyword(String keyword, Long projectId);
 
     List<Long> selectUserListByMention(List<MentionConditionDTO> mentionConditionDTOS);
 
@@ -44,4 +40,6 @@ public interface UserMapper {
     List<String> selectDeptNamesByProjectId(Long projectId);
 
     List<UserNameIdDto> getUsersByDept(String deptName);
+
+    List<UserMentionDTO> selectMentionUserByKeyword(MentionSearchParamDTO mentionSearchParamDTO);
 }

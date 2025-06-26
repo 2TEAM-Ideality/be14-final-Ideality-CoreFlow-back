@@ -136,34 +136,9 @@
           JOIN participant b ON a.id = b.user_id
     </select>
 
-    <select id="selectMentionUserByProjectId" parameterType="map" resultMap="userMentionMap">
-        SELECT a.id
-        , a.name
-        , a.dept_name
-        FROM user a
-        JOIN participant b ON a.id = b.user_id
-        WHERE b.target_id = #{projectId}
-        AND b.target_type = 'PROJECT'
-    </select>
-
-    <select id="selectMentionUserByMentionInfo" parameterType="map" resultMap="userMentionMap">
-        SELECT
-               a.id
-             , a.name
-             , a.dept_name
-          FROM user a
-          JOIN participant b ON a.id = b.user_id
-         WHERE b.target_id = #{projectId}
-           AND b.target_type = 'PROJECT'
-        <if test="deptName != null and deptName != ''">
-            AND a.dept_name LIKE CONCAT('%', #{deptName}, '%')
-        </if>
-        <if test="name != null and name != ''">
-            AND a.name LIKE CONCAT('%', #{name}, '%')
-        </if>
-    </select>
-
-    <select id="selectMentionUserByKeyword" parameterType="map" resultMap="userMentionMap">
+    <select id="selectMentionUserByKeyword"
+            parameterType="com.ideality.coreflow.user.query.dto.MentionSearchParamDTO"
+            resultMap="userMentionMap">
         SELECT
         a.id,
         a.name,
@@ -172,7 +147,23 @@
         JOIN participant b ON a.id = b.user_id
         WHERE b.target_id = #{projectId}
         AND b.target_type = 'PROJECT'
-        AND CONCAT_WS('_', a.dept_name, a.job_rank_name, a.name) LIKE CONCAT('%', #{keyword}, '%')
+
+        <!-- 정확 매칭 우선 -->
+        <if test="deptName != null and deptName != '' and name != null and name != ''">
+            AND a.dept_name = #{deptName}
+            AND a.name LIKE CONCAT('%', #{name}, '%')
+        </if>
+
+        <!-- keyword fallback -->
+        <if test="(deptName == null or deptName == '')
+              and (name == null or name == '')
+              and keyword != null and keyword != ''">
+            AND (
+            a.name LIKE CONCAT('%', #{keyword}, '%')
+            OR a.dept_name LIKE CONCAT('%', #{keyword}, '%')
+            OR CONCAT(a.dept_name, '_', a.name) LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
     </select>
 
     <select id="selectUserListByMention" parameterType="list" resultType="long">
@@ -180,19 +171,17 @@
         FROM user a
         JOIN participant b ON a.id = b.user_id
         WHERE b.target_type = 'PROJECT'
-          AND b.target_id = #{projectId}
-        <if test="list != null and list.size() > 0">
-            AND (
-            <foreach collection="list" item="cond" separator="OR">
-                (
-                a.dept_name LIKE CONCAT('%', #{cond.deptName}, '%')
-                <if test="cond.name != null and cond.name != ''">
-                    AND a.name LIKE CONCAT('%', #{cond.name}, '%')
-                </if>
-                )
-            </foreach>
+        AND (
+        <foreach collection="list" item="cond" separator="OR">
+            (
+            b.target_id = #{cond.projectId}
+            AND a.dept_name = #{cond.deptName}
+            <if test="cond.name != null and cond.name != ''">
+                AND a.name = #{cond.name}
+            </if>
             )
-        </if>
+        </foreach>
+        )
     </select>
 
     <select id="selectUserNameById" resultType="string">
@@ -212,13 +201,16 @@
           FROM user
     </select>
 
+    <!-- 팀 또한 검색어 없어도 모든 팀 조회되게 하기 -->
     <select id="selectDeptNameByMentionInfo" parameterType="map" resultType="string">
         SELECT DISTINCT a.dept_name
         FROM user a
         JOIN participant b ON a.id = b.user_id
         WHERE b.target_type = 'PROJECT'
         AND b.target_id = #{projectId}
-        AND a.dept_name LIKE CONCAT('%', #{mentionTarget}, '%')
+        <if test="mentionTarget != null and mentionTarget != ''">
+            AND a.dept_name LIKE CONCAT('%', #{mentionTarget}, '%')
+        </if>
     </select>
 
     <select id="selectDeptNamesByProjectId" parameterType="map" resultType="string">
