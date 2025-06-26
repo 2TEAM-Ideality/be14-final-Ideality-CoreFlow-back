@@ -12,6 +12,7 @@ import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.project.command.application.dto.RequestInviteUserDTO;
 import com.ideality.coreflow.project.query.mapper.ParticipantMapper;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
+import com.ideality.coreflow.template.query.dto.DeptDTO;
 import com.ideality.coreflow.user.query.dto.UserNameIdDto;
 import java.util.Objects;
 import java.util.Set;

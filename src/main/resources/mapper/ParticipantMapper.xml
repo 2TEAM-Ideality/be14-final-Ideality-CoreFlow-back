@@ -31,6 +31,31 @@
         <result property="jobRoleName" column="JOB_ROLE_NAME" />
     </resultMap>
 
+    <resultMap id="LeaderDeptListMap" type="com.ideality.coreflow.template.query.dto.DeptDTO">
+        <id property="id" column="DEPT_ID"/>
+        <result property="name" column="DEPT_NAME"/>
+    </resultMap>
+
+    <select id="selectLeaderDept" resultMap="LeaderDeptListMap">
+        SELECT
+        u.deptName
+        FROM participant p
+        LEFT JOIN role r ON p.role_id = r.id
+        LEFT JOIN user u ON p.user_id = u.id
+        WHERE p.target_type = 'PROJECT'
+        AND p.target_id = #{projectId}
+    </select>
+
+    <select id="selectLeaderDept" resultMap="LeaderDeptListMap">
+        SELECT
+               u.deptName
+          FROM participant p
+          LEFT JOIN role r ON p.role_id = r.id
+          LEFT JOIN user u ON p.user_id = u.id
+         WHERE p.target_type = 'PROJECT'
+           AND p.target_id = #{projectId}
+    </select>
+
     <select id="selectAllUserByProjectIds" resultMap="ParticipantByProjectIds">
         SELECT
                u.id AS USER_ID

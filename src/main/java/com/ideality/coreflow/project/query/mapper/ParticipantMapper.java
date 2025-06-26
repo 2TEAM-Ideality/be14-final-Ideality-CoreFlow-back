@@ -5,6 +5,7 @@ import com.ideality.coreflow.project.query.dto.ParticipantDepartmentDTO;
 import com.ideality.coreflow.project.query.dto.ParticipantUserDTO;
 import com.ideality.coreflow.project.query.dto.ResponseParticipantDTO;
 import com.ideality.coreflow.project.query.dto.UserInfoDTO;
+import com.ideality.coreflow.template.query.dto.DeptDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -50,4 +51,6 @@ public interface ParticipantMapper {
     List<UserInfoDTO> selectAllUserByProjectId(Long projectId);
 
     List<ParticipantUserDTO> selectParticipantByTaskId(Long taskId);
+
+    List<DeptDTO> selectLeaderDept(Long projectId);
 }
