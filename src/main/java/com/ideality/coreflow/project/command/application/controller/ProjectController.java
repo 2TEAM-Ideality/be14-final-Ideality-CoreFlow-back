@@ -1,5 +1,7 @@
 package com.ideality.coreflow.project.command.application.controller;
 
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.project.command.application.dto.RequestInviteUserDTO;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
@@ -9,11 +11,13 @@ import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -36,6 +40,14 @@ public class ProjectController {
 
     @PostMapping
     public ResponseEntity<APIResponse<?>> createProject(@RequestBody ProjectCreateRequest request) {
+        List<String> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+        log.info("역할: {}", roles);
+        if (!roles.contains("CREATOR")) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED);
+        }
         log.info("Create project request: {}", request.toString());
         Project result = projectFacadeService.createProject(request);
         return ResponseEntity.ok(APIResponse.success(result, result.getId()+"번 프로젝트 생성 완료"));
