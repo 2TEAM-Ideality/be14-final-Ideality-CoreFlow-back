@@ -176,7 +176,9 @@ public class TaskServiceImpl implements TaskService {
         Work modifyTask =
                 workRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
 
-        modifyTask.updateTaskDetail(requestModifyTaskDTO.getDescription(),
+        modifyTask.updateTaskDetail(
+                requestModifyTaskDTO.getTaskName(),
+                requestModifyTaskDTO.getDescription(),
                 requestModifyTaskDTO.getStartExpect(),
                 requestModifyTaskDTO.getEndExpect());
         return modifyTask.getId();

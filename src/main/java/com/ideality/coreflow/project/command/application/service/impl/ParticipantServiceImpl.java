@@ -21,6 +21,7 @@ public class ParticipantServiceImpl implements ParticipantService {
     private final ParticipantRepository participantRepository;
 
     @Override
+
     public void createParticipants(ParticipantDTO taskParticipant) {
         Participant participant = Participant.builder()
                 .targetType(taskParticipant.getTargetType())
@@ -98,5 +99,33 @@ public class ParticipantServiceImpl implements ParticipantService {
     @Override
     public boolean isParticipant(long targetId, long userId, TargetType targetType) {
         return participantRepository.existsByTargetIdAndUserIdAndTargetType(targetId, userId, targetType);
+    }
+
+    @Override
+    public void addMemberToProject(Long participantId, Long projectId) {
+        if(isParticipant(projectId, participantId, TargetType.PROJECT)) {
+            return;
+        }else {
+            createParticipants(ParticipantDTO.builder()
+                                .targetId(projectId)
+                                .targetType(TargetType.PROJECT)
+                                .userId(participantId)
+                                .roleId(3L)
+                                .build());
+        }
+    }
+
+    @Override
+    public void addMemberToTask(Long participantId, Long parentTaskId) {
+        if(isParticipant(parentTaskId, participantId, TargetType.TASK)) {
+            return;
+        }else{
+            createParticipants(ParticipantDTO.builder()
+                                .targetId(parentTaskId)
+                                .targetType(TargetType.TASK)
+                                .userId(participantId)
+                                .roleId(3L)
+                                .build());
+        }
     }
 }

@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -183,6 +184,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseInitialAdmin createInitialAdmin(String schemaName) {
+        log.info("관리자 생성");
+        log.info("테넌트:{}", TenantContext.getTenant());
+        TenantContext.setTenant(schemaName);
+        log.info("테넌트:{}", TenantContext.getTenant());
+
 
         User user = User.builder()
                 .employeeNum("admin_"+schemaName)
@@ -197,10 +203,10 @@ public class UserServiceImpl implements UserService {
                 .jobRoleName("admin")
                 .build();
 
-        long userId = userRepository.save(user).getId();
+        userRepository.save(user);
 
         return ResponseInitialAdmin.builder()
-                .id(userId)
+                .id(user.getId())
                 .employeeNum(user.getEmployeeNum())
                 .password(user.getPassword())
                 .schemaName(schemaName)

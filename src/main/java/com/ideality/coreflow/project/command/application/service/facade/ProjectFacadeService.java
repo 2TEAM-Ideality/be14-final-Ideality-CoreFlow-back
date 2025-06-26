@@ -8,6 +8,7 @@ import com.ideality.coreflow.attachment.query.service.AttachmentQueryService;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
+import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.notification.command.application.service.NotificationRecipientsService;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
 import com.ideality.coreflow.notification.command.domain.aggregate.NotificationTargetType;
@@ -26,6 +27,8 @@ import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import com.ideality.coreflow.template.query.dto.NodeDTO;
 import com.ideality.coreflow.template.query.dto.TemplateDataDTO;
 import com.ideality.coreflow.template.query.dto.NodeDataDTO;
+import com.ideality.coreflow.tenant.query.dto.ResponseSchemaInfo;
+import com.ideality.coreflow.tenant.query.service.TenantQueryService;
 import com.ideality.coreflow.user.command.application.service.RoleService;
 import com.ideality.coreflow.user.command.application.service.UserService;
 import com.ideality.coreflow.user.command.domain.aggregate.RoleName;
@@ -33,11 +36,10 @@ import com.ideality.coreflow.user.query.service.UserQueryService;
 import java.time.LocalDate;
 import java.util.*;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,47 +75,37 @@ public class ProjectFacadeService {
     private final ApprovalQueryService approvalQueryService;
     private final WorkService workService;
     private final WorkQueryService workQueryService;
-    private final HolidayQueryService holidayQueryService;
-    private final RelationQueryService relationQueryService;
     private final RoleService roleService;
     private final WorkDomainService workDomainService;
-
-    @PersistenceContext
-    private EntityManager em;
-
+    private final TenantQueryService tenantQueryService;
 
     @Transactional
-    public Double updateProgressRateCascade(Long taskId) {
+    public void updateProgressRateCascade(Long taskId) {
         // 태스크 진척률 계산 및 업데이트
-        double taskProgress = updateProgressRate(taskId);
+        updateProgressRate(taskId);
 
         // 해당 태스크가 속한 프로젝트의 진척률도 함께 갱신
         long projectId = workService.findProjectIdByTaskId(taskId);
         updateProjectProgressRate(projectId);
-
-        return taskProgress;
     }
 
     // 추후 private로
-    @Transactional
-    public double updateProgressRate(Long taskId) {
+    private void updateProgressRate(Long taskId) {
         List<WorkProgressDTO> detailList = workQueryService.getDetailProgressByTaskId(taskId);
         double progress = workDomainService.calculateProgressRate(detailList);
         taskService.updateProgressRate(taskId, progress);
-        return progress;
     }
 
     // 추후 private
-    @Transactional
-    public double updateProjectProgressRate(Long projectId) {
+    private void updateProjectProgressRate(Long projectId) {
         List<WorkProgressDTO> taskList = taskQueryService.getTaskProgressByProjectId(projectId);
         double progress = workDomainService.calculateProgressRate(taskList);
-        return projectService.updateProjectProgress(projectId, progress);
+        projectService.updateProjectProgress(projectId, progress);
     }
 
-    //
     @Transactional
     public Double updatePassedRate(Long targetId, TargetType type) {
+        log.info("경과율 업데이트");
         DateInfoDTO dateInfo;
 
         if (type == TargetType.PROJECT) {
@@ -130,6 +122,27 @@ public class ProjectFacadeService {
         } else {
             return workService.updatePassedRate(targetId, passedRate);
         }
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void runUpdatePassedRateForAllTenants() {
+        List<String> schemaNames = tenantQueryService.findAllTenant().stream().map(ResponseSchemaInfo::getSchemaName).filter(schema -> !"master".equalsIgnoreCase(schema)) .toList();
+        log.info("schemaNames: {}", schemaNames);
+
+        for (String schemaName : schemaNames) {
+            try {
+                TenantContext.setTenant(schemaName); // <- 현재 테넌트 설정
+                log.info("▶ 테넌트 전환: {}", schemaName);
+
+                updateAllPassedRates(); // 내부에서 프로젝트/작업 경과율 업데이트
+            } catch (Exception e) {
+                log.error("❌ 테넌트 {} 처리 중 오류: {}", schemaName, e.getMessage(), e);
+            } finally {
+                TenantContext.clear(); // 반드시 클리어
+            }
+        }
+
+        log.info("✅ 모든 테넌트에 대해 스케줄 작업 완료");
     }
 
     @Transactional
@@ -332,7 +345,7 @@ public class ProjectFacadeService {
 
         /* 설명. “읽기-쓰기 분리 전략”
          *  중복 select를 방지하기 위해 읽기부터
-        * */
+         * */
 
         boolean isParticipant = participantQueryService.isParticipant(userId, requestTaskDTO.getProjectId());
 
@@ -340,14 +353,20 @@ public class ProjectFacadeService {
             throw new BaseException(ErrorCode.ACCESS_DENIED);
         }
 
-        Map<Long, String> deptIdMap = requestTaskDTO.getDeptList().stream()
-                        .collect
-                        (Collectors.toMap(id -> id, deptQueryService::findNameById));
-        log.info("부서 조회 끝");
-        List<String> deptNames = deptIdMap.values().stream().distinct().toList();
+        Long projectId = requestTaskDTO.getProjectId();
 
-        Map<String, List<Long>> deptLeaderMaps = deptNames.stream()
-                .collect(Collectors.toMap(name -> name, userQueryService::selectLeadersByDeptName));
+        Map<Long, String> deptIdMap = requestTaskDTO.getDeptList().stream()
+                .collect
+                        (Collectors.toMap(id -> id, deptQueryService::findNameById));
+        log.info("부서 조회 끝{}", deptIdMap);
+        List<String> deptNames = deptIdMap.values().stream().distinct().toList();
+        log.info("deptNames: {}", deptNames);
+
+        // deptName으로 해당 프로젝트에 참여한 팀의 팀장 id를 가져옴
+        List<Long> deptLeaderIds = deptNames.stream()
+                .flatMap(deptName -> userQueryService.selectLeadersByDeptName(projectId, deptName).stream())
+                .toList();
+
 
         Long directorId = participantQueryService.selectDirectorByProjectId(requestTaskDTO.getProjectId());
 
@@ -375,37 +394,41 @@ public class ProjectFacadeService {
 
         // ✅ 5. 쓰기 작업 (deptId 기준)
         for (Long deptId : requestTaskDTO.getDeptList()) {
-            String deptName = deptIdMap.get(deptId);
+//            String deptName = deptIdMap.get(deptId);
 
             workDeptService.createWorkDept(taskId, deptId);
             log.info("작업 별 참여 부서 생성 완료");
-
-            List<Long> newParticipantsIds = deptUsersMaps.get(deptName);
-            List<Long> leaderIds = deptLeaderMaps.get(deptName);
-            long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER);
-            long roleTeamMemberId = roleService.findRoleByName(RoleName.TEAM_MEMBER);
-            // ✅ 1. 팀장 먼저 등록
-            List<ParticipantDTO> leaderParticipants = leaderIds.stream()
-                    .map(leaderId -> new ParticipantDTO(taskId, leaderId, TargetType.TASK, roleTeamLeaderId))
-                    .toList();
-            for (ParticipantDTO leader : leaderParticipants) {
-                participantService.createParticipants(leader);
-                participantNotification(leader);
-            }
-            log.info("팀장 등록 완료");
-
-            // ✅ 2. 팀원 등록 (디렉터 & 팀장 제외)
-            List<ParticipantDTO> teamParticipants = newParticipantsIds.stream()
-                    .filter(participantUserId -> !leaderIds.contains(userId))       // 팀장 제외
-                    .filter(participantUserId -> !userId.equals(directorId))        // 디렉터 제외
-                    .map(participantUserId -> new ParticipantDTO(taskId, userId, TargetType.TASK, roleTeamMemberId))
-                    .toList();
-            for (ParticipantDTO teamParticipant : teamParticipants) {
-                participantService.createParticipants(teamParticipant);
-                participantNotification(teamParticipant);
-            }
-            log.info("팀원 등록 완료");
         }
+
+//            List<Long> newParticipantsIds = deptUsersMaps.get(deptName);
+
+        log.info("팀장 ids: {}", deptLeaderIds);
+        long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER);
+        long roleTeamMemberId = roleService.findRoleByName(RoleName.TEAM_MEMBER);
+        // ✅ 1. 팀장 먼저 등록
+        List<ParticipantDTO> leaderParticipants = deptLeaderIds.stream()
+                .map(leaderId -> new ParticipantDTO(taskId, leaderId, TargetType.TASK, roleTeamLeaderId))
+                .toList();
+        log.info("팀장 목록: {}", leaderParticipants);
+        for (ParticipantDTO leader : leaderParticipants) {
+            participantService.createParticipants(leader);
+            participantNotification(leader);
+        }
+        log.info("팀장 등록 완료");
+
+//            // ✅ 2. 팀원 등록 (디렉터 & 팀장 제외)
+//            List<ParticipantDTO> teamParticipants = newParticipantsIds.stream()
+//                    .filter(participantUserId -> !leaderIds.contains(userId))       // 팀장 제외
+//                    .filter(participantUserId -> !userId.equals(directorId))        // 디렉터 제외
+//                    .map(participantUserId -> new ParticipantDTO(taskId, userId, TargetType.TASK, roleTeamMemberId))
+//                    .toList();
+//            log.info("팀원 목록: {}", teamParticipants);
+//            for (ParticipantDTO teamParticipant : teamParticipants) {
+//                participantService.createParticipants(teamParticipant);
+//                participantNotification(teamParticipant);
+//            }
+//            log.info("팀원 등록 완료");
+//        }
         return taskId;
     }
 
@@ -505,6 +528,12 @@ public class ProjectFacadeService {
             // 서비스 메서드에 DTO 전달
             participantService.createAssignee(participants);
             log.info("참여자 설정 완료: {}", participantId);
+        }
+
+        // 참여자들을 태스크와 프로젝트에 등록
+        for (Long participantId : requestDetailDTO.getParticipantIds()) {
+            participantService.addMemberToProject(participantId, requestDetailDTO.getProjectId());
+            participantService.addMemberToTask(participantId, requestDetailDTO.getParentTaskId());
         }
 
         return detailId;
@@ -757,5 +786,21 @@ public class ProjectFacadeService {
         Boolean warning = taskQueryService.checkTaskWarning(taskId);    // task 예상 마감일과 하위 세부일정 예상 마감일 비교
         taskService.setTaskWarning(taskId, warning);                    // task warning 상태 저장
         return warning?"warning 설정됨":"warning 해제됨";
+    }
+
+    public void updateTaskRelation(Long userId, List<RequestRelationUpdateDTO> requestRelationUpdateDTO) {
+
+        /* 설명. 공통 프로젝트 Id 추출 */
+        Long projectId = requestRelationUpdateDTO.get(0).getProjectId();
+
+
+        /* 설명. 해당 프로젝트의 권한이 있는지 검사를 수행 */
+        boolean isAboveTeamLeader = participantQueryService.isAboveTeamLeader(userId, projectId);
+        if (!isAboveTeamLeader) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED_TEAMLEADER);
+        }
+
+        /* 설명. 선행 일정, 후행 일정 삭제를 한번에 위임 */
+        relationService.updateRelationList(requestRelationUpdateDTO);
     }
 }

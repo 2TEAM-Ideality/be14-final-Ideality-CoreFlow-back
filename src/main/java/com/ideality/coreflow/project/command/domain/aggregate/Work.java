@@ -98,7 +98,8 @@ public class Work {
 		this.status = Status.DELETED;
 	}
 
-    public void updateTaskDetail(String description, LocalDate startExpect, LocalDate endExpect) {
+    public void updateTaskDetail(String taskName, String description, LocalDate startExpect, LocalDate endExpect) {
+		this.name = taskName;
 		this.description = description;
 		this.startExpect = startExpect;
 		this.endExpect = endExpect;

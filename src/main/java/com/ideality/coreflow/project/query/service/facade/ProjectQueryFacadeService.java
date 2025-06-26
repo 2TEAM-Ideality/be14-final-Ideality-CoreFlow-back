@@ -77,17 +77,16 @@ public class ProjectQueryFacadeService {
                     .build();
         }
 
-        LocalDate today = LocalDate.now();
-        List<WorkDueTodayDTO> works = taskQueryService.getWorksDueToday(projectIds);
+        List<WorkDueTodayDTO> works = taskQueryService.getWorksDueToday(projectIds, userId);
 
         List<WorkSummaryDTO> tasks = works.stream()
                 .filter(w -> "TASK".equals(w.getType()))
-                .map(w -> new WorkSummaryDTO(w.getWorkId(), w.getName()))
+                .map(w -> new WorkSummaryDTO(w.getWorkId(), null,w.getName()))
                 .toList();
 
         List<WorkSummaryDTO> subtasks = works.stream()
                 .filter(w -> "SUBTASK".equals(w.getType()))
-                .map(w -> new WorkSummaryDTO(w.getWorkId(), w.getName()))
+                .map(w -> new WorkSummaryDTO(w.getWorkId(), w.getParentTaskId(),w.getName()))
                 .toList();
 
         return TaskSummaryResponse.builder()
@@ -175,6 +174,10 @@ public class ProjectQueryFacadeService {
                 taskQueryService.selectTaskInfo(taskId);
 
         log.info("selectTaskInfo: {}", selectTask);
+
+        /* 설명: 마감 임박 세부일정 갯수 조회*/
+        Long nearDueSubtaskCount = taskQueryService.getNearDueSubtaskCount(taskId);
+        selectTask.setNearDueSubtaskCount(nearDueSubtaskCount);
 
         /* 설명. 관계 조회 */
         relationQueryService.selectPrevRelation(taskId, selectTask);

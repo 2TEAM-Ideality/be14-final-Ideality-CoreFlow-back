@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 public class WorkDueTodayDTO {
     private Long workId;
     private String name;
+    private Long parentTaskId;
     private String type; // TASK or SUBTASK
 }

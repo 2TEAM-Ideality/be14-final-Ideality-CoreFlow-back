@@ -1,5 +1,7 @@
 package com.ideality.coreflow.project.command.application.service;
 
+import com.ideality.coreflow.project.command.application.dto.RequestRelationUpdateDTO;
+
 import java.util.List;
 
 public interface RelationService {
@@ -17,4 +19,6 @@ public interface RelationService {
     void deleteByNextWorkId(Long taskId);
 
     void deleteByPrevWorkId(Long taskId);
+
+    void updateRelationList(List<RequestRelationUpdateDTO> requestRelationUpdateDTO);
 }

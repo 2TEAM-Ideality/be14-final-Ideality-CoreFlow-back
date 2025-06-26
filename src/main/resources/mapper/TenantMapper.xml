@@ -17,6 +17,7 @@
              , em.company_name AS COMPANY_NAME
              , em.company_schema AS SCHEMA_NAME
           FROM erp_master em
+         WHERE em.company_name != 'erp_master'
          ORDER BY ID DESC
     </select>
 </mapper>
