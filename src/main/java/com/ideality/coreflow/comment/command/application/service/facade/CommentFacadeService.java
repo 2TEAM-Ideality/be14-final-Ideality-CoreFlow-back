@@ -108,7 +108,7 @@ public class CommentFacadeService {
 
             CreateAttachmentDTO attachmentDTO = new CreateAttachmentDTO(uploadResult);
             attachmentCommandService.createAttachmentForComment(attachmentDTO,
-                    taskId,
+                    commentId,
                     userId);
         }
         return commentId;

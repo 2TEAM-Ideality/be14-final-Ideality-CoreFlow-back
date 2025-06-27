@@ -7,19 +7,26 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.UUID;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class S3Service {
-    @Autowired
-    private AmazonS3 amazonS3Client;
+    private final AmazonS3 amazonS3Client;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
@@ -27,7 +34,7 @@ public class S3Service {
     /* 설명. 프로필 이미지 만들기 */
     public String uploadImage(MultipartFile file, String folder) {
         /* 설명. uuid로 파일명을 충돌나지 않게 수정 */
-        String fileName = generateFileName(file);           // uuid.jpg
+        String fileName = generateFileName();           // uuid.jpg
         String key = generateKey(fileName, folder);          // profile-image/uuid.jpg
         try {
             ObjectMetadata metadata = new ObjectMetadata();
@@ -44,8 +51,9 @@ public class S3Service {
         }
     }
 
-    public String generateFileName(MultipartFile file) {
-        return UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+    /* 설명. 한글이 들어가면 presigned-url을 써도 깨지게 되는 문제 발생(uuid로만) */
+    public String generateFileName() {
+        return UUID.randomUUID().toString();
     }
 
     private String generateKey(String fileName, String folder) {
@@ -86,7 +94,7 @@ public class S3Service {
     }
 
     // S3 URL → key 추출 (경로만)
-    private String extractS3KeyFromUrl(String url) {
+    public String extractS3KeyFromUrl(String url) {
         if (url == null || !url.contains(".com/")) {
             throw new IllegalArgumentException("S3 URL 형식이 잘못되었습니다: " + url);
         }
@@ -95,18 +103,24 @@ public class S3Service {
 
     /* 설명. 결재 서류 + 댓글 파일용 업로더 */
     public UploadFileResult uploadFile(MultipartFile file, String folder) {
-        /* 설명. uuid로 파일명을 충돌나지 않게 수정 */
-        String originName = file.getOriginalFilename();
-        String storedName = generateFileName(file);           // uuid.jpg
-        String key = generateKey(storedName, folder);          // profile-image/uuid.jpg
+        String originName = file.getOriginalFilename();             // 원본 파일명
+        String storedName = generateFileName();                     // UUID 저장용 파일명
+        String key = generateKey(storedName, folder);               // ex) comment-docs/uuid
+
         try {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(file.getContentType());
             metadata.setContentLength(file.getSize());
 
+            // ✅ 다운로드 시 원본 파일명으로 내려받게 설정
+            String encodedFileName = java.net.URLEncoder.encode(originName, StandardCharsets.UTF_8)
+                    .replaceAll("\\+", "%20"); // 공백 처리
+            metadata.setContentDisposition("attachment; filename*=UTF-8''" + encodedFileName);
+
             amazonS3Client.putObject(
                     new PutObjectRequest(bucketName, key, file.getInputStream(), metadata)
             );
+
             String url = amazonS3Client.getUrl(bucketName, key).toString();
 
             return new UploadFileResult(
@@ -118,6 +132,16 @@ public class S3Service {
             );
         } catch (IOException e) {
             throw new RuntimeException("파일 업로드 실패", e);
+        }
+    }
+
+    public byte[] getFileBytes(String key) {
+        try {
+            var s3Object = amazonS3Client.getObject(bucketName, key);
+            return s3Object.getObjectContent().readAllBytes();
+        } catch (IOException e) {
+            log.error("파일 다운로드 실패 - key: {}", key, e);
+            throw new RuntimeException("파일 다운로드 실패", e);
         }
     }
 }

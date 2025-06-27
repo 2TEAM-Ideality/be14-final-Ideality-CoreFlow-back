@@ -72,4 +72,11 @@
         AND a.type = 'NOTICE'
         AND a.is_notice = true
     </select>
+
+    <select id="selectAllComments" parameterType="long">
+        SELECT
+               id
+          FROM comment
+         WHERE work_id = #{taskId}
+    </select>
 </mapper>

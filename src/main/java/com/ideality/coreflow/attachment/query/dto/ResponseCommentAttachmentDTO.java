@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 public class ResponseCommentAttachmentDTO {
     private Long attachmentId;
     private String originName;
-    private String url;
     private String fileType;
     private LocalDateTime uploadAt;
     private Long userId;
