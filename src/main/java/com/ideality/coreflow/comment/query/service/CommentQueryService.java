@@ -11,4 +11,6 @@ public interface CommentQueryService {
     ResponseCommentForModifyDTO selectComment(Long commentId, Long userId);
 
     List<SelectCommentDTO> selectNotices(Long taskId);
+
+    List<Long> selectAllCommentsByAttachment(Long taskId);
 }

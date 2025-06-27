@@ -350,3 +350,4 @@ INSERT INTO delay_reason (reason) VALUES
                                       ('외주 업체 문제'),
                                       ('의사 결정 지연'),
                                       ('기타');
+commit;
