@@ -97,21 +97,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(RequestUpdateProfile req) {
-        User user = userRepository.findById(req.getId()).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
+    public void updateUser(UserInfoDTO updateUserInfo) {
+        User user = userRepository.findById(updateUserInfo.getId()).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
 
-        // 기존 이미지 삭제
-        if (user.getProfileImage() != null) {
-            s3Service.deleteFileByUrl(user.getProfileImage());
-        }
+        user.updateFrom(updateUserInfo);
 
-        // 새 이미지 업로드
-        String imageUrl = s3Service.uploadImage(req.getProfileImage(), "profile-image");
-
-        // 유저 엔티티 수정
-        user.updateProfileImage(imageUrl);
         userRepository.save(user);
     }
+
 
     @Override
     public String findPwdById(long id) {
@@ -222,5 +215,23 @@ public class UserServiceImpl implements UserService {
                 .password(user.getPassword())
                 .schemaName(schemaName)
                 .build();
+    }
+
+    /* 설명. S3 파일 업로드 */
+    @Override
+    public void udpateProfileImage(RequestUpdateProfile req) {
+        User user = userRepository.findById(req.getId()).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
+
+        // 기존 이미지 삭제
+        if (user.getProfileImage() != null) {
+            s3Service.deleteFileByUrl(user.getProfileImage());
+        }
+
+        // 새 이미지 업로드
+        String imageUrl = s3Service.uploadImage(req.getProfileImage(), "profile-image");
+
+        // 유저 엔티티 수정
+        user.updateProfileImage(imageUrl);
+        userRepository.save(user);
     }
 }

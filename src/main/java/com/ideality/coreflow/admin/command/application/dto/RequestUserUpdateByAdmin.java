@@ -15,7 +15,7 @@ public class RequestUserUpdateByAdmin {
     LocalDate hireDate;
     Boolean isResign;
     LocalDate resignDate;
-    MultipartFile profileImage;
+    String profileImage;
     String deptName;
     String jobRankName;
     String jobRoleName;

@@ -18,7 +18,7 @@ public interface UserService {
 
     String findEmployeeNumById(Long userId);
 
-    void updateUser(RequestUpdateProfile updateUserInfo);
+    void updateUser(UserInfoDTO updateUserInfo);
 
     String findPwdById(long id);
 
@@ -35,4 +35,6 @@ public interface UserService {
     void existsUserId(List<Long> leaderUserIds);
 
     ResponseInitialAdmin createInitialAdmin(String schemaName);
+
+    void udpateProfileImage(RequestUpdateProfile req);
 }

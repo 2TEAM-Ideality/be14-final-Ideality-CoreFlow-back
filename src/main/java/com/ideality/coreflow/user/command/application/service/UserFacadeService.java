@@ -19,7 +19,7 @@ public class UserFacadeService {
 
     @Transactional
     public void modifyUserProfileImg(RequestUpdateProfile req) {
-        userService.updateUser(req);
+        userService.udpateProfileImage(req);
     }
 
     @Transactional

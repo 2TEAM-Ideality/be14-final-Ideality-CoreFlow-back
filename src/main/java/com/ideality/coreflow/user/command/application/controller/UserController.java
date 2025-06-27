@@ -20,10 +20,7 @@ public class UserController {
     private final UserFacadeService userFacadeService;
 
     @PatchMapping("/update-profile")
-    public ResponseEntity<APIResponse<?>> modifyUserProfileImg(@RequestBody RequestUpdateProfile request) {
-//        UserInfoDTO userInfoDTO = UserInfoDTO.builder()
-//                .id(request.getId())
-//                .profileImage(request.getProfileImage()).build();
+    public ResponseEntity<APIResponse<?>> modifyUserProfileImg(@ModelAttribute RequestUpdateProfile request) {
         userFacadeService.modifyUserProfileImg(request);
 
         return ResponseEntity.ok(APIResponse.success(null, "프로필 사진 변경 완료"));
