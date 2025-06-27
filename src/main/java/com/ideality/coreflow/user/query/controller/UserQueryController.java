@@ -22,7 +22,7 @@ public class UserQueryController {
     @GetMapping("/name")
     public APIResponse<List<UserNameIdDto>> searchUsersByName(@RequestParam String name) {
         List<UserNameIdDto> users = userService.searchUsersByName(name);
-        return APIResponse.success(users, "@user이름으로 조회 완료");  // 성공 응답 생성
+        return APIResponse.success(users, "user 이름으로 조회 완료");  // 성공 응답 생성
     }
 
     // 구성원 목록 조회용

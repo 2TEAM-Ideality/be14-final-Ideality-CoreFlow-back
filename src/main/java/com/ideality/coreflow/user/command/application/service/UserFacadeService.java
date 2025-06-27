@@ -18,8 +18,8 @@ public class UserFacadeService {
     private final UserQueryService userQueryService;
 
     @Transactional
-    public void modifyUserProfileImg(RequestUpdateProfile req) {
-        userService.udpateProfileImage(req);
+    public String modifyUserProfileImg(RequestUpdateProfile req) {
+        return userService.udpateProfileImage(req);
     }
 
     @Transactional

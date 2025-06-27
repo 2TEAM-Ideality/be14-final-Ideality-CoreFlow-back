@@ -36,5 +36,5 @@ public interface UserService {
 
     ResponseInitialAdmin createInitialAdmin(String schemaName);
 
-    void udpateProfileImage(RequestUpdateProfile req);
+    String udpateProfileImage(RequestUpdateProfile req);
 }

@@ -3,11 +3,8 @@ package com.ideality.coreflow.attachment.query.mapper;
 import java.util.List;
 import java.util.Map;
 
-import com.ideality.coreflow.attachment.query.dto.ResponseCommentAttachmentDTO;
+import com.ideality.coreflow.attachment.query.dto.*;
 import org.apache.ibatis.annotations.Mapper;
-
-import com.ideality.coreflow.attachment.query.dto.ReportAttachmentDTO;
-import com.ideality.coreflow.attachment.query.dto.ResponseAttachmentDTO;
 
 @Mapper
 public interface AttachmentMapper {
@@ -17,4 +14,10 @@ public interface AttachmentMapper {
 	List<ReportAttachmentDTO> selectAttachmentsByProjectId(Long projectId);
 
 	List<ResponseCommentAttachmentDTO> selectAttachmentsByTaskId(Long taskId);
+
+	AttachmentDownloadDTO selectAttachmentInfoForDownload(Long attachmentId);
+
+	AttachmentForCommentDTO selectAttachmentsForComments(Long commentId);
+
+	List<ResponseCommentAttachmentDTO> selectAttachmentsByCommentId(List<Long> commentIds);
 }

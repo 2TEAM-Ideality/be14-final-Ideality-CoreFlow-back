@@ -47,7 +47,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
 
-    // s3 버킷 연결을 위한 설정
+    // s3 버킷 연결을 위한 설정 -> v1
     implementation platform('com.amazonaws:aws-java-sdk-bom:1.12.261')
     implementation 'com.amazonaws:aws-java-sdk-s3'
 
@@ -100,7 +100,6 @@ dependencies {
     // 차트 이미지 생성
     implementation 'org.knowm.xchart:xchart:3.8.1'
     implementation 'org.jfree:jfreechart:1.5.3'
-
 
 }
 

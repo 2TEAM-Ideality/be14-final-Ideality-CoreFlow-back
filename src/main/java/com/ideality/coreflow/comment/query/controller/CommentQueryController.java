@@ -21,7 +21,6 @@ import java.util.List;
 public class CommentQueryController {
 
     private final CommentQueryFacadeService commentQueryFacadeService;
-    private final CommentQueryService commentQueryService;
 
     @GetMapping("/task/{taskId}")
     public ResponseEntity<APIResponse<List<SelectCommentDTO>>>
@@ -35,7 +34,7 @@ public class CommentQueryController {
     @GetMapping("/{commentId}")
     public ResponseEntity<APIResponse<ResponseCommentForModifyDTO>> getCommentContent(@PathVariable Long commentId) {
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
-        ResponseCommentForModifyDTO resDTO = commentQueryService.selectComment(commentId, userId);
+        ResponseCommentForModifyDTO resDTO = commentQueryFacadeService.selectComment(commentId, userId);
         return ResponseEntity.ok(APIResponse.success(resDTO, "댓글 내용 조회에 성공하였습니다."));
     }
 

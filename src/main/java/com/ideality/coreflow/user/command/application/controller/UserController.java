@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -21,9 +23,9 @@ public class UserController {
 
     @PatchMapping("/update-profile")
     public ResponseEntity<APIResponse<?>> modifyUserProfileImg(@ModelAttribute RequestUpdateProfile request) {
-        userFacadeService.modifyUserProfileImg(request);
+        String url = userFacadeService.modifyUserProfileImg(request);
 
-        return ResponseEntity.ok(APIResponse.success(null, "프로필 사진 변경 완료"));
+        return ResponseEntity.ok(APIResponse.success(Map.of("profileImage", url), "프로필 사진 변경 완료"));
     }
 
     @DeleteMapping("/delete-profile/{userId}")

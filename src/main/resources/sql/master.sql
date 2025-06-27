@@ -34,3 +34,5 @@ CREATE TABLE user (
 
 INSERT INTO user (id, employee_num, password, name, email)
 VALUES ('0', 'master', '$2a$12$dD0aS4kIMvZnWIWxVXr.3us3W97791wgVLi2gyY4kuCU6/KQMHrcG', 'master', 'test@master.com');
+
+commit;

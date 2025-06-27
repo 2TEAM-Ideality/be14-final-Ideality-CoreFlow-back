@@ -13,4 +13,7 @@ public class ResponseCommentForModifyDTO {
     private String content;
     private Boolean isNotice;
     private Long userId;
+
+    private Long attachmentId;
+    private String originName;
 }

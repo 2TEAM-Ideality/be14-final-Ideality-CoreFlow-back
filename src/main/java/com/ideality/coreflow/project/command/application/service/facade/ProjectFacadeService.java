@@ -473,10 +473,10 @@ public class ProjectFacadeService {
     @Transactional
     public Long createDetail(RequestDetailDTO requestDetailDTO, Long userId) {
 
-        boolean isParticipant = participantQueryService.isParticipant(userId, requestDetailDTO.getProjectId());
-        if (!isParticipant) {
-            throw new BaseException(ErrorCode.ACCESS_DENIED);
-        }
+//        boolean isParticipant = participantQueryService.isParticipant(userId, requestDetailDTO.getProjectId());
+//        if (!isParticipant) {
+//            throw new BaseException(ErrorCode.ACCESS_DENIED);
+//        }
         Long detailId = detailService.createDetail(requestDetailDTO);
         log.info("세부 일정 생성");
 
@@ -577,7 +577,11 @@ public class ProjectFacadeService {
     // 3. 삭제 버튼 (Status: DELETED)
     @Transactional
     public void deleteDetail(Long workId) {
+
         detailService.deleteDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
+        relationService.deleteByNextWorkId(workId);
+        relationService.deleteByPrevWorkId(workId);
+
     }
 
     //

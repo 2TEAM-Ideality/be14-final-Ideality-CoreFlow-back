@@ -1,6 +1,7 @@
 package com.ideality.coreflow.project.command.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -35,5 +36,8 @@ public class RequestDetailDTO {
     private List<Long> participantIds;
 
     private LocalDate expectEnd; //여기서부턴 수정용 속성
+    private LocalDate expectStart;
     private Double progress;
+
+    private Integer delayDays;
 }

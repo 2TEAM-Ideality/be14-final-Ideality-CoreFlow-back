@@ -42,4 +42,9 @@ public class CommentQueryServiceImpl implements CommentQueryService {
     public List<SelectCommentDTO> selectNotices(Long taskId) {
         return commentMapper.selectNotices(taskId);
     }
+
+    @Override
+    public List<Long> selectAllCommentsByAttachment(Long taskId) {
+        return commentMapper.selectAllComments(taskId);
+    }
 }

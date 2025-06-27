@@ -219,7 +219,7 @@ public class UserServiceImpl implements UserService {
 
     /* 설명. S3 파일 업로드 */
     @Override
-    public void udpateProfileImage(RequestUpdateProfile req) {
+    public String udpateProfileImage(RequestUpdateProfile req) {
         User user = userRepository.findById(req.getId()).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
 
         // 기존 이미지 삭제
@@ -233,5 +233,6 @@ public class UserServiceImpl implements UserService {
         // 유저 엔티티 수정
         user.updateProfileImage(imageUrl);
         userRepository.save(user);
+        return imageUrl;
     }
 }

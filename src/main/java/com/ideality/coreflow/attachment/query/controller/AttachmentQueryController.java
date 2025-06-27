@@ -1,9 +1,13 @@
 package com.ideality.coreflow.attachment.query.controller;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import com.ideality.coreflow.attachment.query.dto.AttachmentDownloadDTO;
 import com.ideality.coreflow.attachment.query.dto.ResponseCommentAttachmentDTO;
-import org.springframework.http.ResponseEntity;
+import com.ideality.coreflow.attachment.query.service.AttachmentQueryFacadeService;
+import com.ideality.coreflow.infra.s3.S3Service;
+import org.springframework.http.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 public class AttachmentQueryController {
 
 	private final AttachmentQueryService attachmentQueryService;
+	private final S3Service s3Service;
+	private final AttachmentQueryFacadeService attachmentQueryFacadeService;
 
 	// 프로젝트의 산출물 목록 조회하기
 	@GetMapping("/project/{projectId}/attachment/list")
@@ -43,8 +49,26 @@ public class AttachmentQueryController {
 		Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
 
 		List<ResponseCommentAttachmentDTO> response =
-				attachmentQueryService.getAttachmentsByTaskId(taskId, userId);
+				attachmentQueryFacadeService.getAttachmentListByComment(taskId, userId);
 
 		return ResponseEntity.ok(APIResponse.success(response, "태스크에 올린 첨부파일(댓글) 조회 성공"));
+	}
+
+	/* 설명. 파일 다운로드 시켜주는 API */
+	@GetMapping("/attachment/{attachmentId}/download")
+	public ResponseEntity<byte[]> getPresignedDownloadUrl(@PathVariable Long attachmentId) {
+
+		AttachmentDownloadDTO dto = attachmentQueryService.getAttachmentDownload(attachmentId);
+		String key = s3Service.extractS3KeyFromUrl(dto.getUrl());
+
+		byte[] fileBytes = s3Service.getFileBytes(key); // 직접 내려주는 방식
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+		headers.setContentDisposition(ContentDisposition.builder("attachment")
+				.filename(dto.getOriginName(), StandardCharsets.UTF_8)
+				.build());
+
+		return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
 	}
 }

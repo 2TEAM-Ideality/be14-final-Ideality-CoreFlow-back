@@ -20,4 +20,7 @@ public class SelectCommentDTO {
     private String content;
     private LocalDateTime createdAt;
     private Boolean isModify;
+
+    private Long attachmentId;
+    private String originName;
 }
