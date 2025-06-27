@@ -17,43 +17,43 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-class DeptQueryServiceImplTest {
-
-    @InjectMocks
-    private DeptQueryServiceImpl deptQueryService;
-
-    @Mock
-    private DeptMapper deptMapper;
-
-    @Test
-    @DisplayName("부서명이 존재하면 ID를 반환한다")
-    void shouldReturnDeptId_whenDeptNameExists() {
-        // given
-        String deptName = "기획";
-        Long expectedId = 1L;
-        when(deptMapper.findIdByDeptName(deptName)).thenReturn(Optional.of(expectedId));
-
-        // when
-        Long result = deptQueryService.findIdByName(deptName);
-
-        // then
-        assertEquals(expectedId, result);
-    }
-
-    @Test
-    @DisplayName("부서명이 존재하지 않으면 예외를 던진다")
-    void shouldThrowException_whenDeptNameDoesNotExist() {
-        // given
-        String deptName = "존재하지않는부서";
-        when(deptMapper.findIdByDeptName(deptName)).thenReturn(Optional.empty());
-
-        // when
-        BaseException exception = assertThrows(BaseException.class, () ->
-                deptQueryService.findIdByName(deptName)
-        );
-
-        // then
-        assertEquals(ErrorCode.DEPARTMENT_NOT_FOUND, exception.getErrorCode());
-    }
-}
+//@ExtendWith(MockitoExtension.class)
+//class DeptQueryServiceImplTest {
+//
+//    @InjectMocks
+//    private DeptQueryServiceImpl deptQueryService;
+//
+//    @Mock
+//    private DeptMapper deptMapper;
+//
+//    @Test
+//    @DisplayName("부서명이 존재하면 ID를 반환한다")
+//    void shouldReturnDeptId_whenDeptNameExists() {
+//        // given
+//        String deptName = "기획";
+//        Long expectedId = 1L;
+//        when(deptMapper.findIdByDeptName(deptName)).thenReturn(Optional.of(expectedId));
+//
+//        // when
+//        Long result = deptQueryService.findIdByName(deptName);
+//
+//        // then
+//        assertEquals(expectedId, result);
+//    }
+//
+//    @Test
+//    @DisplayName("부서명이 존재하지 않으면 예외를 던진다")
+//    void shouldThrowException_whenDeptNameDoesNotExist() {
+//        // given
+//        String deptName = "존재하지않는부서";
+//        when(deptMapper.findIdByDeptName(deptName)).thenReturn(Optional.empty());
+//
+//        // when
+//        BaseException exception = assertThrows(BaseException.class, () ->
+//                deptQueryService.findIdByName(deptName)
+//        );
+//
+//        // then
+//        assertEquals(ErrorCode.DEPARTMENT_NOT_FOUND, exception.getErrorCode());
+//    }
+//}

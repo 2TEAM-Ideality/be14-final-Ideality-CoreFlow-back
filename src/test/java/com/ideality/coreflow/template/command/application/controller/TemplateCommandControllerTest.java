@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.ideality.coreflow.project.query.dto.TaskDeptDTO;
+import com.ideality.coreflow.template.query.dto.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +21,6 @@ import com.ideality.coreflow.template.command.application.dto.RequestCreateTempl
 import com.ideality.coreflow.template.command.application.dto.RequestUpdateTemplateDTO;
 import com.ideality.coreflow.template.command.application.service.TemplateCommandFacadeService;
 import com.ideality.coreflow.template.command.application.service.TemplateCommandService;
-import com.ideality.coreflow.template.query.dto.EdgeDTO;
-import com.ideality.coreflow.template.query.dto.PositionDTO;
-import com.ideality.coreflow.template.query.dto.NodeDTO;
-import com.ideality.coreflow.template.query.dto.NodeDataDTO;
 
 @WebMvcTest(controllers = TemplateCommandController.class)
 class TemplateCommandControllerTest {
@@ -49,20 +47,17 @@ class TemplateCommandControllerTest {
 			.description("템플릿 테스트용 ")
 			.duration(50)
 			.taskCount(10)
-			.createdAt(LocalDateTime.now())
 			.createdBy(1L)
 			.nodeList(List.of(
-				new NodeDTO(
+				new TemplateNodeDTO(
 					"1",
 					"custom",
-					new PositionDTO(0, 0),
-					new NodeDataDTO(
+					new TemplateNodeDataDTO(
 						"label",
 						"도식화",
-						List.of("기획팀", "디자인팀"),
+						List.of(new TaskDeptDTO(1L, "기획팀"), new TaskDeptDTO(2L, "디자인팀")),
 						0,
-						"2025-06-01T00:00:00",
-						"2025-06-01T00:00:00"
+						3
 					)
 				)
 			))
@@ -92,20 +87,17 @@ class TemplateCommandControllerTest {
 			.description("업데이트 테스트")
 			.duration(50)
 			.taskCount(10)
-			.updatedAt(LocalDateTime.now())
 			.updatedBy(1L)
 			.nodeList(List.of(
-				new NodeDTO(
+				new TemplateNodeDTO(
 					"1",
 					"custom",
-					new PositionDTO(0, 0),
-					new NodeDataDTO(
+					new TemplateNodeDataDTO(
 						"label",
 						"도식화",
-						List.of("기획팀", "디자인팀"),
+						List.of(new TaskDeptDTO(1L, "기획팀"), new TaskDeptDTO(2L, "디자인팀")),
 						0,
-						"2025-06-01T00:00:00",
-						"2025-06-01T00:00:00"
+						2
 					)
 				)
 			))
