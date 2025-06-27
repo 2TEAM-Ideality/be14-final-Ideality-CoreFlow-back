@@ -84,4 +84,8 @@ public class User {
     public void deleteProfile() {
         this.profileImage = null;
     }
+
+    public void updateProfileImage(String imageUrl) {
+        this.profileImage = imageUrl;
+    }
 }
