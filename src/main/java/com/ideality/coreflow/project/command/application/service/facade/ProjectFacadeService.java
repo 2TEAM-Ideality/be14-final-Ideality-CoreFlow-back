@@ -559,6 +559,8 @@ public class ProjectFacadeService {
         //세부일정 진척률기반으로 태스크/프로젝트 진척률 자동업데이트
         updateProgressRateCascade(taskId);
 
+        updateTaskWarning(taskId);
+
         return detailId;
     }
 
@@ -745,6 +747,8 @@ public class ProjectFacadeService {
         for (Long newDeptId : deptIds){
             workDeptService.createWorkDept(taskId, newDeptId);
         }
+
+        updateTaskWarning(taskId);
 
         return modifyTaskId;
     }
