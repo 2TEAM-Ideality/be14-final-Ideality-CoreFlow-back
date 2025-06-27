@@ -59,11 +59,6 @@ public class ApprovalFacadeService {
     private final TaskQueryService taskQueryService;
     private final ProjectQueryService projectQueryService;
 
-    @PersistenceContext
-    private EntityManager em;
-
-    private final ProjectFacadeService projectFacadeService;
-
     @Transactional
     public void approve(RequestApprove request, long userId) {
 

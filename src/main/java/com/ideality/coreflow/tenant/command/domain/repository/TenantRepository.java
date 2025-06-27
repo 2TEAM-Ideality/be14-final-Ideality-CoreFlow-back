@@ -10,4 +10,6 @@ public interface TenantRepository extends JpaRepository<ErpMaster, Long> {
     Optional<ErpMaster> findByCompanyCode(String companyCode);
 
     boolean existsByCompanyCode(String companyCode);
+
+    boolean existsByCompanySchema(String name);
 }

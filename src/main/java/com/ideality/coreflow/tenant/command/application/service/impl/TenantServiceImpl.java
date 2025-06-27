@@ -67,16 +67,18 @@ public class TenantServiceImpl implements TenantService {
                         }
                     }
                 }
-            } catch (SQLException | RuntimeException e) {
+            } catch (Exception e) {
                 throw new BaseException(ErrorCode.TENANT_CREATE_FAILED);
             }
-        } catch (SQLException | RuntimeException e) {
+        } catch (Exception e) {
             throw new BaseException(ErrorCode.TENANT_CREATE_FAILED);
         }
     }
 
     @Override
     public Long registTenant(RequestCreateTenant request) {
+
+        log.info("테넌트 연결 정보 등록");
 
         if (tenantRepository.existsByCompanyCode(request.getCompanyCode())) {
             throw new BaseException(ErrorCode.DUPLICATED_COMPANY_CODE);
@@ -89,6 +91,30 @@ public class TenantServiceImpl implements TenantService {
                 .build();
 
         return tenantRepository.save(tenantInfo).getId();
+    }
+
+    @Override
+    public void deleteTenantById(Long schemaId) {
+        tenantRepository.deleteById(schemaId);
+    }
+
+    @Override
+    public void dropTenantSchema(String schemaName) {
+        try (Connection connection = dataSource.getConnection();
+             Statement stmt = connection.createStatement()) {
+
+            // DB 생성
+            log.info("stmt.execute");
+            stmt.executeUpdate("DROP DATABASE IF EXISTS " + schemaName);
+
+        } catch (Exception e) {
+            throw new BaseException(ErrorCode.TENANT_CREATE_FAILED);
+        }
+    }
+
+    @Override
+    public String findSchemaNameById(Long tenantId) {
+        return tenantRepository.findById(tenantId).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND)).getCompanySchema();
     }
 
     private void validateName(String name) {
