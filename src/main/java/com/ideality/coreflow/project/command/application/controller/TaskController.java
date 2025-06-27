@@ -6,6 +6,7 @@ import com.ideality.coreflow.project.command.application.dto.RequestModifyTaskDT
 import com.ideality.coreflow.project.command.application.dto.RequestRelationUpdateDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
+import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.command.domain.service.DelayDomainService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -94,5 +95,10 @@ public class TaskController {
 
         projectFacadeService.updateTaskRelation(userId, requestRelationUpdateDTO);
         return ResponseEntity.ok(APIResponse.success(null, "관계가 업데이트 되었습니다!"));
+    }
+
+    @PatchMapping("/{taskId}/passed-rate")
+    public void updatePassedRate(@PathVariable Long taskId) {
+        projectFacadeService.updatePassedRate(taskId, TargetType.TASK);
     }
 }
