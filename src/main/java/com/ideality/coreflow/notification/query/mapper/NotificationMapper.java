@@ -1,6 +1,7 @@
 package com.ideality.coreflow.notification.query.mapper;
 
 import com.ideality.coreflow.notification.command.domain.aggregate.Notification;
+import com.ideality.coreflow.notification.query.dto.NotificationDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -16,4 +17,6 @@ public interface NotificationMapper {
     boolean isRecipient(Long notificationId, Long userId);
     // 알림 조회
     Notification getNotificationById(Long id);
+    // 읽지 않은 결재 알림 조회
+    List<NotificationDTO> selectUnreadApprovalNotifications(Long userId);
 }

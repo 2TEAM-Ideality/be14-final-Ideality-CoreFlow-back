@@ -15,7 +15,8 @@ public class AdminController {
     private final AdminFacadeService adminFacadeService;
 
     @PatchMapping("/user/{userId}")
-    public ResponseEntity<APIResponse<?>> modifyUserInfoByAdmin(@PathVariable Long userId, @RequestBody RequestUserUpdateByAdmin requestUserUpdateByAdmin) {
+    public ResponseEntity<APIResponse<?>> modifyUserInfoByAdmin(@PathVariable Long userId,
+                                                                @RequestBody RequestUserUpdateByAdmin requestUserUpdateByAdmin) {
 
         adminFacadeService.modifyUserInfoByAdmin(userId, requestUserUpdateByAdmin);
 
