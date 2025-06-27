@@ -6,6 +6,7 @@ import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.notification.command.application.dto.NotificationData;
 import com.ideality.coreflow.notification.command.domain.aggregate.Notification;
 import com.ideality.coreflow.notification.command.domain.aggregate.Status;
+import com.ideality.coreflow.notification.query.dto.NotificationDTO;
 import com.ideality.coreflow.notification.query.service.NotificationQueryService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -133,6 +134,13 @@ public class NotificationController {
         return emitter;
     }
 
+    @GetMapping("/api/unread-approvals")
+    public List<NotificationDTO> getUnreadApprovalNotifications() {
+        // SecurityContextHolder에서 인증된 사용자 ID를 가져옵니다.
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
 
+        // NotificationService를 통해 읽지 않은 결재 알림을 조회
+        return notificationQueryService.getUnreadApprovalNotifications(userId);
+    }
 
 }

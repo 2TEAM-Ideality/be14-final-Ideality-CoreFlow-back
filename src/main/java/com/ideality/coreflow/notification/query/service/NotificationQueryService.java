@@ -1,6 +1,7 @@
 package com.ideality.coreflow.notification.query.service;
 
 import com.ideality.coreflow.notification.command.domain.aggregate.Notification;
+import com.ideality.coreflow.notification.query.dto.NotificationDTO;
 import com.ideality.coreflow.notification.query.mapper.NotificationMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,4 +33,9 @@ public class NotificationQueryService {
     public boolean isRecipient(Long notificationId, Long userId) {
         return notificationMapper.isRecipient(notificationId, userId);
     }
+    // 로그인한 사용자의 읽지 않은 결재 알림 전체 조회
+    public List<NotificationDTO> getUnreadApprovalNotifications(Long userId) {
+        return notificationMapper.selectUnreadApprovalNotifications(userId);
+    }
+
 }
