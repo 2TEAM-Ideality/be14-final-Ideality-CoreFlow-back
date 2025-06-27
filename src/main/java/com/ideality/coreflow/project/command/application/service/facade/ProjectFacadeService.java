@@ -342,11 +342,16 @@ public class ProjectFacadeService {
 
         Long projectId = requestTaskDTO.getProjectId();
 
-        Map<Long, String> deptIdMap = requestTaskDTO.getDeptList().stream()
-                .collect
-                        (Collectors.toMap(id -> id, deptQueryService::findNameById));
-        log.info("부서 조회 끝{}", deptIdMap);
-        List<String> deptNames = deptIdMap.values().stream().distinct().toList();
+//        Map<Long, String> deptIdMap = requestTaskDTO.getDeptList().stream()
+//                .collect
+//                        (Collectors.toMap(id -> id, deptQueryService::findNameById));
+//        log.info("부서 조회 끝{}", deptIdMap);
+//        List<String> deptNames = deptIdMap.values().stream().distinct().toList();
+        List<String> deptNames = requestTaskDTO.getDeptList();
+        List<Long> deptIds = new ArrayList<>();
+        for (String deptName : deptNames) {
+            deptIds.add(deptQueryService.findDeptIdByName(deptName));
+        }
         log.info("deptNames: {}", deptNames);
 
         // deptName으로 해당 프로젝트에 참여한 팀의 팀장 id를 가져옴
@@ -380,7 +385,7 @@ public class ProjectFacadeService {
 
 
         // ✅ 5. 쓰기 작업 (deptId 기준)
-        for (Long deptId : requestTaskDTO.getDeptList()) {
+        for (Long deptId : deptIds) {
 //            String deptName = deptIdMap.get(deptId);
 
             workDeptService.createWorkDept(taskId, deptId);
@@ -714,6 +719,8 @@ public class ProjectFacadeService {
         if (!isAboveTeamLeader) {
             throw new BaseException(ErrorCode.ACCESS_DENIED_TEAMLEADER);
         }
+
+        Status projectStatus = projectService.findProjectStatusById(projectId);
         /* 설명. 부서 id 조회 */
         List<Long> deptIds = new ArrayList<>();
         for( String deptName : requestModifyTaskDTO.getDeptLists()) {
@@ -737,7 +744,7 @@ public class ProjectFacadeService {
         }
 
         /* 설명. 기존 꺼 수정해서 save */
-        Long modifyTaskId = taskService.modifyTaskDetail(requestModifyTaskDTO, taskId);
+        Long modifyTaskId = taskService.modifyTaskDetail(requestModifyTaskDTO, taskId, projectStatus);
         /* 설명. 작업 별 관계, 부서 - 작업 별 관계 새로 삽입 */
         relationService.appendRelation(taskId,
                 requestModifyTaskDTO.getPrevTaskList(),

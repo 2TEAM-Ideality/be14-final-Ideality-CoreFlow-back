@@ -2,6 +2,7 @@ package com.ideality.coreflow.project.command.application.service;
 
 import com.ideality.coreflow.project.command.application.dto.RequestModifyTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
+import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 
 import java.time.LocalDate;
@@ -28,7 +29,7 @@ public interface TaskService {
 
 //    Double updateTaskProgress(Long taskId, List<TaskProgressDTO> workList);
 
-    Long modifyTaskDetail(RequestModifyTaskDTO requestModifyTaskDTO, Long taskId);
+    Long modifyTaskDetail(RequestModifyTaskDTO requestModifyTaskDTO, Long taskId, Status status);
 
     Work findById(Long taskId);
 

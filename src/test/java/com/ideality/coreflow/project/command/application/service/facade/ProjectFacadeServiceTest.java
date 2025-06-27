@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import com.ideality.coreflow.project.command.application.dto.RequestDetailDTO;
+import com.ideality.coreflow.project.command.application.dto.RequestModifyTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
@@ -148,7 +149,6 @@ class ProjectFacadeServiceTest {
         assertNotNull(created.getId());
     }
 
-
     @DisplayName("태스크 생성 테스트")
     @Test
     void createTask() {
@@ -159,7 +159,7 @@ class ProjectFacadeServiceTest {
                 .startBaseLine(LocalDate.of(2025, 6, 2))
                 .endBaseLine(LocalDate.of(2025, 6, 4))
                 .projectId(1L)
-                .deptList(List.of(1L, 2L))
+                .deptList(List.of("기획팀"))
                 .source(List.of(1L, 2L))
                 .target(List.of(3L))
                 .build();
@@ -193,5 +193,42 @@ class ProjectFacadeServiceTest {
         assertNotNull(detailId);
         Work found = workRepository.findById(detailId).orElseThrow();
         assertEquals(detailId, found.getId());
+    }
+
+    @Test
+    void updateDetail() {
+
+        RequestDetailDTO request = new RequestDetailDTO().builder()
+                .name("세부일정 수정 테스트")
+                .description("세부일정 수정 테스트 입니다.")
+                .deptId(3L)
+                .assigneeId(5L)
+                .participantIds(List.of(2L, 6L))
+                .expectEnd(LocalDate.of(2025, 6, 28))
+                .progress(23.4)
+                .build();
+        long detailId = projectFacadeService.updateDetail(5L, request);
+        Work found = workRepository.findById(5L).orElseThrow();
+        assertEquals(detailId, found.getId());
+    }
+
+    @DisplayName("태스크 수정 테스트")
+    @Test
+    void updateTaskDetail() {
+        RequestModifyTaskDTO request = new RequestModifyTaskDTO().builder()
+                .taskId(2L)
+                .projectId(1L)
+                .taskName("태스크 수정 테스트")
+                .description("테스크 수정 테스트입니다.")
+                .deptLists(List.of("기획팀", "디자인팀"))
+                .prevTaskList(List.of(1L))
+                .nextTaskList(List.of(3L, 4L))
+                .startExpect(LocalDate.of(2025, 6, 3))
+                .endExpect(LocalDate.of(2025, 6, 8))
+                .build();
+
+        long taskId = projectFacadeService.updateTaskDetail(request, 1L, 2L);
+        Work found = workRepository.findById(2L).orElseThrow();
+        assertEquals(taskId, found.getId());
     }
 }
