@@ -135,12 +135,22 @@ public class NotificationController {
     }
 
     @GetMapping("/api/unread-approvals")
-    public List<NotificationDTO> getUnreadApprovalNotifications() {
-        // SecurityContextHolder에서 인증된 사용자 ID를 가져옵니다.
-        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+    public APIResponse<List<NotificationDTO>> getUnreadApprovalNotifications() {
+        try {
+            // SecurityContextHolder에서 인증된 사용자 ID를 가져옵니다.
+            Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
 
-        // NotificationService를 통해 읽지 않은 결재 알림을 조회
-        return notificationQueryService.getUnreadApprovalNotifications(userId);
+            // NotificationService를 통해 읽지 않은 결재 알림을 조회
+            List<NotificationDTO> notifications = notificationQueryService.getUnreadApprovalNotifications(userId);
+
+            if (notifications.isEmpty()) {
+                return APIResponse.fail("읽지 않은 결재 알림이 없습니다.");
+            }
+
+            return APIResponse.success(notifications); // 성공 응답 반환
+        } catch (Exception e) {
+            return APIResponse.error("알림 조회 중 오류가 발생했습니다: " + e.getMessage()); // 오류 응답 반환
+        }
     }
 
 }
