@@ -22,6 +22,7 @@
         <result property="requesterName" column="REQUESTER_NAME" />
         <result property="approverName" column="APPROVER_NAME" />
         <result property="title" column="TITLE" />
+        <result property="createdAt" column="CREATED_AT" />
         <result property="approvedAt" column="APPROVED_AT" />
         <result property="approvalType" column="APPROVAL_TYPE" />
         <result property="approvalStatus" column="APPROVAL_STATUS" />
@@ -143,6 +144,7 @@
              , u1.name AS REQUESTER_NAME
              , u2.name AS APPROVER_NAME
              , a.title AS TITLE
+             , a.created_at AS CREATED_AT
              , a.approved_at AS APPROVED_AT
              , a.type AS APPROVAL_TYPE
              , a.status AS APPROVAL_STATUS
@@ -164,6 +166,7 @@
              , u1.name AS REQUESTER_NAME
              , u2.name AS APPROVER_NAME
              , a.title AS TITLE
+             , a.created_at AS CREATED_AT
              , a.approved_at AS APPROVED_AT
              , a.type AS APPROVAL_TYPE
              , a.status AS APPROVAL_STATUS
@@ -184,6 +187,7 @@
              , u1.name AS REQUESTER_NAME
              , u2.name AS APPROVER_NAME
              , a.title AS TITLE
+             , a.created_at AS CREATED_AT
              , a.approved_at AS APPROVED_AT
              , a.type AS APPROVAL_TYPE
              , a.STATUS AS APPROVAL_STATUS

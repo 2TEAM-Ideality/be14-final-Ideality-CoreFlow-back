@@ -12,6 +12,7 @@ public class ResponsePreviewApproval {
     String requesterName;
     String approverName;
     String title;
+    LocalDateTime createdAt;
     LocalDateTime approvedAt;
     ApprovalType approvalType;
     ApprovalStatus approvalStatus;
