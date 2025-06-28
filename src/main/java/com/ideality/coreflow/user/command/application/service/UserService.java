@@ -2,6 +2,7 @@ package com.ideality.coreflow.user.command.application.service;
 
 import com.ideality.coreflow.auth.command.domain.aggregate.LoginType;
 import com.ideality.coreflow.tenant.command.application.dto.ResponseInitialAdmin;
+import com.ideality.coreflow.user.command.application.dto.RequestUpdateProfile;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.domain.aggregate.OrgType;
 
@@ -34,4 +35,6 @@ public interface UserService {
     void existsUserId(List<Long> leaderUserIds);
 
     ResponseInitialAdmin createInitialAdmin(String schemaName);
+
+    String udpateProfileImage(RequestUpdateProfile req);
 }

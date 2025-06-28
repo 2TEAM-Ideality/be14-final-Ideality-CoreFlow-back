@@ -120,5 +120,10 @@ public class Work {
 		if (requestDetailDTO.getExpectEnd() != null) this.endExpect = requestDetailDTO.getExpectEnd();
 		if (requestDetailDTO.getProgress() != null) this.progressRate = requestDetailDTO.getProgress();
 	}
+
+	public void updateBaseLine(LocalDate startExpect, LocalDate endExpect) {
+		this.startBase = startExpect;
+		this.endBase = endExpect;
+	}
 }
 

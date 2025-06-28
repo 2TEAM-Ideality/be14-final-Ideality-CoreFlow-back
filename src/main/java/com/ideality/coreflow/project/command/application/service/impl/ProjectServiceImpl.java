@@ -149,4 +149,9 @@ public class ProjectServiceImpl implements ProjectService {
     public List<Project> findAllByStatusNotIn(List<Status> statuses) {
         return projectRepository.findAllByStatusNotIn(statuses);
     }
+
+    @Override
+    public Status findProjectStatusById(Long projectId) {
+        return projectRepository.findById(projectId).orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND)).getStatus();
+    }
 }

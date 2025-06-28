@@ -20,7 +20,7 @@ public class RequestTaskDTO {
     private LocalDate endBaseLine;
     private Long projectId;
     /* 설명. 여기부터 담당 부서 데이터 */
-    private List<Long> deptList;
+    private List<String> deptList;
     /* 설명. 여기부터 작업 간 관계 */
     private List<Long> source;
     private List<Long> target;

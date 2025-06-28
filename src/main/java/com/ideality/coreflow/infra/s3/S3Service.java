@@ -16,17 +16,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class S3Service {
-    private final AmazonS3 amazonS3Client;
+    @Autowired
+    private AmazonS3 amazonS3Client;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
@@ -34,7 +31,7 @@ public class S3Service {
     /* 설명. 프로필 이미지 만들기 */
     public String uploadImage(MultipartFile file, String folder) {
         /* 설명. uuid로 파일명을 충돌나지 않게 수정 */
-        String fileName = generateFileName();           // uuid.jpg
+        String fileName = generateFileName(file);           // uuid.jpg
         String key = generateKey(fileName, folder);          // profile-image/uuid.jpg
         try {
             ObjectMetadata metadata = new ObjectMetadata();
@@ -51,9 +48,8 @@ public class S3Service {
         }
     }
 
-    /* 설명. 한글이 들어가면 presigned-url을 써도 깨지게 되는 문제 발생(uuid로만) */
-    public String generateFileName() {
-        return UUID.randomUUID().toString();
+    public String generateFileName(MultipartFile file) {
+        return UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
     }
 
     private String generateKey(String fileName, String folder) {
@@ -104,7 +100,7 @@ public class S3Service {
     /* 설명. 결재 서류 + 댓글 파일용 업로더 */
     public UploadFileResult uploadFile(MultipartFile file, String folder) {
         String originName = file.getOriginalFilename();             // 원본 파일명
-        String storedName = generateFileName();                     // UUID 저장용 파일명
+        String storedName = generateFileName(file);                     // UUID 저장용 파일명
         String key = generateKey(storedName, folder);               // ex) comment-docs/uuid
 
         try {
@@ -142,6 +138,18 @@ public class S3Service {
         } catch (IOException e) {
             log.error("파일 다운로드 실패 - key: {}", key, e);
             throw new RuntimeException("파일 다운로드 실패", e);
+        }
+    }
+
+    // url로 버킷안에 있는 실제 프로필 사진을 삭제하는 메소드
+    public void deleteFileByUrl(String url) {
+        try {
+            String key = extractS3KeyFromUrl(url);
+            amazonS3Client.deleteObject(bucketName, key);
+            log.info("S3 파일 삭제 완료: {}", key);
+        } catch (Exception e) {
+            log.error("S3 파일 삭제 실패: {}", url, e);
+            throw new RuntimeException("S3 파일 삭제 실패", e);
         }
     }
 }
