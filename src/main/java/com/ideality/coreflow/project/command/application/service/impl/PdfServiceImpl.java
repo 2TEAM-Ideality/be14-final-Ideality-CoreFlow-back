@@ -226,7 +226,7 @@ public class PdfServiceImpl implements PdfService {
 
 			String timeSuffix = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
 			// String rawFileName = "프로젝트분석보고서_" + projectDetail.getName() + "_" + timeSuffix + ".pdf";
-			String rawFileName = "프로젝트 분석 보고서_" + projectDetail.getName() + ".pdf";
+			String rawFileName = projectDetail.getName() +"_분석 리포트"+ ".pdf";
 			log.info("PDF FILE NAME : {}" , rawFileName);
 			String encodedFileName = URLEncoder.encode(rawFileName, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
 
