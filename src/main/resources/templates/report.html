@@ -194,7 +194,9 @@
         .info-table.no-border td {
             /*background-color: transparent !important;*/
             background-color: #F8F9FA !important;
-            padding: 10px;
+            /*padding: 10px;*/
+            padding-right: 10px;
+            padding-bottom: 10px;
         }
 
         /* 각 카드 스타일 */
@@ -221,8 +223,6 @@
             margin-right: 5px;
             /*color: #56D193;*/
             text-align: left;
-
-
         }
 
         .stat-label {
@@ -588,52 +588,51 @@
         <div>
             <div class="sub-title">성과 평가</div>
 
-            <table class="info-table no-border">
+            <table class="info-table" >
                 <tr >
-                    <th style="width: 112px;">
-                        <span class="stat-icon">■</span>
+                    <th style="width: 115px; font-size: 11px;">
+                        <span class="stat-icon" style="color: #4D91FF;">■</span>
                         전체 납기 준수율</th>
-                    <th style="width: 112px;">
-                        <span class="stat-icon">■</span>
+                    <th style="width: 115px;font-size: 11px;">
+                        <span class="stat-icon" style="color: gray;">■</span>
                         전체 태스크</th>
-                    <th style="width: 112px;">
-                        <span class="stat-icon">■
+                    <th style="width: 115px; font-size: 11px;">
+                        <span class="stat-icon" style="color: #56D193;">■
                         </span>기한 내 완료</th>
-                    <th style="width: 112px;">
-                        <span class="stat-icon">■</span>
+                    <th style="width: 115px; font-size: 11px;">
+                        <span class="stat-icon" style="color:lightslategray;">■</span>
                         기한 내 미완료</th>
-                    <th style="width: 112px;">
-                        <span class="stat-icon">■</span>
+                    <th style="width: 115px; font-size: 11px;">
+                        <span class="stat-icon" style="color: #FF914D;">■</span>
                         평균 지연일</th>
-                    <th style="width: 112px;">
-                        <span class="stat-icon">■</span>
+                    <th style="width: 115px; font-size: 11px;">
+                        <span class="stat-icon" style="color: #FF914D;">■</span>
                         총 지연일</th>
                 </tr>
                 <tr>
-                    <td style="color: #0A84FF; font-weight: bold; text-align:right; font-size:15px;"
+                    <td style="color: #0A84FF; font-weight: bold; text-align:right; font-size:15px; padding-right: 15px;"
                         th:text="${OTD} + ' %'">
                         90%</td>
                     <td th:text="${totalTask} + ' 개'"
-                        style="font-weight: bold; text-align:right; font-size:15px;">
+                        style="font-weight: bold; text-align:right; font-size:15px; padding-right: 15px;">
                         10개
                     </td>
                     <td th:text="${completedOnTime} + ' 개'"
-                        style="font-weight: bold; text-align:right; font-size:15px;">
+                        style="font-weight: bold; text-align:right; font-size:15px; padding-right: 15px;">
                         10개
                     </td>
-                    <td style="font-weight: bold; text-align:right; font-size:15px;"
+                    <td style="font-weight: bold; text-align:right; font-size:15px; padding-right: 15px;"
                         th:text="${notCompletedOnTime} + ' 개'">
                         10개
                     </td>
                     <td
-                            th:text="${meanDelay} + ' 일'"
+                            th:text="'+ ' +${meanDelay} + ' 일'"
                             th:style="${meanDelay > 0}
-                            ? 'color: red; font-weight: bold; text-align: right; font-size: 15px;'
-                            : 'color: #222; text-align: right; font-size: 15px;'">10일
-                        <!-- 예시: 0일 또는 5일 -->
+                            ? 'color: red; font-weight: bold; text-align: right; font-size: 15px; padding-right: 15px;'
+                            : 'color: #222; text-align: right; font-size: 15px; padding-right: 15px;'">10일
                     </td>
                     <td
-                            th:text="${totalDelay} + ' 일'"
+                            th:text="'+ ' + ${totalDelay} + ' 일'"
                             th:style="${totalDelay > 0}
                             ? 'color: red; font-weight: bold; text-align: right; font-size: 15px;'
                             : 'color: #222; text-align: right; font-size: 15px;'"> 10일
@@ -649,12 +648,41 @@
             </div>
 
             <!-- 2) 스택형 막대 차트 -->
-
-            <div style="text-align:center; margin-top:10px;">
-                <img th:src="'data:image/png;base64,' + ${bottleneckChart}"
-                     alt="주요 병목 공정 차트"
-                     style="max-width:100%; height:auto;" />
+            <div style="width:100%; height:50px; background-color:gray;">
+              <span th:style="|display:inline-block;
+                             width:${widthPercent}%;
+                             height:100%;
+                             background-color:yellow;|">
+            </span>
             </div>
+
+<!--            <div class="sub-title" style="margin-top:20px;">지연 태스크 비율</div>-->
+<!--            <div th:each="entry : ${delayPercentList}"-->
+<!--                 class="bottleneck-bars"-->
+<!--                 style="width:100%; height:50px; background-color:gray;" >-->
+<!--                     style="margin-bottom:6px;">-->
+<!--                    &lt;!&ndash; 라벨: 태스크명 - 지연일일 (xx.xx%) &ndash;&gt;-->
+<!--&lt;!&ndash;                    <span th:text="${entry.taskName + ' - ' + entry.delayDays + '일 (' + entry.percent + '%)'}">&ndash;&gt;-->
+<!--&lt;!&ndash;                      예시태스크 - 3일 (30.0%)&ndash;&gt;-->
+<!--&lt;!&ndash;                    </span>&ndash;&gt;-->
+<!--                    &lt;!&ndash; 비율 막대 &ndash;&gt;-->
+<!--                     <span th:style="|-->
+<!--                      display:inline-block;-->
+<!--                      width:${entry.percent}%;-->
+<!--                      height:100%;-->
+<!--                      background-color:'#FFD600';-->
+<!--                      |">-->
+
+<!--                     </span>-->
+<!--            </div>-->
+
+
+
+<!--            <div style="text-align:center; margin-top:10px;">-->
+<!--                <img th:src="'data:image/png;base64,' + ${bottleneckChart}"-->
+<!--                     alt="주요 병목 공정 차트"-->
+<!--                     style="max-width:100%; height:auto;" />-->
+<!--            </div>-->
 
         </div>
 
