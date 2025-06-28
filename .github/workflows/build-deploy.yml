@@ -91,7 +91,7 @@ jobs:
 
           token:
             secret: \${SECRET_KEY}
-            access_expiration_time: 36000000
+            access_expiration_time: 900000
             refresh_expiration_time: 604800000
 
           cloud:
