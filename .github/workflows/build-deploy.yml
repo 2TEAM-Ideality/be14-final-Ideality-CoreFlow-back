@@ -176,7 +176,7 @@ jobs:
       - name: Set target environment
         run: |
           if [ "$CURRENT_ENV" == "blue" ]; then
-            echo "TARGET_ENV=Coreflow-be-green-env" >> $GITHUB_ENV
+            echo "TARGET_ENV=Coreflow-be-env-green" >> $GITHUB_ENV
           else
             echo "TARGET_ENV=Coreflow-be-env" >> $GITHUB_ENV
           fi
