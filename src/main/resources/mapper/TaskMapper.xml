@@ -224,6 +224,7 @@
                        MAX(child.end_expect)
                   FROM work child
                  WHERE child.parent_task_id = #{taskId}
+                   AND child.status != 'DELETED'
                ) AS subTaskEndExpect
           FROM work w
          WHERE w.id = #{taskId}

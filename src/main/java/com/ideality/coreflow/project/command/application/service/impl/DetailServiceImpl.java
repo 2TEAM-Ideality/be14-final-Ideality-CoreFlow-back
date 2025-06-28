@@ -119,9 +119,9 @@ public class DetailServiceImpl implements DetailService {
                                 +1
                                 -holidayQueryService.countHolidaysBetween(existingDetail.getStartExpect(), existingDetail.getEndExpect());
         System.out.println("originalDuration = " + originalDuration);
-        Long newDuration = ChronoUnit.DAYS.between(requestDetailDTO.getStartExpect(), requestDetailDTO.getExpectEnd())
+        Long newDuration = ChronoUnit.DAYS.between(requestDetailDTO.getExpectStart(), requestDetailDTO.getExpectEnd())
                                 +1
-                                -holidayQueryService.countHolidaysBetween(requestDetailDTO.getStartExpect(), requestDetailDTO.getExpectEnd());
+                                -holidayQueryService.countHolidaysBetween(requestDetailDTO.getExpectStart(), requestDetailDTO.getExpectEnd());
         System.out.println("newDuration = " + newDuration);
         if(newDuration > originalDuration){
             System.out.println("existingDetail.getDelayDays() = " + existingDetail.getDelayDays());
