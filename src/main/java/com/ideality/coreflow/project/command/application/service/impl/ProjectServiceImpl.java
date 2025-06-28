@@ -86,6 +86,10 @@ public class ProjectServiceImpl implements ProjectService {
             throw new BaseException(ErrorCode.IMPOSSIBLE_CHANGE_PENDING);
         }
 
+        if (targetStatus == Status.PROGRESS && project.getStatus() == Status.PENDING) {
+            project.updateStartReal(LocalDate.now());
+        }
+
         if (targetStatus == Status.COMPLETED) {
             if (project.getStatus() != Status.PROGRESS) {
                 throw new BaseException(ErrorCode.NOT_PROGRESS_STATUS);
