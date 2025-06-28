@@ -481,6 +481,7 @@ public class ProjectFacadeService {
 //        if (!isParticipant) {
 //            throw new BaseException(ErrorCode.ACCESS_DENIED);
 //        }
+
         Long detailId = detailService.createDetail(requestDetailDTO);
         log.info("세부 일정 생성");
 

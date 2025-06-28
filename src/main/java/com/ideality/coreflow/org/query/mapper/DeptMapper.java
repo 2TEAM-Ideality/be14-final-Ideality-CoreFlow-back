@@ -15,4 +15,6 @@ public interface DeptMapper {
     List<DepartmentDTO> findAllDeptNames();
 
     Optional<Long> findDeptIdByName(String deptName);
+
+    List<DepartmentDTO> findDeptListByTaskId(Long workId);
 }

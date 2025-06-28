@@ -18,4 +18,6 @@ public interface WorkService {
     DateInfoDTO findDateInfoByWorkId(Long workId);
 
     List<Work> findAllByStatusNotIn(List<Status> statuses);
+
+    Long findTaskIdByDetailId(Long workId);
 }
