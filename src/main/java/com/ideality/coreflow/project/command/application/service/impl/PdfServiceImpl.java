@@ -17,9 +17,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
@@ -312,6 +314,9 @@ public class PdfServiceImpl implements PdfService {
 
 
 			// 전체 프로젝트에서 납기준수율 추출
+			log.info("✔ OTD 프로젝트 리스트: {}", projectOTDList.stream()
+				.map(dto -> dto.getProjectName() + "=" + dto.getOtdRate())
+				.collect(Collectors.toList()));
 			String newChartBase64 = createOTDChart(projectOTDList, projectDetail.getId());
 			context.setVariable("compareOtdChart", newChartBase64);
 
@@ -551,8 +556,22 @@ public class PdfServiceImpl implements PdfService {
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
 		// 1. 데이터 추가
+		// for (ProjectOTD dto : otdList) {
+		// 	dataset.addValue(dto.getOtdRate(), "OTD", dto.getProjectName());
+		// }
+		Set<String> existingNames = new HashSet<>();
 		for (ProjectOTD dto : otdList) {
-			dataset.addValue(dto.getOtdRate(), "OTD", dto.getProjectName());
+			String originalName = Optional.ofNullable(dto.getProjectName()).orElse("이름 없음");
+
+			// 중복 방지용 이름 만들기
+			String uniqueName = originalName;
+			int suffix = 2;
+			while (existingNames.contains(uniqueName)) {
+				uniqueName = originalName + " (" + suffix++ + ")";
+			}
+			existingNames.add(uniqueName);
+
+			dataset.addValue(dto.getOtdRate(), "OTD", uniqueName);
 		}
 
 		// 2. 차트 생성
