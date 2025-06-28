@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
@@ -255,6 +256,59 @@ public class PdfServiceImpl implements PdfService {
 
 			context.setVariable("delayPercentList", delayPercentList);
 			log.info("▶ delayPercentList = {}", delayPercentList);
+
+			// 1. 승인된 지연 내역만 필터링
+
+
+			// 2. 전체 지연일 합계
+			long totalDelayAll = delayList.stream()
+				.mapToLong(ProjectApprovalDTO::getDelayDays)
+				.sum();
+
+			// 3. 부서별 그룹핑
+			Map<String, List<ProjectApprovalDTO>> delaysByDept = delayList.stream()
+				.collect(Collectors.groupingBy(dto -> dto.getSenderDeptId()));
+
+			// 4. 부서별 통계 리스트 생성
+			List<Map<String, Object>> deptDelayStats = new ArrayList<>();
+			for (Map.Entry<String, List<ProjectApprovalDTO>> entry : delaysByDept.entrySet()) {
+				String dept = entry.getKey();
+				List<ProjectApprovalDTO> group = entry.getValue();
+
+				// 4-1) 담당 태스크, 세부일정 목록(중복 제거)
+				List<String> tasks = group.stream()
+					.map(ProjectApprovalDTO::getTaskName)
+					.distinct()
+					.collect(Collectors.toList());
+				// List<String> details = group.stream()
+				// 	.map(ProjectApprovalDTO::getSubTaskName)   // 예: getDetailName()
+				// 	.distinct()
+				// 	.collect(Collectors.toList());
+
+				// 4-2) 총 지연일, 평균 지연일 계산
+				long deptTotalDelay = group.stream()
+					.mapToLong(ProjectApprovalDTO::getDelayDays)
+					.sum();
+				double deptAvgDelay = group.isEmpty() ? 0
+					: Math.round((double) deptTotalDelay / group.size() * 100.0) / 100.0;
+
+				// 4-3) 전체 대비 비율
+				double pct = totalDelayAll == 0 ? 0
+					: Math.round(deptTotalDelay * 10000.0 / totalDelayAll) / 100.0;
+
+				Map<String,Object> stat = new HashMap<>();
+				stat.put("deptName", dept);
+				stat.put("tasks", tasks);
+				// stat.put("details", details);
+				stat.put("totalDelay", deptTotalDelay);
+				stat.put("avgDelay", deptAvgDelay);
+				stat.put("percentOfTotal", pct);
+
+				deptDelayStats.add(stat);
+			}
+
+			// 5. Thymeleaf 에 변수로 넘기기
+			context.setVariable("deptDelayStats", deptDelayStats);
 
 
 			// 전체 프로젝트에서 납기준수율 추출

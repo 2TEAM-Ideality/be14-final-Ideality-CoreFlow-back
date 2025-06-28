@@ -55,6 +55,9 @@
         <result property="delayDays" column="DELAY_DAYS" />
         <result property="actionDetail" column="ACTION_DETAIL" />
         <result property="delayReason" column="DELAY_REASON" />
+        <result column="SENDER_NAME"       property="senderName"/>
+        <result column="SENDER_DEPT_NAME"  property="senderDeptName"/>
+        <result column="SENDER_DEPT_ID"    property="senderDeptId"/>
     </resultMap>
 
     <!--  프로젝트 id와 타입(산출물 / 지연 사유서)으로 승인된 결재 조회  -->
@@ -71,6 +74,9 @@
              , dr.reason AS DELAY_REASON
              , da.delay_days AS DELAY_DAYS
              , at.url AS URL
+             , su.name              AS SENDER_NAME
+             , su.dept_name         AS SENDER_DEPT_NAME
+             , su.id                AS SENDER_DEPT_ID
           FROM approval a
           LEFT JOIN approval_participant ap ON ap.approval_id = a.id
           LEFT JOIN user u ON ap.user_id = u.id
@@ -79,6 +85,7 @@
           LEFT JOIN delay_approval da ON a.id = da.approval_id
           LEFT JOIN delay_reason dr ON da.delay_reason_id = dr.id
           LEFT JOIN attachment at ON a.id = at.target_id AND at.target_type = 'APPROVAL'
+            LEFT JOIN user su ON a.user_id = su.id
          WHERE a.type = #{approvalType}
            AND a.status = 'APPROVED'
            AND ap.role = 'APPROVER'

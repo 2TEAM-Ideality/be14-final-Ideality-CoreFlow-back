@@ -688,13 +688,12 @@ public class ProjectFacadeService {
         // 공정 내역 - 태스트 조회
         List<CompletedTaskDTO> completedTaskList = taskQueryService.selectCompletedTasks(projectId);
 
-        // 지연 사유서 내역
+        // 승인된 지연 사유서 내역
         List<ProjectApprovalDTO> delayList = approvalQueryService.selectProjectApprovalByProjectId(projectId, ApprovalType.DELAY);
 
         // 전체 프로젝트 정보 가져오기
         // 완료 상태인 프로젝트 전체 목록 가져오기
         List<CompletedProjectDTO> completedProjectList = projectQueryService.selectCompletedProjects();
-        // 프로젝트별 태스크 리스트 가져오기
 
         // 각 프로젝트의 OTD 계산하기
         List<ProjectOTD> projectOTDList = taskQueryService.calculateProjectDTO(completedProjectList);

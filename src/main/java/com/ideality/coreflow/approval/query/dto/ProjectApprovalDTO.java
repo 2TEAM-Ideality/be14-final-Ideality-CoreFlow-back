@@ -18,6 +18,10 @@ public class ProjectApprovalDTO {
     String approverJobRank;     // 결재자 직위
     String approvalJobRole;     // 결재자 직책
 
+    String senderName;       // 기안자 명
+    String senderDeptName;  // 기안자 부서명
+    String senderDeptId;
+
     ApprovalType approvalType;  // 결재 타입 (산출물/지연 사유서)
 
     String delayReason;         // 지연 사유
