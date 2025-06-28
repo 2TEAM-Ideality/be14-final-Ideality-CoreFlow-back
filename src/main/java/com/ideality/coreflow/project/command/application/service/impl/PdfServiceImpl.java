@@ -13,6 +13,7 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -24,12 +25,14 @@ import javax.imageio.ImageIO;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.labels.ItemLabelAnchor;
 import org.jfree.chart.labels.ItemLabelPosition;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.StackedBarRenderer;
 import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.knowm.xchart.BitmapEncoder;
@@ -95,7 +98,19 @@ public class PdfServiceImpl implements PdfService {
 			context.setVariable("projectName", projectDetail.getName());
 			context.setVariable("director", projectDetail.getDirector().getName() + " " + projectDetail.getDirector().getDeptName() + " " + projectDetail.getDirector().getJobRoleName());
 			context.setVariable("reportCreatedAt" , LocalDate.now());
-			context.setVariable("projectPeriod", projectDetail.getStartReal() + " ~ " + projectDetail.getEndReal());
+			String period = projectDetail.getStartReal().format(DateTimeFormatter.ISO_DATE)
+				+ " ~ "
+				+ projectDetail.getEndReal().format(DateTimeFormatter.ISO_DATE);
+
+			// 실제 진행 소요일
+			long totalDays = ChronoUnit.DAYS.between(
+				projectDetail.getStartReal(),
+				projectDetail.getEndReal()
+			) + 1;
+			String periodData = period + " (총 " + totalDays + "일)";
+
+			context.setVariable("projectPeriodData", periodData);
+
 			context.setVariable("projectProgress", projectDetail.getProgressRate());
 			context.setVariable("projectDescription", projectDetail.getDescription());
 			context.setVariable("projectDelayDays" , projectDetail.getDelayDays());
@@ -201,17 +216,21 @@ public class PdfServiceImpl implements PdfService {
 				}
 			}
 			context.setVariable("completedOnTime", completedOnTime);		// 기한 내 완료 작업
-			context.setVariable("notCompletedOnTime", notCompletedOnTime);	// 기한 내 미완료 작업
+			context.setVariable("notCompletedOnTime", notCompletedOnTime );	// 기한 내 미완료 작업
 			int totalCompleted = completedTaskList.size();
 			double OTD = totalCompleted > 0 ? (completedOnTime * 100.0) / totalCompleted : 0.0;
-			context.setVariable("OTD", Math.round(OTD * 100.0) / 100.0 + "%");  	// 납기 준수율
+			context.setVariable("OTD", Math.round(OTD * 100.0) / 100.0);  	// 납기 준수율
 
 			double meanDelay = completedTaskList.size() > 0
 				? (double) projectDetail.getDelayDays() / completedTaskList.size()
 				: 0.0;
-			context.setVariable("meanDelay", "+ " + Math.round(meanDelay * 100.0) / 100.0 + " 일");	// 평균 지연일
-			context.setVariable("totalDelay", projectDetail.getDelayDays() + " 일");   // 총 지연일
+			context.setVariable("meanDelay", Math.round(meanDelay * 100.0) / 100.0);	// 평균 지연일
+			context.setVariable("totalDelay", projectDetail.getDelayDays());   // 총 지연일
 			context.setVariable("delayedTaskList", delayedTaskList); 			 // 지연 태스크 목록
+
+			// 주요 병목 공정 차트
+			String bottleneckChartBase64 = bottleneckChart(delayedTaskList);
+			context.setVariable("bottleneckChart", bottleneckChartBase64);
 
 
 			// 전체 프로젝트에서 납기준수율 추출
@@ -294,6 +313,69 @@ public class PdfServiceImpl implements PdfService {
 		chart.getStyler().setAnnotationTextFont(customFont);
 	}
 
+	// 주요 병목 공정 막대 그래프
+	/**
+	 * 지연된 태스크 리스트를 받아, 전체 지연 시간 중
+	 * 각 태스크가 차지하는 비율(%)을 스택형 막대로 그려 Base64 문자열로 반환
+	 */
+	private String bottleneckChart(List<CompletedTaskDTO> delayedTaskList) throws IOException, FontFormatException {
+		// 1) 총 지연 시간 합계
+		long totalDelay = delayedTaskList.stream()
+			.mapToLong(CompletedTaskDTO::getDelayDays)
+			.sum();
+
+		// 2) 데이터셋 준비 (row = 태스크명, column = "병목")
+		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+		for (CompletedTaskDTO dto : delayedTaskList) {
+			double pct = totalDelay > 0
+				? dto.getDelayDays() * 100.0 / totalDelay
+				: 0.0;
+			dataset.addValue(pct, dto.getTaskName(), "병목");
+		}
+
+		// 3) 차트 생성
+		JFreeChart chart = ChartFactory.createStackedBarChart(
+			"주요 병목 공정",     // chart title
+			"",                 // domain axis label
+			"비율(%)",          // range axis label
+			dataset,
+			PlotOrientation.HORIZONTAL,
+			true,  // legend
+			false,
+			false
+		);
+
+		// 4) 스타일링
+		CategoryPlot plot = (CategoryPlot) chart.getPlot();
+		plot.setBackgroundPaint(Color.WHITE);
+		plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
+
+		// X축(비율) 범위 0~100 고정
+		NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+		rangeAxis.setRange(0, 100);
+		rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+
+		// 스택 렌더러: 각 시리즈(태스크)마다 색 지정
+		StackedBarRenderer renderer = new StackedBarRenderer();
+		Color[] colors = new Color[] {
+			new Color(252,179,112),
+			new Color(251,234,117),
+			new Color(157,229,179),
+			new Color(116,222,239),
+			new Color(228,134,250)
+		};
+		for (int i = 0; i < delayedTaskList.size(); i++) {
+			renderer.setSeriesPaint(i, colors[i % colors.length]);
+		}
+		plot.setRenderer(renderer);
+
+		// 5) 이미지로 변환
+		BufferedImage img = chart.createBufferedImage(600, 300);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ImageIO.write(img, "png", baos);
+		return Base64.getEncoder().encodeToString(baos.toByteArray());
+	}
+
 
 
 	// 지연 사유 분석 차트 생성 메서드
@@ -332,6 +414,7 @@ public class PdfServiceImpl implements PdfService {
 		// 이미지로 변환
 		return getString(chart);
 	}
+	//
 
 
 	// 지연 태스크 분석 차트 생성

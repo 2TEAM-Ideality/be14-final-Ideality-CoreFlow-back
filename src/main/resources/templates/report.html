@@ -170,6 +170,82 @@
             padding: 4px 6px;
             height: auto;
         }
+        /* 컨테이너를 flex로 나란히 */
+        .stats-cards {
+            white-space: nowrap;  /* 줄바꿈 금지 */
+            width: 100%;
+        }
+        /* 테이블, TH, TD 의 border 모두 없애기 */
+        .info-table.no-border,
+        .info-table.no-border th,
+        .info-table.no-border td {
+            border: none !important;
+        }
+        .info-table.no-border {
+            border-collapse: separate;      /* 반드시 separate 여야 spacing 이 먹습니다 */
+            border-spacing: 10px 0;       /* 가로 간격 0px, 세로 간격 10px */
+        }
+        /* no-border 테이블의헤더 배경색 제거 */
+        .info-table.no-border th {
+            padding: 10px 10px 0 10px;
+            /*background-color: transparent !important;*/
+            background-color: #F8F9FA !important;
+        }
+        .info-table.no-border td {
+            /*background-color: transparent !important;*/
+            background-color: #F8F9FA !important;
+            padding: 10px;
+        }
+
+        /* 각 카드 스타일 */
+        .stat-card {
+            display: inline-block;
+            vertical-align: top;
+            width: 18%;           /* 원하는 비율로 조정 */
+            margin-right: 2%;     /* 카드 간격 */
+            /* 기존 padding, height 등 유지 */
+        }
+        .stat-lebel-container {
+            /*align-items: center;      !* 아이콘과 텍스트 수직 중앙 맞춤 *!*/
+            gap: 4px;
+            justify-content: left;
+            text-align: left;
+            margin-bottom: 6px;
+            margin-left: 5px;
+        }
+        /* 아이콘과 라벨, 값 스타일링 */
+        .stat-icon {
+            display: inline-block;
+            font-size: 10px;
+            margin-bottom: 4px;
+            margin-right: 5px;
+            /*color: #56D193;*/
+            text-align: left;
+
+
+        }
+
+        .stat-label {
+            display: inline-block;
+            font-size: 10px;
+            color: #555;
+            font-weight: bold;
+            margin-bottom: 4px;
+            text-align: left;
+        }
+
+        .stat-value {
+            /*display: block;*/
+            font-size: 15px;
+            font-weight: bold;
+            color: #222;
+            text-align: right;
+        }
+
+        /* 빨강 텍스트 클래스 */
+        .text-red {
+            color: #e53935 !important;
+        }
 
         /*  지연 분석 페이지   */
         .delay-page {
@@ -277,7 +353,7 @@
         </tr>
         <tr>
             <th>진행 기간</th>
-            <td th:text="${projectPeriod}">2025-03-01 ~ 2025-03-31 (총 31일)</td>
+            <td th:text="${projectPeriodData}">2025-03-01 ~ 2025-03-31 (총 31일)</td>
         </tr>
         <tr>
             <th>작성 일자</th>
@@ -285,7 +361,7 @@
         </tr>
         <tr>
             <th>지연일</th>
-            <td th:text="${projectDelayDays}">1일</td>
+            <td th:text="${projectDelayDays}+ '일'">1일</td>
         </tr>
     </table>
 
@@ -322,12 +398,11 @@
         <p class="section-title"
            th:text="${stat.index == 0 ? '02 작업 공정' : ''}"></p>
 
-        <div class="sub-title">작업 공정 내역 -
+        <div class="sub-title">작업 공정 내역
             <span th:text="${stat.index + 1}"></span>
         </div>
         <div class="description">
             프로젝트 기간동안 총 <span th:text="${taskList.size()}" /> 개의 태스크를 진행하셨습니다.
-<!--            태스크의 하위 세부일정 <span th:text="${}"/> 중 -->
         </div>
 
 
@@ -348,7 +423,7 @@
                 <td th:text="${task.getTaskName()}">패턴 생성</td>
                 <td th:text="${task.getStartBase()} + ' ~ ' + ${task.getEndBase()}">2025-03-05 ~ 2025-03-08</td>
                 <td th:text="${task.getStartReal()} + ' ~ ' + ${task.getEndReal()}">2025-03-05 ~ 2025-03-09</td>
-                <td th:text="'+' + ${task.getDelayDays()} + '일'"
+                <td th:text="'+ ' + ${task.getDelayDays()} + '일'"
                     th:style="${task.getDelayDays > 0} ? 'color: red;' : ''">+1일</td>
                 <td th:text="${task.getStatus()}"
                     th:style="${task.getStatus()} == 'COMPLETED' ? 'color:#34C759;' : ''">
@@ -372,17 +447,43 @@
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <td style="font-weight: bold;">총계 <span th:text="${taskList.size()}"></span></td>
-                <td th:text="${total['baseStart']} + ' ~ ' + ${total['baseEnd']}">2025-03-01 ~ 2025-03-21</td>
-                <td th:text="${total['realStart']} + ' ~ ' + ${total['realEnd']}">2025-03-01 ~ 2025-03-31</td>
-                <td th:text="'+' + ${total['delay']} + '일'"
-                    th:style="${total['delay']} > 0 ? 'color: red;' : ''">+10일</td>
-                <td th:text="${total['status']}">지연</td>
+            <tr style="text-align: center;">
+                <!-- 1) 태스크 개수 + "개" -->
+                <td style="font-weight: bold; font-size: 15px;">
+                    <span th:text="${taskList.size()} + '개'">8개</span>
+                </td>
+
+                <!-- 2) baseStart ~ baseEnd -->
+                <td th:text="${total.baseStart + ' ~ ' + total.baseEnd}">
+                    2025-03-01 ~ 2025-03-21
+                </td>
+
+                <!-- 3) realStart ~ realEnd -->
+                <td th:text="${total.realStart + ' ~ ' + total.realEnd}">
+                    2025-03-01 ~ 2025-03-31
+                </td>
+
+                <!-- 4) delay: 0보다 크면 +N일, 아니면 0일 + 색상 조건 -->
+                <td
+                        th:text="${total.delay > 0 ? '+' + total.delay + '일' : '0일'}"
+                        th:style="${total.delay > 0} ? 'color: red;' : ''"
+                >
+                    +10일
+                </td>
+
+                <!-- 5) 상태: '지연'일 때 빨강 -->
+                <td
+                        th:text="${total.status}"
+                        th:style="${total.status == '지연'} ? 'color: red;' : ''"
+                >
+                    지연
+                </td>
             </tr>
             </tbody>
 
         </table>
+
+
 
 
         <div class="page-break"></div>
@@ -475,47 +576,6 @@
 
 
 <!-- ⬜ 04 챕터 - 성과 평가 페이지  -->
-<!--<div th:if="${pagedOutputList == null or #lists.isEmpty(pagedOutputList)}">-->
-<!--    <div class="delay-page">-->
-<!--        <div class="logo-header">-->
-<!--            <img th:src="'data:image/png;base64,' + ${contentLogo}"-->
-<!--                 alt="Core Flow Logo"-->
-<!--                 style="height: 40px; width: auto;" />-->
-<!--        </div>-->
-<!--        <p class="section-title">04 성과 평가</p>-->
-<!--        <div>-->
-<!--            <div class="sub-title">성과 평가</div>-->
-<!--            <table class="info-table">-->
-<!--                <tr>-->
-<!--                    <th>전체 납기 준수율</th>-->
-<!--                    <th>전체 태스크</th>-->
-<!--                    <th>기한 내 완료</th>-->
-<!--                    <th>기한 내 미완료</th>-->
-<!--                    <th>평균 지연일</th>-->
-<!--                    <th>총 지연일</th>-->
-<!--                </tr>-->
-<!--                <tr>-->
-<!--                    <td style="color: #0A84FF; font-weight: bold;" th:text="${OTD}"></td>-->
-<!--                    <td th:text="${totalTask}"></td>-->
-<!--                    <td th:text="${completedOnTime}"></td>-->
-<!--                    <td style="color: red; font-weight:bold;" th:text="${notCompletedOnTime}"></td>-->
-<!--                    <td style="color: red; font-weight:bold;" th:text="${meanDelay}"></td>-->
-<!--                    <td style="color: red; font-weight:bold;" th:text="${totalDelay}"></td>-->
-<!--                </tr>-->
-<!--            </table>-->
-
-<!--            <div class="sub-title" style="margin-top: 20px;">주요 병목 공정</div>-->
-<!--            <div style="font-size: 12px;">-->
-<!--                <span th:each="task, idx : ${delayedTaskList}">-->
-<!--                    <span th:text="${task.getTaskName()}"></span><span th:if="${!idx.last}">, </span>-->
-<!--                </span>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--        <div class="sub-title" style="margin-top: 20px;">산출물 목록</div>-->
-<!--        <p style="font-size: 10px;">산출물 내역이 없습니다.</p>-->
-
-<!--    </div>-->
-<!--</div>-->
 <!--데이터 있는 경우-->
 <div class="delay-page">
     <div class="logo-header">
@@ -527,22 +587,57 @@
         <!-- 평가 요약 정보는 첫 페이지에만 -->
         <div>
             <div class="sub-title">성과 평가</div>
-            <table class="info-table">
-                <tr>
-                    <th>전체 납기 준수율</th>
-                    <th>전체 태스크</th>
-                    <th>기한 내 완료</th>
-                    <th>기한 내 미완료</th>
-                    <th>평균 지연일</th>
-                    <th>총 지연일</th>
+
+            <table class="info-table no-border">
+                <tr >
+                    <th style="width: 112px;">
+                        <span class="stat-icon">■</span>
+                        전체 납기 준수율</th>
+                    <th style="width: 112px;">
+                        <span class="stat-icon">■</span>
+                        전체 태스크</th>
+                    <th style="width: 112px;">
+                        <span class="stat-icon">■
+                        </span>기한 내 완료</th>
+                    <th style="width: 112px;">
+                        <span class="stat-icon">■</span>
+                        기한 내 미완료</th>
+                    <th style="width: 112px;">
+                        <span class="stat-icon">■</span>
+                        평균 지연일</th>
+                    <th style="width: 112px;">
+                        <span class="stat-icon">■</span>
+                        총 지연일</th>
                 </tr>
                 <tr>
-                    <td style="color: #0A84FF; font-weight: bold;" th:text="${OTD}"></td>
-                    <td th:text="${totalTask}"></td>
-                    <td th:text="${completedOnTime}"></td>
-                    <td style="color: red; font-weight:bold;" th:text="${notCompletedOnTime}"></td>
-                    <td style="color: red; font-weight:bold;" th:text="${meanDelay}"></td>
-                    <td style="color: red; font-weight:bold;" th:text="${totalDelay}"></td>
+                    <td style="color: #0A84FF; font-weight: bold; text-align:right; font-size:15px;"
+                        th:text="${OTD} + ' %'">
+                        90%</td>
+                    <td th:text="${totalTask} + ' 개'"
+                        style="font-weight: bold; text-align:right; font-size:15px;">
+                        10개
+                    </td>
+                    <td th:text="${completedOnTime} + ' 개'"
+                        style="font-weight: bold; text-align:right; font-size:15px;">
+                        10개
+                    </td>
+                    <td style="font-weight: bold; text-align:right; font-size:15px;"
+                        th:text="${notCompletedOnTime} + ' 개'">
+                        10개
+                    </td>
+                    <td
+                            th:text="${meanDelay} + ' 일'"
+                            th:style="${meanDelay > 0}
+                            ? 'color: red; font-weight: bold; text-align: right; font-size: 15px;'
+                            : 'color: #222; text-align: right; font-size: 15px;'">10일
+                        <!-- 예시: 0일 또는 5일 -->
+                    </td>
+                    <td
+                            th:text="${totalDelay} + ' 일'"
+                            th:style="${totalDelay > 0}
+                            ? 'color: red; font-weight: bold; text-align: right; font-size: 15px;'
+                            : 'color: #222; text-align: right; font-size: 15px;'"> 10일
+                    </td>
                 </tr>
             </table>
 
@@ -551,6 +646,14 @@
                 <span th:each="task, idx : ${delayedTaskList}">
                     <span th:text="${task.getTaskName()}">exex</span><span th:if="${!idx.last}">, </span>
                 </span>
+            </div>
+
+            <!-- 2) 스택형 막대 차트 -->
+
+            <div style="text-align:center; margin-top:10px;">
+                <img th:src="'data:image/png;base64,' + ${bottleneckChart}"
+                     alt="주요 병목 공정 차트"
+                     style="max-width:100%; height:auto;" />
             </div>
 
         </div>
