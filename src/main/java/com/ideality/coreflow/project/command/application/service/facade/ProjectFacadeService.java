@@ -176,9 +176,6 @@ public class ProjectFacadeService {
 
     @Transactional
     public Project createProject(ProjectCreateRequest request) {
-        if (validateStartAndEnd(request.getStartBase(), request.getEndBase())) {
-            throw new BaseException(ErrorCode.INVALID_DURATION);
-        }
 
         Project project = projectService.createProject(request);
         long roleDirectorId = roleService.findRoleByName(RoleName.DIRECTOR);
@@ -308,9 +305,6 @@ public class ProjectFacadeService {
 
     private Long createTaskWithDepts(Long projectId, NodeDTO node) {
         NodeDataDTO data = node.getData();
-        if (validateStartAndEnd(LocalDate.parse(data.getStartBaseLine()), LocalDate.parse(data.getEndBaseLine()))) {
-            throw new BaseException(ErrorCode.INVALID_DURATION);
-        }
 
         RequestTaskDTO taskDTO = RequestTaskDTO.builder()
                 .label(data.getLabel())
@@ -339,10 +333,6 @@ public class ProjectFacadeService {
         /* 설명. “읽기-쓰기 분리 전략”
          *  중복 select를 방지하기 위해 읽기부터
          * */
-        if (validateStartAndEnd(requestTaskDTO.getStartBaseLine(), requestTaskDTO.getEndBaseLine())) {
-            throw new BaseException(ErrorCode.INVALID_DURATION);
-        }
-
 
         boolean isParticipant = participantQueryService.isParticipant(userId, requestTaskDTO.getProjectId());
 
@@ -491,9 +481,6 @@ public class ProjectFacadeService {
 //        if (!isParticipant) {
 //            throw new BaseException(ErrorCode.ACCESS_DENIED);
 //        }
-        if (validateStartAndEnd(requestDetailDTO.getStartBase(), requestDetailDTO.getEndBase())) {
-            throw new BaseException(ErrorCode.INVALID_DURATION);
-        }
 
         Long detailId = detailService.createDetail(requestDetailDTO);
         log.info("세부 일정 생성");
@@ -818,10 +805,5 @@ public class ProjectFacadeService {
 
         /* 설명. 선행 일정, 후행 일정 삭제를 한번에 위임 */
         relationService.updateRelationList(requestRelationUpdateDTO);
-    }
-
-    // end가 start보다 앞이면 true 반환
-    private boolean validateStartAndEnd(LocalDate start, LocalDate end) {
-        return end.isBefore(start);
     }
 }
