@@ -76,10 +76,18 @@ public class AuthServiceImpl implements AuthService {
     public void logout(String accessToken) {
         Long userId = jwtUtil.getUserIdFromToken(accessToken);
 
-        // AccessToken 블랙리스트 처리
-        long expiration = jwtUtil.getExpiration(accessToken);
-        String blacklistKey = "Blacklist:" + accessToken;
-        redisTemplate.opsForValue().set(blacklistKey, "logout", expiration, TimeUnit.MILLISECONDS);
+        // AccessToken 블랙리스트 처리 (TTL: 현재 시점 기준으로 계산)
+        long expirationTime = jwtUtil.getExpiration(accessToken); // 만료 시점 (밀리초)
+        log.info("expirationTime: {}", expirationTime);
+        long now = System.currentTimeMillis();
+        long ttl = expirationTime - now;
+
+        log.info("ttl = {}", ttl);
+        // 0 이하인 경우 예외 처리 또는 최소 TTL 설정
+        if (ttl > 0) {
+            String blacklistKey = "Blacklist:" + accessToken;
+            redisTemplate.opsForValue().set(blacklistKey, "logout", ttl, TimeUnit.MILLISECONDS);
+        }
 
         // Redis에 저장된 RefreshToken 제거
         String refreshKey = "Refresh:" + userId;
