@@ -11,6 +11,7 @@ import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.command.domain.repository.ParticipantRepository;
 import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
+import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,7 @@ import static com.ideality.coreflow.common.exception.ErrorCode.TASK_NOT_FOUND;
 public class DetailServiceImpl implements DetailService {
 
     private final WorkRepository workRepository;
+    private final HolidayQueryService holidayQueryService;
 
     @Override
     @Transactional
@@ -110,11 +112,24 @@ public class DetailServiceImpl implements DetailService {
 
         log.info(requestDetailDTO.toString());
         // 기존 세부 일정 조회
-        Optional<Work> existingDetailOptional = workRepository.findById(detailId);
-        if (existingDetailOptional.isEmpty()) {
-            throw new BaseException(ErrorCode.RESOURCE_NOT_FOUND);  // BaseException을 사용하여 리소스를 찾지 못했을 때 예외 처리
+        Work existingDetail = workRepository.findById(detailId).orElseThrow(() -> new BaseException(ErrorCode.RESOURCE_NOT_FOUND));
+
+        // 지연일 계산 후 추가
+        Long originalDuration = ChronoUnit.DAYS.between(existingDetail.getStartExpect(), existingDetail.getEndExpect())
+                                +1
+                                -holidayQueryService.countHolidaysBetween(existingDetail.getStartExpect(), existingDetail.getEndExpect());
+        System.out.println("originalDuration = " + originalDuration);
+        Long newDuration = ChronoUnit.DAYS.between(requestDetailDTO.getExpectStart(), requestDetailDTO.getExpectEnd())
+                                +1
+                                -holidayQueryService.countHolidaysBetween(requestDetailDTO.getExpectStart(), requestDetailDTO.getExpectEnd());
+        System.out.println("newDuration = " + newDuration);
+        if(newDuration > originalDuration){
+            System.out.println("existingDetail.getDelayDays() = " + existingDetail.getDelayDays());
+            Long newDelayDays = existingDetail.getDelayDays() + (newDuration - originalDuration);
+            System.out.println("newDelayDays = " + Math.toIntExact(newDelayDays));
+            requestDetailDTO.setDelayDays(Math.toIntExact(newDelayDays));
+            System.out.println("requestDetailDTO = " + requestDetailDTO);
         }
-        Work existingDetail = existingDetailOptional.get();
 
         // 세부 일정 수정 (name, description, deptId 등)
         existingDetail.updateDetail(requestDetailDTO);

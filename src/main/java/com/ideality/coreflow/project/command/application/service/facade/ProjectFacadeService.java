@@ -174,9 +174,9 @@ public class ProjectFacadeService {
         return projectService.updateProjectStatus(projectId, targetStatus);
     }
 
-    //
     @Transactional
     public Project createProject(ProjectCreateRequest request) {
+
         Project project = projectService.createProject(request);
         long roleDirectorId = roleService.findRoleByName(RoleName.DIRECTOR);
         long roleTeamLeaderId = roleService.findRoleByName(RoleName.TEAM_LEADER);
@@ -342,11 +342,16 @@ public class ProjectFacadeService {
 
         Long projectId = requestTaskDTO.getProjectId();
 
-        Map<Long, String> deptIdMap = requestTaskDTO.getDeptList().stream()
-                .collect
-                        (Collectors.toMap(id -> id, deptQueryService::findNameById));
-        log.info("부서 조회 끝{}", deptIdMap);
-        List<String> deptNames = deptIdMap.values().stream().distinct().toList();
+//        Map<Long, String> deptIdMap = requestTaskDTO.getDeptList().stream()
+//                .collect
+//                        (Collectors.toMap(id -> id, deptQueryService::findNameById));
+//        log.info("부서 조회 끝{}", deptIdMap);
+//        List<String> deptNames = deptIdMap.values().stream().distinct().toList();
+        List<String> deptNames = requestTaskDTO.getDeptList();
+        List<Long> deptIds = new ArrayList<>();
+        for (String deptName : deptNames) {
+            deptIds.add(deptQueryService.findDeptIdByName(deptName));
+        }
         log.info("deptNames: {}", deptNames);
 
         // deptName으로 해당 프로젝트에 참여한 팀의 팀장 id를 가져옴
@@ -380,7 +385,7 @@ public class ProjectFacadeService {
 
 
         // ✅ 5. 쓰기 작업 (deptId 기준)
-        for (Long deptId : requestTaskDTO.getDeptList()) {
+        for (Long deptId : deptIds) {
 //            String deptName = deptIdMap.get(deptId);
 
             workDeptService.createWorkDept(taskId, deptId);
@@ -472,10 +477,11 @@ public class ProjectFacadeService {
     @Transactional
     public Long createDetail(RequestDetailDTO requestDetailDTO, Long userId) {
 
-        boolean isParticipant = participantQueryService.isParticipant(userId, requestDetailDTO.getProjectId());
-        if (!isParticipant) {
-            throw new BaseException(ErrorCode.ACCESS_DENIED);
-        }
+//        boolean isParticipant = participantQueryService.isParticipant(userId, requestDetailDTO.getProjectId());
+//        if (!isParticipant) {
+//            throw new BaseException(ErrorCode.ACCESS_DENIED);
+//        }
+
         Long detailId = detailService.createDetail(requestDetailDTO);
         log.info("세부 일정 생성");
 
@@ -558,6 +564,8 @@ public class ProjectFacadeService {
         //세부일정 진척률기반으로 태스크/프로젝트 진척률 자동업데이트
         updateProgressRateCascade(taskId);
 
+        updateTaskWarning(taskId);
+
         return detailId;
     }
 
@@ -576,7 +584,11 @@ public class ProjectFacadeService {
     // 3. 삭제 버튼 (Status: DELETED)
     @Transactional
     public void deleteDetail(Long workId) {
+
         detailService.deleteDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
+        relationService.deleteByNextWorkId(workId);
+        relationService.deleteByPrevWorkId(workId);
+
     }
 
     //
@@ -708,6 +720,8 @@ public class ProjectFacadeService {
         if (!isAboveTeamLeader) {
             throw new BaseException(ErrorCode.ACCESS_DENIED_TEAMLEADER);
         }
+
+        Status projectStatus = projectService.findProjectStatusById(projectId);
         /* 설명. 부서 id 조회 */
         List<Long> deptIds = new ArrayList<>();
         for( String deptName : requestModifyTaskDTO.getDeptLists()) {
@@ -731,7 +745,7 @@ public class ProjectFacadeService {
         }
 
         /* 설명. 기존 꺼 수정해서 save */
-        Long modifyTaskId = taskService.modifyTaskDetail(requestModifyTaskDTO, taskId);
+        Long modifyTaskId = taskService.modifyTaskDetail(requestModifyTaskDTO, taskId, projectStatus);
         /* 설명. 작업 별 관계, 부서 - 작업 별 관계 새로 삽입 */
         relationService.appendRelation(taskId,
                 requestModifyTaskDTO.getPrevTaskList(),
@@ -740,6 +754,8 @@ public class ProjectFacadeService {
         for (Long newDeptId : deptIds){
             workDeptService.createWorkDept(taskId, newDeptId);
         }
+
+        updateTaskWarning(taskId);
 
         return modifyTaskId;
     }

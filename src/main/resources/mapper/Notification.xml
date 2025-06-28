@@ -4,6 +4,19 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.ideality.coreflow.notification.query.mapper.NotificationMapper">
+
+    <!-- 읽지 않은 결재 알림 조회 쿼리 -->
+    <select id="selectUnreadApprovalNotifications" resultType="com.ideality.coreflow.notification.command.domain.aggregate.Notification">
+        SELECT n.*
+        FROM notification n
+                 JOIN notification_recipients nr ON n.id = nr.notification_id
+        WHERE n.status = 'SENT'
+          AND n.target_type = 'APPROVAL'
+          AND nr.user_id = #{userId}
+          AND n.status != 'READ'
+        AND n.is_auto_delete = false  <!-- 삭제되지 않은 알림만 조회 -->
+    </select>
+
     <!-- 사용자별 알림 조회 쿼리 -->
     <select id="getMyNotifications" resultType="com.ideality.coreflow.notification.command.domain.aggregate.Notification">
         SELECT n.*

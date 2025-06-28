@@ -114,10 +114,16 @@ public class Work {
 	}
 
 	public void updateDetail(RequestDetailDTO requestDetailDTO) {
+		if (requestDetailDTO.getDelayDays() != null) this.delayDays = requestDetailDTO.getDelayDays();
 		if (requestDetailDTO.getName() != null) this.name = requestDetailDTO.getName();
 		if (requestDetailDTO.getDescription() != null) this.description = requestDetailDTO.getDescription();
 		if (requestDetailDTO.getExpectEnd() != null) this.endExpect = requestDetailDTO.getExpectEnd();
 		if (requestDetailDTO.getProgress() != null) this.progressRate = requestDetailDTO.getProgress();
+	}
+
+	public void updateBaseLine(LocalDate startExpect, LocalDate endExpect) {
+		this.startBase = startExpect;
+		this.endBase = endExpect;
 	}
 }
 

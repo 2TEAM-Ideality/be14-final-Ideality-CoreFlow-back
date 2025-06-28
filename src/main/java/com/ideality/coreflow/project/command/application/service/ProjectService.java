@@ -31,4 +31,5 @@ public interface ProjectService {
 
     List<Project> findAllByStatusNotIn(List<Status> statuses);
 
+    Status findProjectStatusById(Long projectId);
 }

@@ -172,7 +172,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public Long modifyTaskDetail(RequestModifyTaskDTO requestModifyTaskDTO, Long taskId) {
+    public Long modifyTaskDetail(RequestModifyTaskDTO requestModifyTaskDTO, Long taskId, Status status) {
         Work modifyTask =
                 workRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
 
@@ -181,6 +181,9 @@ public class TaskServiceImpl implements TaskService {
                 requestModifyTaskDTO.getDescription(),
                 requestModifyTaskDTO.getStartExpect(),
                 requestModifyTaskDTO.getEndExpect());
+        if (status == Status.PENDING) {
+            modifyTask.updateBaseLine(requestModifyTaskDTO.getStartExpect(), requestModifyTaskDTO.getEndExpect());
+        }
         return modifyTask.getId();
     }
 
