@@ -159,13 +159,27 @@ jobs:
       - name: Check contents of deploy.zip
         run: unzip -l deploy/deploy.zip
 
+      - name : Get currennt environment
+        run: |
+          aws s3 cp s3://coreflow-deploy-status/deploy-status.txt ./deploy-status.txt --region ap-northeast-2
+          CURRENT_ENV=$(cat deploy-status.txt)
+          echo "CURRENT_ENV=$CURRENT_ENV" >> $GITHUB_ENV
+
+      - name: Set target environment
+        run: |
+          if [ "$CURRENT_ENV" == "blue" ]; then
+            echo "TARGET_ENV=Coreflow-be-green-env" >> $GITHUB_ENV
+          else
+            echo "TARGET_ENV=Coreflow-be-env" >> $GITHUB_ENV
+          fi
+
       - name: Beanstalk Deploy
         uses: einaregilsson/beanstalk-deploy@v22
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           application_name: coreflow-be
-          environment_name: Coreflow-be-env
+          environment_name: ${{ env.TARGET_ENV }}
           version_label: github-action-${{ steps.current-time.outputs.formattedTime }}
           region: ap-northeast-2
           deployment_package: deploy/deploy.zip
