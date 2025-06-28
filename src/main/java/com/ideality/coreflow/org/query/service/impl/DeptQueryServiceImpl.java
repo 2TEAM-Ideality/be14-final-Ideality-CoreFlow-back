@@ -1,6 +1,7 @@
 package com.ideality.coreflow.org.query.service.impl;
 
 import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.project.command.application.service.WorkService;
 import com.ideality.coreflow.project.query.dto.DepartmentDTO;
 import com.ideality.coreflow.org.query.mapper.DeptMapper;
 import com.ideality.coreflow.org.query.service.DeptQueryService;
@@ -17,6 +18,7 @@ import static com.ideality.coreflow.common.exception.ErrorCode.DEPARTMENT_NOT_FO
 public class DeptQueryServiceImpl implements DeptQueryService {
 
     private final DeptMapper deptMapper;
+    private final WorkService workService;
 
     @Override
     public String findNameById(Long id) {
@@ -49,6 +51,18 @@ public class DeptQueryServiceImpl implements DeptQueryService {
     public Long findDeptIdByName(String deptName) {
         return deptMapper.findDeptIdByName(deptName)
             .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
+    }
+
+    @Override
+    public List<DepartmentDTO> findDeptListByTaskId(Long workId) {
+        Long taskId = workService.findTaskIdByDetailId(workId);
+
+        //
+        if (taskId != null) {
+            return deptMapper.findDeptListByTaskId(taskId);
+        } else {
+            return deptMapper.findDeptListByTaskId(workId);
+        }
     }
 
 
