@@ -125,7 +125,7 @@ public enum ErrorCode {
     ACCESS_DENIED_TEAMLEADER("ACCESS_DENIED_TEAMLEADER", "팀 리더 이상만 이용할 수 있는 권한입니다.",  HttpStatus.FORBIDDEN),
     ACCESS_DENIED_PROJECT("ACCESS_DENIED_PROJECT", "프로젝트 참여자가 이용할 수 있는 권한입니다.", HttpStatus.FORBIDDEN),
     NOT_COMMENT_WRITER("NOT_COMMENT_WRITER", "댓글 작성자가 아닙니다.", HttpStatus.FORBIDDEN),
-    ;
+    INVALID_DURATION("INVALID_DURATION", "종료일이 시작일을 앞설 수 없습니다.", HttpStatus.BAD_REQUEST);
     private final String code;
     private final String message;
     private final HttpStatus httpStatus;

@@ -14,6 +14,7 @@ import java.util.List;
 @Setter
 @ToString
 @EqualsAndHashCode
+@Builder
 public class RequestModifyTaskDTO {
     private Long taskId;
     private Long projectId;

@@ -4,6 +4,11 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ideality.coreflow.org.query.mapper.DeptMapper">
 
+    <resultMap id="deptListMap" type="com.ideality.coreflow.project.query.dto.DepartmentDTO">
+        <id column="deptId" property="DEPT_ID" />
+        <result column="deptName" property="DEPT_NAME" />
+    </resultMap>
+
     <select id="findNameById" resultType="string">
         SELECT name
           FROM dept
@@ -14,6 +19,16 @@
         SELECT dept_code
         FROM dept
         WHERE name = #{deptName}
+    </select>
+
+    <select id="findDeptListByTaskId" resultMap="deptListMap">
+        SELECT DISTINCT
+               d.id AS DEPT_ID
+             , d.name AS DEPT_NAME
+          FROM dept d
+          LEFT JOIN work_dept wd ON wd.dept_id = d.id
+          LEFT JOIN work w ON wd.work_id = w.id
+         WHERE w.id = #{taskId}
     </select>
 
 

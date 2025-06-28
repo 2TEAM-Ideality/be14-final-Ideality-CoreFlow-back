@@ -22,8 +22,11 @@
         <result property="requesterName" column="REQUESTER_NAME" />
         <result property="approverName" column="APPROVER_NAME" />
         <result property="title" column="TITLE" />
+        <result property="createdAt" column="CREATED_AT" />
         <result property="approvedAt" column="APPROVED_AT" />
+        <result property="approvalType" column="APPROVAL_TYPE" />
         <result property="approvalStatus" column="APPROVAL_STATUS" />
+        <result property="projectName" column="PROJECT_NAME" />
     </resultMap>
 
     <resultMap id="ApprovalParticipantResultMap" type="com.ideality.coreflow.approval.query.dto.ApprovalParticipantDTO">
@@ -141,12 +144,17 @@
              , u1.name AS REQUESTER_NAME
              , u2.name AS APPROVER_NAME
              , a.title AS TITLE
+             , a.created_at AS CREATED_AT
              , a.approved_at AS APPROVED_AT
+             , a.type AS APPROVAL_TYPE
              , a.status AS APPROVAL_STATUS
+             , p.name AS PROJECT_NAME
           FROM approval a
           LEFT JOIN user u1 ON a.user_id = u1.id
           LEFT JOIN approval_participant ap ON a.id = ap.approval_id
           LEFT JOIN user u2 ON ap.user_id = u2.id
+          LEFT JOIN work w ON a.work_id = w.id
+          LEFT JOIN project p ON w.project_id = p.id
          WHERE ap.user_id = #{userId} AND ap.role = 'APPROVER'
          ORDER BY a.created_at DESC
     </select>
@@ -158,12 +166,17 @@
              , u1.name AS REQUESTER_NAME
              , u2.name AS APPROVER_NAME
              , a.title AS TITLE
+             , a.created_at AS CREATED_AT
              , a.approved_at AS APPROVED_AT
+             , a.type AS APPROVAL_TYPE
              , a.status AS APPROVAL_STATUS
+             , p.name AS PROJECT_NAME
           FROM approval a
           LEFT JOIN user u1 ON a.user_id = u1.id
           LEFT JOIN approval_participant ap ON ap.approval_id = a.id
           LEFT JOIN user u2 ON ap.user_id = u2.id
+          LEFT JOIN work w ON a.work_id = w.id
+          LEFT JOIN project p ON w.project_id = p.id
          WHERE a.user_id = #{userId} AND ap.role = 'APPROVER'
          ORDER BY a.created_at DESC
     </select>
@@ -174,12 +187,17 @@
              , u1.name AS REQUESTER_NAME
              , u2.name AS APPROVER_NAME
              , a.title AS TITLE
+             , a.created_at AS CREATED_AT
              , a.approved_at AS APPROVED_AT
+             , a.type AS APPROVAL_TYPE
              , a.STATUS AS APPROVAL_STATUS
+             , p.name AS PROJECT_NAME
           FROM approval a
           LEFT JOIN user u1 ON a.user_id = u1.id
           LEFT JOIN approval_participant ap ON ap.approval_id = a.id
           LEFT JOIN user u2 ON ap.user_id = u2.id
+          LEFT JOIN work w ON a.work_id = w.id
+          LEFT JOIN project p ON w.project_id = p.id
          WHERE a.work_id = #{taskId}
            AND a.status = 'APPROVED'
            AND ap.role = 'APPROVER'

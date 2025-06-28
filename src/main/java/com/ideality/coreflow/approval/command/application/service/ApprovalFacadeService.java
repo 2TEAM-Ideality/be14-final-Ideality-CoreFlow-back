@@ -113,6 +113,16 @@ public class ApprovalFacadeService {
 
             // 반려 사유 업데이트
             approvalService.updateRejectReson(approval, request.getReason());
+
+            // 결재 승인 후 알림 전송
+            String notificationContent = "결재가 반려되었습니다. [" + approval.getTitle() + "]";
+            notificationService.sendNotification(
+                    approval.getUserId(),    // 결재 요청자 ID
+                    notificationContent,     // 알림 내용
+                    approval.getId(),        // 대상 ID (결재 ID)
+                    NotificationTargetType.APPROVAL      // 대상 타입 (결재)
+            );
+
         } else {
             throw new BaseException(ErrorCode.ACCESS_DENIED_APPROVAL);
         }

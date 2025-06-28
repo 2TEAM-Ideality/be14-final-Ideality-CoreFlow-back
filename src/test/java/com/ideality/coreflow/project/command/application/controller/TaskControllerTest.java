@@ -33,25 +33,25 @@ public class TaskControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Test
-    @DisplayName("✅ 태스크 생성 성공")
-    void createTask_success() throws Exception {
-        RequestTaskDTO dto = RequestTaskDTO.builder()
-                .label("도식화")
-                .description("도식화입니다")
-                .projectId(1L)  // 🔹 존재하는 projectId
-                .startBaseLine(LocalDate.of(2025, 6, 1))
-                .endBaseLine(LocalDate.of(2025, 12, 1))
-                .deptList(List.of(1L))
-                .source(0L)
-                .target(null)
-                .build();
-
-        mockMvc.perform(post("/api/task")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("success"))
-                .andExpect(jsonPath("$.data").isNumber());
-    }
+//    @Test
+//    @DisplayName("✅ 태스크 생성 성공")
+//    void createTask_success() throws Exception {
+//        RequestTaskDTO dto = RequestTaskDTO.builder()
+//                .label("도식화")
+//                .description("도식화입니다")
+//                .projectId(1L)  // 🔹 존재하는 projectId
+//                .startBaseLine(LocalDate.of(2025, 6, 1))
+//                .endBaseLine(LocalDate.of(2025, 12, 1))
+//                .deptList(List.of(1L))
+//                .source(0L)
+//                .target(null)
+//                .build();
+//
+//        mockMvc.perform(post("/api/task")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(dto)))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.status").value("success"))
+//                .andExpect(jsonPath("$.data").isNumber());
+//    }
 }

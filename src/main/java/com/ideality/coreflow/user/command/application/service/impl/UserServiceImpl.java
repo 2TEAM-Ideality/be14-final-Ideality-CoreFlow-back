@@ -3,8 +3,10 @@ package com.ideality.coreflow.user.command.application.service.impl;
 import com.ideality.coreflow.auth.command.domain.aggregate.LoginType;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.infra.s3.S3Service;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.tenant.command.application.dto.ResponseInitialAdmin;
+import com.ideality.coreflow.user.command.application.dto.RequestUpdateProfile;
 import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import com.ideality.coreflow.user.command.application.service.UserService;
 import com.ideality.coreflow.user.command.domain.aggregate.OrgType;
@@ -14,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -26,6 +27,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final S3Service s3Service;
 
     @Override
     public UserInfoDTO findLoginInfoByIdentifier(String identifier, LoginType loginType) {
@@ -103,6 +105,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+
     @Override
     public String findPwdById(long id) {
         return userRepository.findById(id).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND)).getPassword();
@@ -171,6 +174,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUserProfileImg(long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
+        s3Service.deleteFileByUrl(user.getProfileImage());
         user.deleteProfile();
         userRepository.save(user);
     }
@@ -211,5 +215,24 @@ public class UserServiceImpl implements UserService {
                 .password(user.getPassword())
                 .schemaName(schemaName)
                 .build();
+    }
+
+    /* 설명. S3 파일 업로드 */
+    @Override
+    public String udpateProfileImage(RequestUpdateProfile req) {
+        User user = userRepository.findById(req.getId()).orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND));
+
+        // 기존 이미지 삭제
+        if (user.getProfileImage() != null) {
+            s3Service.deleteFileByUrl(user.getProfileImage());
+        }
+
+        // 새 이미지 업로드
+        String imageUrl = s3Service.uploadImage(req.getProfileImage(), "profile-image");
+
+        // 유저 엔티티 수정
+        user.updateProfileImage(imageUrl);
+        userRepository.save(user);
+        return imageUrl;
     }
 }

@@ -112,11 +112,7 @@ public class DetailServiceImpl implements DetailService {
 
         log.info(requestDetailDTO.toString());
         // 기존 세부 일정 조회
-        Optional<Work> existingDetailOptional = workRepository.findById(detailId);
-        if (existingDetailOptional.isEmpty()) {
-            throw new BaseException(ErrorCode.RESOURCE_NOT_FOUND);  // BaseException을 사용하여 리소스를 찾지 못했을 때 예외 처리
-        }
-        Work existingDetail = existingDetailOptional.get();
+        Work existingDetail = workRepository.findById(detailId).orElseThrow(() -> new BaseException(ErrorCode.RESOURCE_NOT_FOUND));
 
         // 지연일 계산 후 추가
         Long originalDuration = ChronoUnit.DAYS.between(existingDetail.getStartExpect(), existingDetail.getEndExpect())
