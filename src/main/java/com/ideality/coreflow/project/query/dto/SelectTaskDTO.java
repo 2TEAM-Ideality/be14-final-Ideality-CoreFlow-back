@@ -23,6 +23,8 @@ public class SelectTaskDTO {
     private LocalDate endBaseLine;
     private LocalDate expectStartDate;
     private LocalDate expectEndDate;
+    private LocalDate startReal;
+    private LocalDate endReal;
     private Double progressRate;
     private Double passedRate;
     private int delayDay;

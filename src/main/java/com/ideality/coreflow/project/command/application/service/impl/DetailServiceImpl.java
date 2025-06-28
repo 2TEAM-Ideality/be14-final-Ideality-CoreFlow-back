@@ -175,11 +175,11 @@ public class DetailServiceImpl implements DetailService {
     // 3. 삭제 버튼 (Status: DELETED)
     @Transactional
     @Override
-    public void deleteDetail(Long workId) {
+    public Long deleteDetail(Long workId) {
         Work work = workRepository.findById(workId)
                 .orElseThrow(() -> new BaseException(ErrorCode.DETAIL_NOT_FOUND));
 
         work.softDeleteTask();  // Work 엔티티에서 처리
-        workRepository.save(work);  // 업데이트된 Work 저장
+       return workRepository.save(work).getParentTaskId();  // 업데이트된 Work 저장
     }
 }
