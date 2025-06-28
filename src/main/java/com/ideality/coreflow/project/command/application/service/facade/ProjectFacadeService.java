@@ -672,7 +672,7 @@ public class ProjectFacadeService {
         notificationRecipientsService.createRecipients(participantUser, notificationId);
     }
 
-    // 프로젝트 분석 리포트 다운로드
+    // 프로젝트 분석 리포트 생성 및 다운로드
     @Transactional
     public void downloadReport(Long projectId, HttpServletResponse response) {
         if (!projectService.isCompleted(projectId)) {
