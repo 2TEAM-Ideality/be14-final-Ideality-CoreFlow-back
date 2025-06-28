@@ -64,6 +64,7 @@ public class WorkDomainServiceImpl implements WorkDomainService {
     // 두 기간 사이의 워킹데이 계산
     @Override
     public Integer calculateWorkingDutarion(LocalDate startReal, LocalDate endReal) {
+        if (startReal == null || endReal == null) return null;
         long totalDuration = ChronoUnit.DAYS.between(startReal, endReal) + 1;
         int holidays = holidayQueryService.countHolidaysBetween(startReal, endReal);
         return (int)(totalDuration - holidays);
