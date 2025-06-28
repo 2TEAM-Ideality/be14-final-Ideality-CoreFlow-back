@@ -239,28 +239,25 @@ public class PdfServiceImpl implements PdfService {
 			// Random rnd = new Random();
 			// 지연 태스크 비율
 			// 1) 총 지연일 합계
-			long totalDelayDays = delayedTaskList.stream()
-				.mapToLong(CompletedTaskDTO::getDelayDays)
-				.sum();
+			// long totalDelayDays = delayedTaskList.stream()
+			// 	.mapToLong(CompletedTaskDTO::getDelayDays)
+			// 	.sum();
+			//
+			// // 2) (태스크명, 지연일, percent) 맵 리스트 생성
+			// List<Map<String, Object>> delayPercentList = new ArrayList<>();
+			// for (CompletedTaskDTO dto : delayedTaskList) {
+			// 	double percent = totalDelayDays > 0
+			// 		? Math.round(dto.getDelayDays() * 10000.0 / totalDelayDays) / 100.0  // 소수 둘째자리까지 반올림
+			// 		: 0.0;
+			// 	Map<String,Object> m = new HashMap<>();
+			// 	m.put("taskName", dto.getTaskName());
+			// 	m.put("delayDays", dto.getDelayDays());
+			// 	m.put("percent", percent);
+			// 	delayPercentList.add(m);
+			// }
 
-			// 2) (태스크명, 지연일, percent) 맵 리스트 생성
-			List<Map<String, Object>> delayPercentList = new ArrayList<>();
-			for (CompletedTaskDTO dto : delayedTaskList) {
-				double percent = totalDelayDays > 0
-					? Math.round(dto.getDelayDays() * 10000.0 / totalDelayDays) / 100.0  // 소수 둘째자리까지 반올림
-					: 0.0;
-				Map<String,Object> m = new HashMap<>();
-				m.put("taskName", dto.getTaskName());
-				m.put("delayDays", dto.getDelayDays());
-				m.put("percent", percent);
-				delayPercentList.add(m);
-			}
-
-			context.setVariable("delayPercentList", delayPercentList);
-			log.info("▶ delayPercentList = {}", delayPercentList);
-
-			// 1. 승인된 지연 내역만 필터링
-
+			// context.setVariable("delayPercentList", delayPercentList);
+			// log.info("▶ delayPercentList = {}", delayPercentList);
 
 			// 2. 전체 지연일 합계
 			long totalDelayAll = delayList.stream()

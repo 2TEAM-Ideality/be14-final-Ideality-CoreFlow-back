@@ -43,6 +43,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import static com.ideality.coreflow.notification.command.domain.aggregate.NotificationTargetType.PROJECT;
@@ -704,6 +705,41 @@ public class ProjectFacadeService {
         // 각 프로젝트의 OTD 계산하기
         List<ProjectOTD> projectOTDList = taskQueryService.calculateProjectDTO(completedProjectList);
         for(ProjectOTD projectOTD : projectOTDList) {
+            System.out.println(projectOTD.getProjectName() + " " + projectOTD.getOtdRate());
+        }
+
+        // TODO. 시각화 테스트용 더미 데이터 추가
+        if (projectOTDList.isEmpty()) {
+            String[] categories = {"여성복", "남성복"};
+            String[] seasons = {"S/S", "F/W"};
+            String[] styles = {"오피스룩", "캐주얼", "스포티", "미니멀", "빈티지"};
+
+            for (int i = 1; i <= 15; i++) {
+                // ThreadLocalRandom : 다중 스레드 환경에서도 빠르고 안전하게 난수를 생성
+                String category = categories[ThreadLocalRandom.current().nextInt(categories.length)];
+                String season = seasons[ThreadLocalRandom.current().nextInt(seasons.length)];
+                String style = styles[ThreadLocalRandom.current().nextInt(styles.length)];
+
+                int totalTasks = ThreadLocalRandom.current().nextInt(15, 41); // 15~40개
+                int completed = ThreadLocalRandom.current().nextInt((int)(totalTasks * 0.6), totalTasks + 1); // 60~100%
+                int notCompleted = totalTasks - completed;
+                double otdRate = Math.round((completed * 100.0 / totalTasks) * 10) / 10.0;
+
+                String projectName = String.format("%s %s %s 컬렉션 런칭", category, season, style);
+
+                projectOTDList.add(ProjectOTD.builder()
+                    .projectId((long) i)
+                    .projectName(projectName)
+                    .completedOnTime(completed)
+                    .notCompletedOnTime(notCompleted)
+                    .totalTask(totalTasks)
+                    .otdRate(otdRate)
+                    .build());
+            }
+        }
+
+        // 출력 확인
+        for (ProjectOTD projectOTD : projectOTDList) {
             System.out.println(projectOTD.getProjectName() + " " + projectOTD.getOtdRate());
         }
 
