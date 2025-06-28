@@ -40,6 +40,7 @@ public class DetailController {
     @PutMapping("/update/{detailId}")
     public ResponseEntity<APIResponse<Map<String, Long>>> updateDetailWithFacade(
             @PathVariable Long detailId , @RequestBody RequestDetailDTO requestDetailDTO) {
+        System.out.println("requestDetailDTO = " + requestDetailDTO);
 
         // 퍼사드 서비스의 updateDetail 호출
         Long updatedDetailId = projectFacadeService.updateDetail(detailId, requestDetailDTO);
