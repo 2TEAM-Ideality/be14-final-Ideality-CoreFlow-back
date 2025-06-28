@@ -531,6 +531,7 @@ public class ProjectFacadeService {
             participantService.addMemberToProject(participantId, requestDetailDTO.getProjectId());
             participantService.addMemberToTask(participantId, requestDetailDTO.getParentTaskId());
         }
+        updateProgressRateCascade(requestDetailDTO.getParentTaskId());
 
         return detailId;
     }
@@ -588,10 +589,12 @@ public class ProjectFacadeService {
     @Transactional
     public void deleteDetail(Long workId) {
 
-        detailService.deleteDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
+        Long taskId = detailService.deleteDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
+        if (taskId != null) {
+            updateProgressRateCascade(workId);
+        }
         relationService.deleteByNextWorkId(workId);
         relationService.deleteByPrevWorkId(workId);
-
     }
 
     //
