@@ -28,6 +28,12 @@ public class NodeDTO {
     private Integer passedRate;
     private Integer delayDays;
     private String status;
+    private Integer slackTime;
     private Boolean warning;
     private List<DeptDTO> deptList;
+    private Integer duration;
+
+    public void updateDuration(Integer duration) {
+        this.duration = duration;
+    }
 }

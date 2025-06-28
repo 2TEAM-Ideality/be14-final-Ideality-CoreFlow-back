@@ -288,6 +288,7 @@
              , passed_rate
              , delay_days
              , status
+             , slack_time
              , warning
           FROM work
          WHERE project_id = #{projectId}

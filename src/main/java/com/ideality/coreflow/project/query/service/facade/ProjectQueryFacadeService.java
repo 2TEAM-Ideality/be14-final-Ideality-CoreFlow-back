@@ -6,6 +6,7 @@ import com.ideality.coreflow.org.command.application.service.DeptService;
 import com.ideality.coreflow.project.command.application.service.ProjectService;
 import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.application.service.WorkService;
+import com.ideality.coreflow.project.command.domain.service.WorkDomainService;
 import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.project.query.dto.CompletedProjectDTO;
 import com.ideality.coreflow.project.query.dto.DepartmentLeaderDTO;
@@ -56,6 +57,7 @@ public class ProjectQueryFacadeService {
     private final ProjectQueryService projectQueryService;
     private final ParticipantQueryService participantQueryService;
     private final WorkService workCommandService;
+    private final WorkDomainService workDomainService;
 
 
     public TaskSummaryResponse getTodayTaskSummary(Long userId) {
@@ -230,7 +232,11 @@ public class ProjectQueryFacadeService {
     }
 
     public PipelineResponseDTO getPipeline (Long projectId) {
-        return projectQueryService.getPipeline(projectId);
+        PipelineResponseDTO pipelineResponseDTO = projectQueryService.getPipeline(projectId);
+        for (NodeDTO node : pipelineResponseDTO.getNodeList()) {
+            node.updateDuration(workDomainService.calculateWorkingDutarion(node.getStartReal(), node.getEndReal()));
+        }
+        return pipelineResponseDTO;
     }
 
 

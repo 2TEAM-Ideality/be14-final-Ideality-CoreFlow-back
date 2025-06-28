@@ -12,6 +12,8 @@
         <result property="endBaseLine" column="end_base"/>
         <result property="expectStartDate" column="start_expect"/>
         <result property="expectEndDate" column="end_expect"/>
+        <result property="startReal" column="start_real"/>
+        <result property="endReal" column="end_real"/>
         <result property="progressRate" column="progress_rate"/>
         <result property="passedRate" column="passed_rate"/>
         <result property="delayDay" column="delay_days"/>
@@ -38,6 +40,8 @@
              , a.end_base
              , a.start_expect
              , a.end_expect
+             , a.start_real
+             , a.end_real
              , a.progress_rate
              , a.passed_rate
              , a.delay_days
@@ -224,6 +228,7 @@
                        MAX(child.end_expect)
                   FROM work child
                  WHERE child.parent_task_id = #{taskId}
+                   AND child.status != 'DELETED'
                ) AS subTaskEndExpect
           FROM work w
          WHERE w.id = #{taskId}
