@@ -83,5 +83,9 @@ public class Project {
 	public void updatePassedRate(Double passedRate) {
 		this.passedRate = passedRate;
 	}
+
+	public void updateStartReal(LocalDate now) {
+		this.startReal = now;
+	}
 }
 
