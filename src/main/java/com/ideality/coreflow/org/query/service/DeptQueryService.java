@@ -14,4 +14,6 @@ public interface DeptQueryService {
     List<DepartmentDTO> findAllDeptNames();
 
     Long findDeptIdByName(String deptName);
+
+    List<DepartmentDTO> findDeptListByTaskId(Long taskId);
 }

@@ -74,4 +74,9 @@ public class WorkServiceImpl implements WorkService {
     public List<Work> findAllByStatusNotIn(List<Status> statuses) {
         return workRepository.findAllByStatusNotIn(statuses);
     }
+
+    @Override
+    public Long findTaskIdByDetailId(Long workId) {
+        return workRepository.findById(workId).orElseThrow(() -> new BaseException(WORK_NOT_FOUND)).getParentTaskId();
+    }
 }
