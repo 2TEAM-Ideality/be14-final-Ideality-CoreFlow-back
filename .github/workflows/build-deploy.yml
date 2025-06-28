@@ -159,11 +159,18 @@ jobs:
       - name: Check contents of deploy.zip
         run: unzip -l deploy/deploy.zip
 
-      - name : Get currennt environment
+      - name: Get current deploy status from S3
+        id: get-status
         run: |
-          aws s3 cp s3://coreflow-deploy-status/deploy-status.txt ./deploy-status.txt --region ap-northeast-2
-          CURRENT_ENV=$(cat deploy-status.txt)
-          echo "CURRENT_ENV=$CURRENT_ENV" >> $GITHUB_ENV
+          aws s3 cp s3://coreflow-deploy-status/deploy-status.txt current_status.txt --region ap-northeast-2
+          STATUS=$(cat current_status.txt)
+          echo "Current deploy status: $STATUS"
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ap-northeast-2
+
 
       - name: Set target environment
         run: |
