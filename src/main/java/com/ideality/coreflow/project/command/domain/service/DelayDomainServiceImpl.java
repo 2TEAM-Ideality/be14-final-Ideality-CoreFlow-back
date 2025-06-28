@@ -111,7 +111,11 @@ public class DelayDomainServiceImpl implements DelayDomainService {
                 }
                 currentTask.setSlackTime(0);
 
-                projectEndExpect = delayTaskAndChildren(currentTask, realDelay, holidays, projectEndExpect, isSimulate);
+                if (!currentTask.getId().equals(taskId)) {
+                    projectEndExpect = delayTaskAndChildren(currentTask, realDelay, holidays, projectEndExpect, isSimulate, false);
+                } else {
+                    projectEndExpect = delayTaskAndChildren(currentTask, realDelay, holidays, projectEndExpect, isSimulate, true);
+                }
 
                 // 다음 노드에 realDelay를 전파
                 List<Long> nextTaskIds = relationQueryService.findNextTaskIds(currentNode.getTaskId());
@@ -202,7 +206,7 @@ public class DelayDomainServiceImpl implements DelayDomainService {
 
     private LocalDate delayTaskAndChildren(
             Work task, int delayDays, Set<LocalDate> holidays,
-            LocalDate projectEndExpect, boolean isSimulate) {
+            LocalDate projectEndExpect, boolean isSimulate, boolean isFirst) {
 
         // 현재 태스크 지연
         delaySingleWork(task, delayDays, holidays, isSimulate);
@@ -214,17 +218,19 @@ public class DelayDomainServiceImpl implements DelayDomainService {
         if (!isSimulate) {
             workRepository.save(task);
         }
-        // 하위 세부일정들 불러오기
-        List<Long> detailIds = workQueryService.selectWorkIdsByParentTaskId(task.getId());
 
-        for (Long detailId : detailIds) {
-            Work detailWork = workRepository.findById(detailId).orElseThrow(() -> new BaseException(WORK_NOT_FOUND));
-            if (isSimulate) {
-                em.detach(detailWork);
+        if (!isFirst) {
+            // 하위 세부일정들 불러오기
+            List<Long> detailIds = workQueryService.selectWorkIdsByParentTaskId(task.getId());
+
+            for (Long detailId : detailIds) {
+                Work detailWork = workRepository.findById(detailId).orElseThrow(() -> new BaseException(WORK_NOT_FOUND));
+                if (isSimulate) {
+                    em.detach(detailWork);
+                }
+                delaySingleWork(detailWork, delayDays, holidays, isSimulate);
             }
-            delaySingleWork(detailWork, delayDays, holidays, isSimulate);
         }
-
         return projectEndExpect;
     }
 }

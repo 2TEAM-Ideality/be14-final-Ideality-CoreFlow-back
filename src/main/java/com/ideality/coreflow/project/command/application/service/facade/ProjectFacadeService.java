@@ -485,6 +485,9 @@ public class ProjectFacadeService {
         Long detailId = detailService.createDetail(requestDetailDTO);
         log.info("세부 일정 생성");
 
+        // 새로 생성된 세부일정이 태스크의 범위를 넘는다면 태스크를 warning 상태로 업데이트
+        updateTaskWarning(requestDetailDTO.getParentTaskId());
+
         //1. source와 target 모두 null일 경우, 관계 설정을 생략
         if ((requestDetailDTO.getSource() == null || requestDetailDTO.getSource().isEmpty()) &&
                 (requestDetailDTO.getTarget() == null || requestDetailDTO.getTarget().isEmpty())) {
@@ -528,6 +531,7 @@ public class ProjectFacadeService {
             participantService.addMemberToProject(participantId, requestDetailDTO.getProjectId());
             participantService.addMemberToTask(participantId, requestDetailDTO.getParentTaskId());
         }
+        updateProgressRateCascade(requestDetailDTO.getParentTaskId());
 
         return detailId;
     }
@@ -585,10 +589,12 @@ public class ProjectFacadeService {
     @Transactional
     public void deleteDetail(Long workId) {
 
-        detailService.deleteDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
+        Long taskId = detailService.deleteDetail(workId);  // 실제 비즈니스 로직은 WorkService에서 처리
+        if (taskId != null) {
+            updateProgressRateCascade(workId);
+        }
         relationService.deleteByNextWorkId(workId);
         relationService.deleteByPrevWorkId(workId);
-
     }
 
     //

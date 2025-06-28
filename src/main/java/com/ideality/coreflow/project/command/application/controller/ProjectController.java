@@ -104,6 +104,4 @@ public class ProjectController {
     public void downloadReport(HttpServletResponse response, @PathVariable Long projectId) {
         projectFacadeService.downloadReport(projectId, response);
    }
-
-
 }

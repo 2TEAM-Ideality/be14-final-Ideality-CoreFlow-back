@@ -18,5 +18,5 @@ public interface DetailService {
 
     void completeDetail(Long workId);
 
-    void deleteDetail(Long workId);
+    Long deleteDetail(Long workId);
 }

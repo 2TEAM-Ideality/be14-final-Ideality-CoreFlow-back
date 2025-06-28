@@ -27,6 +27,8 @@
         LEFT JOIN dept d ON wd.dept_id = d.id          -- 부서 테이블과 연결
         WHERE w.parent_task_id = #{parentTaskId}      -- parent_task_id로 필터링
         AND wd.is_deleted = FALSE                      -- 삭제되지 않은 부서만 조회
+        AND w.status != 'DELETED'
+        AND w.status != 'CANCELLED'
     </select>
 
     <select id="findWorkDetailById" resultType="com.ideality.coreflow.project.query.dto.WorkDetailDTO">

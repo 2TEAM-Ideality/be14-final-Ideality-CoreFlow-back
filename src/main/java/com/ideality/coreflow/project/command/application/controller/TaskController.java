@@ -101,4 +101,10 @@ public class TaskController {
     public void updatePassedRate(@PathVariable Long taskId) {
         projectFacadeService.updatePassedRate(taskId, TargetType.TASK);
     }
+
+    @PatchMapping("/{taskId}/progress-rate")
+    public ResponseEntity<APIResponse<?>> updateProgressRate(@PathVariable Long taskId) {
+        projectFacadeService.updateProgressRateCascade(taskId);
+        return ResponseEntity.ok(APIResponse.success(null, "진척률 업데이트 완료"));
+    }
 }

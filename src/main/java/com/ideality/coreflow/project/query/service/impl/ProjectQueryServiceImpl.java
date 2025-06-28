@@ -94,6 +94,7 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
                         .passedRate(node.getPassedRate())
                         .delayDays(node.getDelayDays())
                         .status(node.getStatus())
+                        .slackTime(node.getSlackTime())
                         .warning(node.getWarning())
                         .deptList(workIdToDeptList.getOrDefault(node.getId(), List.of()))
                         .build())
