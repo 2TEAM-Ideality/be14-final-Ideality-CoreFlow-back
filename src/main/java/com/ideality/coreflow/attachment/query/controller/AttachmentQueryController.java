@@ -1,5 +1,7 @@
 package com.ideality.coreflow.attachment.query.controller;
 
+import java.net.URI;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -56,19 +58,10 @@ public class AttachmentQueryController {
 
 	/* 설명. 파일 다운로드 시켜주는 API */
 	@GetMapping("/attachment/{attachmentId}/download")
-	public ResponseEntity<byte[]> getPresignedDownloadUrl(@PathVariable Long attachmentId) {
-
+	public ResponseEntity<?> getPresignedDownloadUrl(@PathVariable Long attachmentId) {
 		AttachmentDownloadDTO dto = attachmentQueryService.getAttachmentDownload(attachmentId);
-		String key = s3Service.extractS3KeyFromUrl(dto.getUrl());
+		String url = dto.getUrl();
 
-		byte[] fileBytes = s3Service.getFileBytes(key); // 직접 내려주는 방식
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-		headers.setContentDisposition(ContentDisposition.builder("attachment")
-				.filename(dto.getOriginName(), StandardCharsets.UTF_8)
-				.build());
-
-		return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
+		return ResponseEntity.ok(dto.getUrl()); // 그냥 URL만 리턴
 	}
 }
