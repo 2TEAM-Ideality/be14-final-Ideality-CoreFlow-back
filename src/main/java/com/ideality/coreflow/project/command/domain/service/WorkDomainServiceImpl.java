@@ -2,8 +2,10 @@ package com.ideality.coreflow.project.command.domain.service;
 
 import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.project.command.application.dto.DateInfoDTO;
+import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
 import com.ideality.coreflow.project.query.dto.WorkProgressDTO;
+import com.ideality.coreflow.project.query.service.TaskQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,8 @@ import java.util.List;
 public class WorkDomainServiceImpl implements WorkDomainService {
 
     private final HolidayQueryService holidayQueryService;
+    private final TaskQueryService taskQueryService;
+    private final TaskService taskService;
 
     public double calculateProgressRate(List<WorkProgressDTO> works) {
         long totalDuration = 0L;
@@ -44,6 +48,10 @@ public class WorkDomainServiceImpl implements WorkDomainService {
 
         long totalDuration = ChronoUnit.DAYS.between(startBase, endBase) + 1
                 - holidayQueryService.countHolidaysBetween(startBase, endBase);
+        if (totalDuration <= 0) {
+            log.warn("Invalid totalDuration ({} days) between {} ~ {}. Returning 0%.", totalDuration, startBase, endBase);
+            return 0.0;
+        }
         log.info("totalDuration = " + totalDuration);
         long passedDates = 0;
         if (type == TargetType.PROJECT) {
@@ -68,5 +76,12 @@ public class WorkDomainServiceImpl implements WorkDomainService {
         long totalDuration = ChronoUnit.DAYS.between(startReal, endReal) + 1;
         int holidays = holidayQueryService.countHolidaysBetween(startReal, endReal);
         return (int)(totalDuration - holidays);
+    }
+
+    // task warning 처리: 태스크 예상 마감일과 하위 세부일정 예상 마감일을 비교 후 비교 결과 저장
+    public String updateTaskWarning(Long taskId) {
+        Boolean warning = taskQueryService.checkTaskWarning(taskId);    // task 예상 마감일과 하위 세부일정 예상 마감일 비교
+        taskService.setTaskWarning(taskId, warning);                    // task warning 상태 저장
+        return warning?"warning 설정됨":"warning 해제됨";
     }
 }

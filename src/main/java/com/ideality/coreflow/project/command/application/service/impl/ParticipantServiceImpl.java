@@ -1,6 +1,9 @@
 package com.ideality.coreflow.project.command.application.service.impl;
 
+import com.ideality.coreflow.common.exception.BaseException;
+import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.project.command.application.dto.ParticipantDTO;
+import com.ideality.coreflow.project.command.application.dto.RequestDeleteParticipant;
 import com.ideality.coreflow.project.command.application.service.ParticipantService;
 import com.ideality.coreflow.project.command.domain.aggregate.Participant;
 import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
@@ -127,5 +130,14 @@ public class ParticipantServiceImpl implements ParticipantService {
                                 .roleId(3L)
                                 .build());
         }
+    }
+
+    @Override
+    public void deleteParticipant(Long userId, Long targetId, TargetType targetType) {
+        List<Participant> participant = participantRepository.findByUserIdAndTargetIdAndTargetType(userId, targetId, targetType);
+        if (participant == null) {
+            return;
+        }
+        participantRepository.deleteAll(participant);
     }
 }
