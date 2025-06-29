@@ -455,6 +455,38 @@ public class PdfServiceImpl implements PdfService {
 			context.setVariable("otdComparisonComment", comment);
 			context.setVariable("evalType", evalType.trim());
 
+			// 설명. 최종 평가 요약
+			String overallSummary = "";
+
+			try {
+				String topTaskSummary = delayPercentList.stream()
+					.sorted((a, b) -> Double.compare((double) b.get("percent"), (double) a.get("percent")))
+					.limit(1)
+					.map(m -> String.format("‘%s’(%.1f%%)", m.get("taskName"), m.get("percent")))
+					.findFirst()
+					.orElse("N/A");
+
+				String topReason = delayReasonSummary.isEmpty() ? "주요 지연 사유 정보 없음" : delayReasonSummary;
+
+				String deptSummary = delayDeptSummary.isEmpty() ? "부서별 지연 정보 없음" : delayDeptSummary;
+
+				String otdEval = comment.isEmpty() ? "납기 준수율 평가 정보 없음" : comment;
+
+				overallSummary = String.join("<br/><br/>", List.of(
+					String.format("전체 납기 준수율은 %.2f%%이며,", (double) context.getVariable("OTD")),
+					String.format("평균 지연일은 %.2f일로 분석되었습니다.", (double) context.getVariable("meanDelay")),
+					String.format("주요 병목 공정은 %s 태스크입니다.", topTaskSummary),
+					topReason,
+					deptSummary,
+					otdEval
+				));
+			} catch (Exception e) {
+				log.warn("전체 평가 요약 생성 중 오류 발생", e);
+				overallSummary = "전체 프로젝트 평가 요약 정보를 생성하는 중 오류가 발생했습니다.";
+			}
+
+			context.setVariable("overallSummary", overallSummary);
+
 			// -----------------------------------------------------------------------
 
 			// 설명. 각 페이지 템플릿 렌더링
