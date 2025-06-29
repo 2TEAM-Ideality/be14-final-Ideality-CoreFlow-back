@@ -916,7 +916,7 @@ public class ProjectFacadeService {
         } else if (isAboveTeamLeader) {
             // 팀장은 팀원만 삭제 가능
             if (!isTargetTeamLeader) {
-                participantService.deleteParticipant(request.getUserId(), request.getTargetId(), TargetType.TASK);
+                participantService.deleteParticipant(request.getUserId(), request.getTargetId(), request.getTargetType());
             } else {
                 throw new BaseException(ErrorCode.ACCESS_DENIED_DELETED_PARTICIPANT);
             }
