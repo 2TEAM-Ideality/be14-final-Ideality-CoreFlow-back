@@ -29,6 +29,7 @@
         <result property="deptName" column="DEPT_NAME" />
         <result property="jobRankName" column="JOB_RANK_NAME" />
         <result property="jobRoleName" column="JOB_ROLE_NAME" />
+        <result property="roleId" column="ROLE_ID"/>
     </resultMap>
 
     <select id="selectAllUserByProjectIds" resultMap="ParticipantByProjectIds">
@@ -39,6 +40,7 @@
              , u.dept_name AS DEPT_NAME
              , u.job_rank_name AS JOB_RANK_NAME
              , u.job_role_name AS JOB_ROLE_NAME
+             , p.role_id AS ROLE_ID
           FROM participant p
           LEFT JOIN user u ON p.user_id = u.id
          WHERE p.target_type = 'PROJECT'
