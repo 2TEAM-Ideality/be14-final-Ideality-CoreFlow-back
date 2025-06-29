@@ -17,6 +17,8 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -55,11 +57,23 @@ public class HolidayService {
                     .getItems()
                     .getItem();
 
+            // 이미 DB에 저장된 날짜 불러오기
+            List<Holiday> existingHolidays = holidayRepository.findByDateBetween(
+                    LocalDate.of(year, 1, 1),
+                    LocalDate.of(year, 12, 31)
+            );
+            Set<LocalDate> existingDates = existingHolidays.stream()
+                    .map(Holiday::getDate)
+                    .collect(Collectors.toSet());
+
             List<Holiday> holidays = new ArrayList<>();
             Set<LocalDate> holidayDates = new HashSet<>();
 
             for (HolidayApiResponse.HolidayItem item : items) {
                 LocalDate date = LocalDate.parse(item.getLocdate(), DateTimeFormatter.BASIC_ISO_DATE);
+
+                if (existingDates.contains(date)) continue;
+
                 Holiday holiday = Holiday.builder()
                         .name(item.getDateName())
                         .date(date)
@@ -75,7 +89,9 @@ public class HolidayService {
             LocalDate end=LocalDate.of(year,12,31);
             for(LocalDate date=start;!date.isAfter(end);date=date.plusDays(1)){
                 DayOfWeek day=date.getDayOfWeek();
-                if((day == DayOfWeek.SATURDAY || day == DayOfWeek.SUNDAY)&&!holidayDates.contains(date)){
+                if((day == DayOfWeek.SATURDAY || day == DayOfWeek.SUNDAY)
+                        && !holidayDates.contains(date)
+                        && !existingDates.contains(date)){
                     Holiday weekend=Holiday.builder()
                             .name(day==DayOfWeek.SATURDAY?"토요일":"일요일")
                             .date(date)

@@ -1,16 +1,19 @@
 package com.ideality.coreflow.project.command.application.service.impl;
 
+import com.ideality.coreflow.project.command.application.dto.EdgeInfoDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestRelationUpdateDTO;
 import com.ideality.coreflow.project.command.application.service.RelationService;
 import com.ideality.coreflow.project.command.domain.aggregate.Relation;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.command.domain.repository.RelationRepository;
 import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
+import com.ideality.coreflow.template.query.dto.EdgeDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -157,4 +160,15 @@ public class RelationServiceImpl implements RelationService {
         }
     }
 
+    @Override
+    public List<EdgeInfoDTO> findTargetBySourceId(Long taskId) {
+        List<Relation> relation = relationRepository.findByPrevWorkId(taskId);
+        return relation.stream()
+                .map(edge -> EdgeInfoDTO.builder()
+                        .id(edge.getId())
+                        .sourceId(edge.getPrevWork().getId())
+                        .targetId(edge.getNextWork().getId())
+                        .build())
+                .collect(Collectors.toList());
+    }
 }

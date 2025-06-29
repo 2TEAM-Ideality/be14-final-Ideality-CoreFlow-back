@@ -125,5 +125,9 @@ public class Work {
 		this.startBase = startExpect;
 		this.endBase = endExpect;
 	}
+
+	public void updateSlackTime(int slackTime) {
+		this.slackTime = slackTime;
+	}
 }
 
