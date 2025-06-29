@@ -134,11 +134,10 @@ public class ParticipantServiceImpl implements ParticipantService {
 
     @Override
     public void deleteParticipant(Long userId, Long targetId, TargetType targetType) {
-        Participant participant = participantRepository.findByUserIdAndTargetIdAndTargetType(userId, targetId, targetType);
+        List<Participant> participant = participantRepository.findByUserIdAndTargetIdAndTargetType(userId, targetId, targetType);
         if (participant == null) {
             return;
         }
-        log.info("participant: {}", participant);
-        participantRepository.delete(participant);
+        participantRepository.deleteAll(participant);
     }
 }

@@ -897,32 +897,36 @@ public class ProjectFacadeService {
         // 팀장인지
         boolean isAboveTeamLeader = participantQueryService.isAboveTeamLeader(requesterId, projectId);
 
+        if (!isProjectDirector && !isAboveTeamLeader) {
+            // 일반 팀원은 삭제 권한 없음
+            throw new BaseException(ErrorCode.ACCESS_DENIED_DELETED_PARTICIPANT);
+        }
+
         // 삭제하려는 대상이 팀장인지, 팀원인지
         boolean isTargetTeamLeader = participantQueryService.isAboveTeamLeader(request.getUserId(), projectId);
 
-        if (isProjectDirector) {
-            // 디렉터는 누구든 삭제 가능
+        // 팀장은 디렉터만 지울 수 있음
+        if (isTargetTeamLeader && !isProjectDirector) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED_DELETED_PARTICIPANT);
+        }
 
-            participantService.deleteParticipant(request.getUserId(), request.getTargetId(), request.getTargetType());
+        participantService.deleteParticipant(request.getUserId(), request.getTargetId(), request.getTargetType());
 
-            // 태스크에서도 삭제
-            if (request.getTargetType() == TargetType.PROJECT) {
-                // 해당 프로젝트의 태스크 목록 조회
-                List<ResponseTaskDTO> selectTasks = taskQueryService.selectTasks(projectId);
-                for (ResponseTaskDTO target : selectTasks) {
-                    participantService.deleteParticipant(request.getUserId(), target.getId(), TargetType.TASK);
+        if (request.getTargetType() == TargetType.PROJECT) {
+            // 해당 프로젝트의 태스크 목록 조회
+            List<ResponseTaskDTO> selectTasks = taskQueryService.selectTasks(projectId);
+            for (ResponseTaskDTO target : selectTasks) {
+                participantService.deleteParticipant(request.getUserId(), target.getId(), TargetType.TASK);
+                List<DetailDTO> subTaskNames = workQueryService.getSubTaskDetailsByParentTaskId(target.getId());
+                for (DetailDTO detail : subTaskNames) {
+                    participantService.deleteParticipant(request.getUserId(), detail.getWorkId(), TargetType.DETAILED);
                 }
             }
-        } else if (isAboveTeamLeader) {
-            // 팀장은 팀원만 삭제 가능
-            if (!isTargetTeamLeader) {
-                participantService.deleteParticipant(request.getUserId(), request.getTargetId(), request.getTargetType());
-            } else {
-                throw new BaseException(ErrorCode.ACCESS_DENIED_DELETED_PARTICIPANT);
+        } else if (request.getTargetType() == TargetType.TASK) {
+            List<DetailDTO> subTaskNames = workQueryService.getSubTaskDetailsByParentTaskId(request.getTargetId());
+            for (DetailDTO detail : subTaskNames) {
+                participantService.deleteParticipant(request.getUserId(), detail.getWorkId(), TargetType.DETAILED);
             }
-        } else {
-            // 일반 팀원은 삭제 권한 없음
-            throw new BaseException(ErrorCode.ACCESS_DENIED_DELETED_PARTICIPANT);
         }
     }
 
