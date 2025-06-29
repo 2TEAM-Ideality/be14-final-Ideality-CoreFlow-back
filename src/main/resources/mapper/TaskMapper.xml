@@ -286,6 +286,7 @@
             parameterType="java.util.List">
         SELECT
         w.id AS taskId,
+        w.name AS taskName,
         d.name AS deptName
         FROM work w
         JOIN work_dept wd ON w.id = wd.work_id

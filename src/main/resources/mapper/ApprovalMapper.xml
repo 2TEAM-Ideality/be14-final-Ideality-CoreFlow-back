@@ -215,16 +215,20 @@
 
     <select id="selectProjectDeliverable"
             parameterType="java.util.List"
-            resultType="string">
+            resultType="com.ideality.coreflow.attachment.query.dto.GetDeptInfoDTO">
         SELECT
-        w.name
-        FROM work w
-        JOIN approval a ON w.id = a.work_id
+        w.id AS taskId,
+        w.name AS taskName,
+        d.name AS deptName
+        FROM approval a
+        JOIN work w ON a.work_id = w.id
+        JOIN work_dept wd ON w.id = wd.work_id
+        JOIN dept d ON d.id = wd.dept_id
         WHERE
         a.user_id IN
         <foreach collection="list" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
-        AND type = 'DELIVERABLE'
+        AND a.type = 'DELIVERABLE'
     </select>
 </mapper>

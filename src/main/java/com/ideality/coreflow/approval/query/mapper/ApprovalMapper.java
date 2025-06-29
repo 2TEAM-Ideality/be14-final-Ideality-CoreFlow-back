@@ -5,6 +5,7 @@ import com.ideality.coreflow.approval.query.dto.ApprovalDetailsDTO;
 import com.ideality.coreflow.approval.query.dto.ApprovalParticipantDTO;
 import com.ideality.coreflow.approval.query.dto.ProjectApprovalDTO;
 import com.ideality.coreflow.approval.query.dto.ResponsePreviewApproval;
+import com.ideality.coreflow.attachment.query.dto.GetDeptInfoDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -25,5 +26,5 @@ public interface ApprovalMapper {
 
     List<ProjectApprovalDTO> selectProjectApprovalByProjectId(long projectId, ApprovalType approvalType);
 
-    List<String> selectProjectDeliverable(List<Long> uploaderIdList);
+    List<GetDeptInfoDTO> selectProjectDeliverable(List<Long> uploaderIdList);
 }

@@ -14,10 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.ideality.coreflow.common.exception.ErrorCode.TASK_NOT_FOUND;
@@ -58,19 +55,37 @@ public class AttachmentQueryFacadeService {
 
     // 프로젝트에 관한 모든 파일
     public List<ReportAttachmentDTO> getAttachmentsByProjectId(Long projectId) {
+        // 1. 첨부파일 전체 조회 (APPROVAL, COMMENT 등)
         List<ReportAttachmentDTO> response = attachmentQueryService.getAttachmentsByProjectId(projectId);
 
-        // 1. 기존 결재 관련 TaskName 매핑
+        // ────────────── [A] APPROVAL → Task 정보 매핑 ──────────────
         List<Long> uploaderIdList = response.stream()
                 .map(ReportAttachmentDTO::getUploaderId)
                 .toList();
 
-        List<String> taskNameList = approvalQueryService.selectProjectDeliverable(uploaderIdList);
-        for (int i = 0; i < response.size(); i++) {
-            response.get(i).setTaskName(taskNameList.get(i));
+        log.info("uploaderIdList: {}", uploaderIdList);
+        List<GetDeptInfoDTO> approvalTaskInfoList = approvalQueryService.selectProjectDeliverable(uploaderIdList);
+        log.info("approvalTaskInfoList: {}", approvalTaskInfoList);
+        // taskId → taskName + deptNameList 매핑
+        Map<Long, String> taskIdToTaskName = new HashMap<>();
+        Map<Long, List<String>> taskIdToDeptNameList = new HashMap<>();
+
+        for (GetDeptInfoDTO dto : approvalTaskInfoList) {
+            taskIdToTaskName.put(dto.getTaskId(), dto.getTaskName());
+            taskIdToDeptNameList
+                    .computeIfAbsent(dto.getTaskId(), k -> new ArrayList<>())
+                    .add(dto.getDeptName());
         }
 
-        // 2. 댓글 기준 TaskName 매핑
+        for (ReportAttachmentDTO dto : response) {
+            Long taskId = dto.getTaskId();
+            if (taskId != null) {
+                dto.setTaskName(taskIdToTaskName.get(taskId));
+                dto.setDeptName(taskIdToDeptNameList.get(taskId));
+            }
+        }
+
+        // ────────────── [B] COMMENT → Task 정보 매핑 ──────────────
         List<GetTaskInfoDTO> commentInfoList = commentQueryService.selectAllCommentsByTaskList(projectId); // commentId + taskId + taskName
         List<Long> commentIds = commentInfoList.stream()
                 .map(GetTaskInfoDTO::getCommentId)
@@ -78,7 +93,6 @@ public class AttachmentQueryFacadeService {
 
         List<ReportAttachmentDTO> commentAttachments = attachmentQueryService.getAttachmentsByCommentIdForProject(commentIds);
 
-        // 3. 댓글 첨부파일 → TaskName 매핑
         Map<Long, String> commentIdToTaskName = commentInfoList.stream()
                 .collect(Collectors.toMap(GetTaskInfoDTO::getCommentId, GetTaskInfoDTO::getTaskName));
         Map<Long, Long> commentIdToTaskId = commentInfoList.stream()
@@ -86,37 +100,42 @@ public class AttachmentQueryFacadeService {
 
         for (ReportAttachmentDTO dto : commentAttachments) {
             Long commentId = dto.getTargetId();
+            dto.setTaskId(commentIdToTaskId.get(commentId));
             dto.setTaskName(commentIdToTaskName.get(commentId));
-            dto.setTaskId(commentIdToTaskId.get(commentId)); // 프론트 라우팅용
         }
 
-        // 4. 모든 결과 병합
         response.addAll(commentAttachments);
 
-        // 5. TaskId 기준 DeptName 조회 후 매핑
+        // ────────────── [C] DeptName 매핑 (TaskId 기준) ──────────────
         List<Long> allTaskIds = response.stream()
                 .map(ReportAttachmentDTO::getTaskId)
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();
 
-        List<GetDeptInfoDTO> rawList = taskQueryService.selectAllDeptByTaskId(allTaskIds);
+        List<GetDeptInfoDTO> deptRawList = taskQueryService.selectAllDeptByTaskId(allTaskIds);
 
-        Map<Long, List<String>> taskIdToDeptNames = rawList.stream()
+        // 중복 제거하여 List<String>으로 구성
+        Map<Long, List<String>> taskIdToDepts = deptRawList.stream()
                 .collect(Collectors.groupingBy(
                         GetDeptInfoDTO::getTaskId,
-                        Collectors.mapping(GetDeptInfoDTO::getDeptName, Collectors.toList())
+                        Collectors.mapping(GetDeptInfoDTO::getDeptName,
+                                Collectors.collectingAndThen(
+                                        Collectors.toSet(), // 중복 제거
+                                        ArrayList::new
+                                )
+                        )
                 ));
 
         for (ReportAttachmentDTO dto : response) {
             Long taskId = dto.getTaskId();
             if (taskId != null) {
-                List<String> deptNames = taskIdToDeptNames.get(taskId);
-                dto.setDeptName(deptNames); // setDeptNameList는 List<String>을 받는 메서드
+                dto.setDeptName(taskIdToDepts.get(taskId));
             }
         }
 
         return response;
     }
+
 
 }

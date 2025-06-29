@@ -7,6 +7,7 @@ import com.ideality.coreflow.approval.query.dto.ProjectApprovalDTO;
 import com.ideality.coreflow.approval.query.dto.ResponsePreviewApproval;
 import com.ideality.coreflow.approval.query.mapper.ApprovalMapper;
 import com.ideality.coreflow.approval.query.service.ApprovalQueryService;
+import com.ideality.coreflow.attachment.query.dto.GetDeptInfoDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,7 +59,7 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
 
     @Override
     @Transactional
-    public List<String> selectProjectDeliverable(List<Long> uploaderIdList) {
+    public List<GetDeptInfoDTO> selectProjectDeliverable(List<Long> uploaderIdList) {
         return approvalMapper.selectProjectDeliverable(uploaderIdList);
     }
 }

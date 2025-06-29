@@ -10,5 +10,6 @@ import lombok.*;
 @EqualsAndHashCode
 public class GetDeptInfoDTO {
     private Long taskId;
+    private String taskName;
     private String deptName;
 }
