@@ -472,7 +472,7 @@ public class PdfServiceImpl implements PdfService {
 
 				String otdEval = comment.isEmpty() ? "납기 준수율 평가 정보 없음" : comment;
 
-				overallSummary = String.join("<br/><br/>", List.of(
+				overallSummary = String.join("<br/>", List.of(
 					String.format("전체 납기 준수율은 %.2f%%이며,", (double) context.getVariable("OTD")),
 					String.format("평균 지연일은 %.2f일로 분석되었습니다.", (double) context.getVariable("meanDelay")),
 					String.format("주요 병목 공정은 %s 태스크입니다.", topTaskSummary),
