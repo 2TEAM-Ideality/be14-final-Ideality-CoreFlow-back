@@ -70,4 +70,9 @@ public class TaskQueryController {
         return ResponseEntity.ok(APIResponse.success(response, "부서 일정 목록 조회 성공"));
     }
 
+    // warning의 경우 몇일 늦는지
+    @GetMapping("/{taskId}/warningDate")
+    public ResponseEntity<APIResponse<?>> getTaskWarningDate(@PathVariable Long taskId) {
+        return ResponseEntity.ok(APIResponse.success(projectQueryFacadeService.getTaskWarningDate(taskId), "지연 예상일 조회"));
+    }
 }
