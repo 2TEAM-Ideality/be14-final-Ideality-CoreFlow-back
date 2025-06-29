@@ -9,6 +9,7 @@ import com.ideality.coreflow.project.command.application.service.ProjectService;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
+import com.ideality.coreflow.project.command.domain.repository.ProjectRepository;
 import com.ideality.coreflow.project.command.domain.repository.WorkRepository;
 import com.ideality.coreflow.project.query.service.RelationQueryService;
 import com.ideality.coreflow.project.query.service.WorkQueryService;
@@ -35,6 +36,7 @@ public class DelayDomainServiceImpl implements DelayDomainService {
     private final ProjectService projectService;
     private final RelationQueryService relationQueryService;
     private final WorkQueryService workQueryService;
+    private final ProjectRepository projectRepository;
 
     @PersistenceContext
     private EntityManager em;
@@ -130,7 +132,7 @@ public class DelayDomainServiceImpl implements DelayDomainService {
                 }
             }
             if (!isSimulate) {
-                workRepository.save(currentTask);
+                workRepository.saveAndFlush(currentTask);
             }
         }
 
@@ -146,7 +148,7 @@ public class DelayDomainServiceImpl implements DelayDomainService {
 
 
             if (!isSimulate) {
-                projectService.projectSave(project);
+                projectRepository.saveAndFlush(project);
             }
         }
 
@@ -201,7 +203,7 @@ public class DelayDomainServiceImpl implements DelayDomainService {
     private void delaySingleWork(Work work, int delayDays, Set<LocalDate> holidays, boolean isSimulate) {
         adjustWorkPeriod(work, delayDays, holidays);
         if (isSimulate) em.detach(work);
-        else workRepository.save(work);
+        else workRepository.saveAndFlush(work);
     }
 
     private LocalDate delayTaskAndChildren(
@@ -216,7 +218,7 @@ public class DelayDomainServiceImpl implements DelayDomainService {
             projectEndExpect = task.getEndExpect();
         }
         if (!isSimulate) {
-            workRepository.save(task);
+            workRepository.saveAndFlush(task);
         }
 
         if (!isFirst) {
