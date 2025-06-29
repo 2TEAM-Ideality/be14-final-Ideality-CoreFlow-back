@@ -76,7 +76,6 @@
           FROM work
          WHERE id = #{taskId}
            AND parent_task_id IS NULL
-           AND status != 'DELETED'
     </select>
 
     <select id="countIncompleteTasks" parameterType="long" resultType="int">

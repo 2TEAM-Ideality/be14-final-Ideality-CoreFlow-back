@@ -918,7 +918,10 @@ public class ProjectFacadeService {
     @Transactional
     public void updateTaskPending(Long taskId, Long userId) {
 
+        log.info("taskId : {}", taskId);
         Long projectId = taskQueryService.getProjectId(taskId);
+        log.info("userId : {}", userId);
+        log.info("projectId : {}", projectId);
         boolean isInviteRole = participantQueryService.isAboveTeamLeader(userId, projectId);
         if (!isInviteRole) {
             throw new BaseException(ErrorCode.ACCESS_DENIED_TEAMLEADER);
