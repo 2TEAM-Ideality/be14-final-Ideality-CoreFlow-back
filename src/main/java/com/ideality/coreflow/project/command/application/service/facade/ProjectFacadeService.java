@@ -603,7 +603,7 @@ public class ProjectFacadeService {
         projectService.existsById(projectId);
         boolean isDirector = participantQueryService.isProjectDirector(projectId, userId);
         if (!isDirector) {
-            throw new BaseException(ErrorCode.TEAM_LEADER_ALREADY_EXISTS);
+            throw new BaseException(ErrorCode.ACCESS_DENIED_DIRECTOR);
         }
 
         List<Long> leaderUserIds = reqLeaderDTO.stream()
