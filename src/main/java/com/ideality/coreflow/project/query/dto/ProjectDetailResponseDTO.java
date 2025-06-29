@@ -25,11 +25,11 @@ public class ProjectDetailResponseDTO {
     private LocalDate endExpect;
     private LocalDate startReal;
     private LocalDate endReal;
-    private Double progressRate;
-    private Double passedRate;
-    private Integer delayDays;
-    private Status status;
+    private Double progressRate;    // 경과율
+    private Double passedRate;      // 진척률
+    private Integer delayDays;      // 지연일
+    private Status status;          // 상태
 
-    private UserInfoDTO director;
-    private List<UserInfoDTO> leaders;
+    private UserInfoDTO director;       // 디렉터 정보
+    private List<UserInfoDTO> leaders;      // 팀장 목록
 }
