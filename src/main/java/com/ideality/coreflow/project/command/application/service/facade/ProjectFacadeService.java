@@ -889,4 +889,47 @@ public class ProjectFacadeService {
         Long notificationId = notificationService.createInviteTask(taskId, content);
         notificationRecipientsService.createRecipients(participantUser, notificationId);
     }
+
+    @Transactional
+    public void deleteParticipants(RequestDeleteParticipant request, long requesterId) {
+
+        long projectId = request.getTargetId();
+        if (request.getTargetType() == TargetType.TASK) {
+            projectId = taskQueryService.getProjectId(request.getTargetId());
+        }
+
+        // 현재 요청자가 역할이 디렉터인지, 팀장인지
+        boolean isProjectDirector = participantQueryService.isProjectDirector(projectId, requesterId);
+
+        // 팀장인지
+        boolean isAboveTeamLeader = participantQueryService.isAboveTeamLeader(requesterId, projectId);
+
+        // 삭제하려는 대상이 팀장인지, 팀원인지
+        boolean isTargetTeamLeader = participantQueryService.isAboveTeamLeader(request.getUserId(), projectId);
+
+        if (isProjectDirector) {
+            // 디렉터는 누구든 삭제 가능
+
+            participantService.deleteParticipant(request.getUserId(), request.getTargetId(), request.getTargetType());
+
+            // 태스크에서도 삭제
+            if (request.getTargetType() == TargetType.PROJECT) {
+                // 해당 프로젝트의 태스크 목록 조회
+                List<ResponseTaskDTO> selectTasks = taskQueryService.selectTasks(projectId);
+                for (ResponseTaskDTO target : selectTasks) {
+                    participantService.deleteParticipant(request.getUserId(), target.getId(), TargetType.TASK);
+                }
+            }
+        } else if (isAboveTeamLeader) {
+            // 팀장은 팀원만 삭제 가능
+            if (!isTargetTeamLeader) {
+                participantService.deleteParticipant(request.getUserId(), request.getTargetId(), TargetType.TASK);
+            } else {
+                throw new BaseException(ErrorCode.ACCESS_DENIED_DELETED_PARTICIPANT);
+            }
+        } else {
+            // 일반 팀원은 삭제 권한 없음
+            throw new BaseException(ErrorCode.ACCESS_DENIED_DELETED_PARTICIPANT);
+        }
+    }
 }
