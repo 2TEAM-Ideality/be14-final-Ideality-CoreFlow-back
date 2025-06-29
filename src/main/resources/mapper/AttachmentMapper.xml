@@ -56,6 +56,7 @@
             a.origin_name AS originName,
             a.upload_at AS uploadAt,
             u.name AS uploader,
+            a.uploader_id AS uploaderId,
             a.file_type AS fileType,
             a.size,
             a.task_id,
@@ -65,7 +66,7 @@
         FROM attachment a
           JOIN user u ON a.uploader_id = u.id
           LEFT JOIN work w ON a.task_id = w.id
-        WHERE a.target_type = 'PROJECT'
+        WHERE a.target_type = 'APPROVAL'
           AND a.target_id = #{projectId}
           AND a.is_deleted = FALSE
     </select>
@@ -108,4 +109,32 @@
         </foreach>
         AND a.target_type = 'COMMENT'
     </select>
+
+    <select id="selectAttachmentsByCommentIdForProject"
+            parameterType="java.util.List"
+            resultType="com.ideality.coreflow.attachment.query.dto.ReportAttachmentDTO">
+        SELECT
+        a.id,
+        a.url,
+        a.origin_name AS originName,
+        a.upload_at AS uploadAt,
+        u.name AS uploader,
+        a.uploader_id AS uploaderId,
+        a.file_type AS fileType,
+        a.size,
+        a.task_id,
+        a.target_type AS targetType,
+        a.target_id AS targetId,
+        w.name AS taskName
+        FROM attachment a
+        JOIN user u ON a.uploader_id = u.id
+        LEFT JOIN work w ON a.task_id = w.id
+        WHERE a.target_type = 'COMMENT'
+        AND a.target_id IN
+        <foreach collection="list" item="commentId" open="(" separator="," close=")">
+            #{commentId}
+        </foreach>
+        AND a.is_deleted = FALSE
+    </select>
+
 </mapper>

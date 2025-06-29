@@ -25,4 +25,5 @@ public interface ApprovalMapper {
 
     List<ProjectApprovalDTO> selectProjectApprovalByProjectId(long projectId, ApprovalType approvalType);
 
+    List<String> selectProjectDeliverable(List<Long> uploaderIdList);
 }

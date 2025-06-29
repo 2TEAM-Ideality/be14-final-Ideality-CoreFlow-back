@@ -46,8 +46,8 @@ public class WorkDeptServiceImpl implements WorkDeptService {
     @Override
     @Transactional
     public void deleteAllByTaskId(Long taskId) {
+
         workDeptRepository.deleteAllByWorkId(taskId);
     }
-
 
 }

@@ -38,9 +38,10 @@ public class AttachmentQueryController {
 	public ResponseEntity<APIResponse<List<ReportAttachmentDTO>>> getAttachmentsByProjectId(@PathVariable Long projectId) {
 		log.info("프로젝트 {}에 대한 산출물 가져오기", projectId);
 
-		List<ReportAttachmentDTO> response = attachmentQueryService.getAttachmentsByProjectId(projectId);
+		//List<ReportAttachmentDTO> response = attachmentQueryService.getAttachmentsByProjectId(projectId);
+		List<ReportAttachmentDTO> response = attachmentQueryFacadeService.getAttachmentsByProjectId(projectId);
 
-		return ResponseEntity.ok(APIResponse.success(response, "프로젝트에 대한 산출물 조회 성공"));
+		return ResponseEntity.ok(APIResponse.success(response, "프로젝트에 대한 파일 조회 성공"));
 
 	}
 

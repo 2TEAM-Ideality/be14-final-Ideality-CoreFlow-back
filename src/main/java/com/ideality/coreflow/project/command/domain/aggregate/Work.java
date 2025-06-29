@@ -132,6 +132,7 @@ public class Work {
 
     public void updateStatusCancelled() {
 		this.status = Status.CANCELLED;
+		this.endReal = LocalDate.now();
     }
 
 	public void updatePending() {

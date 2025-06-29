@@ -55,4 +55,10 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
     public List<ProjectApprovalDTO> selectProjectApprovalByProjectId(long projectId, ApprovalType approvalType) {
         return approvalMapper.selectProjectApprovalByProjectId(projectId, approvalType);
     }
+
+    @Override
+    @Transactional
+    public List<String> selectProjectDeliverable(List<Long> uploaderIdList) {
+        return approvalMapper.selectProjectDeliverable(uploaderIdList);
+    }
 }

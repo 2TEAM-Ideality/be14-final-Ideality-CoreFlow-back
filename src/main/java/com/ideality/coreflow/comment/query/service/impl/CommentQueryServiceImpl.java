@@ -1,5 +1,6 @@
 package com.ideality.coreflow.comment.query.service.impl;
 
+import com.ideality.coreflow.attachment.query.dto.GetTaskInfoDTO;
 import com.ideality.coreflow.comment.query.dto.ResponseCommentForModifyDTO;
 import com.ideality.coreflow.comment.query.dto.SelectCommentDTO;
 import com.ideality.coreflow.comment.query.mapper.CommentMapper;
@@ -46,5 +47,10 @@ public class CommentQueryServiceImpl implements CommentQueryService {
     @Override
     public List<Long> selectAllCommentsByAttachment(Long taskId) {
         return commentMapper.selectAllComments(taskId);
+    }
+
+    @Override
+    public List<GetTaskInfoDTO> selectAllCommentsByTaskList(Long taskIdList) {
+        return commentMapper.selectAllCommentsByList(taskIdList);
     }
 }

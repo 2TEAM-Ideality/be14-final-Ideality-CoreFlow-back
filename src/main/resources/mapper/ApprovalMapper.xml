@@ -213,5 +213,18 @@
         ORDER BY a.approved_at DESC
     </select>
 
-
+    <select id="selectProjectDeliverable"
+            parameterType="java.util.List"
+            resultType="string">
+        SELECT
+        w.name
+        FROM work w
+        JOIN approval a ON w.id = a.work_id
+        WHERE
+        a.user_id IN
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND type = 'DELIVERABLE'
+    </select>
 </mapper>

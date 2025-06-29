@@ -79,4 +79,17 @@
           FROM comment
          WHERE work_id = #{taskId}
     </select>
+
+    <select id="selectAllCommentsByList"
+            parameterType="long"
+            resultType="com.ideality.coreflow.attachment.query.dto.GetTaskInfoDTO">
+        SELECT c.id AS commentId,
+             w.id AS taskId,
+             w.name AS taskName
+        FROM comment c
+        JOIN work w ON c.work_id = w.id
+        JOIN project p ON w.project_id = p.id
+        WHERE p.id = #{projectId}
+    </select>
+
 </mapper>

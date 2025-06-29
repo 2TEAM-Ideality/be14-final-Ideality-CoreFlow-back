@@ -20,4 +20,6 @@ public interface AttachmentMapper {
 	AttachmentForCommentDTO selectAttachmentsForComments(Long commentId);
 
 	List<ResponseCommentAttachmentDTO> selectAttachmentsByCommentId(List<Long> commentIds);
+
+	List<ReportAttachmentDTO> selectAttachmentsByCommentIdForProject(List<Long> commentIdList);
 }

@@ -1,5 +1,7 @@
 package com.ideality.coreflow.project.query.mapper;
 
+import com.ideality.coreflow.attachment.query.dto.GetDeptInfoDTO;
+import com.ideality.coreflow.attachment.query.dto.GetTaskInfoDTO;
 import com.ideality.coreflow.project.query.dto.CheckTaskWarningDTO;
 import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
 import com.ideality.coreflow.project.query.dto.GanttTaskResponse;
@@ -11,6 +13,8 @@ import java.time.LocalDate;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Param;
 
 @Mapper
@@ -41,4 +45,8 @@ public interface TaskMapper {
     CheckTaskWarningDTO findTaskEndExpect(Long taskId);
 
     Long getNearDueSubtaskCount(Long taskId, LocalDate now);
+
+    List<GetTaskInfoDTO> selectIdByProjectId(Long projectId);
+
+    List<GetDeptInfoDTO> selectAllDeptByTaskId(List<Long> allTaskIds);
 }

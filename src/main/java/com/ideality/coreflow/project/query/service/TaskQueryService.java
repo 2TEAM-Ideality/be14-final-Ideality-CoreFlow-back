@@ -1,5 +1,7 @@
 package com.ideality.coreflow.project.query.service;
 
+import com.ideality.coreflow.attachment.query.dto.GetDeptInfoDTO;
+import com.ideality.coreflow.attachment.query.dto.GetTaskInfoDTO;
 import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.project.query.dto.CompletedTaskDTO;
 import com.ideality.coreflow.project.query.dto.GanttTaskResponse;
@@ -8,6 +10,7 @@ import com.ideality.coreflow.project.query.dto.ResponseTaskInfoDTO;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 
 import java.util.List;
+import java.util.Map;
 
 
 public interface TaskQueryService {
@@ -42,4 +45,8 @@ public interface TaskQueryService {
     List<WorkDueTodayDTO> getWorksDueToday(List<Long> projectIds, Long userId);
 
     CheckTaskWarningDTO getTaskWarning(Long taskId);
+
+    List<GetTaskInfoDTO> getTaskIdByProjectId(Long projectId);
+
+    List<GetDeptInfoDTO> selectAllDeptByTaskId(List<Long> allTaskIds);
 }

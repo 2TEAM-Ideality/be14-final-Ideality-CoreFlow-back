@@ -1,5 +1,7 @@
 package com.ideality.coreflow.project.query.service.impl;
 
+import com.ideality.coreflow.attachment.query.dto.GetDeptInfoDTO;
+import com.ideality.coreflow.attachment.query.dto.GetTaskInfoDTO;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
@@ -15,6 +17,7 @@ import com.ideality.coreflow.project.query.service.TaskQueryService;
 import com.ideality.coreflow.template.query.dto.EdgeDTO;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -240,8 +243,19 @@ public class TaskQueryServiceImpl implements TaskQueryService {
         return taskMapper.findTaskEndExpect(taskId);
     }
 
+
     @Override
     public Long getNearDueSubtaskCount(Long taskId) {
         return taskMapper.getNearDueSubtaskCount(taskId, LocalDate.now());
+    }
+
+    @Override
+    public List<GetTaskInfoDTO> getTaskIdByProjectId(Long projectId) {
+        return taskMapper.selectIdByProjectId(projectId);
+    }
+
+    @Override
+    public List<GetDeptInfoDTO> selectAllDeptByTaskId(List<Long> allTaskIds) {
+        return taskMapper.selectAllDeptByTaskId(allTaskIds);
     }
 }

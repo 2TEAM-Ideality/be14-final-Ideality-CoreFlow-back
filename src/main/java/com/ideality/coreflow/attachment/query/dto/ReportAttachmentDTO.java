@@ -1,6 +1,7 @@
 package com.ideality.coreflow.attachment.query.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,7 @@ public class ReportAttachmentDTO {
 
 	private LocalDateTime uploadAt;
 	private String uploader;
+	private Long uploaderId;
 	
 	private String taskName; 	// 관련 태스크 이름
 
@@ -29,7 +31,8 @@ public class ReportAttachmentDTO {
 	private String size;
 	private String targetType;   // PROJECT
 	private Long targetId;		 // 프로젝트 아이디
-	
-	// 담당 부서
 
+	private Long taskId; // 해당하는 태스크 id
+	// 담당 부서
+	private List<String> deptName;
 }

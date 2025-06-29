@@ -117,7 +117,7 @@ public class AttachmentCommandService {
 	}
 
 	@Transactional
-	public void createAttachmentForComment(CreateAttachmentDTO attachmentFile, Long taskId, Long userId) {
+	public void createAttachmentForComment(CreateAttachmentDTO attachmentFile, Long commentId, Long userId) {
 		Attachment newComment = Attachment.builder()
 						.originName(attachmentFile.getOriginalName())
 						.storedName(attachmentFile.getStoredName())
@@ -126,7 +126,7 @@ public class AttachmentCommandService {
 						.size(attachmentFile.getSize())
 						.uploadAt(LocalDateTime.now())
 						.targetType(FileTargetType.COMMENT)
-						.targetId(taskId)
+						.targetId(commentId)
 						.uploaderId(userId)
 						.isDeleted(false)
 						.build();

@@ -272,4 +272,28 @@
            AND end_expect = #{now}
     </select>
 
+    <select id ="selectIdByProjectId" parameterType="long" resultType="com.ideality.coreflow.attachment.query.dto.GetTaskInfoDTO">
+        SELECT
+               id AS taskId,
+               name AS taskName
+          FROM work
+         WHERE project_id = #{projectId}
+           AND parent_task_id IS NULL
+    </select>
+
+    <select id="selectAllDeptByTaskId"
+            resultType="com.ideality.coreflow.attachment.query.dto.GetDeptInfoDTO"
+            parameterType="java.util.List">
+        SELECT
+        w.id AS taskId,
+        d.name AS deptName
+        FROM work w
+        JOIN work_dept wd ON w.id = wd.work_id
+        JOIN dept d ON wd.dept_id = d.id
+        WHERE w.id IN
+        <foreach collection="allTaskIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
 </mapper>

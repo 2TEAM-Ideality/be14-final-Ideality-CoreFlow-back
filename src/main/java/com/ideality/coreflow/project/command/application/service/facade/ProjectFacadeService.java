@@ -986,6 +986,8 @@ public class ProjectFacadeService {
         relationService.deleteByPrevWorkId(taskId);
         relationService.deleteByNextWorkId(taskId);
 
+        workDeptService.deleteAllByTaskId(taskId);
+
         taskService.deleteTaskHard(taskId);
     }
 

@@ -81,4 +81,8 @@ public class AttachmentQueryService {
 	public AttachmentForCommentDTO selectBycommentId(Long commentId) {
 		return attachmentMapper.selectAttachmentsForComments(commentId);
 	}
+
+	public List<ReportAttachmentDTO> getAttachmentsByCommentIdForProject(List<Long> commentIdList) {
+		return attachmentMapper.selectAttachmentsByCommentIdForProject(commentIdList);
+	}
 }
