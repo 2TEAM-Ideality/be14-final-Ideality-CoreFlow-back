@@ -103,4 +103,11 @@ public class ProjectController {
     public void downloadReport(HttpServletResponse response, @PathVariable Long projectId) {
         projectFacadeService.downloadReport(projectId, response);
    }
+
+   // 슬랙타임 업데이트
+    @PatchMapping("/{projectId}/update/slackTime")
+    public ResponseEntity<APIResponse<?>> updateSlackTime(@PathVariable Long projectId) {
+        projectFacadeService.updateSlackTime(projectId);
+        return ResponseEntity.ok(APIResponse.success(null, "슬랙타임 업데이트 완료"));
+    }
 }

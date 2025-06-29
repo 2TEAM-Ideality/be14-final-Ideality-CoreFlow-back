@@ -19,6 +19,7 @@ public class RequestTaskDTO {
     private LocalDate startBaseLine;
     private LocalDate endBaseLine;
     private Long projectId;
+    private Integer slackTime;
     /* 설명. 여기부터 담당 부서 데이터 */
     private List<String> deptList;
     /* 설명. 여기부터 작업 간 관계 */
