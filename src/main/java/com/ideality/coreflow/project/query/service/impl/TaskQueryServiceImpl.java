@@ -236,6 +236,11 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     }
 
     @Override
+    public CheckTaskWarningDTO getTaskWarning(Long taskId) {
+        return taskMapper.findTaskEndExpect(taskId);
+    }
+
+    @Override
     public Long getNearDueSubtaskCount(Long taskId) {
         return taskMapper.getNearDueSubtaskCount(taskId, LocalDate.now());
     }
