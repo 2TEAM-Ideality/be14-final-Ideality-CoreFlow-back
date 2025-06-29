@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
+@Builder(toBuilder = true)
 public class ParticipantUserDTO {
     Long userId;
     String name;
@@ -12,4 +12,5 @@ public class ParticipantUserDTO {
     String deptName;
     String jobRankName;
     String jobRoleName;
+    String roleId;
 }

@@ -17,4 +17,6 @@ public interface NotificationService {
     Long createInviteProject(Long projectId, String content);
 
     boolean markNotificationAsRead(Long notificationId);
+
+    Long createInviteTask(Long taskId, String content);
 }
