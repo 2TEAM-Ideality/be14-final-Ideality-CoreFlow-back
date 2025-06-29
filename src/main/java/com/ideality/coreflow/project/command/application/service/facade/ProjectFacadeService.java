@@ -7,7 +7,6 @@ import com.ideality.coreflow.attachment.query.dto.ReportAttachmentDTO;
 import com.ideality.coreflow.attachment.query.service.AttachmentQueryService;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
-import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.infra.tenant.config.TenantContext;
 import com.ideality.coreflow.notification.command.application.service.NotificationRecipientsService;
 import com.ideality.coreflow.notification.command.application.service.NotificationService;
@@ -604,7 +603,7 @@ public class ProjectFacadeService {
         projectService.existsById(projectId);
         boolean isDirector = participantQueryService.isProjectDirector(projectId, userId);
         if (!isDirector) {
-            throw new BaseException(ErrorCode.TEAM_LEADER_ALREADY_EXISTS);
+            throw new BaseException(ErrorCode.ACCESS_DENIED_DIRECTOR);
         }
 
         List<Long> leaderUserIds = reqLeaderDTO.stream()
@@ -640,12 +639,12 @@ public class ProjectFacadeService {
 
     //
     @Transactional
-    public void createParticipantsTeamLeader(Long userId, Long projectId, List<RequestInviteUserDTO> reqMemberDTO) {
+    public void createParticipantsTeamMember(Long userId, Long projectId, List<RequestInviteUserDTO> reqMemberDTO) {
         projectService.existsById(projectId);
         // 권한 확인 필요 -> 팀장이거나 or 디렉터
         boolean isInviteRole = participantQueryService.isAboveTeamLeader(userId, projectId);
         if (!isInviteRole) {
-            throw new BaseException(ErrorCode.TEAM_MEMBER_ALREADY_EXISTS);
+            throw new BaseException(ErrorCode.ACCESS_DENIED_TEAMLEADER);
         }
 
         List<Long> participantUser = reqMemberDTO.stream()
@@ -811,5 +810,44 @@ public class ProjectFacadeService {
 
         /* 설명. 선행 일정, 후행 일정 삭제를 한번에 위임 */
         relationService.updateRelationList(requestRelationUpdateDTO);
+    }
+
+    public void createParticipantsTeamMemberByTask(Long userId, Long taskId, List<RequestInviteUserDTO> reqMemberDTO) {
+        Long projectId = taskQueryService.getProjectId(taskId);
+        boolean isInviteRole = participantQueryService.isAboveTeamLeader(userId, projectId);
+        if (!isInviteRole) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED_TEAMLEADER);
+        }
+
+        List<Long> participantUser = reqMemberDTO.stream()
+                .map(RequestInviteUserDTO::getUserId)
+                .collect(Collectors.toList());
+
+        // 사용자 id가 적절한지 확인
+        userService.existsUserId(participantUser);
+
+        // 혹시 이미 팀원인 사람 초대 했는지 확인
+        participantQueryService.alreadyExistsTaskMember(taskId, reqMemberDTO);
+
+        // 이제 참여자 초대
+        long roleTeamMemberId = roleService.findRoleByName(RoleName.TEAM_MEMBER);
+        List<ParticipantDTO> teamMembers = participantUser.stream()
+                .map(leaderId -> ParticipantDTO.builder()
+                        .targetId(projectId)
+                        .userId(leaderId)
+                        .targetType(TargetType.TASK)
+                        .roleId(roleTeamMemberId)
+                        .build()
+                ).toList();
+        for (ParticipantDTO teamMember : teamMembers) {
+            participantService.createParticipants(teamMember);
+        }
+
+        // 초대 됐다는 알림 작성
+        String writerName = userQueryService.getUserName(userId);
+        String taskName = taskQueryService.getTaskName(taskId);
+        String content = String.format("%s 님이 회원님을 %s에 초대하였습니다.", writerName, taskName);
+        Long notificationId = notificationService.createInviteTask(taskId, content);
+        notificationRecipientsService.createRecipients(participantUser, notificationId);
     }
 }

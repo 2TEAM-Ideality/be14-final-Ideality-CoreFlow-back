@@ -2,9 +2,7 @@ package com.ideality.coreflow.project.query.service.facade;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
-import com.ideality.coreflow.org.command.application.service.DeptService;
 import com.ideality.coreflow.project.command.application.service.ProjectService;
-import com.ideality.coreflow.project.command.application.service.TaskService;
 import com.ideality.coreflow.project.command.application.service.WorkService;
 import com.ideality.coreflow.project.command.domain.service.WorkDomainService;
 import com.ideality.coreflow.project.query.dto.*;

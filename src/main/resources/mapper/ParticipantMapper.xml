@@ -228,7 +228,8 @@
             w.project_id AS projectId,
             u.dept_name AS deptName,
             u.job_rank_name AS jobRankName,
-            u.job_role_name AS jobRoleName
+            u.job_role_name AS jobRoleName,
+            p.role_id AS roleId
         FROM participant p
             JOIN user u ON p.user_id = u.id
             JOIN work w ON p.target_id = w.id
@@ -236,5 +237,15 @@
           AND p.target_id = #{taskId}
     </select>
 
-
+    <select id="isAlreadyParticipantByTask" resultType="boolean">
+        SELECT EXISTS (
+        SELECT 1
+        FROM participant a
+        JOIN user b ON a.user_id = b.id
+        WHERE a.user_id = #{userId}
+        AND a.target_type = 'TASK'
+        AND a.target_id = #{taskId}
+        AND b.dept_name = #{deptName}
+        )
+    </select>
 </mapper>
