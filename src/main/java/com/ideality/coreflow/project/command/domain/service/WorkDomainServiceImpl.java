@@ -44,6 +44,10 @@ public class WorkDomainServiceImpl implements WorkDomainService {
 
         long totalDuration = ChronoUnit.DAYS.between(startBase, endBase) + 1
                 - holidayQueryService.countHolidaysBetween(startBase, endBase);
+        if (totalDuration <= 0) {
+            log.warn("Invalid totalDuration ({} days) between {} ~ {}. Returning 0%.", totalDuration, startBase, endBase);
+            return 0.0;
+        }
         log.info("totalDuration = " + totalDuration);
         long passedDates = 0;
         if (type == TargetType.PROJECT) {
