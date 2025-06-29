@@ -119,6 +119,10 @@
             color: #e0e0e0;
             line-height: 1.4;
         }
+        .fixed-width-table {
+            table-layout: fixed;
+            width: 100%;
+        }
 
         .page-break {
             page-break-after: always;
@@ -393,15 +397,16 @@
         </table>
 
         <!-- 총계 정보: 마지막 페이지에만 표시 -->
-        <div class="sub-title" th:if="${stat.last}">
+        <div class="sub-title" th:if="${stat.last}" style="margin-top: 20px;">
             작업 공정 결과
         </div>
-        <table class="process-result info-table" th:if="${stat.last}">
+        <table class="process-result info-table fixed-width-table" th:if="${stat.last}">
             <thead>
                 <tr>
                     <th>전체 태스크</th>
                     <th>베이스라인</th>
                     <th>실제 작업 기간</th>
+                    <th>총 소요일</th>
                     <th>계획 대비</th>
                     <th>상태</th>
                 </tr>
@@ -409,24 +414,32 @@
             <tbody>
                 <tr style="text-align: center;">
                     <!-- 1) 태스크 개수 + "개" -->
-                    <td style="font-weight: bold; font-size: 15px;">
+                    <td style="font-weight: bold;  text-align:right; font-size:13px; padding-right: 15px;">
                         <span th:text="${taskList.size()} + '개'">8개</span>
                     </td>
 
                     <!-- 2) baseStart ~ baseEnd -->
-                    <td th:text="${total.baseStart + ' ~ ' + total.baseEnd}">
-                        2025-03-01 ~ 2025-03-21
+                    <td style="text-align: center;font-size:10px;">
+                        <span th:text="${total.baseStart}"></span><br/>
+                        ~ <br/>
+                        <span th:text="${total.baseEnd}"></span>
                     </td>
-
                     <!-- 3) realStart ~ realEnd -->
-                    <td th:text="${total.realStart + ' ~ ' + total.realEnd}">
-                        2025-03-01 ~ 2025-03-31
+                    <td style="text-align: center;font-size:10px;">
+                        <span th:text="${total.realStart}"></span><br/>
+                        ~ <br/>
+                        <span th:text="${total.realEnd}"></span>
+                    </td>
+                    <td th:text="${total.realDuration} + ' 일'"
+                        style="font-weight: bold;  text-align:right; font-size:13px; padding-right: 15px;">
+                        29일
                     </td>
 
                     <!-- 4) delay: 0보다 크면 +N일, 아니면 0일 + 색상 조건 -->
                     <td
                             th:text="${total.delay > 0 ? '+' + total.delay + '일' : '0일'}"
                             th:style="${total.delay > 0} ? 'color: red;' : ''"
+                            style="font-weight: bold; text-align:right; font-size:13px; padding-right: 15px;"
                     >
                         +10일
                     </td>
@@ -435,6 +448,7 @@
                     <td
                             th:text="${total.status}"
                             th:style="${total.status == '지연'} ? 'color: red;' : ''"
+                            style="font-weight: bold; text-align:right; font-size:13px; padding-right: 15px;"
                     >
                         지연
                     </td>
@@ -461,7 +475,7 @@
         <div class="chart-box">
             <p class="sub-title">지연 태스크 분석</p>
             <div class="description">
-                총 <span th:text="${taskList.size()}"/>개의 태스크 중
+                전체 <span th:text="${taskList.size()}"/>개의 태스크 중
                 <span th:text="${delayedTaskList.size()}"/>개에서 지연 발생
             </div>
             <img th:src="'data:image/png;base64,' + ${delayTaskChart}" width="100%" />
@@ -471,6 +485,27 @@
             <p class="sub-title">지연 사유 분석</p>
             <img th:src="'data:image/png;base64,' + ${delayReasonChart}" width="100%" />
         </div>
+
+        <div class="sub-title" style="margin-top: 30px;">부서별 지연 비교</div>
+        <table class="info-table">
+            <thead>
+            <tr>
+                <th>팀 이름</th>
+                <th>평균 지연일</th>
+                <th>총 지연일</th>
+                <th>전체 대비(%)</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- deptDelayStats: List<Map<String,Object>> -->
+            <tr th:each="stat : ${deptDelayStats}">
+                <td th:text="${stat.deptName}">디자인팀</td>
+                <td th:text="${stat.avgDelay} + ' 일'">2.4 일</td>
+                <td th:text="${stat.totalDelay} + ' 일'">10 일</td>
+                <td th:text="${stat.percentOfTotal} + '%'">38%</td>
+            </tr>
+            </tbody>
+        </table>
 
     </div>
 

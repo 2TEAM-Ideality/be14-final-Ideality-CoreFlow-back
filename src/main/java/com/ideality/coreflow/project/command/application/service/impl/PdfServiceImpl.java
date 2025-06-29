@@ -172,6 +172,14 @@ public class PdfServiceImpl implements PdfService {
 			String isDelay = projectDetail.getDelayDays() > 0 ?  "지연" : "기한 내 납기 준수";
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+			LocalDate startReal = projectDetail.getStartReal();
+			LocalDate endReal = projectDetail.getEndReal();
+
+			long realDuration = 0;
+			if (startReal != null && endReal != null) {
+				realDuration = ChronoUnit.DAYS.between(startReal, endReal) + 1;
+			}
+
 			Map<String, Object> total = Map.of(
 				"progress", Optional.ofNullable(projectDetail.getProgressRate()).orElse(0.0),
 				"baseStart", Optional.ofNullable(projectDetail.getStartBase())
@@ -187,8 +195,9 @@ public class PdfServiceImpl implements PdfService {
 					.map(d -> d.format(formatter))
 					.orElse("미입력"),
 				"delay", Optional.ofNullable(projectDetail.getDelayDays()).orElse(0),
-				"status", Optional.ofNullable(isDelay).orElse("N/A")
-			);
+				"status", Optional.ofNullable(isDelay).orElse("N/A"),
+				"realDuration", realDuration
+				);
 			context.setVariable("total", total);
 
 			// 설명. 챕터 3 - 지연 분석 챕터 ---------------------------------------------------------------
@@ -291,48 +300,48 @@ public class PdfServiceImpl implements PdfService {
 				.collect(Collectors.groupingBy(ProjectApprovalDTO::getRequesterDeptName));
 
 			// 4. 부서별 통계 리스트 생성
-			// List<Map<String, Object>> deptDelayStats = new ArrayList<>();
-			// for (Map.Entry<String, List<ProjectApprovalDTO>> entry : delaysByDept.entrySet()) {
-			// 	String dept = entry.getKey();
-			// 	List<ProjectApprovalDTO> group = entry.getValue();
-			//
-			// 	// 4-1) 담당 태스크, 세부일정 목록(중복 제거)
-			// 	// List<String> tasks = group.stream()
-			// 	// 	.map(ProjectApprovalDTO::getTaskName)
-			// 	// 	.distinct()
-			// 	// 	.collect(Collectors.toList());
-			// 	// List<String> details = group.stream()
-			// 	// 	.map(ProjectApprovalDTO::getSubTaskName)   // 예: getDetailName()
-			// 	// 	.distinct()
-			// 	// 	.collect(Collectors.toList());
-			//
-			// 	// 4-2) 총 지연일, 평균 지연일 계산
-			// 	long deptTotalDelay = group.stream()
-			// 		.mapToLong(ProjectApprovalDTO::getDelayDays)
-			// 		.sum();
-			// 	double deptAvgDelay = group.isEmpty() ? 0
-			// 		: Math.round((double) deptTotalDelay / group.size() * 100.0) / 100.0;
-			//
-			// 	// 4-3) 전체 대비 비율
-			// 	double pct = totalDelayAll == 0 ? 0
-			// 		: Math.round(deptTotalDelay * 10000.0 / totalDelayAll) / 100.0;
-			//
-			// 	// 일단 details는 빈 리스트라도 무조건 포함시키기
-			// 	// List<String> details = new ArrayList<>();
-			//
-			// 	Map<String,Object> stat = new HashMap<>();
-			// 	stat.put("deptName", dept);
-			// 	// stat.put("tasks", tasks);
-			// 	// stat.put("details", details);  // ✅ 필수: Thymeleaf에서 오류 방지
-			// 	stat.put("totalDelay", deptTotalDelay);
-			// 	stat.put("avgDelay", deptAvgDelay);
-			// 	stat.put("percentOfTotal", pct);
-			//
-			// 	deptDelayStats.add(stat);
-			// }
+			List<Map<String, Object>> deptDelayStats = new ArrayList<>();
+			for (Map.Entry<String, List<ProjectApprovalDTO>> entry : delaysByDept.entrySet()) {
+				String dept = entry.getKey();
+				List<ProjectApprovalDTO> group = entry.getValue();
+
+				// 4-1) 담당 태스크, 세부일정 목록(중복 제거)
+				// List<String> tasks = group.stream()
+				// 	.map(ProjectApprovalDTO::getTaskName)
+				// 	.distinct()
+				// 	.collect(Collectors.toList());
+				// List<String> details = group.stream()
+				// 	.map(ProjectApprovalDTO::getSubTaskName)   // 예: getDetailName()
+				// 	.distinct()
+				// 	.collect(Collectors.toList());
+
+				// 4-2) 총 지연일, 평균 지연일 계산
+				long deptTotalDelay = group.stream()
+					.mapToLong(ProjectApprovalDTO::getDelayDays)
+					.sum();
+				double deptAvgDelay = group.isEmpty() ? 0
+					: Math.round((double) deptTotalDelay / group.size() * 100.0) / 100.0;
+
+				// 4-3) 전체 대비 비율
+				double pct = totalDelayAll == 0 ? 0
+					: Math.round(deptTotalDelay * 10000.0 / totalDelayAll) / 100.0;
+
+				// 일단 details는 빈 리스트라도 무조건 포함시키기
+				// List<String> details = new ArrayList<>();
+
+				Map<String,Object> stat = new HashMap<>();
+				stat.put("deptName", dept);
+				// stat.put("tasks", tasks);
+				// stat.put("details", details);  // ✅ 필수: Thymeleaf에서 오류 방지
+				stat.put("totalDelay", deptTotalDelay);
+				stat.put("avgDelay", deptAvgDelay);
+				stat.put("percentOfTotal", pct);
+
+				deptDelayStats.add(stat);
+			}
 
 			// 5. Thymeleaf 에 변수로 넘기기
-			// context.setVariable("deptDelayStats", deptDelayStats);
+			context.setVariable("deptDelayStats", deptDelayStats);
 
 
 			// 설명. 납기 준수율 OTD
