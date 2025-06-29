@@ -3,7 +3,6 @@ package com.ideality.coreflow.project.query.service;
 import com.ideality.coreflow.project.command.application.dto.RequestInviteUserDTO;
 
 import com.ideality.coreflow.project.query.dto.*;
-import com.ideality.coreflow.template.query.dto.DeptDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -49,4 +48,6 @@ public interface ParticipantQueryService {
     List<Long> findNextTaskUsersByTaskId(Long taskId);
 
     List<ParticipantUserDTO> selectParticipantByTaskId(Long taskId);
+
+    void alreadyExistsTaskMember(Long taskId, List<RequestInviteUserDTO> reqMemberDTO);
 }

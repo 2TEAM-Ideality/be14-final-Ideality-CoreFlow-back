@@ -8,14 +8,10 @@ import com.ideality.coreflow.project.command.application.service.facade.ProjectF
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.application.dto.ProjectCreateRequest;
 import com.ideality.coreflow.project.command.domain.aggregate.Status;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-import com.ideality.coreflow.project.command.domain.aggregate.TargetType;
+import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -94,7 +90,7 @@ public class ProjectController {
              @RequestBody List<RequestInviteUserDTO> reqMemberDTO) {
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
 
-        projectFacadeService.createParticipantsTeamLeader(userId, projectId, reqMemberDTO);
+        projectFacadeService.createParticipantsTeamMember(userId, projectId, reqMemberDTO);
         return ResponseEntity.ok(APIResponse.success(null, "팀원 초대에 성공하였습니다."));
     }
 

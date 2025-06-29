@@ -3,7 +3,6 @@ package com.ideality.coreflow.project.query.controller;
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.project.query.dto.*;
 import com.ideality.coreflow.project.query.service.facade.ProjectQueryFacadeService;
-import com.ideality.coreflow.user.command.application.dto.UserInfoDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
