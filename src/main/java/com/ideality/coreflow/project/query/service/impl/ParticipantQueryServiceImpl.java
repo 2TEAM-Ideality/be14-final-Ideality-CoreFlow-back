@@ -12,15 +12,13 @@ import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.project.command.application.dto.RequestInviteUserDTO;
 import com.ideality.coreflow.project.query.mapper.ParticipantMapper;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
-import com.ideality.coreflow.template.query.dto.DeptDTO;
-import com.ideality.coreflow.user.query.dto.UserNameIdDto;
+
 import java.util.Objects;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -114,8 +112,14 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
 
     @Override
     public List<ParticipantUserDTO> selectParticipantByTaskId(Long taskId) {
-        return participantMapper.selectParticipantByTaskId(taskId);
+        List<ParticipantUserDTO> result = participantMapper.selectParticipantByTaskId(taskId);
+        return result.stream()
+                .map(participant -> participant.toBuilder()
+                        .roleId(participant.getRoleId().equals("1") ? "디렉터" :
+                                participant.getRoleId().equals("2")? "팀장" : "팀원").build())
+                .collect(Collectors.toList());
     }
+
 
     @Override
     public void findTeamLedaer(Long projectId, List<RequestInviteUserDTO> reqLeaderDTO) {
@@ -154,5 +158,16 @@ public class ParticipantQueryServiceImpl implements ParticipantQueryService {
     @Override
     public List<ProjectParticipantDTO> getProjectParticipantList(Long projectId) {
         return participantMapper.selectProjectParticipantList(projectId);
+    }
+    @Override
+    public void alreadyExistsTaskMember(Long taskId, List<RequestInviteUserDTO> reqMemberDTO) {
+        for (RequestInviteUserDTO userDTO : reqMemberDTO) {
+            boolean isAlreadyParticipantExists =
+                    participantMapper.isAlreadyParticipantByTask(taskId, userDTO.getUserId(), userDTO.getDeptName());
+
+            if (isAlreadyParticipantExists) {
+                throw new BaseException(ErrorCode.TEAM_MEMBER_ALREADY_EXISTS);
+            }
+        }
     }
 }

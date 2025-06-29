@@ -2,6 +2,7 @@ package com.ideality.coreflow.project.command.application.controller;
 
 import com.ideality.coreflow.common.response.APIResponse;
 import com.ideality.coreflow.approval.command.application.dto.DelayInfoDTO;
+import com.ideality.coreflow.project.command.application.dto.RequestInviteUserDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestModifyTaskDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestRelationUpdateDTO;
 import com.ideality.coreflow.project.command.application.dto.RequestTaskDTO;
@@ -107,4 +108,13 @@ public class TaskController {
         projectFacadeService.updateProgressRateCascade(taskId);
         return ResponseEntity.ok(APIResponse.success(null, "진척률 업데이트 완료"));
     }
+
+    @PostMapping("/{taskId}/participants/team-member")
+    public ResponseEntity<APIResponse<?>> createTeamMember(@PathVariable Long taskId,
+                                                           @RequestBody List<RequestInviteUserDTO> reqMemberDTO){
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        projectFacadeService.createParticipantsTeamMemberByTask(userId, taskId, reqMemberDTO);
+        return ResponseEntity.ok(APIResponse.success(null, "태스크에 팀원 초대에 성공하였습니다."));
+    }
+
 }

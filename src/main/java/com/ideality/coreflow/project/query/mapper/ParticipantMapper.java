@@ -50,4 +50,6 @@ public interface ParticipantMapper {
     List<UserInfoDTO> selectAllUserByProjectId(Long projectId);
 
     List<ParticipantUserDTO> selectParticipantByTaskId(Long taskId);
+
+    boolean isAlreadyParticipantByTask(Long taskId, Long userId, String deptName);
 }

@@ -118,9 +118,27 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     // 알림 상태 저장
+
     @Transactional
     @Override
     public void save(Notification notification) {
         notificationRepository.save(notification);
+    }
+
+    @Override
+    @Transactional
+    public Long createInviteTask(Long taskId, String content) {
+        Notification notification = Notification.builder()
+                .targetType(NotificationTargetType.WORK)
+                .targetId(taskId)
+                .content(content)
+                .status(Status.SENT)
+                .dispatchAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
+                .isAutoDelete(false)
+                .build();
+
+        notificationRepository.save(notification);
+        return notification.getId();
     }
 }
