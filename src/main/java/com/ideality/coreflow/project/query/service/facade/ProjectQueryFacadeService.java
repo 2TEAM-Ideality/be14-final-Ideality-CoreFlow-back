@@ -232,7 +232,7 @@ public class ProjectQueryFacadeService {
     public PipelineResponseDTO getPipeline (Long projectId) {
         PipelineResponseDTO pipelineResponseDTO = projectQueryService.getPipeline(projectId);
         for (NodeDTO node : pipelineResponseDTO.getNodeList()) {
-            node.updateDuration(workDomainService.calculateWorkingDutarion(node.getStartReal(), node.getEndReal()));
+            node.updateDuration(workDomainService.calculateWorkingDuration(node.getStartReal(), node.getEndReal()));
         }
         return pipelineResponseDTO;
     }

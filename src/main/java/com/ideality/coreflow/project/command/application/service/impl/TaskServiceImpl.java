@@ -46,7 +46,7 @@ public class TaskServiceImpl implements TaskService {
                 .endBase(taskDTO.getEndBaseLine())
                 .startExpect(taskDTO.getStartBaseLine())
                 .endExpect(taskDTO.getEndBaseLine())
-                .slackTime(taskDTO.getSlackTime())
+                .slackTime(taskDTO.getSlackTime() != null ? taskDTO.getSlackTime() : 0)
                 .status(Status.PENDING)
                 .projectId(taskDTO.getProjectId())
                 .delayDays(0)
@@ -197,6 +197,13 @@ public class TaskServiceImpl implements TaskService {
     public void setTaskWarning(Long taskId, Boolean warning) {
         Work task = workRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
         task.setWarning(warning);
+        workRepository.save(task);
+    }
+
+    @Override
+    public void updateSlackTime(Long taskId, Integer slack) {
+        Work task = workRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+        task.updateSlackTime(slack);
         workRepository.save(task);
     }
 }
