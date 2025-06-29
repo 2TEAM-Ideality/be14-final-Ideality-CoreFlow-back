@@ -22,6 +22,4 @@ public class ResponseTaskDTO {
     private int slackTime;
     private LocalDate startBaseLine;
     private LocalDate endBaseLine;
-
-
 }

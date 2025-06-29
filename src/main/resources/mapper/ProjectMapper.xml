@@ -51,6 +51,8 @@
                              AND pt.target_type   = 'PROJECT'
                              AND pt.role_id       = 1
           JOIN user director  ON director.id      = pt.user_id
+         WHERE p.status != 'DELETED'
+           AND p.status != 'CANCELLED'
          ORDER BY p.id DESC
 <!--         WHERE p.status IN ('PENDING', 'PROGRESS', 'COMPLETED')-->
     </select>

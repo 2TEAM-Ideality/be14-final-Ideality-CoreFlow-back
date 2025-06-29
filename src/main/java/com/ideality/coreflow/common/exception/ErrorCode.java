@@ -128,6 +128,7 @@ public enum ErrorCode {
     INVALID_DURATION("INVALID_DURATION", "종료일이 시작일을 앞설 수 없습니다.", HttpStatus.BAD_REQUEST),
     STATUS_IS_COMPLETED("STATUS_IS_COMPLETED", "완료된 일정입니다.", HttpStatus.BAD_REQUEST),
     ACCESS_DENIED_DIRECTOR("ACCESS_DENIED_DIRECTOR", "디렉터만 이용할 수 있는 권한입니다.",  HttpStatus.FORBIDDEN),
+    ACCESS_DENIED_DELETED_PARTICIPANT("ACCESS_DENIED_DELETED_TEAMLEADER", "삭제할 권한이 없습니다.", HttpStatus.BAD_REQUEST),
     NOT_CANCELLED_TASK("NOT_CANCELLED_TASK", "진행 중인 태스크를 취소할 수 있습니다.", HttpStatus.BAD_REQUEST),
     NOT_SOFT_DELETED_TASK("NOT_SOFT_DELETED_TASK", "삭제 처리중인 태스크야 복원할 수 있습니다.", HttpStatus.BAD_REQUEST),
     ;

@@ -2,6 +2,7 @@ package com.ideality.coreflow.project.query.service.facade;
 
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
+import com.ideality.coreflow.holiday.query.service.HolidayQueryService;
 import com.ideality.coreflow.project.command.application.service.ProjectService;
 import com.ideality.coreflow.project.command.application.service.WorkService;
 import com.ideality.coreflow.project.command.domain.service.WorkDomainService;
@@ -28,6 +29,7 @@ import com.ideality.coreflow.template.query.dto.DeptDTO;
 import com.ideality.coreflow.user.query.dto.AllUserDTO;
 import com.ideality.coreflow.user.query.service.UserQueryService;
 
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import lombok.RequiredArgsConstructor;
@@ -56,6 +58,7 @@ public class ProjectQueryFacadeService {
     private final ParticipantQueryService participantQueryService;
     private final WorkService workCommandService;
     private final WorkDomainService workDomainService;
+    private final HolidayQueryService holidayQueryService;
 
 
     public TaskSummaryResponse getTodayTaskSummary(Long userId) {
@@ -232,7 +235,7 @@ public class ProjectQueryFacadeService {
     public PipelineResponseDTO getPipeline (Long projectId) {
         PipelineResponseDTO pipelineResponseDTO = projectQueryService.getPipeline(projectId);
         for (NodeDTO node : pipelineResponseDTO.getNodeList()) {
-            node.updateDuration(workDomainService.calculateWorkingDutarion(node.getStartReal(), node.getEndReal()));
+            node.updateDuration(workDomainService.calculateWorkingDuration(node.getStartReal(), node.getEndReal()));
         }
         return pipelineResponseDTO;
     }
@@ -342,5 +345,30 @@ public class ProjectQueryFacadeService {
             leaderDeptList.add(new DeptDTO(deptId, deptName));
         }
         return leaderDeptList;
+    }
+
+    public Integer getTaskWarningDate(Long taskId) {
+
+        CheckTaskWarningDTO warningTask = taskQueryService.getTaskWarning(taskId);
+
+        LocalDate taskEndExpect = warningTask.getTaskEndExpect();
+        LocalDate subTaskEndExpect = warningTask.getSubTaskEndExpect();
+        if (taskEndExpect == null || subTaskEndExpect == null) {
+            return 0;
+        }
+
+        log.info("Task warning: " + warningTask);
+        log.info("taskEndExpect: " + taskEndExpect);
+        log.info("subTaskEndExpect: " + subTaskEndExpect);
+        if (subTaskEndExpect.isBefore(taskEndExpect)) {
+            log.info("세부일정이 태스크보다 일찍 끝남");
+            return 0;
+        }
+        long dateGap = ChronoUnit.DAYS.between(taskEndExpect, subTaskEndExpect);
+        log.info("dateGap: " + dateGap);
+        int holidays = holidayQueryService.countHolidaysBetween(taskEndExpect, subTaskEndExpect);
+        log.info("holidays: " + holidays);
+
+        return (int) Math.max(dateGap - holidays, 0);
     }
 }

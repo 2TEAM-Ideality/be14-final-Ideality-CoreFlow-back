@@ -39,6 +39,8 @@ public interface TaskService {
 
     void setTaskWarning(Long taskId, Boolean warning);
 
+    void updateSlackTime(Long taskId, Integer slack);
+
     void updateStatusCancelled(Long taskId);
 
     void deleteTaskHard(Long taskId);

@@ -26,6 +26,7 @@ public class WorkController {
 
         // 후행 일정 이름 목록을 조회
         List<String> subTaskNames = workService.getSubTaskNamesByParentTaskId(parentTaskId);
+        System.out.println("subTaskNames: " + subTaskNames);
 
         // 성공 응답을 APIResponse를 사용하여 반환
         return APIResponse.success(subTaskNames, "선행/후행 일정을 조회했습니다.");

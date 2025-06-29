@@ -126,6 +126,10 @@ public class Work {
 		this.endBase = endExpect;
 	}
 
+	public void updateSlackTime(int slackTime) {
+		this.slackTime = slackTime;
+	}
+
     public void updateStatusCancelled() {
 		this.status = Status.CANCELLED;
     }

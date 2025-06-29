@@ -127,13 +127,13 @@ public class DetailServiceImpl implements DetailService {
                                 +1
                                 -holidayQueryService.countHolidaysBetween(requestDetailDTO.getExpectStart(), requestDetailDTO.getExpectEnd());
         System.out.println("newDuration = " + newDuration);
-        if(newDuration > originalDuration){
+//        if(newDuration > originalDuration){
             System.out.println("existingDetail.getDelayDays() = " + existingDetail.getDelayDays());
             Long newDelayDays = existingDetail.getDelayDays() + (newDuration - originalDuration);
             System.out.println("newDelayDays = " + Math.toIntExact(newDelayDays));
             requestDetailDTO.setDelayDays(Math.toIntExact(newDelayDays));
             System.out.println("requestDetailDTO = " + requestDetailDTO);
-        }
+//        }
 
         // 세부 일정 수정 (name, description, deptId 등)
         existingDetail.updateDetail(requestDetailDTO);

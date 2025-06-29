@@ -13,5 +13,9 @@ public interface WorkDomainService {
 
     double calculatePassedRate(DateInfoDTO dateInfo, TargetType type);
 
-    Integer calculateWorkingDutarion(LocalDate startReal, LocalDate endReal);
+    Integer calculateWorkingDuration(LocalDate startReal, LocalDate endReal);
+
+    String updateTaskWarning(Long taskId);
+
+    Integer calculateSlackTime(Long taskId);
 }

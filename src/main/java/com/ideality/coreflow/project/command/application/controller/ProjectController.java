@@ -3,6 +3,7 @@ package com.ideality.coreflow.project.command.application.controller;
 import com.ideality.coreflow.common.exception.BaseException;
 import com.ideality.coreflow.common.exception.ErrorCode;
 import com.ideality.coreflow.common.response.APIResponse;
+import com.ideality.coreflow.project.command.application.dto.RequestDeleteParticipant;
 import com.ideality.coreflow.project.command.application.dto.RequestInviteUserDTO;
 import com.ideality.coreflow.project.command.application.service.facade.ProjectFacadeService;
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
@@ -15,13 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -94,10 +89,25 @@ public class ProjectController {
         return ResponseEntity.ok(APIResponse.success(null, "팀원 초대에 성공하였습니다."));
     }
 
+    @DeleteMapping("/participants/delete")
+    public ResponseEntity<APIResponse<?>> deleteParticipants(@RequestBody RequestDeleteParticipant request) {
+
+        Long requesterId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        projectFacadeService.deleteParticipants(request, requesterId);
+        return ResponseEntity.ok(APIResponse.success(null, "참여자 삭제에 성공하였습니다."));
+    }
+
 
     // TODO. 프로젝트 분석 리포트 생성
     @GetMapping("/report/{projectId}")
     public void downloadReport(HttpServletResponse response, @PathVariable Long projectId) {
         projectFacadeService.downloadReport(projectId, response);
    }
+
+   // 슬랙타임 업데이트
+    @PatchMapping("/{projectId}/update/slackTime")
+    public ResponseEntity<APIResponse<?>> updateSlackTime(@PathVariable Long projectId) {
+        projectFacadeService.updateSlackTime(projectId);
+        return ResponseEntity.ok(APIResponse.success(null, "슬랙타임 업데이트 완료"));
+    }
 }
