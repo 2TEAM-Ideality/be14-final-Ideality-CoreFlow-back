@@ -1,14 +1,19 @@
 package com.ideality.coreflow.approval.query.dto;
 
 import com.ideality.coreflow.approval.command.domain.aggregate.ApprovalType;
+
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProjectApprovalDTO {
     long id;                    // 결재 id
     String taskName;            // 태스크명
@@ -17,6 +22,11 @@ public class ProjectApprovalDTO {
     String approverName;        // 결재자 명
     String approverJobRank;     // 결재자 직위
     String approvalJobRole;     // 결재자 직책
+
+    // ✅ 수정
+    String requesterName;
+    String  requesterDeptName;
+    Long requesterId;
 
     ApprovalType approvalType;  // 결재 타입 (산출물/지연 사유서)
 

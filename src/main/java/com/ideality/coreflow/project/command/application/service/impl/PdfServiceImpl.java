@@ -13,29 +13,50 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.CategoryTextAnnotation;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.block.BlockBorder;
+import org.jfree.chart.labels.CategoryItemLabelGenerator;
 import org.jfree.chart.labels.ItemLabelAnchor;
 import org.jfree.chart.labels.ItemLabelPosition;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
+import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.StackedBarRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
+import org.jfree.chart.ui.RectangleAnchor;
+import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.chart.ui.TextAnchor;
+import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
 import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.PieChart;
 import org.knowm.xchart.PieChartBuilder;
 import org.knowm.xchart.style.PieStyler;
+import org.knowm.xchart.style.Styler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
@@ -95,7 +116,19 @@ public class PdfServiceImpl implements PdfService {
 			context.setVariable("projectName", projectDetail.getName());
 			context.setVariable("director", projectDetail.getDirector().getName() + " " + projectDetail.getDirector().getDeptName() + " " + projectDetail.getDirector().getJobRoleName());
 			context.setVariable("reportCreatedAt" , LocalDate.now());
-			context.setVariable("projectPeriod", projectDetail.getStartReal() + " ~ " + projectDetail.getEndReal());
+			String period = projectDetail.getStartReal().format(DateTimeFormatter.ISO_DATE)
+				+ " ~ "
+				+ projectDetail.getEndReal().format(DateTimeFormatter.ISO_DATE);
+
+			// 실제 진행 소요일
+			long totalDays = ChronoUnit.DAYS.between(
+				projectDetail.getStartReal(),
+				projectDetail.getEndReal()
+			) + 1;
+			String periodData = period + " (총 " + totalDays + "일)";
+
+			context.setVariable("projectPeriodData", periodData);
+
 			context.setVariable("projectProgress", projectDetail.getProgressRate());
 			context.setVariable("projectDescription", projectDetail.getDescription());
 			context.setVariable("projectDelayDays" , projectDetail.getDelayDays());
@@ -139,6 +172,14 @@ public class PdfServiceImpl implements PdfService {
 			String isDelay = projectDetail.getDelayDays() > 0 ?  "지연" : "기한 내 납기 준수";
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+			LocalDate startReal = projectDetail.getStartReal();
+			LocalDate endReal = projectDetail.getEndReal();
+
+			long realDuration = 0;
+			if (startReal != null && endReal != null) {
+				realDuration = ChronoUnit.DAYS.between(startReal, endReal) + 1;
+			}
+
 			Map<String, Object> total = Map.of(
 				"progress", Optional.ofNullable(projectDetail.getProgressRate()).orElse(0.0),
 				"baseStart", Optional.ofNullable(projectDetail.getStartBase())
@@ -154,14 +195,22 @@ public class PdfServiceImpl implements PdfService {
 					.map(d -> d.format(formatter))
 					.orElse("미입력"),
 				"delay", Optional.ofNullable(projectDetail.getDelayDays()).orElse(0),
-				"status", Optional.ofNullable(isDelay).orElse("N/A")
-			);
+				"status", Optional.ofNullable(isDelay).orElse("N/A"),
+				"realDuration", realDuration
+				);
 			context.setVariable("total", total);
 
 			// 설명. 챕터 3 - 지연 분석 챕터 ---------------------------------------------------------------
 			// 지연 태스크 분석
 			String delayTaskChart = delayTaskChart(completedTaskList);
 			context.setVariable("delayTaskChart", delayTaskChart);
+
+			List<CompletedTaskDTO> sortedDelayedTasks = completedTaskList.stream()
+				.filter(task -> task.getDelayDays() != null && task.getDelayDays() > 0)
+				.sorted(Comparator.comparingInt(CompletedTaskDTO::getDelayDays).reversed())
+				.collect(Collectors.toList());
+
+			context.setVariable("legendItems", sortedDelayedTasks);
 
 			// 지연 사유 분석
 			String delayReasonChart = delayReasonChart(delayList);
@@ -201,22 +250,153 @@ public class PdfServiceImpl implements PdfService {
 				}
 			}
 			context.setVariable("completedOnTime", completedOnTime);		// 기한 내 완료 작업
-			context.setVariable("notCompletedOnTime", notCompletedOnTime);	// 기한 내 미완료 작업
+			context.setVariable("notCompletedOnTime", notCompletedOnTime );	// 기한 내 미완료 작업
 			int totalCompleted = completedTaskList.size();
 			double OTD = totalCompleted > 0 ? (completedOnTime * 100.0) / totalCompleted : 0.0;
-			context.setVariable("OTD", Math.round(OTD * 100.0) / 100.0 + "%");  	// 납기 준수율
+			context.setVariable("OTD", Math.round(OTD * 100.0) / 100.0);  	// 납기 준수율
 
 			double meanDelay = completedTaskList.size() > 0
 				? (double) projectDetail.getDelayDays() / completedTaskList.size()
 				: 0.0;
-			context.setVariable("meanDelay", "+ " + Math.round(meanDelay * 100.0) / 100.0 + " 일");	// 평균 지연일
-			context.setVariable("totalDelay", projectDetail.getDelayDays() + " 일");   // 총 지연일
+			context.setVariable("meanDelay", Math.round(meanDelay * 100.0) / 100.0);	// 평균 지연일
+			context.setVariable("totalDelay", projectDetail.getDelayDays());   // 총 지연일
 			context.setVariable("delayedTaskList", delayedTaskList); 			 // 지연 태스크 목록
 
+			// 주요 병목 공정 차트
+			context.setVariable("widthPercent", 30);
+			// String bottleneckChartBase64 = bottleneckChart(delayedTaskList);
+			// context.setVariable("bottleneckChart", bottleneckChartBase64);
 
-			// 전체 프로젝트에서 납기준수율 추출
-			String newChartBase64 = createOTDChart(projectOTDList, projectDetail.getId());
-			context.setVariable("compareOtdChart", newChartBase64);
+			Random rnd = new Random();
+			// 지연 태스크 비율
+			// 1) 총 지연일 합계
+			long totalDelayDays = delayedTaskList.stream()
+				.mapToLong(CompletedTaskDTO::getDelayDays)
+				.sum();
+
+			// 2) (태스크명, 지연일, percent) 맵 리스트 생성
+			List<Map<String, Object>> delayPercentList = new ArrayList<>();
+			for (CompletedTaskDTO dto : delayedTaskList) {
+				double percent = totalDelayDays > 0
+					? Math.round(dto.getDelayDays() * 10000.0 / totalDelayDays) / 100.0  // 소수 둘째자리까지 반올림
+					: 0.0;
+				Map<String,Object> m = new HashMap<>();
+				m.put("taskName", dto.getTaskName());
+				m.put("delayDays", dto.getDelayDays());
+				m.put("percent", percent);
+				delayPercentList.add(m);
+			}
+
+			context.setVariable("delayPercentList", delayPercentList);
+			log.info("▶ delayPercentList = {}", delayPercentList);
+
+			// 2. 전체 지연일 합계
+			long totalDelayAll = delayList.stream()
+				.mapToLong(ProjectApprovalDTO::getDelayDays)
+				.sum();
+
+			// 3. 부서별 그룹핑
+			Map<String, List<ProjectApprovalDTO>> delaysByDept = delayList.stream()
+				.collect(Collectors.groupingBy(ProjectApprovalDTO::getRequesterDeptName));
+
+			// 4. 부서별 통계 리스트 생성
+			List<Map<String, Object>> deptDelayStats = new ArrayList<>();
+			for (Map.Entry<String, List<ProjectApprovalDTO>> entry : delaysByDept.entrySet()) {
+				String dept = entry.getKey();
+				List<ProjectApprovalDTO> group = entry.getValue();
+
+				// 4-1) 담당 태스크, 세부일정 목록(중복 제거)
+				// List<String> tasks = group.stream()
+				// 	.map(ProjectApprovalDTO::getTaskName)
+				// 	.distinct()
+				// 	.collect(Collectors.toList());
+				// List<String> details = group.stream()
+				// 	.map(ProjectApprovalDTO::getSubTaskName)   // 예: getDetailName()
+				// 	.distinct()
+				// 	.collect(Collectors.toList());
+
+				// 4-2) 총 지연일, 평균 지연일 계산
+				long deptTotalDelay = group.stream()
+					.mapToLong(ProjectApprovalDTO::getDelayDays)
+					.sum();
+				double deptAvgDelay = group.isEmpty() ? 0
+					: Math.round((double) deptTotalDelay / group.size() * 100.0) / 100.0;
+
+				// 4-3) 전체 대비 비율
+				double pct = totalDelayAll == 0 ? 0
+					: Math.round(deptTotalDelay * 10000.0 / totalDelayAll) / 100.0;
+
+				// 일단 details는 빈 리스트라도 무조건 포함시키기
+				// List<String> details = new ArrayList<>();
+
+				Map<String,Object> stat = new HashMap<>();
+				stat.put("deptName", dept);
+				// stat.put("tasks", tasks);
+				// stat.put("details", details);  // ✅ 필수: Thymeleaf에서 오류 방지
+				stat.put("totalDelay", deptTotalDelay);
+				stat.put("avgDelay", deptAvgDelay);
+				stat.put("percentOfTotal", pct);
+
+				deptDelayStats.add(stat);
+			}
+
+			// 5. Thymeleaf 에 변수로 넘기기
+			context.setVariable("deptDelayStats", deptDelayStats);
+
+
+			// 설명. 납기 준수율 OTD
+			//  전체 프로젝트에서 납기준수율 추출
+			context.setVariable("projectCount", projectOTDList.size());
+			log.info("OTD 프로젝트 리스트: {}", projectOTDList.stream()
+				.map(dto -> dto.getProjectName() + "=" + dto.getOtdRate())
+				.collect(Collectors.toList()));
+			String compareOtdChart = createOTDChart(projectOTDList, projectDetail.getId());
+			context.setVariable("compareOtdChart", compareOtdChart);
+
+			// 평균과 비교한 설명 문구 추가
+			double avgOtd = projectOTDList.stream()
+				.mapToDouble(ProjectOTD::getOtdRate)
+				.average()
+				.orElse(0.0);
+
+			ProjectOTD currentProject = projectOTDList.stream()
+				.filter(dto -> dto.getProjectId().equals(projectDetail.getId()))
+				.findFirst()
+				.orElse(null);
+
+			// 설명. 평가 문구
+			// OTD(납기 준수율) 평가 기준:
+			// - 현재 프로젝트 OTD가 평균보다 5.0%p 이상 높으면 → "우수한 성과"
+			// - 현재 프로젝트 OTD가 평균보다 5.0%p 이상 낮으면 → "개선이 필요함"
+			// - 그 외, 평균과 ±5.0%p 이내이면 → "평균과 유사한 수준"
+
+			String comment = "";
+			String  evalType = "";
+			if (currentProject != null) {
+				double currentOtd = currentProject.getOtdRate();
+				double diff = currentOtd - avgOtd;
+				if (diff > 5.0) {
+					comment = String.format(
+						"해당 프로젝트의 납기 준수율은 평균(%.1f%%)보다 %.1f%%p 높아, 우수한 성과를 보였습니다.",
+						avgOtd, diff
+					);
+					evalType = "EXCELLENT";
+				} else if (diff < -5.0) {
+					comment = String.format(
+						"해당 프로젝트의 납기 준수율은 평균(%.1f%%)보다 %.1f%%p 낮아, 개선이 필요합니다.",
+						avgOtd, -diff
+					);
+					evalType = "NEEDS_IMPROVEMENT";
+				} else {
+					comment = String.format(
+						"해당 프로젝트의 납기 준수율은 평균(%.1f%%)과 유사한 수준(%.1f%%)입니다.",
+						avgOtd, currentOtd
+					);
+					evalType = "AVERAGE";
+				}
+			}
+			context.setVariable("otdComparisonComment", comment);
+			context.setVariable("evalType", evalType.trim());
 
 			// -----------------------------------------------------------------------
 
@@ -226,7 +406,7 @@ public class PdfServiceImpl implements PdfService {
 
 			String timeSuffix = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
 			// String rawFileName = "프로젝트분석보고서_" + projectDetail.getName() + "_" + timeSuffix + ".pdf";
-			String rawFileName = "프로젝트 분석 보고서_" + projectDetail.getName() + ".pdf";
+			String rawFileName = projectDetail.getName() +"_분석 리포트"+ ".pdf";
 			log.info("PDF FILE NAME : {}" , rawFileName);
 			String encodedFileName = URLEncoder.encode(rawFileName, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
 
@@ -281,7 +461,7 @@ public class PdfServiceImpl implements PdfService {
 		// ✅ 크기 통일 관련 설정
 		chart.getStyler().setLegendPosition(PieStyler.LegendPosition.OutsideE);  // 범례 오른쪽 상단
 		chart.getStyler().setLegendPadding(4);
-		chart.getStyler().setLegendSeriesLineLength(15);
+		chart.getStyler().setLegendSeriesLineLength(40);
 		chart.getStyler().setPlotContentSize(0.85); // 그래프 원 고정 크기
 		chart.getStyler().setCircular(true);
 
@@ -292,6 +472,69 @@ public class PdfServiceImpl implements PdfService {
 		chart.getStyler().setChartTitleFont(customFont);
 		chart.getStyler().setLegendFont(customFont);
 		chart.getStyler().setAnnotationTextFont(customFont);
+	}
+
+	// 주요 병목 공정 막대 그래프
+	/**
+	 * 지연된 태스크 리스트를 받아, 전체 지연 시간 중
+	 * 각 태스크가 차지하는 비율(%)을 스택형 막대로 그려 Base64 문자열로 반환
+	 */
+	private String bottleneckChart(List<CompletedTaskDTO> delayedTaskList) throws IOException, FontFormatException {
+		// 1) 총 지연 시간 합계
+		long totalDelay = delayedTaskList.stream()
+			.mapToLong(CompletedTaskDTO::getDelayDays)
+			.sum();
+
+		// 2) 데이터셋 준비 (row = 태스크명, column = "병목")
+		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+		for (CompletedTaskDTO dto : delayedTaskList) {
+			double pct = totalDelay > 0
+				? dto.getDelayDays() * 100.0 / totalDelay
+				: 0.0;
+			dataset.addValue(pct, dto.getTaskName(), "병목");
+		}
+
+		// 3) 차트 생성
+		JFreeChart chart = ChartFactory.createStackedBarChart(
+			"주요 병목 공정",     // chart title
+			"",                 // domain axis label
+			"비율(%)",          // range axis label
+			dataset,
+			PlotOrientation.HORIZONTAL,
+			true,  // legend
+			false,
+			false
+		);
+
+		// 4) 스타일링
+		CategoryPlot plot = (CategoryPlot) chart.getPlot();
+		plot.setBackgroundPaint(Color.WHITE);
+		plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
+
+		// X축(비율) 범위 0~100 고정
+		NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+		rangeAxis.setRange(0, 100);
+		rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+
+		// 스택 렌더러: 각 시리즈(태스크)마다 색 지정
+		StackedBarRenderer renderer = new StackedBarRenderer();
+		Color[] colors = new Color[] {
+			new Color(252,179,112),
+			new Color(251,234,117),
+			new Color(157,229,179),
+			new Color(116,222,239),
+			new Color(228,134,250)
+		};
+		for (int i = 0; i < delayedTaskList.size(); i++) {
+			renderer.setSeriesPaint(i, colors[i % colors.length]);
+		}
+		plot.setRenderer(renderer);
+
+		// 5) 이미지로 변환
+		BufferedImage img = chart.createBufferedImage(600, 300);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ImageIO.write(img, "png", baos);
+		return Base64.getEncoder().encodeToString(baos.toByteArray());
 	}
 
 
@@ -332,6 +575,7 @@ public class PdfServiceImpl implements PdfService {
 		// 이미지로 변환
 		return getString(chart);
 	}
+	//
 
 
 	// 지연 태스크 분석 차트 생성
@@ -340,32 +584,37 @@ public class PdfServiceImpl implements PdfService {
 		PieChart chart = new PieChartBuilder()
 			.width(400)
 			.height(300)
-			.title("지연 태스크 분석")
+			.title("")
 			.build();
 
-		// 완료된 태스크 목록에서 지연 발생한 태스크 추출
-		List<CompletedTaskDTO> delayedTaskList = new ArrayList<>();
-		for(CompletedTaskDTO dto : completedTaskList){
-			if(dto.getDelayDays() > 0){
-				delayedTaskList.add(dto);
-			}
-		}
+		// 스타일 커스터마이징: 범례 크기 조정
+		chart.getStyler().setLegendVisible(true);
+		chart.getStyler().setLegendPadding(30);
+		chart.getStyler().setLegendSeriesLineLength(80); // 범례 색 박스 길이 조절
+		chart.getStyler().setLegendLayout(Styler.LegendLayout.Vertical);
+		chart.getStyler().setLegendPosition(Styler.LegendPosition.OutsideE); // 오른쪽 외부로
+		chart.getStyler().setAnnotationTextFont(new Font("Noto Sans KR", Font.BOLD, 28)); // ✅ 올바른 메서드
+		chart.getStyler().setLabelsDistance(0.65); // 텍스트 위치
+		chart.getStyler().setLabelsFont(new Font("Noto Sans KR", Font.BOLD, 12));
+		chart.getStyler().setAnnotationTextFont(new Font("Noto Sans KR", Font.BOLD, 20));
+		chart.getStyler().setAnnotationTextPanelPadding((int)3);
+		chart.getStyler().setLegendFont(new Font("Noto Sans KR", Font.PLAIN, 18));
 
-		// 지연 태스크가 없을 경우
-		if(delayedTaskList == null || delayedTaskList.isEmpty()) {
+		// 지연 태스크 추출
+		List<CompletedTaskDTO> delayedTaskList = completedTaskList.stream()
+			.filter(dto -> dto.getDelayDays() > 0)
+			.sorted((a, b) -> Integer.compare(b.getDelayDays(), a.getDelayDays()))
+			.collect(Collectors.toList());
+
+		if (delayedTaskList.isEmpty()) {
 			chart.addSeries("지연 태스크 없음", 1);
-			chart.getStyler().setSeriesColors(new Color[]{new Color(230, 230, 230)});  // 밝은 회색
+			chart.getStyler().setSeriesColors(new Color[]{new Color(230, 230, 230)});
 			chart.getStyler().setChartBackgroundColor(Color.WHITE);
 			chart.getStyler().setPlotBackgroundColor(Color.WHITE);
-		}else{
-			// delayDays(지연일) 기준으로 내림차순 정렬
-			delayedTaskList.sort((a, b) -> Integer.compare(b.getDelayDays(), a.getDelayDays()));
-
+		} else {
 			Map<String, Integer> nameCountMap = new HashMap<>();
 			for (CompletedTaskDTO dto : delayedTaskList) {
 				String taskName = dto.getTaskName();
-
-				// 동일 이름 카운팅 → 중복 방지용 인덱스 추가
 				if (nameCountMap.containsKey(taskName)) {
 					int count = nameCountMap.get(taskName) + 1;
 					nameCountMap.put(taskName, count);
@@ -373,81 +622,243 @@ public class PdfServiceImpl implements PdfService {
 				} else {
 					nameCountMap.put(taskName, 1);
 				}
-
 				chart.addSeries(taskName + " - " + dto.getDelayDays() + "일", dto.getDelayDays());
 			}
 			applyDefaultChartStyle(chart);
 		}
-		// 이미지로 변환
-		return getString(chart);
 
+		return getString(chart);
 	}
+
+	// private String delayTaskChart(List<CompletedTaskDTO> completedTaskList) throws IOException {
+	// 	// 1. 데이터셋 구성
+	// 	DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
+	//
+	// 	Map<String, Integer> nameCountMap = new HashMap<>();
+	// 	List<String> labels = new ArrayList<>(); // 색상 매핑용
+	// 	int total = 0;
+	//
+	// 	for (CompletedTaskDTO dto : completedTaskList) {
+	// 		if (dto.getDelayDays() <= 0) continue;
+	//
+	// 		String taskName = dto.getTaskName();
+	// 		if (nameCountMap.containsKey(taskName)) {
+	// 			int count = nameCountMap.get(taskName) + 1;
+	// 			nameCountMap.put(taskName, count);
+	// 			taskName += " (" + count + ")";
+	// 		} else {
+	// 			nameCountMap.put(taskName, 1);
+	// 		}
+	//
+	// 		String label = taskName + " - " + dto.getDelayDays() + "일";
+	// 		dataset.setValue(label, dto.getDelayDays());
+	// 		labels.add(label);
+	// 		total += dto.getDelayDays();
+	// 	}
+	//
+	// 	if (dataset.getItemCount() == 0) {
+	// 		dataset.setValue("지연 태스크 없음", 1);
+	// 		labels.add("지연 태스크 없음");
+	// 	}
+	//
+	// 	// 2. 차트 생성
+	// 	JFreeChart chart = ChartFactory.createPieChart(
+	// 		"",
+	// 		dataset,
+	// 		true,
+	// 		false,
+	// 		false
+	// 	);
+	//
+	// 	// 3. 스타일 커스터마이징
+	// 	PiePlot plot = (PiePlot) chart.getPlot();
+	// 	plot.setBackgroundPaint(Color.WHITE);
+	// 	plot.setOutlineVisible(false);
+	// 	plot.setInteriorGap(0.04);
+	//
+	// 	// 파이 내부 라벨 + 퍼센트
+	// 	plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0} ({2})"));
+	// 	plot.setLabelFont(new Font("Noto Sans KR", Font.BOLD, 16));
+	// 	plot.setLabelBackgroundPaint(new Color(255, 255, 255, 0)); // 투명
+	//
+	// 	// 범례 폰트
+	// 	chart.getLegend().setItemFont(new Font("Noto Sans KR", Font.PLAIN, 20));
+	// 	chart.getLegend().setFrame(BlockBorder.NONE);
+	// 	chart.getLegend().setPosition(RectangleEdge.RIGHT);
+	//
+	//
+	//
+	// 	// 🎨 사용자 정의 색상 적용
+	// 	Color[] customColors = new Color[] {
+	// 		new Color(252, 179, 112),
+	// 		new Color(251, 234, 117),
+	// 		new Color(157, 229, 179),
+	// 		new Color(116, 222, 239),
+	// 		new Color(228, 134, 250)
+	// 	};
+	//
+	// 	for (int i = 0; i < labels.size(); i++) {
+	// 		Color color = customColors[i % customColors.length]; // 색 순환 적용
+	// 		plot.setSectionPaint(labels.get(i), color);
+	// 	}
+	//
+	// 	// 4. 이미지 인코딩
+	// 	BufferedImage image = chart.createBufferedImage(600, 400);
+	// 	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	// 	javax.imageio.ImageIO.write(image, "png", baos);
+	// 	return Base64.getEncoder().encodeToString(baos.toByteArray());
+	// }
+
 
 
 
 
 	public String createOTDChart(List<ProjectOTD> otdList, Long currentProjectId) throws IOException, FontFormatException {
+		// 데이터 준비
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+		Set<String> existingNames = new HashSet<>();
+		Map<String, ProjectOTD> nameToDtoMap = new HashMap<>();
 
-		// 1. 데이터 추가
 		for (ProjectOTD dto : otdList) {
-			dataset.addValue(dto.getOtdRate(), "OTD", dto.getProjectName());
+			String originalName = Optional.ofNullable(dto.getProjectName()).orElse("이름 없음");
+			String uniqueName = originalName;
+			int suffix = 2;
+			while (existingNames.contains(uniqueName)) {
+				uniqueName = originalName + " (" + suffix++ + ")";
+			}
+			existingNames.add(uniqueName);
+			nameToDtoMap.put(uniqueName, dto);
+			dataset.addValue(dto.getOtdRate(), "OTD", uniqueName);
 		}
 
-		// 2. 차트 생성
+		// 차트 생성
+		// "프로젝트 납기 준수율 비교",
 		JFreeChart chart = ChartFactory.createBarChart(
-			"프로젝트 납기 준수율 비교",
-			"OTD(%)",
+			"",
 			"프로젝트",
+			"OTD(%)",
 			dataset,
 			PlotOrientation.HORIZONTAL,
 			false, true, false
 		);
 
-		// 3. 커스텀 렌더러 설정 (각 막대마다 색 다르게)
 		CategoryPlot plot = chart.getCategoryPlot();
+
+		// 사용자 정의 렌더러 (막대 색상 및 라벨 조건부 출력)
 		BarRenderer renderer = new BarRenderer() {
 			@Override
 			public Paint getItemPaint(int row, int column) {
 				String projectName = (String) dataset.getColumnKey(column);
-				for (ProjectOTD dto : otdList) {
-					if (dto.getProjectName().equals(projectName)) {
-						if (dto.getProjectId().equals(currentProjectId)) {
-							return new Color(26, 188, 156); // 현재 프로젝트만 청록색
-						}
-					}
+				ProjectOTD dto = nameToDtoMap.get(projectName);
+				if (dto != null && dto.getProjectId().equals(currentProjectId)) {
+					return new Color(26, 188, 156); // 강조 색
 				}
-				return new Color(211, 211, 211); // 나머지는 회색
+				return new Color(211, 211, 211); // 기본 회색
 			}
 		};
+
+		// 폰트 설정
+		Font labelFont = Font.createFont(Font.TRUETYPE_FONT, new File(FONT_PATH)).deriveFont(Font.PLAIN, 12f);
+		Font koreanFont = labelFont;
+
+		// 조건부 라벨: 강조된 항목만 %
+		renderer.setDefaultItemLabelGenerator(new CategoryItemLabelGenerator() {
+			@Override
+			public String generateLabel(CategoryDataset dataset, int row, int column) {
+				String projectName = (String) dataset.getColumnKey(column);
+				ProjectOTD dto = nameToDtoMap.get(projectName);
+				if (dto != null && dto.getProjectId().equals(currentProjectId)) {
+					return String.format("%.1f%%", dto.getOtdRate());
+				}
+				return null;
+			}
+
+			@Override
+			public String generateColumnLabel(CategoryDataset dataset, int column) {
+				return (String) dataset.getColumnKey(column);
+			}
+
+			@Override
+			public String generateRowLabel(CategoryDataset dataset, int row) {
+				return (String) dataset.getRowKey(row);
+			}
+		});
+		renderer.setDefaultItemLabelsVisible(true);
+		renderer.setDefaultItemLabelFont(labelFont);
+		renderer.setDefaultItemLabelPaint(Color.BLACK);
+		renderer.setDefaultPositiveItemLabelPosition(
+			new ItemLabelPosition(ItemLabelAnchor.OUTSIDE3, TextAnchor.CENTER_LEFT)
+		);
+		renderer.setBarPainter(new StandardBarPainter());
+		renderer.setShadowVisible(false);
+		renderer.setDrawBarOutline(false);
+		renderer.setMaximumBarWidth(0.08);
 		plot.setRenderer(renderer);
 
-		// 4. 레이블 설정 (% 표시)
-		Font font = Font.createFont(Font.TRUETYPE_FONT, new File("src/main/resources/fonts/NotoSansKR-Regular.ttf"))
-			.deriveFont(Font.PLAIN, 12f);
-		renderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator("{2}%", NumberFormat.getInstance()));
-		renderer.setDefaultItemLabelsVisible(true);
-		renderer.setDefaultItemLabelFont(font);
-		renderer.setDefaultPositiveItemLabelPosition(
-			new ItemLabelPosition(ItemLabelAnchor.CENTER, TextAnchor.CENTER_RIGHT));
+		// 평균선 계산 및 시각화 (파란색으로 수정)
+		double avgOtd = otdList.stream()
+			.mapToDouble(ProjectOTD::getOtdRate)
+			.average()
+			.orElse(0.0);
 
-		// 5. 폰트 적용
-		chart.getTitle().setFont(font);
-		plot.getDomainAxis().setTickLabelFont(font);
-		plot.getRangeAxis().setTickLabelFont(font);
+		ValueMarker avgMarker = new ValueMarker(avgOtd);
+		avgMarker.setPaint(new Color(77, 145, 255)); // #4D91FF
+		avgMarker.setStroke(new BasicStroke(1.5f));
+		// 라벨은 제거
+		plot.addRangeMarker(avgMarker);
 
-		// 6. 이미지로 변환
+		// 2. 평균 텍스트를 차트 오른쪽 상단에 주석으로 표시
+		CategoryTextAnnotation avgAnnotation = new CategoryTextAnnotation(
+			String.format("평균 OTD: %.1f%%", avgOtd),
+			dataset.getColumnKey(dataset.getColumnCount() - 1), // 가장 오른쪽 바 기준
+			plot.getRangeAxis().getUpperBound() * 0.97          // Y축 최상단에서 살짝 아래
+		);
+		avgAnnotation.setFont(koreanFont.deriveFont(Font.BOLD));
+		avgAnnotation.setPaint(new Color(77, 145, 255)); // 파란색
+		avgAnnotation.setTextAnchor(TextAnchor.TOP_RIGHT);
+		plot.addAnnotation(avgAnnotation);
+
+		// 현재 프로젝트 기준선
+		ProjectOTD current = otdList.stream()
+			.filter(dto -> dto.getProjectId().equals(currentProjectId))
+			.findFirst().orElse(null);
+
+		if (current != null) {
+			double currentOtd = current.getOtdRate();
+			ValueMarker marker = new ValueMarker(currentOtd);
+			marker.setPaint(Color.RED);
+			marker.setStroke(new BasicStroke(2f));
+			plot.addRangeMarker(marker); // 수직선
+		}
+
+		// Y축 항목 라벨 강조 (Bold)
+		CategoryAxis domainAxis = plot.getDomainAxis();
+		for (String name : nameToDtoMap.keySet()) {
+			ProjectOTD dto = nameToDtoMap.get(name);
+			if (dto.getProjectId().equals(currentProjectId)) {
+				domainAxis.setTickLabelFont(name, koreanFont.deriveFont(Font.BOLD));
+			} else {
+				domainAxis.setTickLabelFont(name, koreanFont);
+			}
+		}
+
+		// 전역 폰트 적용
+		chart.getTitle().setFont(koreanFont);
+		domainAxis.setLabelFont(koreanFont);
+		plot.getRangeAxis().setLabelFont(koreanFont);
+		plot.getRangeAxis().setTickLabelFont(koreanFont);
+
+		// 배경 및 스타일
+		plot.setBackgroundPaint(Color.WHITE);
+		plot.setRangeGridlinePaint(new Color(180, 180, 180));
+		plot.setOutlineVisible(false);
+
+		// 이미지 → Base64 변환
 		BufferedImage image = chart.createBufferedImage(800, 500);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ImageIO.write(image, "png", baos);
 		return Base64.getEncoder().encodeToString(baos.toByteArray());
 	}
-
-
-
-
-
-
 
 
 	private static String getString(PieChart chart) throws IOException {

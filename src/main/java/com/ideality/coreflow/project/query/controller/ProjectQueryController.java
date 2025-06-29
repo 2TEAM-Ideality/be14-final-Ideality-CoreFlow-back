@@ -52,6 +52,7 @@ public class ProjectQueryController {
         return APIResponse.success(project, project.getName() + " 파이프라인 조회 성공");
     }
 
+    // 초대 가능한 유저 목록 조회 true/false
     @GetMapping("/{projectId}/invitable-user")
     public ResponseEntity<APIResponse<List<ResponseInvitableUserDTO>>> getInvitableUser(@PathVariable Long projectId) {
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());

@@ -73,7 +73,7 @@ public class ProjectController {
                 APIResponse.success(null, "경과율이 업데이트 되었습니다")
         );
     }
-
+    // 프로젝트 팀장 초대
     @PostMapping("/{projectId}/participants/team-leader")
     public ResponseEntity<APIResponse<?>>
     createTeamLeader(@PathVariable Long projectId,
@@ -83,7 +83,7 @@ public class ProjectController {
         projectFacadeService.createParticipantsLeader(userId, projectId, reqLeaderDTO);
         return ResponseEntity.ok(APIResponse.success(null, "팀 리더 초대에 성공하였습니다."));
     }
-
+    // 프로젝트 팀원 초대
     @PostMapping("/{projectId}/participants/team-member")
     public ResponseEntity<APIResponse<?>> createTeamMember
             (@PathVariable Long projectId,
