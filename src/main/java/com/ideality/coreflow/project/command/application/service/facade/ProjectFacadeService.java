@@ -486,7 +486,7 @@ public class ProjectFacadeService {
         log.info("세부 일정 생성");
 
         // 새로 생성된 세부일정이 태스크의 범위를 넘는다면 태스크를 warning 상태로 업데이트
-        updateTaskWarning(requestDetailDTO.getParentTaskId());
+        workDomainService.updateTaskWarning(requestDetailDTO.getParentTaskId());
 
         //1. source와 target 모두 null일 경우, 관계 설정을 생략
         if ((requestDetailDTO.getSource() == null || requestDetailDTO.getSource().isEmpty()) &&
@@ -568,7 +568,7 @@ public class ProjectFacadeService {
         //세부일정 진척률기반으로 태스크/프로젝트 진척률 자동업데이트
         updateProgressRateCascade(taskId);
 
-        updateTaskWarning(taskId);
+        workDomainService.updateTaskWarning(taskId);
 
         return detailId;
     }
@@ -799,7 +799,7 @@ public class ProjectFacadeService {
             workDeptService.createWorkDept(taskId, newDeptId);
         }
 
-        updateTaskWarning(taskId);
+        workDomainService.updateTaskWarning(taskId);
 
         return modifyTaskId;
     }
@@ -826,13 +826,6 @@ public class ProjectFacadeService {
                 }
             }
         }
-    }
-
-    // task warning 처리: 태스크 예상 마감일과 하위 세부일정 예상 마감일을 비교 후 비교 결과 저장
-    public String updateTaskWarning(Long taskId){
-        Boolean warning = taskQueryService.checkTaskWarning(taskId);    // task 예상 마감일과 하위 세부일정 예상 마감일 비교
-        taskService.setTaskWarning(taskId, warning);                    // task warning 상태 저장
-        return warning?"warning 설정됨":"warning 해제됨";
     }
 
     public void updateTaskRelation(Long userId, List<RequestRelationUpdateDTO> requestRelationUpdateDTO) {
@@ -931,5 +924,9 @@ public class ProjectFacadeService {
             // 일반 팀원은 삭제 권한 없음
             throw new BaseException(ErrorCode.ACCESS_DENIED_DELETED_PARTICIPANT);
         }
+    }
+
+    public String updateTaskWarning(Long taskId) {
+        return workDomainService.updateTaskWarning(taskId);
     }
 }

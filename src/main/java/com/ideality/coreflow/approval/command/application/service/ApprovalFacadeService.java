@@ -23,6 +23,7 @@ import com.ideality.coreflow.project.command.application.service.facade.ProjectF
 import com.ideality.coreflow.project.command.domain.aggregate.Project;
 import com.ideality.coreflow.project.command.domain.aggregate.Work;
 import com.ideality.coreflow.project.command.domain.service.DelayDomainService;
+import com.ideality.coreflow.project.command.domain.service.WorkDomainService;
 import com.ideality.coreflow.project.query.service.ParticipantQueryService;
 import com.ideality.coreflow.project.query.service.ProjectQueryService;
 import com.ideality.coreflow.project.query.service.TaskQueryService;
@@ -58,6 +59,7 @@ public class ApprovalFacadeService {
     private final TaskService taskService;
     private final TaskQueryService taskQueryService;
     private final ProjectQueryService projectQueryService;
+    private final WorkDomainService workDomainService;
 
     @Transactional
     public void approve(RequestApprove request, long userId) {
@@ -95,8 +97,11 @@ public class ApprovalFacadeService {
         } else {
             throw new BaseException(ErrorCode.ACCESS_DENIED_APPROVAL);
         }
-        // 지연 전파
-        delayAndPropagate(approval.getWorkId(), request.getDelayDays(), false);
+        if (approval.getType() == ApprovalType.DELAY) {
+            // 지연 전파
+            delayAndPropagate(approval.getWorkId(), request.getDelayDays(), false);
+            workDomainService.updateTaskWarning(approval.getWorkId());
+        }
     }
 
     @Transactional
