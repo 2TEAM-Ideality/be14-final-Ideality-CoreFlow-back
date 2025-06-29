@@ -42,6 +42,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import static com.ideality.coreflow.notification.command.domain.aggregate.NotificationTargetType.PROJECT;
@@ -678,7 +679,7 @@ public class ProjectFacadeService {
         notificationRecipientsService.createRecipients(participantUser, notificationId);
     }
 
-    // 프로젝트 분석 리포트 다운로드
+    // 프로젝트 분석 리포트 생성 및 다운로드
     @Transactional
     public void downloadReport(Long projectId, HttpServletResponse response) {
         if (!projectService.isCompleted(projectId)) {
@@ -693,17 +694,55 @@ public class ProjectFacadeService {
         // 공정 내역 - 태스트 조회
         List<CompletedTaskDTO> completedTaskList = taskQueryService.selectCompletedTasks(projectId);
 
-        // 지연 사유서 내역
+        // 승인된 지연 사유서 내역
         List<ProjectApprovalDTO> delayList = approvalQueryService.selectProjectApprovalByProjectId(projectId, ApprovalType.DELAY);
+        for (ProjectApprovalDTO delay : delayList) {
+            System.out.println(delay.getRequesterDeptName() + " "  +  delay.getDelayDays());
+        }
 
         // 전체 프로젝트 정보 가져오기
         // 완료 상태인 프로젝트 전체 목록 가져오기
         List<CompletedProjectDTO> completedProjectList = projectQueryService.selectCompletedProjects();
-        // 프로젝트별 태스크 리스트 가져오기
 
         // 각 프로젝트의 OTD 계산하기
         List<ProjectOTD> projectOTDList = taskQueryService.calculateProjectDTO(completedProjectList);
         for(ProjectOTD projectOTD : projectOTDList) {
+            System.out.println(projectOTD.getProjectName() + " " + projectOTD.getOtdRate());
+        }
+
+        /// TODO. 시각화 테스트용 더미 데이터 항상 추가
+        if(projectOTDList.size() < 5){
+            String[] categories = {"여성복", "남성복"};
+            String[] seasons = {"S/S", "F/W"};
+            String[] styles = {"오피스룩", "캐주얼", "스포티", "미니멀", "빈티지"};
+
+            for (int i = 1; i <= 15; i++) {
+                String category = categories[ThreadLocalRandom.current().nextInt(categories.length)];
+                String season = seasons[ThreadLocalRandom.current().nextInt(seasons.length)];
+                String style = styles[ThreadLocalRandom.current().nextInt(styles.length)];
+
+                int totalTasks = ThreadLocalRandom.current().nextInt(15, 41); // 15~40개
+                int completed = ThreadLocalRandom.current().nextInt((int)(totalTasks * 0.6), totalTasks + 1); // 60~100%
+                int notCompleted = totalTasks - completed;
+                double otdRate = Math.round((completed * 100.0 / totalTasks) * 10) / 10.0;
+
+                String projectName = String.format("%s %s %s 컬렉션 런칭", category, season, style);
+
+                projectOTDList.add(ProjectOTD.builder()
+                    .projectId((long) (1000 + i)) // 실제 ID와 충돌하지 않도록 큰 숫자 사용
+                    .projectName(projectName)
+                    .completedOnTime(completed)
+                    .notCompletedOnTime(notCompleted)
+                    .totalTask(totalTasks)
+                    .otdRate(otdRate)
+                    .build());
+            }
+
+
+        }
+
+        // 출력 확인
+        for (ProjectOTD projectOTD : projectOTDList) {
             System.out.println(projectOTD.getProjectName() + " " + projectOTD.getOtdRate());
         }
 

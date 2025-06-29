@@ -58,6 +58,7 @@ public class SecurityConfig {
                             config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                             config.setAllowedHeaders(Arrays.asList("*"));
                             config.setAllowCredentials(true);
+                            config.setExposedHeaders(Arrays.asList("Content-Disposition")); // 프로젝트 분석 리포트 파일명 전달 목적
                             return config;
                         })
                 )
