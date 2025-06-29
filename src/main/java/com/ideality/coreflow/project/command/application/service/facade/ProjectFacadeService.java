@@ -697,6 +697,9 @@ public class ProjectFacadeService {
 
         // 승인된 지연 사유서 내역
         List<ProjectApprovalDTO> delayList = approvalQueryService.selectProjectApprovalByProjectId(projectId, ApprovalType.DELAY);
+        for (ProjectApprovalDTO delay : delayList) {
+            System.out.println(delay.getRequesterDeptName() + " "  +  delay.getDelayDays());
+        }
 
         // 전체 프로젝트 정보 가져오기
         // 완료 상태인 프로젝트 전체 목록 가져오기
@@ -708,14 +711,13 @@ public class ProjectFacadeService {
             System.out.println(projectOTD.getProjectName() + " " + projectOTD.getOtdRate());
         }
 
-        // TODO. 시각화 테스트용 더미 데이터 추가
-        if (projectOTDList.isEmpty()) {
+        /// TODO. 시각화 테스트용 더미 데이터 항상 추가
+        if(projectOTDList.size() < 5){
             String[] categories = {"여성복", "남성복"};
             String[] seasons = {"S/S", "F/W"};
             String[] styles = {"오피스룩", "캐주얼", "스포티", "미니멀", "빈티지"};
 
             for (int i = 1; i <= 15; i++) {
-                // ThreadLocalRandom : 다중 스레드 환경에서도 빠르고 안전하게 난수를 생성
                 String category = categories[ThreadLocalRandom.current().nextInt(categories.length)];
                 String season = seasons[ThreadLocalRandom.current().nextInt(seasons.length)];
                 String style = styles[ThreadLocalRandom.current().nextInt(styles.length)];
@@ -728,7 +730,7 @@ public class ProjectFacadeService {
                 String projectName = String.format("%s %s %s 컬렉션 런칭", category, season, style);
 
                 projectOTDList.add(ProjectOTD.builder()
-                    .projectId((long) i)
+                    .projectId((long) (1000 + i)) // 실제 ID와 충돌하지 않도록 큰 숫자 사용
                     .projectName(projectName)
                     .completedOnTime(completed)
                     .notCompletedOnTime(notCompleted)
@@ -736,6 +738,8 @@ public class ProjectFacadeService {
                     .otdRate(otdRate)
                     .build());
             }
+
+
         }
 
         // 출력 확인

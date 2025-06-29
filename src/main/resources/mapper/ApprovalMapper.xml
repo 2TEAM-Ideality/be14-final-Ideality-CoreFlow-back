@@ -15,6 +15,10 @@
         <result property="delayReason" column="DELAY_REASON" />
         <result property="delayDays" column="DELAY_DAYS" />
         <result property="url" column="URL" />
+        <!-- 요청자 필드 추가-->
+        <result property="requesterName" column="REQUESTER_NAME" />
+        <result property="requesterDeptName" column="REQUESTER_DEPT_NAME" />
+        <result property="requesterId" column="REQUESTER_ID" />
     </resultMap>
 
     <resultMap id="ApprovalPreviewResultMap" type="com.ideality.coreflow.approval.query.dto.ResponsePreviewApproval">
@@ -55,160 +59,158 @@
         <result property="delayDays" column="DELAY_DAYS" />
         <result property="actionDetail" column="ACTION_DETAIL" />
         <result property="delayReason" column="DELAY_REASON" />
-        <result column="SENDER_NAME"       property="senderName"/>
-        <result column="SENDER_DEPT_NAME"  property="senderDeptName"/>
-        <result column="SENDER_DEPT_ID"    property="senderDeptId"/>
     </resultMap>
 
     <!--  프로젝트 id와 타입(산출물 / 지연 사유서)으로 승인된 결재 조회  -->
     <select id="selectProjectApprovalByProjectId" resultMap="ProjectApprovalResultMap">
         SELECT
-               a.id AS ID
-             , w.name AS TASK_NAME
-             , w.id AS TASK_ID
-             , a.created_at AS CREATED_AT
-             , u.name AS APPROVER_NAME
-             , u.job_rank_name AS APPROVER_JOB_RANK
-             , u.job_role_name AS APPROVER_JOB_ROLE
-             , a.type AS APPROVAL_TYPE
-             , dr.reason AS DELAY_REASON
-             , da.delay_days AS DELAY_DAYS
-             , at.url AS URL
-             , su.name              AS SENDER_NAME
-             , su.dept_name         AS SENDER_DEPT_NAME
-             , su.id                AS SENDER_DEPT_ID
-          FROM approval a
-          LEFT JOIN approval_participant ap ON ap.approval_id = a.id
-          LEFT JOIN user u ON ap.user_id = u.id
-          LEFT JOIN work w ON a.work_id = w.id
-          LEFT JOIN project p ON w.project_id = p.id
-          LEFT JOIN delay_approval da ON a.id = da.approval_id
-          LEFT JOIN delay_reason dr ON da.delay_reason_id = dr.id
-          LEFT JOIN attachment at ON a.id = at.target_id AND at.target_type = 'APPROVAL'
-            LEFT JOIN user su ON a.user_id = su.id
-         WHERE a.type = #{approvalType}
-           AND a.status = 'APPROVED'
-           AND ap.role = 'APPROVER'
-           AND p.id = #{projectId}
+        a.id AS ID
+        , w.name AS TASK_NAME
+        , w.id AS TASK_ID
+        , a.created_at AS CREATED_AT
+        , u.name AS APPROVER_NAME
+        , u.job_rank_name AS APPROVER_JOB_RANK
+        , u.job_role_name AS APPROVER_JOB_ROLE
+        , a.type AS APPROVAL_TYPE
+        , dr.reason AS DELAY_REASON
+        , da.delay_days AS DELAY_DAYS
+        , at.url AS URL
 
+        , su.name AS REQUESTER_NAME
+        , su.dept_name AS REQUESTER_DEPT_NAME
+        , su.id AS REQUESTER_ID
+        FROM approval a
+        LEFT JOIN approval_participant ap ON ap.approval_id = a.id
+        LEFT JOIN user u ON ap.user_id = u.id
+        LEFT JOIN work w ON a.work_id = w.id
+        LEFT JOIN project p ON w.project_id = p.id
+        LEFT JOIN delay_approval da ON a.id = da.approval_id
+        LEFT JOIN delay_reason dr ON da.delay_reason_id = dr.id
+        LEFT JOIN attachment at ON a.id = at.target_id AND at.target_type = 'APPROVAL'
+        LEFT JOIN user su ON a.user_id = su.id
+        WHERE a.type = #{approvalType}
+        AND a.status = 'APPROVED'
+        AND ap.role = 'APPROVER'
+        AND p.id = #{projectId}
     </select>
+
 
     <!-- 결재 id로 결재 상세 내역 조회 -->
     <select id="selectApprovalDetailsById" parameterType="long" resultMap="ApprovalDetailsResultMap">
         SELECT
-               a.id AS ID
-             , u.id AS REQUESTER_ID
-             , u.name AS REQUESTER_NAME
-             , u.dept_name AS REQUESTER_DEPT_NAME
-             , a.title AS TITLE
-             , a.type AS TYPE
-             , a.status AS STATUS
-             , a.content AS CONTENT
-             , a.created_at AS CREATED_AT
-             , a.approved_at AS APPROVED_AT
-             , a.reject_reason AS REJECT_REASON
-             , w.id AS TASK_ID
-             , w.name AS TASK_NAME
-             , p.name AS PROJECT_NAME
-             , da.delay_days AS DELAY_DAYS
-             , da.action_detail AS ACTION_DETAIL
-             , dr.reason AS DELAY_REASON
-          FROM approval a
-          LEFT JOIN user u ON a.user_id = u.id
-          LEFT JOIN work w ON a.work_id = w.id
-          LEFT JOIN project p ON w.project_id = p.id
-          LEFT JOIN delay_approval da ON da.approval_id = a.id
-          LEFT JOIN delay_reason dr ON da.delay_reason_id = dr.id
-         WHERE a.id = #{approvalId}
+        a.id AS ID
+        , u.id AS REQUESTER_ID
+        , u.name AS REQUESTER_NAME
+        , u.dept_name AS REQUESTER_DEPT_NAME
+        , a.title AS TITLE
+        , a.type AS TYPE
+        , a.status AS STATUS
+        , a.content AS CONTENT
+        , a.created_at AS CREATED_AT
+        , a.approved_at AS APPROVED_AT
+        , a.reject_reason AS REJECT_REASON
+        , w.id AS TASK_ID
+        , w.name AS TASK_NAME
+        , p.name AS PROJECT_NAME
+        , da.delay_days AS DELAY_DAYS
+        , da.action_detail AS ACTION_DETAIL
+        , dr.reason AS DELAY_REASON
+        FROM approval a
+        LEFT JOIN user u ON a.user_id = u.id
+        LEFT JOIN work w ON a.work_id = w.id
+        LEFT JOIN project p ON w.project_id = p.id
+        LEFT JOIN delay_approval da ON da.approval_id = a.id
+        LEFT JOIN delay_reason dr ON da.delay_reason_id = dr.id
+        WHERE a.id = #{approvalId}
     </select>
 
     <!-- 결재 id로 참여자 조회 -->
     <select id="selectApprovalParticipantById" parameterType="long" resultMap="ApprovalParticipantResultMap">
         SELECT
-               ap.approval_id AS ID
-             , ap.user_id AS PARTICIPANT_ID
-             , u.name AS PARTICIPANT_NAME
-             , u.dept_name AS PARTICIPANT_DEPT_NAME
-             , ap.role AS PARTICIPANT_ROLE
-          FROM approval_participant ap
-          LEFT JOIN user u ON ap.user_id = u.id
-         WHERE ap.approval_id = #{approvalId}
+        ap.approval_id AS ID
+        , ap.user_id AS PARTICIPANT_ID
+        , u.name AS PARTICIPANT_NAME
+        , u.dept_name AS PARTICIPANT_DEPT_NAME
+        , ap.role AS PARTICIPANT_ROLE
+        FROM approval_participant ap
+        LEFT JOIN user u ON ap.user_id = u.id
+        WHERE ap.approval_id = #{approvalId}
     </select>
 
     <!-- 결재 id로 결재자 id 찾기 -->
     <select id="selectApprovedApprovalById" parameterType="long" resultType="long">
         SELECT
-               ap.user_id
-          FROM approval_participant ap
-          LEFT JOIN approval a ON a.id = ap.approval_id
-         WHERE a.id=#{approvalId} AND ap.role = 'APPROVER'
+        ap.user_id
+        FROM approval_participant ap
+        LEFT JOIN approval a ON a.id = ap.approval_id
+        WHERE a.id=#{approvalId} AND ap.role = 'APPROVER'
     </select>
 
     <!-- 수신 내역 조회 -->
     <select id="selectMyApprovalReceive" parameterType="long" resultMap="ApprovalPreviewResultMap">
         SELECT
-               a.id AS ID
-             , u1.name AS REQUESTER_NAME
-             , u2.name AS APPROVER_NAME
-             , a.title AS TITLE
-             , a.created_at AS CREATED_AT
-             , a.approved_at AS APPROVED_AT
-             , a.type AS APPROVAL_TYPE
-             , a.status AS APPROVAL_STATUS
-             , p.name AS PROJECT_NAME
-          FROM approval a
-          LEFT JOIN user u1 ON a.user_id = u1.id
-          LEFT JOIN approval_participant ap ON a.id = ap.approval_id
-          LEFT JOIN user u2 ON ap.user_id = u2.id
-          LEFT JOIN work w ON a.work_id = w.id
-          LEFT JOIN project p ON w.project_id = p.id
-         WHERE ap.user_id = #{userId} AND ap.role = 'APPROVER'
-         ORDER BY a.created_at DESC
+        a.id AS ID
+        , u1.name AS REQUESTER_NAME
+        , u2.name AS APPROVER_NAME
+        , a.title AS TITLE
+        , a.created_at AS CREATED_AT
+        , a.approved_at AS APPROVED_AT
+        , a.type AS APPROVAL_TYPE
+        , a.status AS APPROVAL_STATUS
+        , p.name AS PROJECT_NAME
+        FROM approval a
+        LEFT JOIN user u1 ON a.user_id = u1.id
+        LEFT JOIN approval_participant ap ON a.id = ap.approval_id
+        LEFT JOIN user u2 ON ap.user_id = u2.id
+        LEFT JOIN work w ON a.work_id = w.id
+        LEFT JOIN project p ON w.project_id = p.id
+        WHERE ap.user_id = #{userId} AND ap.role = 'APPROVER'
+        ORDER BY a.created_at DESC
     </select>
 
     <!-- 발신 내역 조회 -->
     <select id="selectMyApprovalSent" parameterType="long" resultMap="ApprovalPreviewResultMap">
         SELECT
-               a.id AS ID
-             , u1.name AS REQUESTER_NAME
-             , u2.name AS APPROVER_NAME
-             , a.title AS TITLE
-             , a.created_at AS CREATED_AT
-             , a.approved_at AS APPROVED_AT
-             , a.type AS APPROVAL_TYPE
-             , a.status AS APPROVAL_STATUS
-             , p.name AS PROJECT_NAME
-          FROM approval a
-          LEFT JOIN user u1 ON a.user_id = u1.id
-          LEFT JOIN approval_participant ap ON ap.approval_id = a.id
-          LEFT JOIN user u2 ON ap.user_id = u2.id
-          LEFT JOIN work w ON a.work_id = w.id
-          LEFT JOIN project p ON w.project_id = p.id
-         WHERE a.user_id = #{userId} AND ap.role = 'APPROVER'
-         ORDER BY a.created_at DESC
+        a.id AS ID
+        , u1.name AS REQUESTER_NAME
+        , u2.name AS APPROVER_NAME
+        , a.title AS TITLE
+        , a.created_at AS CREATED_AT
+        , a.approved_at AS APPROVED_AT
+        , a.type AS APPROVAL_TYPE
+        , a.status AS APPROVAL_STATUS
+        , p.name AS PROJECT_NAME
+        FROM approval a
+        LEFT JOIN user u1 ON a.user_id = u1.id
+        LEFT JOIN approval_participant ap ON ap.approval_id = a.id
+        LEFT JOIN user u2 ON ap.user_id = u2.id
+        LEFT JOIN work w ON a.work_id = w.id
+        LEFT JOIN project p ON w.project_id = p.id
+        WHERE a.user_id = #{userId} AND ap.role = 'APPROVER'
+        ORDER BY a.created_at DESC
     </select>
 
     <select id="selectApprovalByTaskId" parameterType="long" resultMap="ApprovalPreviewResultMap">
         SELECT
-               a.id AS ID
-             , u1.name AS REQUESTER_NAME
-             , u2.name AS APPROVER_NAME
-             , a.title AS TITLE
-             , a.created_at AS CREATED_AT
-             , a.approved_at AS APPROVED_AT
-             , a.type AS APPROVAL_TYPE
-             , a.STATUS AS APPROVAL_STATUS
-             , p.name AS PROJECT_NAME
-          FROM approval a
-          LEFT JOIN user u1 ON a.user_id = u1.id
-          LEFT JOIN approval_participant ap ON ap.approval_id = a.id
-          LEFT JOIN user u2 ON ap.user_id = u2.id
-          LEFT JOIN work w ON a.work_id = w.id
-          LEFT JOIN project p ON w.project_id = p.id
-         WHERE a.work_id = #{taskId}
-           AND a.status = 'APPROVED'
-           AND ap.role = 'APPROVER'
-         ORDER BY a.approved_at DESC
+        a.id AS ID
+        , u1.name AS REQUESTER_NAME
+        , u2.name AS APPROVER_NAME
+        , a.title AS TITLE
+        , a.created_at AS CREATED_AT
+        , a.approved_at AS APPROVED_AT
+        , a.type AS APPROVAL_TYPE
+        , a.STATUS AS APPROVAL_STATUS
+        , p.name AS PROJECT_NAME
+        FROM approval a
+        LEFT JOIN user u1 ON a.user_id = u1.id
+        LEFT JOIN approval_participant ap ON ap.approval_id = a.id
+        LEFT JOIN user u2 ON ap.user_id = u2.id
+        LEFT JOIN work w ON a.work_id = w.id
+        LEFT JOIN project p ON w.project_id = p.id
+        WHERE a.work_id = #{taskId}
+        AND a.status = 'APPROVED'
+        AND ap.role = 'APPROVER'
+        ORDER BY a.approved_at DESC
     </select>
 
 
