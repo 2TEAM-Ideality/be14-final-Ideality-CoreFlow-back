@@ -309,6 +309,7 @@ public class ProjectFacadeService {
         RequestTaskDTO taskDTO = RequestTaskDTO.builder()
                 .label(data.getLabel())
                 .description(data.getDescription())
+                .slackTime(data.getSlackTime())
                 .startBaseLine(LocalDate.parse(data.getStartBaseLine()))
                 .endBaseLine(LocalDate.parse(data.getEndBaseLine()))
                 .projectId(projectId)

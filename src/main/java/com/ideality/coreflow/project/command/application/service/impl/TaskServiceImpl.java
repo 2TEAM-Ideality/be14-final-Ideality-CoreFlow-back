@@ -46,6 +46,7 @@ public class TaskServiceImpl implements TaskService {
                 .endBase(taskDTO.getEndBaseLine())
                 .startExpect(taskDTO.getStartBaseLine())
                 .endExpect(taskDTO.getEndBaseLine())
+                .slackTime(taskDTO.getSlackTime())
                 .status(Status.PENDING)
                 .projectId(taskDTO.getProjectId())
                 .delayDays(0)
