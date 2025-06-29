@@ -208,6 +208,7 @@ public class ProjectFacadeService {
         if (templateData != null){
             applyTemplate(projectId, request.getTemplateData(), participantList);
         }
+        updateSlackTime(projectId);
         return project;
     }
 
@@ -303,12 +304,14 @@ public class ProjectFacadeService {
         }
     }
 
+    @Transactional
     private Long createTaskWithDepts(Long projectId, NodeDTO node) {
         NodeDataDTO data = node.getData();
 
         RequestTaskDTO taskDTO = RequestTaskDTO.builder()
                 .label(data.getLabel())
                 .description(data.getDescription())
+                .slackTime(data.getSlackTime())
                 .startBaseLine(LocalDate.parse(data.getStartBaseLine()))
                 .endBaseLine(LocalDate.parse(data.getEndBaseLine()))
                 .projectId(projectId)
@@ -323,6 +326,7 @@ public class ProjectFacadeService {
         for(Long deptId : deptIds){
             workDeptService.createWorkDept(taskId, deptId);
         }
+        updateSlackTime(projectId);
         return taskId;
     }
 
@@ -421,6 +425,7 @@ public class ProjectFacadeService {
 //            }
 //            log.info("팀원 등록 완료");
 //        }
+        updateSlackTime(projectId);
         return taskId;
     }
 
@@ -569,6 +574,8 @@ public class ProjectFacadeService {
         updateProgressRateCascade(taskId);
 
         workDomainService.updateTaskWarning(taskId);
+
+        updateSlackTime(requestDetailDTO.getParentTaskId());
 
         return detailId;
     }
@@ -756,6 +763,7 @@ public class ProjectFacadeService {
     }
 
     /* 설명. 디테일 수정 -> 읽기부터 하고 그 다음부터 수정 하나씩 */
+    @Transactional
     public Long updateTaskDetail(RequestModifyTaskDTO requestModifyTaskDTO, Long userId, Long taskId) {
         log.info(requestModifyTaskDTO.toString());
         Long projectId = requestModifyTaskDTO.getProjectId();
@@ -801,9 +809,12 @@ public class ProjectFacadeService {
 
         workDomainService.updateTaskWarning(taskId);
 
+        updateSlackTime(projectId);
+
         return modifyTaskId;
     }
 
+    @Transactional
     private void createParticipants(List<ParticipantDTO> taskParticipants) {
 
         long roleId = roleService.findRoleByName(RoleName.TEAM_LEADER);
@@ -828,6 +839,7 @@ public class ProjectFacadeService {
         }
     }
 
+    @Transactional
     public void updateTaskRelation(Long userId, List<RequestRelationUpdateDTO> requestRelationUpdateDTO) {
 
         /* 설명. 공통 프로젝트 Id 추출 */
@@ -842,8 +854,11 @@ public class ProjectFacadeService {
 
         /* 설명. 선행 일정, 후행 일정 삭제를 한번에 위임 */
         relationService.updateRelationList(requestRelationUpdateDTO);
+
+        updateSlackTime(projectId);
     }
 
+    @Transactional
     public void createParticipantsTeamMemberByTask(Long userId, Long taskId, List<RequestInviteUserDTO> reqMemberDTO) {
         Long projectId = taskQueryService.getProjectId(taskId);
         boolean isInviteRole = participantQueryService.isAboveTeamLeader(userId, projectId);
@@ -930,7 +945,19 @@ public class ProjectFacadeService {
         }
     }
 
+    @Transactional
     public String updateTaskWarning(Long taskId) {
         return workDomainService.updateTaskWarning(taskId);
+    }
+
+    @Transactional
+    public void updateSlackTime(Long projectId) {
+        List<ResponseTaskDTO> selectTasks = taskQueryService.selectTasks(projectId);
+        for (ResponseTaskDTO task : selectTasks) {
+            Integer slack = workDomainService.calculateSlackTime(task.getId());
+            if (slack != null) {
+                taskService.updateSlackTime(task.getId(), slack);
+            }
+        }
     }
 }
