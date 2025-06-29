@@ -486,7 +486,7 @@ public class ProjectFacadeService {
         log.info("세부 일정 생성");
 
         // 새로 생성된 세부일정이 태스크의 범위를 넘는다면 태스크를 warning 상태로 업데이트
-        updateTaskWarning(requestDetailDTO.getParentTaskId());
+        workDomainService.updateTaskWarning(requestDetailDTO.getParentTaskId());
 
         //1. source와 target 모두 null일 경우, 관계 설정을 생략
         if ((requestDetailDTO.getSource() == null || requestDetailDTO.getSource().isEmpty()) &&
@@ -568,7 +568,7 @@ public class ProjectFacadeService {
         //세부일정 진척률기반으로 태스크/프로젝트 진척률 자동업데이트
         updateProgressRateCascade(taskId);
 
-        updateTaskWarning(taskId);
+        workDomainService.updateTaskWarning(taskId);
 
         return detailId;
     }
@@ -799,7 +799,7 @@ public class ProjectFacadeService {
             workDeptService.createWorkDept(taskId, newDeptId);
         }
 
-        updateTaskWarning(taskId);
+        workDomainService.updateTaskWarning(taskId);
 
         return modifyTaskId;
     }
@@ -826,13 +826,6 @@ public class ProjectFacadeService {
                 }
             }
         }
-    }
-
-    // task warning 처리: 태스크 예상 마감일과 하위 세부일정 예상 마감일을 비교 후 비교 결과 저장
-    public String updateTaskWarning(Long taskId){
-        Boolean warning = taskQueryService.checkTaskWarning(taskId);    // task 예상 마감일과 하위 세부일정 예상 마감일 비교
-        taskService.setTaskWarning(taskId, warning);                    // task warning 상태 저장
-        return warning?"warning 설정됨":"warning 해제됨";
     }
 
     public void updateTaskRelation(Long userId, List<RequestRelationUpdateDTO> requestRelationUpdateDTO) {
@@ -888,5 +881,56 @@ public class ProjectFacadeService {
         String content = String.format("%s 님이 회원님을 %s에 초대하였습니다.", writerName, taskName);
         Long notificationId = notificationService.createInviteTask(taskId, content);
         notificationRecipientsService.createRecipients(participantUser, notificationId);
+    }
+
+    @Transactional
+    public void deleteParticipants(RequestDeleteParticipant request, long requesterId) {
+
+        long projectId = request.getTargetId();
+        if (request.getTargetType() == TargetType.TASK) {
+            projectId = taskQueryService.getProjectId(request.getTargetId());
+        }
+
+        // 현재 요청자가 역할이 디렉터인지, 팀장인지
+        boolean isProjectDirector = participantQueryService.isProjectDirector(projectId, requesterId);
+
+        // 팀장인지
+        boolean isAboveTeamLeader = participantQueryService.isAboveTeamLeader(requesterId, projectId);
+
+        if (!isProjectDirector && !isAboveTeamLeader) {
+            // 일반 팀원은 삭제 권한 없음
+            throw new BaseException(ErrorCode.ACCESS_DENIED_DELETED_PARTICIPANT);
+        }
+
+        // 삭제하려는 대상이 팀장인지, 팀원인지
+        boolean isTargetTeamLeader = participantQueryService.isAboveTeamLeader(request.getUserId(), projectId);
+
+        // 팀장은 디렉터만 지울 수 있음
+        if (isTargetTeamLeader && !isProjectDirector) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED_DELETED_PARTICIPANT);
+        }
+
+        participantService.deleteParticipant(request.getUserId(), request.getTargetId(), request.getTargetType());
+
+        if (request.getTargetType() == TargetType.PROJECT) {
+            // 해당 프로젝트의 태스크 목록 조회
+            List<ResponseTaskDTO> selectTasks = taskQueryService.selectTasks(projectId);
+            for (ResponseTaskDTO target : selectTasks) {
+                participantService.deleteParticipant(request.getUserId(), target.getId(), TargetType.TASK);
+                List<DetailDTO> subTaskNames = workQueryService.getSubTaskDetailsByParentTaskId(target.getId());
+                for (DetailDTO detail : subTaskNames) {
+                    participantService.deleteParticipant(request.getUserId(), detail.getWorkId(), TargetType.DETAILED);
+                }
+            }
+        } else if (request.getTargetType() == TargetType.TASK) {
+            List<DetailDTO> subTaskNames = workQueryService.getSubTaskDetailsByParentTaskId(request.getTargetId());
+            for (DetailDTO detail : subTaskNames) {
+                participantService.deleteParticipant(request.getUserId(), detail.getWorkId(), TargetType.DETAILED);
+            }
+        }
+    }
+
+    public String updateTaskWarning(Long taskId) {
+        return workDomainService.updateTaskWarning(taskId);
     }
 }

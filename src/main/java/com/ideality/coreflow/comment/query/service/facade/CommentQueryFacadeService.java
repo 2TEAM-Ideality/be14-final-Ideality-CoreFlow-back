@@ -124,8 +124,10 @@ public class CommentQueryFacadeService {
         ResponseCommentForModifyDTO resDTO = commentQueryService.selectComment(commentId, userId);
         AttachmentForCommentDTO attachment = attachmentQueryService.selectBycommentId(resDTO.getCommentId());
 
-        resDTO.setAttachmentId(attachment.getAttachmentId());
-        resDTO.setOriginName(attachment.getOriginName());
+        if (attachment != null) {
+            resDTO.setAttachmentId(attachment.getAttachmentId());
+            resDTO.setOriginName(attachment.getOriginName());
+        }
 
         return resDTO;
     }
