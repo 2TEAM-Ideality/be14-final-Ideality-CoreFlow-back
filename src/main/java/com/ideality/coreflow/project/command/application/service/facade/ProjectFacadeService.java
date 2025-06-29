@@ -889,4 +889,40 @@ public class ProjectFacadeService {
         Long notificationId = notificationService.createInviteTask(taskId, content);
         notificationRecipientsService.createRecipients(participantUser, notificationId);
     }
+
+    @Transactional
+    public void updateTaskCancelled(Long taskId, Long userId) {
+        Long projectId = taskQueryService.getProjectId(taskId);
+        boolean isInviteRole = participantQueryService.isAboveTeamLeader(userId, projectId);
+        if (!isInviteRole) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED_TEAMLEADER);
+        }
+
+        taskService.updateStatusCancelled(taskId);
+    }
+
+    @Transactional
+    public void deleteTaskHard(Long taskId, Long userId) {
+        Long projectId = taskQueryService.getProjectId(taskId);
+        boolean isInviteRole = participantQueryService.isAboveTeamLeader(userId, projectId);
+        if (!isInviteRole) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED_TEAMLEADER);
+        }
+
+        relationService.deleteByPrevWorkId(taskId);
+        relationService.deleteByNextWorkId(taskId);
+
+        taskService.deleteTaskHard(taskId);
+    }
+
+    @Transactional
+    public void updateTaskPending(Long taskId, Long userId) {
+
+        Long projectId = taskQueryService.getProjectId(taskId);
+        boolean isInviteRole = participantQueryService.isAboveTeamLeader(userId, projectId);
+        if (!isInviteRole) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED_TEAMLEADER);
+        }
+        taskService.updateStatusPending(taskId);
+    }
 }

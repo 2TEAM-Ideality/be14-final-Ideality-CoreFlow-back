@@ -38,4 +38,10 @@ public interface TaskService {
     int calculateDelayExcludingHolidays(LocalDate startDate, Integer delayDays, Set<LocalDate> holidays);
 
     void setTaskWarning(Long taskId, Boolean warning);
+
+    void updateStatusCancelled(Long taskId);
+
+    void deleteTaskHard(Long taskId);
+
+    void updateStatusPending(Long taskId);
 }

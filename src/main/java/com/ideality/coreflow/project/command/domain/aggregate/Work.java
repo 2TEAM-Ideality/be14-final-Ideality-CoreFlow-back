@@ -125,5 +125,13 @@ public class Work {
 		this.startBase = startExpect;
 		this.endBase = endExpect;
 	}
+
+    public void updateStatusCancelled() {
+		this.status = Status.CANCELLED;
+    }
+
+	public void updatePending() {
+		this.status = Status.PENDING;
+	}
 }
 

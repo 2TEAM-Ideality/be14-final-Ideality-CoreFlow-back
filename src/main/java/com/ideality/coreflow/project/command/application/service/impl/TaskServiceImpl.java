@@ -198,4 +198,35 @@ public class TaskServiceImpl implements TaskService {
         task.setWarning(warning);
         workRepository.save(task);
     }
+
+    @Override
+    @Transactional
+    public void updateStatusCancelled(Long taskId) {
+        Work task = workRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+
+        if (task.getStatus() != Status.PROGRESS) {
+            throw new BaseException(NOT_CANCELLED_TASK);
+        }
+        task.updateStatusCancelled();
+    }
+
+    @Override
+    @Transactional
+    public void deleteTaskHard(Long taskId) {
+        Work task = workRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+
+        workRepository.delete(task);
+    }
+
+    @Override
+    @Transactional
+    public void updateStatusPending(Long taskId) {
+        Work task = workRepository.findById(taskId).orElseThrow(() -> new BaseException(TASK_NOT_FOUND));
+
+        if (task.getStatus() != Status.DELETED) {
+            throw new BaseException(NOT_SOFT_DELETED_TASK);
+        }
+
+        task.updatePending();
+    }
 }
