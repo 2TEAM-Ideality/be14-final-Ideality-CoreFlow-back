@@ -464,7 +464,10 @@ public class ProjectFacadeService {
     //
     @Transactional
     public Long deleteTaskBySoft(Long taskId, Long userId) {
+        log.info("taskId: {}", taskId);
         Long projectId = taskQueryService.getProjectId(taskId);
+        log.info("projectId: {}", projectId);
+        log.info("userId: {}", userId);
         boolean isProjectComplete = participantQueryService.isAboveTeamLeader(userId, projectId);
         if (!isProjectComplete) {
             throw new BaseException(ErrorCode.ACCESS_DENIED_TEAMLEADER);
