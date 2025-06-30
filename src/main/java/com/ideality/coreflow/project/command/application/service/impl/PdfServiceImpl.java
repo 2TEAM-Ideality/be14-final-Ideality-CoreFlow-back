@@ -1,15 +1,13 @@
 package com.ideality.coreflow.project.command.application.service.impl;
-
+import java.io.IOException;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -33,25 +31,18 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.CategoryTextAnnotation;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.block.BlockBorder;
 import org.jfree.chart.labels.CategoryItemLabelGenerator;
 import org.jfree.chart.labels.ItemLabelAnchor;
 import org.jfree.chart.labels.ItemLabelPosition;
-import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
-import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.StackedBarRenderer;
 import org.jfree.chart.renderer.category.StandardBarPainter;
-import org.jfree.chart.ui.RectangleAnchor;
-import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.general.DefaultPieDataset;
 import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.PieChart;
 import org.knowm.xchart.PieChartBuilder;
@@ -71,6 +62,7 @@ import com.ideality.coreflow.project.query.dto.ProjectDetailResponseDTO;
 import com.ideality.coreflow.project.query.dto.ProjectOTD;
 import com.ideality.coreflow.project.query.dto.UserInfoDTO;
 import com.ideality.coreflow.project.query.dto.ProjectParticipantDTO;
+import com.openhtmltopdf.extend.FSSupplier;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -150,12 +142,26 @@ public class PdfServiceImpl implements PdfService {
 
 
 			// 커버 로고 이미지 파일
-			byte[] coverLogoBytes = Files.readAllBytes(new File("src/main/resources/static/ReportLogo.png").toPath());
+			// byte[] coverLogoBytes = Files.readAllBytes(new File("src/main/resources/static/ReportLogo.png").toPath());
+			byte[] coverLogoBytes;
+			try (InputStream is = getClass().getClassLoader()
+				.getResourceAsStream("static/ReportLogo.png")) {
+				if (is == null) throw new RuntimeException("로고 파일을 찾을 수 없습니다.");
+				coverLogoBytes = is.readAllBytes();
+			}
+
 			String coverLogo = Base64.getEncoder().encodeToString(coverLogoBytes);
 			context.setVariable("coverLogo", coverLogo);
 
 			// 컨텐츠 로고 이미지 
-			byte[] contentLogoBytes = Files.readAllBytes(new File("src/main/resources/static/ContentLogoFull.png").toPath());
+			// byte[] contentLogoBytes = Files.readAllBytes(new File("src/main/resources/static/ContentLogoFull.png").toPath());
+			byte[] contentLogoBytes;
+			try (InputStream is = getClass().getClassLoader()
+				.getResourceAsStream("static/ContentLogoFull.png")) {
+				if (is == null) throw new RuntimeException("로고 파일을 찾을 수 없습니다.");
+				contentLogoBytes = is.readAllBytes();
+			}
+
 			String contentLogo = Base64.getEncoder().encodeToString(contentLogoBytes);
 			context.setVariable("contentLogo", contentLogo);
 
@@ -507,7 +513,14 @@ public class PdfServiceImpl implements PdfService {
 			try(OutputStream os = response.getOutputStream()){
 				PdfRendererBuilder builder = new PdfRendererBuilder();
 				builder.useFastMode();
-				builder.useFont(new File(FONT_PATH), "Noto Sans KR");
+				// builder.useFont(new File(FONT_PATH), "Noto Sans KR");
+				try (InputStream fontStream = getClass().getClassLoader().getResourceAsStream("fonts/NotoSansKR-Regular.ttf")) {
+					if (fontStream == null) {
+						throw new RuntimeException("폰트 파일을 찾을 수 없습니다.");
+					}
+					byte[] fontBytes = fontStream.readAllBytes(); // 미리 읽어서 byte[] 저장
+					builder.useFont(() -> new ByteArrayInputStream(fontBytes), "Noto Sans KR");
+				}
 				builder.withHtmlContent(reportHtml, null);
 				// 설명. 그 결과를 HTTP 응답 스트림(OutputStream)으로 직접 보내줌
 				builder.toStream(os);
@@ -627,10 +640,17 @@ public class PdfServiceImpl implements PdfService {
 		// ✅ 라벨 간섭 줄이기
 		chart.getStyler().setLabelsDistance(0.4);
 
-		Font customFont = Font.createFont(Font.TRUETYPE_FONT, new File(FONT_PATH)).deriveFont(Font.PLAIN, 11f);
-		chart.getStyler().setChartTitleFont(customFont);
-		chart.getStyler().setLegendFont(customFont);
-		chart.getStyler().setAnnotationTextFont(customFont);
+		// Font customFont = Font.createFont(Font.TRUETYPE_FONT, new File(FONT_PATH)).deriveFont(Font.PLAIN, 11f);
+		try (InputStream fontStream = PdfServiceImpl.class.getClassLoader().getResourceAsStream("fonts/NotoSansKR-Regular.ttf")) {
+			if (fontStream == null) {
+				throw new RuntimeException("폰트 파일을 찾을 수 없습니다.");
+			}
+			Font customFont = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(Font.PLAIN, 11f);
+			chart.getStyler().setChartTitleFont(customFont);
+			chart.getStyler().setLegendFont(customFont);
+			chart.getStyler().setAnnotationTextFont(customFont);
+		}
+
 	}
 
 	// 설명. 주요 병목 공정 막대 그래프
@@ -916,9 +936,18 @@ public class PdfServiceImpl implements PdfService {
 			}
 		};
 
-		// 폰트 설정
-		Font labelFont = Font.createFont(Font.TRUETYPE_FONT, new File(FONT_PATH)).deriveFont(Font.PLAIN, 12f);
-		Font koreanFont = labelFont;
+		// 폰트 설정 그냥 반복
+		// Font labelFont = Font.createFont(Font.TRUETYPE_FONT, new File(FONT_PATH)).deriveFont(Font.PLAIN, 12f);
+		Font labelFont;
+		try (InputStream fontStream = PdfServiceImpl.class.getClassLoader().getResourceAsStream("fonts/NotoSansKR-Regular.ttf")) {
+			if (fontStream == null) throw new RuntimeException("폰트 파일을 찾을 수 없습니다.");
+			labelFont = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(Font.PLAIN, 12f);
+		}
+		Font koreanFont;
+		try (InputStream fontStream = PdfServiceImpl.class.getClassLoader().getResourceAsStream("fonts/NotoSansKR-Regular.ttf")) {
+			if (fontStream == null) throw new RuntimeException("폰트 파일을 찾을 수 없습니다.");
+			koreanFont = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(12f);
+		}
 
 		// 조건부 라벨: 강조된 항목만 %
 		renderer.setDefaultItemLabelGenerator(new CategoryItemLabelGenerator() {
@@ -1058,7 +1087,14 @@ public class PdfServiceImpl implements PdfService {
 		plot.setRangeGridlinePaint(Color.GRAY);
 		plot.setOutlineVisible(false);
 
-		Font koreanFont = Font.createFont(Font.TRUETYPE_FONT, new File(FONT_PATH)).deriveFont(12f);
+		// Font koreanFont = Font.createFont(Font.TRUETYPE_FONT, new File(FONT_PATH)).deriveFont(12f);
+
+		Font koreanFont;
+		try (InputStream is = getClass().getClassLoader()
+			.getResourceAsStream("fonts/NotoSansKR-Regular.ttf")) {
+			if (is == null) throw new RuntimeException("폰트 파일을 찾을 수 없습니다.");
+			koreanFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(12f);
+		}
 
 		// ③ 렌더러
 		BarRenderer renderer = new BarRenderer();

@@ -21,6 +21,8 @@ public class DeptWorkDTO {
 
 	private Long id;
 	private String taskName;
+	private Long taskId;
+
 	private String taskDescription;
 
 	private int slackTime;
