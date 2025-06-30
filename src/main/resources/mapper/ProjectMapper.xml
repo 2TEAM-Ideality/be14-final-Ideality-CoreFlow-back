@@ -27,13 +27,13 @@
              , p.status
              , CASE
                     WHEN p.status = 'PENDING' THEN p.start_expect
-                    WHEN p.status = 'PROGRESS' THEN p.start_base
-                    WHEN p.status = 'COMPLETED' THEN p.start_base
+                    WHEN p.status = 'PROGRESS' THEN p.start_real
+                    WHEN p.status = 'COMPLETED' THEN p.start_real
                END AS start_date
              , CASE
                     WHEN p.status = 'PENDING' THEN p.end_expect
                     WHEN p.status = 'PROGRESS' THEN p.end_expect
-                    WHEN p.status = 'COMPLETED' THEN p.end_base
+                    WHEN p.status = 'COMPLETED' THEN p.end_real
                END AS end_date
              , director.id AS director_id
              , director.name AS director_name
@@ -359,6 +359,8 @@
             JOIN dept d ON u.dept_name = d.name
             JOIN project p ON part.target_type = 'PROJECT' AND part.target_id = p.id
         WHERE d.id = #{deptId}
+          AND p.status != 'CANCELLED'
+          AND p.status != 'DELETED'
         GROUP BY p.id, p.name, p.status, p.start_base, p.end_base, p.progress_rate, p.passed_rate, p.delay_days
     </select>
 
