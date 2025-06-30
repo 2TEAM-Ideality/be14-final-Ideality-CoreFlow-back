@@ -726,7 +726,7 @@ public class ProjectFacadeService {
             String[] seasons = {"S/S", "F/W"};
             String[] styles = {"오피스룩", "캐주얼", "스포티", "미니멀", "빈티지"};
 
-            for (int i = 1; i <= 15; i++) {
+            for (int i = 1; i <= 10; i++) {
                 String category = categories[ThreadLocalRandom.current().nextInt(categories.length)];
                 String season = seasons[ThreadLocalRandom.current().nextInt(seasons.length)];
                 String style = styles[ThreadLocalRandom.current().nextInt(styles.length)];
