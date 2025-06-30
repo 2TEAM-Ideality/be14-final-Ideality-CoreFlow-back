@@ -533,7 +533,7 @@ public class PdfServiceImpl implements PdfService {
 
 	}
 
-	// 부서별 지연 분석 요약
+	// 설명. 부서별 지연 분석 요약
 	public static String generateDelayAnalysisText(
 		List<Map<String, Object>> delayPercentList,
 		List<Map<String, Object>> deptDelayStats
@@ -633,7 +633,7 @@ public class PdfServiceImpl implements PdfService {
 		chart.getStyler().setAnnotationTextFont(customFont);
 	}
 
-	// 주요 병목 공정 막대 그래프
+	// 설명. 주요 병목 공정 막대 그래프
 	/**
 	 * 지연된 태스크 리스트를 받아, 전체 지연 시간 중
 	 * 각 태스크가 차지하는 비율(%)을 스택형 막대로 그려 Base64 문자열로 반환
@@ -698,7 +698,7 @@ public class PdfServiceImpl implements PdfService {
 
 
 
-	// 지연 사유 분석 차트 생성 메서드
+	// 설명. 지연 사유 분석 차트 생성 메서드
 	private String delayReasonChart(List<ProjectApprovalDTO> delayList) throws IOException, FontFormatException {
 		// 차트 기본 생성
 		PieChart chart = new PieChartBuilder()
@@ -737,7 +737,7 @@ public class PdfServiceImpl implements PdfService {
 	//
 
 
-	// 지연 태스크 분석 차트 생성
+	// 설명. 지연 태스크 분석 차트 생성
 	private String delayTaskChart(List<CompletedTaskDTO> completedTaskList) throws IOException, FontFormatException {
 		// 차트 기본 생성
 		PieChart chart = new PieChartBuilder()
