@@ -2,10 +2,7 @@ package com.ideality.coreflow.project.command.application.service.impl;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -72,6 +69,7 @@ import com.ideality.coreflow.project.query.dto.ProjectOTD;
 import com.ideality.coreflow.project.query.dto.UserInfoDTO;
 import com.ideality.coreflow.project.query.dto.ProjectParticipantDTO;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import org.springframework.core.io.ClassPathResource;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -149,13 +147,15 @@ public class PdfServiceImpl implements PdfService {
 			context.setVariable("participantList", participantMap);
 
 
-			// 커버 로고 이미지 파일
-			byte[] coverLogoBytes = Files.readAllBytes(new File("src/main/resources/static/ReportLogo.png").toPath());
+			// 커버 로고 이미지
+			InputStream coverLogoStream = new ClassPathResource("static/ReportLogo.png").getInputStream();
+			byte[] coverLogoBytes = coverLogoStream.readAllBytes();
 			String coverLogo = Base64.getEncoder().encodeToString(coverLogoBytes);
 			context.setVariable("coverLogo", coverLogo);
 
-			// 컨텐츠 로고 이미지 
-			byte[] contentLogoBytes = Files.readAllBytes(new File("src/main/resources/static/ContentLogoFull.png").toPath());
+// 컨텐츠 로고 이미지
+			InputStream contentLogoStream = new ClassPathResource("static/ContentLogoFull.png").getInputStream();
+			byte[] contentLogoBytes = contentLogoStream.readAllBytes();
 			String contentLogo = Base64.getEncoder().encodeToString(contentLogoBytes);
 			context.setVariable("contentLogo", contentLogo);
 
