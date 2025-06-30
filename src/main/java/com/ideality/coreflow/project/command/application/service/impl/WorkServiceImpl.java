@@ -46,7 +46,7 @@ public class WorkServiceImpl implements WorkService {
                 .collect(Collectors.groupingBy(
                         Work::getProjectId,
                         Collectors.mapping(
-                                t -> new TaskPreviewDTO(t.getId(), t.getName()),
+                                t -> new TaskPreviewDTO(t.getId(), t.getName(), t.getStartExpect(), t.getEndExpect()),
                                 Collectors.toList()
                         )
                 ));
