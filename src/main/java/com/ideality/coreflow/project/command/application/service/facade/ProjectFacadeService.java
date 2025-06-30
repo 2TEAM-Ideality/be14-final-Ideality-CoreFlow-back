@@ -469,7 +469,10 @@ public class ProjectFacadeService {
     //
     @Transactional
     public Long deleteTaskBySoft(Long taskId, Long userId) {
+        log.info("taskId: {}", taskId);
         Long projectId = taskQueryService.getProjectId(taskId);
+        log.info("projectId: {}", projectId);
+        log.info("userId: {}", userId);
         boolean isProjectComplete = participantQueryService.isAboveTeamLeader(userId, projectId);
         if (!isProjectComplete) {
             throw new BaseException(ErrorCode.ACCESS_DENIED_TEAMLEADER);
@@ -959,5 +962,44 @@ public class ProjectFacadeService {
                 taskService.updateSlackTime(task.getId(), slack);
             }
         }
+    }
+
+    @Transactional
+    public void updateTaskCancelled(Long taskId, Long userId) {
+        Long projectId = taskQueryService.getProjectId(taskId);
+        boolean isInviteRole = participantQueryService.isAboveTeamLeader(userId, projectId);
+        if (!isInviteRole) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED_TEAMLEADER);
+        }
+
+        taskService.updateStatusCancelled(taskId);
+    }
+
+    @Transactional
+    public void deleteTaskHard(Long taskId, Long userId) {
+        Long projectId = taskQueryService.getProjectId(taskId);
+        boolean isInviteRole = participantQueryService.isAboveTeamLeader(userId, projectId);
+        if (!isInviteRole) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED_TEAMLEADER);
+        }
+
+        relationService.deleteByPrevWorkId(taskId);
+        relationService.deleteByNextWorkId(taskId);
+
+        taskService.deleteTaskHard(taskId);
+    }
+
+    @Transactional
+    public void updateTaskPending(Long taskId, Long userId) {
+
+        log.info("taskId : {}", taskId);
+        Long projectId = taskQueryService.getProjectId(taskId);
+        log.info("userId : {}", userId);
+        log.info("projectId : {}", projectId);
+        boolean isInviteRole = participantQueryService.isAboveTeamLeader(userId, projectId);
+        if (!isInviteRole) {
+            throw new BaseException(ErrorCode.ACCESS_DENIED_TEAMLEADER);
+        }
+        taskService.updateStatusPending(taskId);
     }
 }
