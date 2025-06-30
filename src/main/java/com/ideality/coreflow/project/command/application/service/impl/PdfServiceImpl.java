@@ -2,10 +2,7 @@ package com.ideality.coreflow.project.command.application.service.impl;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -57,8 +54,10 @@ import org.knowm.xchart.PieChart;
 import org.knowm.xchart.PieChartBuilder;
 import org.knowm.xchart.style.PieStyler;
 import org.knowm.xchart.style.Styler;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StreamUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import com.ideality.coreflow.approval.query.dto.ProjectApprovalDTO;
@@ -81,8 +80,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class PdfServiceImpl implements PdfService {
-
-	private static final String FONT_PATH = "src/main/resources/fonts/NotoSansKR-Regular.ttf";
+	private static final String FONT_PATH = "fonts/NotoSansKR-Regular.ttf";
 
 	private final TemplateEngine templateEngine;
 
@@ -150,12 +148,14 @@ public class PdfServiceImpl implements PdfService {
 
 
 			// 커버 로고 이미지 파일
-			byte[] coverLogoBytes = Files.readAllBytes(new File("src/main/resources/static/ReportLogo.png").toPath());
+			ClassPathResource coverImageResource = new ClassPathResource("static/ReportLogo.png");
+			byte[] coverLogoBytes = StreamUtils.copyToByteArray(coverImageResource.getInputStream());
 			String coverLogo = Base64.getEncoder().encodeToString(coverLogoBytes);
 			context.setVariable("coverLogo", coverLogo);
 
 			// 컨텐츠 로고 이미지
-			byte[] contentLogoBytes = Files.readAllBytes(new File("src/main/resources/static/ContentLogoFull.png").toPath());
+			ClassPathResource contentImageResource = new ClassPathResource("static/ContentLogoFull.png");
+			byte[] contentLogoBytes = StreamUtils.copyToByteArray(contentImageResource.getInputStream());
 			String contentLogo = Base64.getEncoder().encodeToString(contentLogoBytes);
 			context.setVariable("contentLogo", contentLogo);
 
@@ -507,7 +507,13 @@ public class PdfServiceImpl implements PdfService {
 			try(OutputStream os = response.getOutputStream()){
 				PdfRendererBuilder builder = new PdfRendererBuilder();
 				builder.useFastMode();
-				builder.useFont(new File(FONT_PATH), "Noto Sans KR");
+				builder.useFont(() -> {
+                    try {
+                        return new ClassPathResource(FONT_PATH).getInputStream();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }, "Noto Sans KR");
 				builder.withHtmlContent(reportHtml, null);
 				// 설명. 그 결과를 HTTP 응답 스트림(OutputStream)으로 직접 보내줌
 				builder.toStream(os);
@@ -627,7 +633,9 @@ public class PdfServiceImpl implements PdfService {
 		// ✅ 라벨 간섭 줄이기
 		chart.getStyler().setLabelsDistance(0.4);
 
-		Font customFont = Font.createFont(Font.TRUETYPE_FONT, new File(FONT_PATH)).deriveFont(Font.PLAIN, 11f);
+		InputStream is = new ClassPathResource("fonts/NotoSansKR-Regular.ttf").getInputStream();
+//		Font font = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(12f);
+		Font customFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(11f);
 		chart.getStyler().setChartTitleFont(customFont);
 		chart.getStyler().setLegendFont(customFont);
 		chart.getStyler().setAnnotationTextFont(customFont);
