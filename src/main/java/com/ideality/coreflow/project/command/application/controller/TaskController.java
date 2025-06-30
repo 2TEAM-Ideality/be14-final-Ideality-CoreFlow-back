@@ -60,7 +60,7 @@ public class TaskController {
         );
     }
 
-    @PatchMapping("/delete/{taskId}")
+    @PatchMapping("/deleted/{taskId}")
     public ResponseEntity<APIResponse<Map<String, Long>>> softDeleteTask(
             @PathVariable Long taskId
     ) {
@@ -117,4 +117,24 @@ public class TaskController {
         return ResponseEntity.ok(APIResponse.success(null, "태스크에 팀원 초대에 성공하였습니다."));
     }
 
+    @PatchMapping("/cancelled/{taskId}")
+    public ResponseEntity<APIResponse<?>> updateTaskCancelled(@PathVariable Long taskId) {
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        projectFacadeService.updateTaskCancelled(taskId, userId);
+        return ResponseEntity.ok(APIResponse.success(null, "태스크가 취소 되었습니다."));
+    }
+
+    @DeleteMapping("/{taskId}")
+    public ResponseEntity<APIResponse<?>> deleteTask(@PathVariable Long taskId) {
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        projectFacadeService.deleteTaskHard(taskId, userId);
+        return ResponseEntity.ok(APIResponse.success(null, "태스크가 완전히 삭제 되었습니다."));
+    }
+
+    @PatchMapping("/pending/{taskId}")
+    public ResponseEntity<APIResponse<?>> updateTaskPending(@PathVariable Long taskId) {
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        projectFacadeService.updateTaskPending(taskId, userId);
+        return ResponseEntity.ok(APIResponse.success(null, "태스크가 복원 되었습니다."));
+    }
 }

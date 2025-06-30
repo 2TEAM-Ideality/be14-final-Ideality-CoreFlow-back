@@ -216,6 +216,24 @@ public class PdfServiceImpl implements PdfService {
 			String delayReasonChart = delayReasonChart(delayList);
 			context.setVariable("delayReasonChart", delayReasonChart);
 
+			String delayReasonSummary = "";
+			if (delayList != null && !delayList.isEmpty()) {
+				Map<String, Long> reasonCountMap = delayList.stream()
+					.collect(Collectors.groupingBy(ProjectApprovalDTO::getDelayReason, Collectors.counting()));
+
+				long reasnoTotal = delayList.size();
+				Map.Entry<String, Long> mostCommon = reasonCountMap.entrySet().stream()
+					.max(Map.Entry.comparingByValue())
+					.orElse(null);
+
+				if (mostCommon != null) {
+					double percent = (double) mostCommon.getValue() * 100 / reasnoTotal;
+					delayReasonSummary = String.format("가장 많은 지연 사유는 '%s'로 전체의 %.0f%% 차지", mostCommon.getKey(), percent);
+				}
+			}
+			context.setVariable("delayReasonSummary", delayReasonSummary);
+
+
 			// 지연 사유서 내역
 			List<List<ProjectApprovalDTO>> pagedDelayReportList = new ArrayList<>();
 			for (int i = 0; i < delayList.size(); i += 15) {
@@ -343,6 +361,45 @@ public class PdfServiceImpl implements PdfService {
 			// 5. Thymeleaf 에 변수로 넘기기
 			context.setVariable("deptDelayStats", deptDelayStats);
 
+			// 설명. 부서별 지연 분석 차트
+			String deptDelayChart = createDeptDelayChart(deptDelayStats);
+			context.setVariable("deptDelayChart", deptDelayChart);
+
+			// 설명. delayPercentList / deptDelayStats 기반 분석 텍스트 생성
+			String delayAnalysisText = generateDelayAnalysisText(delayPercentList, deptDelayStats);
+
+			// Thymeleaf Context에 전달
+			context.setVariable("delayAnalysisText", delayAnalysisText);
+
+			String delayDeptSummary = "";
+			if (!deptDelayStats.isEmpty()) {
+				// 부서별 평균 지연일의 전체 평균
+				double avgOfAvgDelays = deptDelayStats.stream()
+					.mapToDouble(d -> (double) d.get("avgDelay"))
+					.average()
+					.orElse(0.0);
+
+				// 최대/최소 지연 비율 부서 찾기
+				Map<String, Object> maxDept = deptDelayStats.stream()
+					.max(Comparator.comparingDouble(d -> (double) d.get("percentOfTotal")))
+					.orElse(null);
+
+				Map<String, Object> minDept = deptDelayStats.stream()
+					.min(Comparator.comparingDouble(d -> (double) d.get("percentOfTotal")))
+					.orElse(null);
+
+				if (maxDept != null && minDept != null) {
+					delayDeptSummary = String.format(
+						"부서별 평균 지연일은 %.1f일이며, 지연 비율이 가장 높은 부서는 '%s'(%.1f%%), 가장 낮은 부서는 '%s'(%.1f%%)입니다.",
+						avgOfAvgDelays,
+						maxDept.get("deptName"), maxDept.get("percentOfTotal"),
+						minDept.get("deptName"), minDept.get("percentOfTotal")
+					);
+				}
+			}
+			context.setVariable("delayDeptSummary", delayDeptSummary);
+
+
 
 			// 설명. 납기 준수율 OTD
 			//  전체 프로젝트에서 납기준수율 추출
@@ -398,6 +455,38 @@ public class PdfServiceImpl implements PdfService {
 			context.setVariable("otdComparisonComment", comment);
 			context.setVariable("evalType", evalType.trim());
 
+			// 설명. 최종 평가 요약
+			String overallSummary = "";
+
+			try {
+				String topTaskSummary = delayPercentList.stream()
+					.sorted((a, b) -> Double.compare((double) b.get("percent"), (double) a.get("percent")))
+					.limit(1)
+					.map(m -> String.format("‘%s’(%.1f%%)", m.get("taskName"), m.get("percent")))
+					.findFirst()
+					.orElse("N/A");
+
+				String topReason = delayReasonSummary.isEmpty() ? "주요 지연 사유 정보 없음" : delayReasonSummary;
+
+				String deptSummary = delayDeptSummary.isEmpty() ? "부서별 지연 정보 없음" : delayDeptSummary;
+
+				String otdEval = comment.isEmpty() ? "납기 준수율 평가 정보 없음" : comment;
+
+				overallSummary = String.join("<br/>", List.of(
+					String.format("전체 납기 준수율은 %.2f%%이며,", (double) context.getVariable("OTD")),
+					String.format("평균 지연일은 %.2f일로 분석되었습니다.", (double) context.getVariable("meanDelay")),
+					String.format("주요 병목 공정은 %s 태스크입니다.", topTaskSummary),
+					topReason,
+					deptSummary,
+					otdEval
+				));
+			} catch (Exception e) {
+				log.warn("전체 평가 요약 생성 중 오류 발생", e);
+				overallSummary = "전체 프로젝트 평가 요약 정보를 생성하는 중 오류가 발생했습니다.";
+			}
+
+			context.setVariable("overallSummary", overallSummary);
+
 			// -----------------------------------------------------------------------
 
 			// 설명. 각 페이지 템플릿 렌더링
@@ -443,6 +532,76 @@ public class PdfServiceImpl implements PdfService {
 		}
 
 	}
+
+	// 부서별 지연 분석 요약
+	public static String generateDelayAnalysisText(
+		List<Map<String, Object>> delayPercentList,
+		List<Map<String, Object>> deptDelayStats
+	) {
+		int totalDelayTasks = delayPercentList.size();
+		long totalDelayDays = delayPercentList.stream()
+			.mapToLong(m -> ((Number) m.get("delayDays")).longValue())
+			.sum();
+
+		// 주요 병목 태스크 추출
+		delayPercentList.sort((a, b) -> Double.compare(
+			((Number) b.get("percent")).doubleValue(),
+			((Number) a.get("percent")).doubleValue()
+		));
+		StringBuilder topTasksText = new StringBuilder();
+		for (int i = 0; i < Math.min(3, delayPercentList.size()); i++) {
+			Map<String, Object> task = delayPercentList.get(i);
+			topTasksText.append("‘")
+				.append(task.get("taskName"))
+				.append("’ (")
+				.append(task.get("percent"))
+				.append("%)");
+			if (i < Math.min(3, delayPercentList.size()) - 1) {
+				topTasksText.append(", ");
+			}
+		}
+
+		// 가장 많이 지연된 부서 및 평균 지연일이 높은 부서
+		Map<String, Object> mostDelayedDept = deptDelayStats.stream()
+			.max(Comparator.comparingLong(d -> ((Number) d.get("totalDelay")).longValue()))
+			.orElse(null);
+
+		Map<String, Object> highestAvgDept = deptDelayStats.stream()
+			.max(Comparator.comparingDouble(d -> ((Number) d.get("avgDelay")).doubleValue()))
+			.orElse(null);
+
+		double avgDelayAll = deptDelayStats.stream()
+			.mapToDouble(d -> ((Number) d.get("avgDelay")).doubleValue())
+			.average().orElse(0.0);
+
+		// 결과 줄글 생성
+		StringBuilder result = new StringBuilder();
+		result.append("프로젝트 전체 완료된 태스크 중 총 ")
+			.append(totalDelayTasks).append("건에서 지연이 발생하였으며, 총 ")
+			.append(totalDelayDays).append("일의 지연이 집계되었습니다.<br/>");
+		result.append("그 중 ").append(topTasksText).append(" 태스크들이 주요 병목 요인으로 나타났습니다.<br/><br/>");
+
+		if (mostDelayedDept != null) {
+			result.append("부서별로는 '").append(mostDelayedDept.get("deptName"))
+				.append("' 부서가 총 ").append(mostDelayedDept.get("totalDelay"))
+				.append("일의 지연으로 전체 지연의 ").append(mostDelayedDept.get("percentOfTotal"))
+				.append("%를 차지하였습니다.<br/>");
+		}
+
+		if (highestAvgDept != null) {
+			result.append("또한, '").append(highestAvgDept.get("deptName"))
+				.append("' 부서는 평균 지연일이 ").append(highestAvgDept.get("avgDelay"))
+				.append("일로 가장 높게 나타났습니다.<br/><br/>");
+		}
+
+		result.append("전체 부서의 평균 지연일은 약 ")
+			.append(Math.round(avgDelayAll * 100.0) / 100.0)
+			.append("일로, 이 기준 이상 지연이 발생한 부서에 대해 일정 점검 및 개선 조치가 필요합니다.");
+
+
+		return result.toString();
+	}
+
 
 	public static final Color[] SLICE_COLORS = new Color[] {
 		new Color(252, 179, 112),
@@ -547,7 +706,7 @@ public class PdfServiceImpl implements PdfService {
 			.height(300)
 			.title("지연 사유 분석")
 			.build();
-		
+
 		if(delayList == null || delayList.isEmpty()) {
 			chart.addSeries("지연 사유 없음", 1);
 			chart.getStyler().setSeriesColors(new Color[]{new Color(230, 230, 230)});  // 밝은 회색
@@ -855,6 +1014,116 @@ public class PdfServiceImpl implements PdfService {
 
 		// 이미지 → Base64 변환
 		BufferedImage image = chart.createBufferedImage(800, 500);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ImageIO.write(image, "png", baos);
+		return Base64.getEncoder().encodeToString(baos.toByteArray());
+	}
+
+	// 설명. 부서별 지연 분석
+	public String createDeptDelayChart(List<Map<String, Object>> deptDelayStats) throws IOException, FontFormatException {
+		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+		double totalDelaySum = 0.0;
+		int deptCount = 0;
+
+		// ① 데이터 준비 + 총합
+		for (Map<String, Object> stat : deptDelayStats) {
+			String deptName = ((String) stat.get("deptName")).trim();
+			Number totalDelay = (Number) stat.get("totalDelay");
+
+			if (deptName != null && !deptName.isEmpty()) {
+				double delay = totalDelay.doubleValue();
+				dataset.addValue(delay, "지연일", deptName);
+				totalDelaySum += delay;
+				deptCount++;
+			}
+		}
+
+		// 평균 계산
+		double avgDelay = deptCount > 0 ? totalDelaySum / deptCount : 0.0;
+		double finalTotal = totalDelaySum;
+
+		// ② 차트 생성
+		JFreeChart chart = ChartFactory.createBarChart(
+			"",
+			"부서명",
+			"지연일 수",
+			dataset,
+			PlotOrientation.VERTICAL,
+			false, true, false
+		);
+
+		CategoryPlot plot = chart.getCategoryPlot();
+		plot.setBackgroundPaint(Color.WHITE);
+		plot.setRangeGridlinePaint(Color.GRAY);
+		plot.setOutlineVisible(false);
+
+		Font koreanFont = Font.createFont(Font.TRUETYPE_FONT, new File(FONT_PATH)).deriveFont(12f);
+
+		// ③ 렌더러
+		BarRenderer renderer = new BarRenderer();
+		renderer.setBarPainter(new StandardBarPainter());
+		renderer.setSeriesPaint(0, new Color(252, 179, 112));
+		renderer.setMaximumBarWidth(0.1);
+		renderer.setShadowVisible(false); // 그림자 제거
+
+		renderer.setDefaultItemLabelGenerator(new CategoryItemLabelGenerator() {
+			@Override
+			public String generateLabel(CategoryDataset dataset, int row, int column) {
+				Number value = dataset.getValue(row, column);
+				if (value != null && finalTotal > 0) {
+					double pct = value.doubleValue() * 100 / finalTotal;
+					return String.format("%.1f%%", pct);
+				}
+				return "";
+			}
+
+			@Override
+			public String generateRowLabel(CategoryDataset dataset, int row) {
+				return (String) dataset.getRowKey(row);
+			}
+
+			@Override
+			public String generateColumnLabel(CategoryDataset dataset, int column) {
+				return (String) dataset.getColumnKey(column);
+			}
+		});
+
+		renderer.setDefaultItemLabelsVisible(true);
+		renderer.setDefaultItemLabelFont(koreanFont);
+		renderer.setDefaultItemLabelPaint(Color.BLACK);
+		plot.setRenderer(renderer);
+
+		// ⑤ 축 폰트
+		plot.getDomainAxis().setTickLabelFont(koreanFont);
+		plot.getDomainAxis().setLabelFont(koreanFont);
+		plot.getRangeAxis().setTickLabelFont(koreanFont);
+		plot.getRangeAxis().setLabelFont(koreanFont);
+
+		// ⑥ 평균선 추가
+		ValueMarker avgMarker = new ValueMarker(avgDelay);
+		avgMarker.setPaint(new Color(77, 145, 255)); // 파란색
+		avgMarker.setStroke(new BasicStroke(2.0f));
+		plot.addRangeMarker(avgMarker);
+
+		// ⑦ 평균 주석 표시
+		CategoryTextAnnotation annotation = new CategoryTextAnnotation(
+			String.format("평균: %.1f", avgDelay),
+			(String) dataset.getColumnKey(0), // 첫 번째 바 위에 표시
+			avgDelay + 0.5                    // 살짝 위로
+		);
+		annotation.setFont(koreanFont.deriveFont(Font.BOLD));
+		annotation.setPaint(new Color(77, 145, 255));
+		annotation.setTextAnchor(TextAnchor.BOTTOM_LEFT);
+		plot.addAnnotation(annotation);
+
+		// ⑧ 타이틀 폰트
+		if (chart.getTitle() != null) {
+			chart.getTitle().setFont(koreanFont);
+		}
+
+		// ⑨ 이미지 변환
+		BufferedImage image = chart.createBufferedImage(600, 400);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ImageIO.write(image, "png", baos);
 		return Base64.getEncoder().encodeToString(baos.toByteArray());
