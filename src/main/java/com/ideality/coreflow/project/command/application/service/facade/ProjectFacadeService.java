@@ -305,7 +305,7 @@ public class ProjectFacadeService {
     }
 
     @Transactional
-    private Long createTaskWithDepts(Long projectId, NodeDTO node) {
+      public Long createTaskWithDepts(Long projectId, NodeDTO node) {
         NodeDataDTO data = node.getData();
 
         RequestTaskDTO taskDTO = RequestTaskDTO.builder()
@@ -818,7 +818,7 @@ public class ProjectFacadeService {
     }
 
     @Transactional
-    private void createParticipants(List<ParticipantDTO> taskParticipants) {
+    public void createParticipants(List<ParticipantDTO> taskParticipants) {
 
         long roleId = roleService.findRoleByName(RoleName.TEAM_LEADER);
 
