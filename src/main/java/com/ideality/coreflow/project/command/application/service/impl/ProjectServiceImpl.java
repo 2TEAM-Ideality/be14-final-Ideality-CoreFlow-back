@@ -97,6 +97,13 @@ public class ProjectServiceImpl implements ProjectService {
                 project.updateEndReal(LocalDate.now());
             }
         }
+
+        if (targetStatus == Status.DELETED) {
+            project.updateStatus(Status.DELETED);
+            projectRepository.save(project);
+            return project.getId();
+        }
+
         project.updateStatus(targetStatus);
 
         projectRepository.save(project);
@@ -158,4 +165,7 @@ public class ProjectServiceImpl implements ProjectService {
     public Status findProjectStatusById(Long projectId) {
         return projectRepository.findById(projectId).orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND)).getStatus();
     }
+
+
+
 }
