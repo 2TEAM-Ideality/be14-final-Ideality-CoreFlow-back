@@ -27,13 +27,13 @@
              , p.status
              , CASE
                     WHEN p.status = 'PENDING' THEN p.start_expect
-                    WHEN p.status = 'PROGRESS' THEN p.start_base
-                    WHEN p.status = 'COMPLETED' THEN p.start_base
+                    WHEN p.status = 'PROGRESS' THEN p.start_real
+                    WHEN p.status = 'COMPLETED' THEN p.start_real
                END AS start_date
              , CASE
                     WHEN p.status = 'PENDING' THEN p.end_expect
                     WHEN p.status = 'PROGRESS' THEN p.end_expect
-                    WHEN p.status = 'COMPLETED' THEN p.end_base
+                    WHEN p.status = 'COMPLETED' THEN p.end_real
                END AS end_date
              , director.id AS director_id
              , director.name AS director_name
