@@ -2,7 +2,10 @@ package com.ideality.coreflow.project.command.application.service.impl;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -69,7 +72,6 @@ import com.ideality.coreflow.project.query.dto.ProjectOTD;
 import com.ideality.coreflow.project.query.dto.UserInfoDTO;
 import com.ideality.coreflow.project.query.dto.ProjectParticipantDTO;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-import org.springframework.core.io.ClassPathResource;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -87,13 +89,13 @@ public class PdfServiceImpl implements PdfService {
 	@Transactional
 	@Override
 	public void createReportPdf(
-		HttpServletResponse response,
-		ProjectDetailResponseDTO projectDetail,   // 프로젝트 기본 정보
-		List<ProjectParticipantDTO> projectParticipantList,   // 프로젝트 참여자 목록
-		List<CompletedTaskDTO> completedTaskList,    // 프로젝트 태스크
-		List<ProjectApprovalDTO> delayList,			 // 지연 정보
-		List<ProjectOTD> projectOTDList,
-		List<ReportAttachmentDTO> attachmentList	 // 산출물 목록
+			HttpServletResponse response,
+			ProjectDetailResponseDTO projectDetail,   // 프로젝트 기본 정보
+			List<ProjectParticipantDTO> projectParticipantList,   // 프로젝트 참여자 목록
+			List<CompletedTaskDTO> completedTaskList,    // 프로젝트 태스크
+			List<ProjectApprovalDTO> delayList,			 // 지연 정보
+			List<ProjectOTD> projectOTDList,
+			List<ReportAttachmentDTO> attachmentList	 // 산출물 목록
 	) {
 		// 가져온 정보로 프로젝트 분석 리포트 PDF 만들기
 		log.info("프로젝트 분석 리포트 만들기");
@@ -115,13 +117,13 @@ public class PdfServiceImpl implements PdfService {
 			context.setVariable("director", projectDetail.getDirector().getName() + " " + projectDetail.getDirector().getDeptName() + " " + projectDetail.getDirector().getJobRoleName());
 			context.setVariable("reportCreatedAt" , LocalDate.now());
 			String period = projectDetail.getStartReal().format(DateTimeFormatter.ISO_DATE)
-				+ " ~ "
-				+ projectDetail.getEndReal().format(DateTimeFormatter.ISO_DATE);
+					+ " ~ "
+					+ projectDetail.getEndReal().format(DateTimeFormatter.ISO_DATE);
 
 			// 실제 진행 소요일
 			long totalDays = ChronoUnit.DAYS.between(
-				projectDetail.getStartReal(),
-				projectDetail.getEndReal()
+					projectDetail.getStartReal(),
+					projectDetail.getEndReal()
 			) + 1;
 			String periodData = period + " (총 " + totalDays + "일)";
 
@@ -147,15 +149,13 @@ public class PdfServiceImpl implements PdfService {
 			context.setVariable("participantList", participantMap);
 
 
-			// 커버 로고 이미지
-			InputStream coverLogoStream = new ClassPathResource("static/ReportLogo.png").getInputStream();
-			byte[] coverLogoBytes = coverLogoStream.readAllBytes();
+			// 커버 로고 이미지 파일
+			byte[] coverLogoBytes = Files.readAllBytes(new File("src/main/resources/static/ReportLogo.png").toPath());
 			String coverLogo = Base64.getEncoder().encodeToString(coverLogoBytes);
 			context.setVariable("coverLogo", coverLogo);
 
-// 컨텐츠 로고 이미지
-			InputStream contentLogoStream = new ClassPathResource("static/ContentLogoFull.png").getInputStream();
-			byte[] contentLogoBytes = contentLogoStream.readAllBytes();
+			// 컨텐츠 로고 이미지
+			byte[] contentLogoBytes = Files.readAllBytes(new File("src/main/resources/static/ContentLogoFull.png").toPath());
 			String contentLogo = Base64.getEncoder().encodeToString(contentLogoBytes);
 			context.setVariable("contentLogo", contentLogo);
 
@@ -181,23 +181,23 @@ public class PdfServiceImpl implements PdfService {
 			}
 
 			Map<String, Object> total = Map.of(
-				"progress", Optional.ofNullable(projectDetail.getProgressRate()).orElse(0.0),
-				"baseStart", Optional.ofNullable(projectDetail.getStartBase())
-					.map(d -> d.format(formatter))
-					.orElse("-"),
-				"baseEnd", Optional.ofNullable(projectDetail.getEndBase())
-					.map(d -> d.format(formatter))
-					.orElse("-"),
-				"realStart", Optional.ofNullable(projectDetail.getStartReal())
-					.map(d -> d.format(formatter))
-					.orElse("미입력"),
-				"realEnd", Optional.ofNullable(projectDetail.getEndReal())
-					.map(d -> d.format(formatter))
-					.orElse("미입력"),
-				"delay", Optional.ofNullable(projectDetail.getDelayDays()).orElse(0),
-				"status", Optional.ofNullable(isDelay).orElse("N/A"),
-				"realDuration", realDuration
-				);
+					"progress", Optional.ofNullable(projectDetail.getProgressRate()).orElse(0.0),
+					"baseStart", Optional.ofNullable(projectDetail.getStartBase())
+							.map(d -> d.format(formatter))
+							.orElse("-"),
+					"baseEnd", Optional.ofNullable(projectDetail.getEndBase())
+							.map(d -> d.format(formatter))
+							.orElse("-"),
+					"realStart", Optional.ofNullable(projectDetail.getStartReal())
+							.map(d -> d.format(formatter))
+							.orElse("미입력"),
+					"realEnd", Optional.ofNullable(projectDetail.getEndReal())
+							.map(d -> d.format(formatter))
+							.orElse("미입력"),
+					"delay", Optional.ofNullable(projectDetail.getDelayDays()).orElse(0),
+					"status", Optional.ofNullable(isDelay).orElse("N/A"),
+					"realDuration", realDuration
+			);
 			context.setVariable("total", total);
 
 			// 설명. 챕터 3 - 지연 분석 챕터 ---------------------------------------------------------------
@@ -206,9 +206,9 @@ public class PdfServiceImpl implements PdfService {
 			context.setVariable("delayTaskChart", delayTaskChart);
 
 			List<CompletedTaskDTO> sortedDelayedTasks = completedTaskList.stream()
-				.filter(task -> task.getDelayDays() != null && task.getDelayDays() > 0)
-				.sorted(Comparator.comparingInt(CompletedTaskDTO::getDelayDays).reversed())
-				.collect(Collectors.toList());
+					.filter(task -> task.getDelayDays() != null && task.getDelayDays() > 0)
+					.sorted(Comparator.comparingInt(CompletedTaskDTO::getDelayDays).reversed())
+					.collect(Collectors.toList());
 
 			context.setVariable("legendItems", sortedDelayedTasks);
 
@@ -219,12 +219,12 @@ public class PdfServiceImpl implements PdfService {
 			String delayReasonSummary = "";
 			if (delayList != null && !delayList.isEmpty()) {
 				Map<String, Long> reasonCountMap = delayList.stream()
-					.collect(Collectors.groupingBy(ProjectApprovalDTO::getDelayReason, Collectors.counting()));
+						.collect(Collectors.groupingBy(ProjectApprovalDTO::getDelayReason, Collectors.counting()));
 
 				long reasnoTotal = delayList.size();
 				Map.Entry<String, Long> mostCommon = reasonCountMap.entrySet().stream()
-					.max(Map.Entry.comparingByValue())
-					.orElse(null);
+						.max(Map.Entry.comparingByValue())
+						.orElse(null);
 
 				if (mostCommon != null) {
 					double percent = (double) mostCommon.getValue() * 100 / reasnoTotal;
@@ -274,8 +274,8 @@ public class PdfServiceImpl implements PdfService {
 			context.setVariable("OTD", Math.round(OTD * 100.0) / 100.0);  	// 납기 준수율
 
 			double meanDelay = completedTaskList.size() > 0
-				? (double) projectDetail.getDelayDays() / completedTaskList.size()
-				: 0.0;
+					? (double) projectDetail.getDelayDays() / completedTaskList.size()
+					: 0.0;
 			context.setVariable("meanDelay", Math.round(meanDelay * 100.0) / 100.0);	// 평균 지연일
 			context.setVariable("totalDelay", projectDetail.getDelayDays());   // 총 지연일
 			context.setVariable("delayedTaskList", delayedTaskList); 			 // 지연 태스크 목록
@@ -289,15 +289,15 @@ public class PdfServiceImpl implements PdfService {
 			// 지연 태스크 비율
 			// 1) 총 지연일 합계
 			long totalDelayDays = delayedTaskList.stream()
-				.mapToLong(CompletedTaskDTO::getDelayDays)
-				.sum();
+					.mapToLong(CompletedTaskDTO::getDelayDays)
+					.sum();
 
 			// 2) (태스크명, 지연일, percent) 맵 리스트 생성
 			List<Map<String, Object>> delayPercentList = new ArrayList<>();
 			for (CompletedTaskDTO dto : delayedTaskList) {
 				double percent = totalDelayDays > 0
-					? Math.round(dto.getDelayDays() * 10000.0 / totalDelayDays) / 100.0  // 소수 둘째자리까지 반올림
-					: 0.0;
+						? Math.round(dto.getDelayDays() * 10000.0 / totalDelayDays) / 100.0  // 소수 둘째자리까지 반올림
+						: 0.0;
 				Map<String,Object> m = new HashMap<>();
 				m.put("taskName", dto.getTaskName());
 				m.put("delayDays", dto.getDelayDays());
@@ -310,12 +310,12 @@ public class PdfServiceImpl implements PdfService {
 
 			// 2. 전체 지연일 합계
 			long totalDelayAll = delayList.stream()
-				.mapToLong(ProjectApprovalDTO::getDelayDays)
-				.sum();
+					.mapToLong(ProjectApprovalDTO::getDelayDays)
+					.sum();
 
 			// 3. 부서별 그룹핑
 			Map<String, List<ProjectApprovalDTO>> delaysByDept = delayList.stream()
-				.collect(Collectors.groupingBy(ProjectApprovalDTO::getRequesterDeptName));
+					.collect(Collectors.groupingBy(ProjectApprovalDTO::getRequesterDeptName));
 
 			// 4. 부서별 통계 리스트 생성
 			List<Map<String, Object>> deptDelayStats = new ArrayList<>();
@@ -335,14 +335,14 @@ public class PdfServiceImpl implements PdfService {
 
 				// 4-2) 총 지연일, 평균 지연일 계산
 				long deptTotalDelay = group.stream()
-					.mapToLong(ProjectApprovalDTO::getDelayDays)
-					.sum();
+						.mapToLong(ProjectApprovalDTO::getDelayDays)
+						.sum();
 				double deptAvgDelay = group.isEmpty() ? 0
-					: Math.round((double) deptTotalDelay / group.size() * 100.0) / 100.0;
+						: Math.round((double) deptTotalDelay / group.size() * 100.0) / 100.0;
 
 				// 4-3) 전체 대비 비율
 				double pct = totalDelayAll == 0 ? 0
-					: Math.round(deptTotalDelay * 10000.0 / totalDelayAll) / 100.0;
+						: Math.round(deptTotalDelay * 10000.0 / totalDelayAll) / 100.0;
 
 				// 일단 details는 빈 리스트라도 무조건 포함시키기
 				// List<String> details = new ArrayList<>();
@@ -375,25 +375,25 @@ public class PdfServiceImpl implements PdfService {
 			if (!deptDelayStats.isEmpty()) {
 				// 부서별 평균 지연일의 전체 평균
 				double avgOfAvgDelays = deptDelayStats.stream()
-					.mapToDouble(d -> (double) d.get("avgDelay"))
-					.average()
-					.orElse(0.0);
+						.mapToDouble(d -> (double) d.get("avgDelay"))
+						.average()
+						.orElse(0.0);
 
 				// 최대/최소 지연 비율 부서 찾기
 				Map<String, Object> maxDept = deptDelayStats.stream()
-					.max(Comparator.comparingDouble(d -> (double) d.get("percentOfTotal")))
-					.orElse(null);
+						.max(Comparator.comparingDouble(d -> (double) d.get("percentOfTotal")))
+						.orElse(null);
 
 				Map<String, Object> minDept = deptDelayStats.stream()
-					.min(Comparator.comparingDouble(d -> (double) d.get("percentOfTotal")))
-					.orElse(null);
+						.min(Comparator.comparingDouble(d -> (double) d.get("percentOfTotal")))
+						.orElse(null);
 
 				if (maxDept != null && minDept != null) {
 					delayDeptSummary = String.format(
-						"부서별 평균 지연일은 %.1f일이며, 지연 비율이 가장 높은 부서는 '%s'(%.1f%%), 가장 낮은 부서는 '%s'(%.1f%%)입니다.",
-						avgOfAvgDelays,
-						maxDept.get("deptName"), maxDept.get("percentOfTotal"),
-						minDept.get("deptName"), minDept.get("percentOfTotal")
+							"부서별 평균 지연일은 %.1f일이며, 지연 비율이 가장 높은 부서는 '%s'(%.1f%%), 가장 낮은 부서는 '%s'(%.1f%%)입니다.",
+							avgOfAvgDelays,
+							maxDept.get("deptName"), maxDept.get("percentOfTotal"),
+							minDept.get("deptName"), minDept.get("percentOfTotal")
 					);
 				}
 			}
@@ -405,21 +405,21 @@ public class PdfServiceImpl implements PdfService {
 			//  전체 프로젝트에서 납기준수율 추출
 			context.setVariable("projectCount", projectOTDList.size());
 			log.info("OTD 프로젝트 리스트: {}", projectOTDList.stream()
-				.map(dto -> dto.getProjectName() + "=" + dto.getOtdRate())
-				.collect(Collectors.toList()));
+					.map(dto -> dto.getProjectName() + "=" + dto.getOtdRate())
+					.collect(Collectors.toList()));
 			String compareOtdChart = createOTDChart(projectOTDList, projectDetail.getId());
 			context.setVariable("compareOtdChart", compareOtdChart);
 
 			// 평균과 비교한 설명 문구 추가
 			double avgOtd = projectOTDList.stream()
-				.mapToDouble(ProjectOTD::getOtdRate)
-				.average()
-				.orElse(0.0);
+					.mapToDouble(ProjectOTD::getOtdRate)
+					.average()
+					.orElse(0.0);
 
 			ProjectOTD currentProject = projectOTDList.stream()
-				.filter(dto -> dto.getProjectId().equals(projectDetail.getId()))
-				.findFirst()
-				.orElse(null);
+					.filter(dto -> dto.getProjectId().equals(projectDetail.getId()))
+					.findFirst()
+					.orElse(null);
 
 			// 설명. 평가 문구
 			// OTD(납기 준수율) 평가 기준:
@@ -434,20 +434,20 @@ public class PdfServiceImpl implements PdfService {
 				double diff = currentOtd - avgOtd;
 				if (diff > 5.0) {
 					comment = String.format(
-						"해당 프로젝트의 납기 준수율은 평균(%.1f%%)보다 %.1f%%p 높아, 우수한 성과를 보였습니다.",
-						avgOtd, diff
+							"해당 프로젝트의 납기 준수율은 평균(%.1f%%)보다 %.1f%%p 높아, 우수한 성과를 보였습니다.",
+							avgOtd, diff
 					);
 					evalType = "EXCELLENT";
 				} else if (diff < -5.0) {
 					comment = String.format(
-						"해당 프로젝트의 납기 준수율은 평균(%.1f%%)보다 %.1f%%p 낮아, 개선이 필요합니다.",
-						avgOtd, -diff
+							"해당 프로젝트의 납기 준수율은 평균(%.1f%%)보다 %.1f%%p 낮아, 개선이 필요합니다.",
+							avgOtd, -diff
 					);
 					evalType = "NEEDS_IMPROVEMENT";
 				} else {
 					comment = String.format(
-						"해당 프로젝트의 납기 준수율은 평균(%.1f%%)과 유사한 수준(%.1f%%)입니다.",
-						avgOtd, currentOtd
+							"해당 프로젝트의 납기 준수율은 평균(%.1f%%)과 유사한 수준(%.1f%%)입니다.",
+							avgOtd, currentOtd
 					);
 					evalType = "AVERAGE";
 				}
@@ -460,11 +460,11 @@ public class PdfServiceImpl implements PdfService {
 
 			try {
 				String topTaskSummary = delayPercentList.stream()
-					.sorted((a, b) -> Double.compare((double) b.get("percent"), (double) a.get("percent")))
-					.limit(1)
-					.map(m -> String.format("‘%s’(%.1f%%)", m.get("taskName"), m.get("percent")))
-					.findFirst()
-					.orElse("N/A");
+						.sorted((a, b) -> Double.compare((double) b.get("percent"), (double) a.get("percent")))
+						.limit(1)
+						.map(m -> String.format("‘%s’(%.1f%%)", m.get("taskName"), m.get("percent")))
+						.findFirst()
+						.orElse("N/A");
 
 				String topReason = delayReasonSummary.isEmpty() ? "주요 지연 사유 정보 없음" : delayReasonSummary;
 
@@ -473,12 +473,12 @@ public class PdfServiceImpl implements PdfService {
 				String otdEval = comment.isEmpty() ? "납기 준수율 평가 정보 없음" : comment;
 
 				overallSummary = String.join("<br/>", List.of(
-					String.format("전체 납기 준수율은 %.2f%%이며,", (double) context.getVariable("OTD")),
-					String.format("평균 지연일은 %.2f일로 분석되었습니다.", (double) context.getVariable("meanDelay")),
-					String.format("주요 병목 공정은 %s 태스크입니다.", topTaskSummary),
-					topReason,
-					deptSummary,
-					otdEval
+						String.format("전체 납기 준수율은 %.2f%%이며,", (double) context.getVariable("OTD")),
+						String.format("평균 지연일은 %.2f일로 분석되었습니다.", (double) context.getVariable("meanDelay")),
+						String.format("주요 병목 공정은 %s 태스크입니다.", topTaskSummary),
+						topReason,
+						deptSummary,
+						otdEval
 				));
 			} catch (Exception e) {
 				log.warn("전체 평가 요약 생성 중 오류 발생", e);
@@ -500,7 +500,7 @@ public class PdfServiceImpl implements PdfService {
 			String encodedFileName = URLEncoder.encode(rawFileName, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
 
 			response.setHeader("Content-Disposition",
-				"attachment; filename=\"" + encodedFileName + "\"; filename*=UTF-8''" + encodedFileName);
+					"attachment; filename=\"" + encodedFileName + "\"; filename*=UTF-8''" + encodedFileName);
 			response.setContentType("application/pdf");
 
 
@@ -516,46 +516,46 @@ public class PdfServiceImpl implements PdfService {
 			}
 
 		} catch (Exception e) {
-		if (!response.isCommitted()) {
-			try {
-				response.reset();
-				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				response.getWriter().write("PDF 생성 중 오류가 발생했습니다. 관리자에게 문의하세요.");
-			} catch (IOException ioEx) {
-				log.error("응답 오류 메시지 전송 실패", ioEx);
+			if (!response.isCommitted()) {
+				try {
+					response.reset();
+					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+					response.getWriter().write("PDF 생성 중 오류가 발생했습니다. 관리자에게 문의하세요.");
+				} catch (IOException ioEx) {
+					log.error("응답 오류 메시지 전송 실패", ioEx);
+				}
+			} else {
+				log.error("PDF 생성 중 예외 발생 (응답 커밋됨): {}", e.getMessage());
 			}
-		} else {
-			log.error("PDF 생성 중 예외 발생 (응답 커밋됨): {}", e.getMessage());
-		}
-		log.error("PDF 생성 실패", e);
-		throw new BaseException(ErrorCode.PDF_CREATE_FAILED);
+			log.error("PDF 생성 실패", e);
+			throw new BaseException(ErrorCode.PDF_CREATE_FAILED);
 		}
 
 	}
 
 	// 부서별 지연 분석 요약
 	public static String generateDelayAnalysisText(
-		List<Map<String, Object>> delayPercentList,
-		List<Map<String, Object>> deptDelayStats
+			List<Map<String, Object>> delayPercentList,
+			List<Map<String, Object>> deptDelayStats
 	) {
 		int totalDelayTasks = delayPercentList.size();
 		long totalDelayDays = delayPercentList.stream()
-			.mapToLong(m -> ((Number) m.get("delayDays")).longValue())
-			.sum();
+				.mapToLong(m -> ((Number) m.get("delayDays")).longValue())
+				.sum();
 
 		// 주요 병목 태스크 추출
 		delayPercentList.sort((a, b) -> Double.compare(
-			((Number) b.get("percent")).doubleValue(),
-			((Number) a.get("percent")).doubleValue()
+				((Number) b.get("percent")).doubleValue(),
+				((Number) a.get("percent")).doubleValue()
 		));
 		StringBuilder topTasksText = new StringBuilder();
 		for (int i = 0; i < Math.min(3, delayPercentList.size()); i++) {
 			Map<String, Object> task = delayPercentList.get(i);
 			topTasksText.append("‘")
-				.append(task.get("taskName"))
-				.append("’ (")
-				.append(task.get("percent"))
-				.append("%)");
+					.append(task.get("taskName"))
+					.append("’ (")
+					.append(task.get("percent"))
+					.append("%)");
 			if (i < Math.min(3, delayPercentList.size()) - 1) {
 				topTasksText.append(", ");
 			}
@@ -563,40 +563,40 @@ public class PdfServiceImpl implements PdfService {
 
 		// 가장 많이 지연된 부서 및 평균 지연일이 높은 부서
 		Map<String, Object> mostDelayedDept = deptDelayStats.stream()
-			.max(Comparator.comparingLong(d -> ((Number) d.get("totalDelay")).longValue()))
-			.orElse(null);
+				.max(Comparator.comparingLong(d -> ((Number) d.get("totalDelay")).longValue()))
+				.orElse(null);
 
 		Map<String, Object> highestAvgDept = deptDelayStats.stream()
-			.max(Comparator.comparingDouble(d -> ((Number) d.get("avgDelay")).doubleValue()))
-			.orElse(null);
+				.max(Comparator.comparingDouble(d -> ((Number) d.get("avgDelay")).doubleValue()))
+				.orElse(null);
 
 		double avgDelayAll = deptDelayStats.stream()
-			.mapToDouble(d -> ((Number) d.get("avgDelay")).doubleValue())
-			.average().orElse(0.0);
+				.mapToDouble(d -> ((Number) d.get("avgDelay")).doubleValue())
+				.average().orElse(0.0);
 
 		// 결과 줄글 생성
 		StringBuilder result = new StringBuilder();
 		result.append("프로젝트 전체 완료된 태스크 중 총 ")
-			.append(totalDelayTasks).append("건에서 지연이 발생하였으며, 총 ")
-			.append(totalDelayDays).append("일의 지연이 집계되었습니다.<br/>");
+				.append(totalDelayTasks).append("건에서 지연이 발생하였으며, 총 ")
+				.append(totalDelayDays).append("일의 지연이 집계되었습니다.<br/>");
 		result.append("그 중 ").append(topTasksText).append(" 태스크들이 주요 병목 요인으로 나타났습니다.<br/><br/>");
 
 		if (mostDelayedDept != null) {
 			result.append("부서별로는 '").append(mostDelayedDept.get("deptName"))
-				.append("' 부서가 총 ").append(mostDelayedDept.get("totalDelay"))
-				.append("일의 지연으로 전체 지연의 ").append(mostDelayedDept.get("percentOfTotal"))
-				.append("%를 차지하였습니다.<br/>");
+					.append("' 부서가 총 ").append(mostDelayedDept.get("totalDelay"))
+					.append("일의 지연으로 전체 지연의 ").append(mostDelayedDept.get("percentOfTotal"))
+					.append("%를 차지하였습니다.<br/>");
 		}
 
 		if (highestAvgDept != null) {
 			result.append("또한, '").append(highestAvgDept.get("deptName"))
-				.append("' 부서는 평균 지연일이 ").append(highestAvgDept.get("avgDelay"))
-				.append("일로 가장 높게 나타났습니다.<br/><br/>");
+					.append("' 부서는 평균 지연일이 ").append(highestAvgDept.get("avgDelay"))
+					.append("일로 가장 높게 나타났습니다.<br/><br/>");
 		}
 
 		result.append("전체 부서의 평균 지연일은 약 ")
-			.append(Math.round(avgDelayAll * 100.0) / 100.0)
-			.append("일로, 이 기준 이상 지연이 발생한 부서에 대해 일정 점검 및 개선 조치가 필요합니다.");
+				.append(Math.round(avgDelayAll * 100.0) / 100.0)
+				.append("일로, 이 기준 이상 지연이 발생한 부서에 대해 일정 점검 및 개선 조치가 필요합니다.");
 
 
 		return result.toString();
@@ -604,11 +604,11 @@ public class PdfServiceImpl implements PdfService {
 
 
 	public static final Color[] SLICE_COLORS = new Color[] {
-		new Color(252, 179, 112),
-		new Color(251, 234, 117),
-		new Color(157, 229, 179),
-		new Color(116, 222, 239),
-		new Color(228, 134, 250)
+			new Color(252, 179, 112),
+			new Color(251, 234, 117),
+			new Color(157, 229, 179),
+			new Color(116, 222, 239),
+			new Color(228, 134, 250)
 	};
 
 	public static void applyDefaultChartStyle(PieChart chart) throws IOException, FontFormatException {
@@ -641,28 +641,28 @@ public class PdfServiceImpl implements PdfService {
 	private String bottleneckChart(List<CompletedTaskDTO> delayedTaskList) throws IOException, FontFormatException {
 		// 1) 총 지연 시간 합계
 		long totalDelay = delayedTaskList.stream()
-			.mapToLong(CompletedTaskDTO::getDelayDays)
-			.sum();
+				.mapToLong(CompletedTaskDTO::getDelayDays)
+				.sum();
 
 		// 2) 데이터셋 준비 (row = 태스크명, column = "병목")
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 		for (CompletedTaskDTO dto : delayedTaskList) {
 			double pct = totalDelay > 0
-				? dto.getDelayDays() * 100.0 / totalDelay
-				: 0.0;
+					? dto.getDelayDays() * 100.0 / totalDelay
+					: 0.0;
 			dataset.addValue(pct, dto.getTaskName(), "병목");
 		}
 
 		// 3) 차트 생성
 		JFreeChart chart = ChartFactory.createStackedBarChart(
-			"주요 병목 공정",     // chart title
-			"",                 // domain axis label
-			"비율(%)",          // range axis label
-			dataset,
-			PlotOrientation.HORIZONTAL,
-			true,  // legend
-			false,
-			false
+				"주요 병목 공정",     // chart title
+				"",                 // domain axis label
+				"비율(%)",          // range axis label
+				dataset,
+				PlotOrientation.HORIZONTAL,
+				true,  // legend
+				false,
+				false
 		);
 
 		// 4) 스타일링
@@ -678,11 +678,11 @@ public class PdfServiceImpl implements PdfService {
 		// 스택 렌더러: 각 시리즈(태스크)마다 색 지정
 		StackedBarRenderer renderer = new StackedBarRenderer();
 		Color[] colors = new Color[] {
-			new Color(252,179,112),
-			new Color(251,234,117),
-			new Color(157,229,179),
-			new Color(116,222,239),
-			new Color(228,134,250)
+				new Color(252,179,112),
+				new Color(251,234,117),
+				new Color(157,229,179),
+				new Color(116,222,239),
+				new Color(228,134,250)
 		};
 		for (int i = 0; i < delayedTaskList.size(); i++) {
 			renderer.setSeriesPaint(i, colors[i % colors.length]);
@@ -702,10 +702,10 @@ public class PdfServiceImpl implements PdfService {
 	private String delayReasonChart(List<ProjectApprovalDTO> delayList) throws IOException, FontFormatException {
 		// 차트 기본 생성
 		PieChart chart = new PieChartBuilder()
-			.width(400)
-			.height(300)
-			.title("지연 사유 분석")
-			.build();
+				.width(400)
+				.height(300)
+				.title("지연 사유 분석")
+				.build();
 
 		if(delayList == null || delayList.isEmpty()) {
 			chart.addSeries("지연 사유 없음", 1);
@@ -741,10 +741,10 @@ public class PdfServiceImpl implements PdfService {
 	private String delayTaskChart(List<CompletedTaskDTO> completedTaskList) throws IOException, FontFormatException {
 		// 차트 기본 생성
 		PieChart chart = new PieChartBuilder()
-			.width(400)
-			.height(300)
-			.title("")
-			.build();
+				.width(400)
+				.height(300)
+				.title("")
+				.build();
 
 		// 스타일 커스터마이징: 범례 크기 조정
 		chart.getStyler().setLegendVisible(true);
@@ -761,9 +761,9 @@ public class PdfServiceImpl implements PdfService {
 
 		// 지연 태스크 추출
 		List<CompletedTaskDTO> delayedTaskList = completedTaskList.stream()
-			.filter(dto -> dto.getDelayDays() > 0)
-			.sorted((a, b) -> Integer.compare(b.getDelayDays(), a.getDelayDays()))
-			.collect(Collectors.toList());
+				.filter(dto -> dto.getDelayDays() > 0)
+				.sorted((a, b) -> Integer.compare(b.getDelayDays(), a.getDelayDays()))
+				.collect(Collectors.toList());
 
 		if (delayedTaskList.isEmpty()) {
 			chart.addSeries("지연 태스크 없음", 1);
@@ -893,12 +893,12 @@ public class PdfServiceImpl implements PdfService {
 		// 차트 생성
 		// "프로젝트 납기 준수율 비교",
 		JFreeChart chart = ChartFactory.createBarChart(
-			"",
-			"프로젝트",
-			"OTD(%)",
-			dataset,
-			PlotOrientation.HORIZONTAL,
-			false, true, false
+				"",
+				"프로젝트",
+				"OTD(%)",
+				dataset,
+				PlotOrientation.HORIZONTAL,
+				false, true, false
 		);
 
 		CategoryPlot plot = chart.getCategoryPlot();
@@ -946,7 +946,7 @@ public class PdfServiceImpl implements PdfService {
 		renderer.setDefaultItemLabelFont(labelFont);
 		renderer.setDefaultItemLabelPaint(Color.BLACK);
 		renderer.setDefaultPositiveItemLabelPosition(
-			new ItemLabelPosition(ItemLabelAnchor.OUTSIDE3, TextAnchor.CENTER_LEFT)
+				new ItemLabelPosition(ItemLabelAnchor.OUTSIDE3, TextAnchor.CENTER_LEFT)
 		);
 		renderer.setBarPainter(new StandardBarPainter());
 		renderer.setShadowVisible(false);
@@ -956,9 +956,9 @@ public class PdfServiceImpl implements PdfService {
 
 		// 평균선 계산 및 시각화 (파란색으로 수정)
 		double avgOtd = otdList.stream()
-			.mapToDouble(ProjectOTD::getOtdRate)
-			.average()
-			.orElse(0.0);
+				.mapToDouble(ProjectOTD::getOtdRate)
+				.average()
+				.orElse(0.0);
 
 		ValueMarker avgMarker = new ValueMarker(avgOtd);
 		avgMarker.setPaint(new Color(77, 145, 255)); // #4D91FF
@@ -968,9 +968,9 @@ public class PdfServiceImpl implements PdfService {
 
 		// 2. 평균 텍스트를 차트 오른쪽 상단에 주석으로 표시
 		CategoryTextAnnotation avgAnnotation = new CategoryTextAnnotation(
-			String.format("평균 OTD: %.1f%%", avgOtd),
-			dataset.getColumnKey(dataset.getColumnCount() - 1), // 가장 오른쪽 바 기준
-			plot.getRangeAxis().getUpperBound() * 0.97          // Y축 최상단에서 살짝 아래
+				String.format("평균 OTD: %.1f%%", avgOtd),
+				dataset.getColumnKey(dataset.getColumnCount() - 1), // 가장 오른쪽 바 기준
+				plot.getRangeAxis().getUpperBound() * 0.97          // Y축 최상단에서 살짝 아래
 		);
 		avgAnnotation.setFont(koreanFont.deriveFont(Font.BOLD));
 		avgAnnotation.setPaint(new Color(77, 145, 255)); // 파란색
@@ -979,8 +979,8 @@ public class PdfServiceImpl implements PdfService {
 
 		// 현재 프로젝트 기준선
 		ProjectOTD current = otdList.stream()
-			.filter(dto -> dto.getProjectId().equals(currentProjectId))
-			.findFirst().orElse(null);
+				.filter(dto -> dto.getProjectId().equals(currentProjectId))
+				.findFirst().orElse(null);
 
 		if (current != null) {
 			double currentOtd = current.getOtdRate();
@@ -1045,12 +1045,12 @@ public class PdfServiceImpl implements PdfService {
 
 		// ② 차트 생성
 		JFreeChart chart = ChartFactory.createBarChart(
-			"",
-			"부서명",
-			"지연일 수",
-			dataset,
-			PlotOrientation.VERTICAL,
-			false, true, false
+				"",
+				"부서명",
+				"지연일 수",
+				dataset,
+				PlotOrientation.VERTICAL,
+				false, true, false
 		);
 
 		CategoryPlot plot = chart.getCategoryPlot();
@@ -1108,9 +1108,9 @@ public class PdfServiceImpl implements PdfService {
 
 		// ⑦ 평균 주석 표시
 		CategoryTextAnnotation annotation = new CategoryTextAnnotation(
-			String.format("평균: %.1f", avgDelay),
-			(String) dataset.getColumnKey(0), // 첫 번째 바 위에 표시
-			avgDelay + 0.5                    // 살짝 위로
+				String.format("평균: %.1f", avgDelay),
+				(String) dataset.getColumnKey(0), // 첫 번째 바 위에 표시
+				avgDelay + 0.5                    // 살짝 위로
 		);
 		annotation.setFont(koreanFont.deriveFont(Font.BOLD));
 		annotation.setPaint(new Color(77, 145, 255));
