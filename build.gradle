@@ -103,6 +103,16 @@ dependencies {
 
 }
 
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE  // ✅ 이 줄 추가
+
+    from('src/main/resources') {
+        include 'static/**'
+        include 'fonts/**'
+        include 'templates/**'
+    }
+}
+
 tasks.named('test') {
     useJUnitPlatform()
 }
