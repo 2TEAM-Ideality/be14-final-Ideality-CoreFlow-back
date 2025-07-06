@@ -129,5 +129,13 @@ public class Work {
 	public void updateSlackTime(int slackTime) {
 		this.slackTime = slackTime;
 	}
+
+    public void updateStatusCancelled() {
+		this.status = Status.CANCELLED;
+    }
+
+	public void updatePending() {
+		this.status = Status.PENDING;
+	}
 }
 

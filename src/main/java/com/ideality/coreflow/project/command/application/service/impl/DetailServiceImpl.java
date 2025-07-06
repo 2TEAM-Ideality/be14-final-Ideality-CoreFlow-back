@@ -131,7 +131,7 @@ public class DetailServiceImpl implements DetailService {
             System.out.println("existingDetail.getDelayDays() = " + existingDetail.getDelayDays());
             Long newDelayDays = existingDetail.getDelayDays() + (newDuration - originalDuration);
             System.out.println("newDelayDays = " + Math.toIntExact(newDelayDays));
-            requestDetailDTO.setDelayDays(Math.toIntExact(newDelayDays));
+            requestDetailDTO.setDelayDays(Math.max(Math.toIntExact(newDelayDays), 0));
             System.out.println("requestDetailDTO = " + requestDetailDTO);
 //        }
 

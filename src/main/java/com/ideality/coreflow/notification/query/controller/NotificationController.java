@@ -8,18 +8,22 @@ import com.ideality.coreflow.notification.command.domain.aggregate.Notification;
 import com.ideality.coreflow.notification.command.domain.aggregate.Status;
 import com.ideality.coreflow.notification.query.dto.NotificationDTO;
 import com.ideality.coreflow.notification.query.service.NotificationQueryService;
+import com.ideality.coreflow.security.jwt.JwtProvider;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
@@ -35,6 +39,7 @@ import java.util.stream.Collectors;
 public class NotificationController {
 
     private final NotificationQueryService notificationQueryService;
+    private final JwtProvider jwtProvider;
 
     // SLF4J 로거 선언
     private static final Logger logger = LoggerFactory.getLogger(NotificationController.class);
@@ -59,21 +64,25 @@ public class NotificationController {
 
     @PreAuthorize("isAuthenticated()")  // 인증된 사용자만 접근 가능
     @GetMapping(value = "/api/notifications/stream", produces = "text/event-stream;charset=UTF-8")
-    public SseEmitter streamNotifications(@RequestParam("token") String token,
-                                          @RequestParam("lastNotificationId") Long lastNotificationId, // 클라이언트가 마지막 알림 ID를 전달
-                                          HttpServletResponse response) {
-
-        // 여기서 직접 UTF-8 설정
+    public SseEmitter streamNotifications(
+            @CookieValue(value = "accessToken", required = false) String token,
+            @RequestParam("lastNotificationId") Long lastNotificationId,
+            HttpServletResponse response
+    ) {
         response.setContentType("text/event-stream;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
 
-        // 로그에 token 값 출력
-        logger.info("Received token: {}", token);
-
+        logger.info("Received token from cookie: {}", token);
 
         if (token == null || token.isEmpty()) {
             logger.error("Token is null or empty!");
-            return new SseEmitter(0L); // 적절한 처리 (토큰이 없으면 401)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+
+        // TODO: 토큰 검증
+        String Id = jwtProvider.getUserId(token);
+        if (Id == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
         }
 
         SseEmitter emitter = new SseEmitter(60 * 60 * 1000L); // 1시간
