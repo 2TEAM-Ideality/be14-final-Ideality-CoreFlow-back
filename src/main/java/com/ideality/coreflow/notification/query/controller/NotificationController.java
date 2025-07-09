@@ -65,7 +65,7 @@ public class NotificationController {
     @PreAuthorize("isAuthenticated()")  // 인증된 사용자만 접근 가능
     @GetMapping(value = "/api/notifications/stream", produces = "text/event-stream;charset=UTF-8")
     public SseEmitter streamNotifications(
-            @CookieValue(value = "accessToken", required = false) String token,
+            @CookieValue(value = "refreshToken", required = false) String token,
             @RequestParam("lastNotificationId") Long lastNotificationId,
             HttpServletResponse response
     ) {
