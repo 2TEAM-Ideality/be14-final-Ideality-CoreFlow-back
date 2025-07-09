@@ -36,7 +36,8 @@ public class AuthController {
                 .httpOnly(true)
                 .path("/")
                 .maxAge(Duration.ofDays(7))
-                .sameSite("Strict")
+                .sameSite("None") // ✅ cross-origin 요청에서도 쿠키 허용
+                .secure(true) // ✅ 반드시 설정해야 SameSite=None 이 작동함
                 .build();
         response.setHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
